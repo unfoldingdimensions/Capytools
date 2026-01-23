@@ -199,110 +199,115 @@ export function ATSScoreContent() {
             </div>
 
             <div className="grid gap-8 lg:grid-cols-12">
-                {/* Left Column: Form / Selectors (col-span-4) */}
-                <div className="lg:col-span-4 space-y-6">
-                    {/* Job Selection */}
-                    <Card className="overflow-hidden border-black/[0.08] dark:border-white/[0.08] shadow-swiss">
-                        <CardHeader className="bg-muted/30 pb-4">
-                            <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Select Scope</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 pt-4 space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-foreground">Target Role</label>
-                                {isLoadingJobs ? (
-                                    <div className="h-10 w-full animate-pulse bg-muted rounded-xl" />
-                                ) : jobDescriptions.length === 0 ? (
-                                    <div className="p-4 rounded-xl border border-dashed text-center">
-                                        <p className="text-xs text-muted-foreground mb-2">No job descriptions found</p>
-                                        <Link href="/ai/job-description">
-                                            <Button size="xs" variant="outline">Parse New Job</Button>
-                                        </Link>
-                                    </div>
-                                ) : (
-                                    <select
-                                        value={selectedJobDescriptionId || ''}
-                                        onChange={(e) => {
-                                            setSelectedJobDescriptionId(e.target.value || null);
-                                            setScoreResult(null);
-                                            setError(null);
-                                        }}
-                                        className="w-full h-11 appearance-none rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-gray-50 dark:bg-gray-800/50 px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
-                                    >
-                                        <option value="">Choose a Job...</option>
-                                        {jobDescriptions.map((jd) => (
-                                            <option key={jd.id} value={jd.id}>{jd.title} at {jd.company}</option>
-                                        ))}
-                                    </select>
-                                )}
-                            </div>
+                {/* Left Column: Form / Selectors (col-span-4) - Hidden when showing results */}
+                {!scoreResult && (
+                    <div className="lg:col-span-4 space-y-6">
+                        {/* Job Selection */}
+                        <Card className="overflow-hidden border-black/[0.08] dark:border-white/[0.08] shadow-swiss">
+                            <CardHeader className="bg-muted/30 pb-4">
+                                <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Select Scope</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6 pt-4 space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-foreground">Target Role</label>
+                                    {isLoadingJobs ? (
+                                        <div className="h-10 w-full animate-pulse bg-muted rounded-xl" />
+                                    ) : jobDescriptions.length === 0 ? (
+                                        <div className="p-4 rounded-xl border border-dashed text-center">
+                                            <p className="text-xs text-muted-foreground mb-2">No job descriptions found</p>
+                                            <Link href="/ai/job-description">
+                                                <Button size="xs" variant="outline">Parse New Job</Button>
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            value={selectedJobDescriptionId || ''}
+                                            onChange={(e) => {
+                                                setSelectedJobDescriptionId(e.target.value || null);
+                                                setScoreResult(null);
+                                                setError(null);
+                                            }}
+                                            className="w-full h-11 appearance-none rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-gray-50 dark:bg-gray-800/50 px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
+                                        >
+                                            <option value="">Choose a Job...</option>
+                                            {jobDescriptions.map((jd) => (
+                                                <option key={jd.id} value={jd.id}>{jd.title} at {jd.company}</option>
+                                            ))}
+                                        </select>
+                                    )}
+                                </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-foreground">Your Resume</label>
-                                {isLoading ? (
-                                    <div className="h-10 w-full animate-pulse bg-muted rounded-xl" />
-                                ) : resumes.length === 0 ? (
-                                    <div className="p-4 rounded-xl border border-dashed text-center">
-                                        <p className="text-xs text-muted-foreground mb-2">No resumes found</p>
-                                        <Link href="/resume/new">
-                                            <Button size="xs" variant="outline">Create Resume</Button>
-                                        </Link>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {resumes.map((resume) => (
-                                            <div
-                                                key={resume.id}
-                                                onClick={() => !isScoring && setSelectedResumeId(resume.id)}
-                                                className={cn(
-                                                    "p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between group",
-                                                    selectedResumeId === resume.id
-                                                        ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10 ring-1 ring-brand-500"
-                                                        : "border-black/[0.08] dark:border-white/[0.08] hover:border-brand-200"
-                                                )}
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className={cn(
-                                                        "h-2 w-2 rounded-full transition-colors",
-                                                        selectedResumeId === resume.id ? "bg-brand-600Scale" : "bg-gray-200"
-                                                    )} />
-                                                    <span className="text-sm font-medium text-foreground truncate max-w-[150px]">{resume.title}</span>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-foreground">Your Resume</label>
+                                    {isLoading ? (
+                                        <div className="h-10 w-full animate-pulse bg-muted rounded-xl" />
+                                    ) : resumes.length === 0 ? (
+                                        <div className="p-4 rounded-xl border border-dashed text-center">
+                                            <p className="text-xs text-muted-foreground mb-2">No resumes found</p>
+                                            <Link href="/resume/new">
+                                                <Button size="xs" variant="outline">Create Resume</Button>
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {resumes.map((resume) => (
+                                                <div
+                                                    key={resume.id}
+                                                    onClick={() => !isScoring && setSelectedResumeId(resume.id)}
+                                                    className={cn(
+                                                        "p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between group",
+                                                        selectedResumeId === resume.id
+                                                            ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10 ring-1 ring-brand-500"
+                                                            : "border-black/[0.08] dark:border-white/[0.08] hover:border-brand-200"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={cn(
+                                                            "h-2 w-2 rounded-full transition-colors",
+                                                            selectedResumeId === resume.id ? "bg-brand-600Scale" : "bg-gray-200"
+                                                        )} />
+                                                        <span className="text-sm font-medium text-foreground truncate max-w-[150px]">{resume.title}</span>
+                                                    </div>
+                                                    {selectedResumeId === resume.id && <CheckCircle2 className="h-4 w-4 text-brand-600" />}
                                                 </div>
-                                                {selectedResumeId === resume.id && <CheckCircle2 className="h-4 w-4 text-brand-600" />}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                            <Button
-                                className="w-full h-12 rounded-xl bg-foreground text-background font-bold mt-4"
-                                disabled={!selectedJobDescriptionId || !selectedResumeId || isScoring}
-                                onClick={() => selectedResumeId && handleScoreResume(selectedResumeId)}
-                                loading={isScoring}
-                            >
-                                Calculate Match
-                            </Button>
-                        </CardContent>
-                    </Card>
+                                <Button
+                                    className="w-full h-12 rounded-xl bg-foreground text-background font-bold mt-4"
+                                    disabled={!selectedJobDescriptionId || !selectedResumeId || isScoring}
+                                    onClick={() => selectedResumeId && handleScoreResume(selectedResumeId)}
+                                    loading={isScoring}
+                                >
+                                    Calculate Match
+                                </Button>
+                            </CardContent>
+                        </Card>
 
-                    {/* How it works Mini */}
-                    <Card className="p-6 bg-brand-50 dark:bg-brand-900/10 border-brand-100 dark:border-brand-500/20">
-                        <div className="flex items-start gap-4">
-                            <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-brand-600 shadow-sm">
-                                <Sparkles className="h-5 w-5" />
+                        {/* How it works Mini */}
+                        <Card className="p-6 bg-brand-50 dark:bg-brand-900/10 border-brand-100 dark:border-brand-500/20">
+                            <div className="flex items-start gap-4">
+                                <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-brand-600 shadow-sm">
+                                    <Sparkles className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-foreground">AI Matcher</h4>
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                        Our AI analyzes formatting, key skills, and experience intensity to give you a realistic ATS pass probability.
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="text-sm font-bold text-foreground">AI Matcher</h4>
-                                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                    Our AI analyzes formatting, key skills, and experience intensity to give you a realistic ATS pass probability.
-                                </p>
-                            </div>
-                        </div>
-                    </Card>
-                </div>
+                        </Card>
+                    </div>
+                )}
 
-                {/* Right Column: Results / Lists (col-span-8) */}
-                <div className="lg:col-span-8 space-y-6">
+                {/* Right Column: Results / Lists (col-span-8) - Expand to full width when showing results */}
+                <div className={cn(
+                    "space-y-6",
+                    scoreResult ? "lg:col-span-12" : "lg:col-span-8"
+                )}>
                     {/* Error Display */}
                     {error && (
                         <Card className="border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20">
@@ -371,27 +376,6 @@ export function ATSScoreContent() {
                             </div>
 
                             <ATSScoringReport score={scoreResult} />
-
-                            {/* Dense Tips/Overview Card at bottom if needed */}
-                            <Card className="bg-zinc-900 text-white dark:bg-white dark:text-black p-6 rounded-[1.5rem] border-none shadow-xl overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700">
-                                    <Sparkles className="h-24 w-24" />
-                                </div>
-                                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                                    <div>
-                                        <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-50 mb-1">Strategic Advice</p>
-                                        <h4 className="text-xl font-display font-medium">Ready to reach 90%+?</h4>
-                                        <p className="text-xs text-white/60 dark:text-black/60 mt-1 max-w-sm">Use the optimizer to automatically inject the missing keywords into your bullet points with natural phrasing.</p>
-                                    </div>
-                                    {selectedResumeId && selectedJobDescriptionId && (
-                                        <Link href={`/resume/${selectedResumeId}?jobDescriptionId=${selectedJobDescriptionId}&tailoring=true`} className="w-full md:w-auto">
-                                            <Button className="w-full md:w-auto rounded-full bg-white text-black dark:bg-black dark:text-white font-bold h-12 px-8">
-                                                Optimize Now
-                                            </Button>
-                                        </Link>
-                                    )}
-                                </div>
-                            </Card>
                         </div>
                     ) : (
                         <div className="space-y-6">
