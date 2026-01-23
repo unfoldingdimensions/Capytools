@@ -136,14 +136,14 @@ export function EducationItem({
             variant={isExpanded ? "default" : "outlined"}
             className={cn(
                 "overflow-hidden transition-all duration-300",
-                isExpanded ? "shadow-lg ring-1 ring-brand-100" : "hover:border-brand-200"
+                isExpanded ? "shadow-lg ring-1 ring-zinc-200 dark:ring-zinc-800" : "hover:border-zinc-300 dark:hover:border-zinc-700"
             )}
         >
             {/* Header */}
             <div
                 className={cn(
                     "flex cursor-pointer items-center justify-between p-5 transition-colors",
-                    isExpanded ? "bg-brand-50/30 dark:bg-brand-950/30" : "hover:bg-gray-50/50 dark:hover:bg-gray-900/50"
+                    isExpanded ? "bg-zinc-50/50 dark:bg-zinc-900/50" : "hover:bg-zinc-50/30 dark:hover:bg-zinc-900/30"
                 )}
                 onClick={onToggleExpand}
             >
@@ -158,7 +158,7 @@ export function EducationItem({
                                 {education.field && <span className="text-muted-foreground font-normal"> in {education.field}</span>}
                             </h3>
                             {education.current && (
-                                <Badge variant="brand" size="sm" shape="pill">Currently Attending</Badge>
+                                <Badge variant="brand" size="sm" shape="pill" className="bg-zinc-900 text-white dark:bg-white dark:text-black">Currently Attending</Badge>
                             )}
                         </div>
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -189,7 +189,7 @@ export function EducationItem({
                     </Button>
                     <div className={cn(
                         "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-                        isExpanded ? "bg-brand-100 text-brand-600" : "text-gray-400"
+                        isExpanded ? "bg-zinc-900 text-white dark:bg-white dark:text-black" : "text-zinc-400"
                     )}>
                         {isExpanded ? (
                             <ChevronUp className="h-5 w-5" />
@@ -262,9 +262,9 @@ export function EducationItem({
                                             endDate: e.target.checked ? undefined : education.endDate
                                         });
                                     }}
-                                    className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                                    className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500"
                                 />
-                                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors tracking-wide uppercase">I am still studying here</span>
+                                <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors tracking-wide uppercase">I am still studying here</span>
                             </label>
                         </div>
                     </div>

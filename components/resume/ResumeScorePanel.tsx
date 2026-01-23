@@ -48,13 +48,8 @@ export function ResumeScorePanel({
                 )}
             >
                 <div className="flex items-center gap-2">
-                    <div className={cn(
-                        'w-2 h-2 rounded-full',
-                        color === 'green' && 'bg-emerald-500',
-                        color === 'yellow' && 'bg-amber-500',
-                        color === 'red' && 'bg-red-500',
-                    )} />
-                    <h3 className="text-sm font-semibold text-foreground">Resume Score</h3>
+                    <div className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white" />
+                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Resume Score</h3>
                 </div>
                 {collapsible && (
                     <ChevronDown
@@ -110,9 +105,9 @@ export function ResumeScorePanel({
                                 className="w-full flex items-center justify-between py-1 text-left"
                             >
                                 <div className="flex items-center gap-2">
-                                    <Lightbulb className="h-4 w-4 text-amber-500" />
-                                    <span className="text-xs font-medium text-muted-foreground">
-                                        Quick Tips
+                                    <Lightbulb className="h-4 w-4 text-zinc-900 dark:text-white" />
+                                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                        Optimization Path
                                     </span>
                                 </div>
                                 <ChevronDown
@@ -129,7 +124,7 @@ export function ResumeScorePanel({
                                             key={index}
                                             className="flex items-start gap-2 text-xs text-muted-foreground"
                                         >
-                                            <span className="text-amber-500 shrink-0">•</span>
+                                            <span className="text-zinc-900 dark:text-white font-bold shrink-0">•</span>
                                             <span>{tip}</span>
                                         </li>
                                     ))}

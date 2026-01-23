@@ -31,11 +31,7 @@ function getStatusIcon(status: ScoreDetail['status']) {
     }
 }
 
-function getBarColor(percentage: number) {
-    if (percentage >= 70) return 'bg-emerald-500';
-    if (percentage >= 40) return 'bg-amber-500';
-    return 'bg-red-500';
-}
+
 
 export function CategoryScoreCard({
     label,
@@ -67,25 +63,17 @@ export function CategoryScoreCard({
                 )}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-foreground">
+                        <span className="text-sm font-bold text-foreground">
                             {label}
                         </span>
-                        <span className={cn(
-                            'text-sm font-semibold',
-                            percentage >= 70 ? 'text-emerald-600 dark:text-emerald-400' :
-                                percentage >= 40 ? 'text-amber-600 dark:text-amber-400' :
-                                    'text-red-600 dark:text-red-400'
-                        )}>
+                        <span className="text-sm font-bold text-zinc-900 dark:text-white">
                             {percentage}%
                         </span>
                     </div>
                     {/* Progress bar */}
-                    <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                         <div
-                            className={cn(
-                                'h-full rounded-full transition-all duration-500 ease-out',
-                                getBarColor(percentage)
-                            )}
+                            className="h-full bg-zinc-900 dark:bg-white rounded-full transition-all duration-500 ease-out"
                             style={{ width: `${percentage}%` }}
                         />
                     </div>
@@ -110,9 +98,9 @@ export function CategoryScoreCard({
                         >
                             <span className={cn(
                                 'shrink-0 w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-bold',
-                                detail.status === 'success' && 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-                                detail.status === 'warning' && 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-                                detail.status === 'error' && 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
+                                detail.status === 'success' && 'bg-zinc-100 dark:bg-zinc-900/30 text-zinc-900 dark:text-white',
+                                detail.status === 'warning' && 'bg-zinc-100 dark:bg-zinc-900/30 text-zinc-500 dark:text-zinc-400',
+                                detail.status === 'error' && 'bg-zinc-100 dark:bg-zinc-900/30 text-zinc-400 dark:text-zinc-500',
                             )}>
                                 {getStatusIcon(detail.status)}
                             </span>

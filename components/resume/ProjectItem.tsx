@@ -170,14 +170,14 @@ export function ProjectItem({
             variant={isExpanded ? "default" : "outlined"}
             className={cn(
                 "overflow-hidden transition-all duration-300",
-                isExpanded ? "shadow-lg ring-1 ring-brand-100" : "hover:border-brand-200"
+                isExpanded ? "shadow-lg ring-1 ring-zinc-200 dark:ring-zinc-800" : "hover:border-zinc-300 dark:hover:border-zinc-700"
             )}
         >
             {/* Header */}
             <div
                 className={cn(
                     "flex cursor-pointer items-center justify-between p-5 transition-colors",
-                    isExpanded ? "bg-brand-50/30 dark:bg-brand-950/30" : "hover:bg-gray-50/50 dark:hover:bg-gray-900/50"
+                    isExpanded ? "bg-zinc-50/50 dark:bg-zinc-900/50" : "hover:bg-zinc-50/30 dark:hover:bg-zinc-900/30"
                 )}
                 onClick={onToggleExpand}
             >
@@ -219,7 +219,7 @@ export function ProjectItem({
                     </Button>
                     <div className={cn(
                         "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-                        isExpanded ? "bg-brand-100 text-brand-600" : "text-gray-400"
+                        isExpanded ? "bg-zinc-900 text-white dark:bg-white dark:text-black" : "text-zinc-400"
                     )}>
                         {isExpanded ? (
                             <ChevronUp className="h-5 w-5" />
@@ -288,12 +288,12 @@ export function ProjectItem({
                                 variant="outline"
                                 onClick={handleGenerateHighlights}
                                 disabled={aiLoading}
-                                className="rounded-full h-8 px-4 text-xs font-bold"
+                                className="rounded-full h-8 px-4 text-xs font-bold bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 border-none"
                             >
                                 {aiLoading ? (
                                     <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                                 ) : (
-                                    <Sparkles className="mr-2 h-3 w-3 text-brand-500" />
+                                    <Sparkles className="mr-2 h-3 w-3 text-white dark:text-black group-hover:rotate-12 transition-transform" />
                                 )}
                                 Auto-Generate Highlights
                             </Button>

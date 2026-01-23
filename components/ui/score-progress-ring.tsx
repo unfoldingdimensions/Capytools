@@ -25,26 +25,25 @@ const sizeConfig = {
 
 const colorConfig = {
     red: {
-        stroke: 'stroke-red-500',
-        bg: 'stroke-red-100 dark:stroke-red-950',
-        text: 'text-red-600 dark:text-red-400',
+        stroke: 'stroke-zinc-900 dark:stroke-white',
+        bg: 'stroke-zinc-100 dark:stroke-zinc-800',
+        text: 'text-zinc-900 dark:text-white',
     },
     yellow: {
-        stroke: 'stroke-amber-500',
-        bg: 'stroke-amber-100 dark:stroke-amber-950',
-        text: 'text-amber-600 dark:text-amber-400',
+        stroke: 'stroke-zinc-900 dark:stroke-white',
+        bg: 'stroke-zinc-100 dark:stroke-zinc-800',
+        text: 'text-zinc-900 dark:text-white',
     },
     green: {
-        stroke: 'stroke-emerald-500',
-        bg: 'stroke-emerald-100 dark:stroke-emerald-950',
-        text: 'text-emerald-600 dark:text-emerald-400',
+        stroke: 'stroke-zinc-900 dark:stroke-white',
+        bg: 'stroke-zinc-100 dark:stroke-zinc-800',
+        text: 'text-zinc-900 dark:text-white',
     },
 };
 
-function getAutoColor(score: number): 'red' | 'yellow' | 'green' {
-    if (score >= 70) return 'green';
-    if (score >= 40) return 'yellow';
-    return 'red';
+function getAutoColor(_score: number): 'red' | 'yellow' | 'green' {
+    // In monochrome mode, we use the same color config for all
+    return 'green';
 }
 
 export function ScoreProgressRing({

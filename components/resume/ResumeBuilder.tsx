@@ -226,19 +226,21 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                         )}
 
                         {isTailoringMode && jobDescription && (
-                            <div className="p-6 rounded-[1.5rem] bg-black text-white dark:bg-white dark:text-black shadow-swiss-hover">
+                            <div className="p-6 rounded-[1.5rem] bg-black text-white dark:bg-white dark:text-black shadow-swiss-hover group">
                                 <div className="flex items-start gap-3 mb-4">
-                                    <Sparkles className="h-5 w-5 text-brand-400 shrink-0" />
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 dark:bg-black/5">
+                                        <Sparkles className="h-5 w-5 text-white dark:text-black shrink-0 group-hover:rotate-12 transition-transform" />
+                                    </div>
                                     <div>
-                                        <p className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Tailoring For</p>
-                                        <p className="text-sm font-semibold line-clamp-2">{jobDescription.title}</p>
-                                        <p className="text-xs opacity-70 line-clamp-1">{jobDescription.company}</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mb-1">Tailoring For</p>
+                                        <p className="text-sm font-bold line-clamp-1">{jobDescription.title}</p>
+                                        <p className="text-xs opacity-50 line-clamp-1">{jobDescription.company}</p>
                                     </div>
                                 </div>
                                 <Button
                                     variant="outline"
                                     size="xs"
-                                    className="w-full rounded-full border-white/20 hover:bg-white/10 text-white dark:text-black dark:border-black/10"
+                                    className="w-full rounded-full border-white/20 hover:bg-white/10 text-white dark:text-black dark:border-black/10 font-bold"
                                     onClick={() => {
                                         setIsTailoringMode(false);
                                         setJobDescription(null);

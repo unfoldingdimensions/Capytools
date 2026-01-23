@@ -149,7 +149,7 @@ export function KeywordHeatmapPanel({
                                         onClick={() => {
                                             matchResult.missing.forEach(k => onAddToSkills(k));
                                         }}
-                                        className="text-xs text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+                                        className="text-xs text-zinc-900 dark:text-white hover:underline font-bold flex items-center gap-1"
                                     >
                                         <Plus className="h-3 w-3" />
                                         Add All
@@ -184,9 +184,9 @@ export function KeywordHeatmapPanel({
                                 className="w-full flex items-center justify-between py-1 text-left"
                             >
                                 <div className="flex items-center gap-2">
-                                    <Lightbulb className="h-4 w-4 text-amber-500" />
-                                    <span className="text-xs font-medium text-muted-foreground">
-                                        Add to Skills Section
+                                    <Lightbulb className="h-4 w-4 text-zinc-900 dark:text-white" />
+                                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                        Optimization Recommendations
                                     </span>
                                 </div>
                                 <ChevronDown

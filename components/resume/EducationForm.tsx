@@ -93,9 +93,9 @@ export default function EducationForm({
     return (
         <div className="space-y-6">
             {educationList.length === 0 ? (
-                <Card variant="outlined" className="p-12 border-dashed flex flex-col items-center text-center bg-gray-50/30">
-                    <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
-                        <GraduationCap className="h-8 w-8 text-brand-600" />
+                <Card variant="outlined" className="p-12 border-dashed flex flex-col items-center text-center bg-zinc-50/30 dark:bg-zinc-900/10">
+                    <div className="h-16 w-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                        <GraduationCap className="h-8 w-8 text-black dark:text-white" />
                     </div>
                     <h3 className="text-xl font-display font-bold text-foreground mb-2">No education added</h3>
                     <p className="text-muted-foreground max-w-xs mb-8">
@@ -103,8 +103,7 @@ export default function EducationForm({
                     </p>
                     <Button
                         onClick={handleAdd}
-                        variant="gradient"
-                        className="rounded-full px-8"
+                        className="rounded-full px-8 bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Education
@@ -131,9 +130,9 @@ export default function EducationForm({
                     <Button
                         onClick={handleAdd}
                         variant="outline"
-                        className="w-full h-12 rounded-xl border-dashed border-2 hover:bg-gray-50/50 hover:border-brand-500 transition-all"
+                        className="w-full h-12 rounded-xl border-dashed border-2 hover:bg-zinc-50/50 hover:border-black dark:hover:border-white transition-all font-bold"
                     >
-                        <Plus className="mr-2 h-4 w-4 text-brand-600" />
+                        <Plus className="mr-2 h-4 w-4 text-zinc-900 dark:text-white" />
                         Add Another Education
                     </Button>
                 </>

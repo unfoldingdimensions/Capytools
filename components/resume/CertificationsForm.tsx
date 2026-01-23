@@ -99,9 +99,9 @@ export default function CertificationsForm({
     return (
         <div className="space-y-6">
             {certifications.length === 0 ? (
-                <Card variant="outlined" className="p-12 border-dashed flex flex-col items-center text-center bg-gray-50/30">
-                    <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
-                        <Award className="h-8 w-8 text-brand-600" />
+                <Card variant="outlined" className="p-12 border-dashed flex flex-col items-center text-center bg-zinc-50/30 dark:bg-zinc-900/10">
+                    <div className="h-16 w-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                        <Award className="h-8 w-8 text-black dark:text-white" />
                     </div>
                     <h3 className="text-xl font-display font-bold text-foreground mb-2">No certifications yet</h3>
                     <p className="text-muted-foreground max-w-xs mb-8">
@@ -109,8 +109,7 @@ export default function CertificationsForm({
                     </p>
                     <Button
                         onClick={handleAdd}
-                        variant="gradient"
-                        className="rounded-full px-8"
+                        className="rounded-full px-8 bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Certification
@@ -125,14 +124,14 @@ export default function CertificationsForm({
                                 variant={expandedIndex === index ? "default" : "outlined"}
                                 className={cn(
                                     "overflow-hidden transition-all duration-300",
-                                    expandedIndex === index ? "shadow-lg ring-1 ring-brand-100" : "hover:border-brand-200"
+                                    expandedIndex === index ? "shadow-lg ring-1 ring-zinc-200 dark:ring-zinc-800" : "hover:border-zinc-300 dark:hover:border-zinc-700"
                                 )}
                             >
                                 {/* Header */}
                                 <div
                                     className={cn(
                                         "flex cursor-pointer items-center justify-between p-5 transition-colors",
-                                        expandedIndex === index ? "bg-brand-50/30" : "hover:bg-gray-50/50"
+                                        expandedIndex === index ? "bg-zinc-50/50 dark:bg-zinc-900/50" : "hover:bg-zinc-50/30 dark:hover:bg-zinc-900/30"
                                     )}
                                     onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
                                 >
@@ -170,7 +169,7 @@ export default function CertificationsForm({
                                         </Button>
                                         <div className={cn(
                                             "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-                                            expandedIndex === index ? "bg-brand-100 text-brand-600" : "text-gray-400"
+                                            expandedIndex === index ? "bg-zinc-900 text-white dark:bg-white dark:text-black" : "text-zinc-400"
                                         )}>
                                             {expandedIndex === index ? (
                                                 <ChevronUp className="h-5 w-5" />
@@ -241,9 +240,9 @@ export default function CertificationsForm({
                     <Button
                         onClick={handleAdd}
                         variant="outline"
-                        className="w-full h-12 rounded-xl border-dashed border-2 hover:bg-gray-50/50 hover:border-brand-500 transition-all"
+                        className="w-full h-12 rounded-xl border-dashed border-2 hover:bg-zinc-50/50 hover:border-black dark:hover:border-white transition-all font-bold"
                     >
-                        <Plus className="mr-2 h-4 w-4 text-brand-600" />
+                        <Plus className="mr-2 h-4 w-4 text-zinc-900 dark:text-white" />
                         Add Another Certification
                     </Button>
                 </>

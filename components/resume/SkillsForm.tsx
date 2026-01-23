@@ -194,7 +194,7 @@ export default function SkillsForm({
     return (
         <div className="space-y-8">
             {/* Category Input */}
-            <Card variant="outlined" className="p-6 bg-gray-50/50 border-dashed">
+            <Card variant="outlined" className="p-6 bg-zinc-50/50 dark:bg-zinc-900/10 border-dashed">
                 <div className="flex flex-col md:flex-row gap-4 items-end">
                     <div className="flex-1 w-full">
                         <FloatingLabelInput
@@ -208,9 +208,8 @@ export default function SkillsForm({
                     </div>
                     <Button
                         onClick={handleAddCategory}
-                        variant="brand"
                         size="lg"
-                        className="rounded-xl h-[52px] px-6"
+                        className="rounded-xl h-[52px] px-6 bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                     >
                         Create Category
                     </Button>
@@ -226,18 +225,18 @@ export default function SkillsForm({
                     </div>
                 ) : (
                     skills.map((s) => (
-                        <Card key={s.id || s.category} className="group overflow-hidden border-none shadow-sm bg-white ring-1 ring-gray-100 hover:ring-brand-200 transition-all duration-300">
-                            <div className="p-5 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
+                        <Card key={s.id || s.category} className="group overflow-hidden border-none shadow-sm bg-white dark:bg-zinc-950 ring-1 ring-zinc-100 dark:ring-zinc-800 hover:ring-zinc-300 dark:hover:ring-zinc-600 transition-all duration-300">
+                            <div className="p-5 border-b border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <div className="h-2 w-2 rounded-full bg-brand-500" />
+                                    <div className="h-2 w-2 rounded-full bg-zinc-900 dark:bg-white" />
                                     <h3 className="font-display font-bold text-foreground uppercase tracking-wider text-xs">{s.category}</h3>
-                                    <Badge variant="secondary" size="sm" className="ml-2 bg-white">{s.skills.length}</Badge>
+                                    <Badge variant="secondary" size="sm" className="ml-2 bg-white dark:bg-zinc-800 dark:text-zinc-300">{s.skills.length}</Badge>
                                 </div>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => handleDeleteCategory(s.category)}
-                                    className="h-7 w-7 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                                    className="h-7 w-7 rounded-full text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all"
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>
@@ -253,12 +252,12 @@ export default function SkillsForm({
                                             <Badge
                                                 key={idx}
                                                 variant="outline"
-                                                className="pl-3 pr-1 py-1 gap-1.5 rounded-full border-gray-200 bg-white group/skill hover:border-brand-300 hover:bg-brand-50/30 transition-all"
+                                                className="pl-3 pr-1 py-1 gap-1.5 rounded-full border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 group/skill hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all font-bold"
                                             >
-                                                <span className="text-xs font-semibold text-gray-700">{skill}</span>
+                                                <span className="text-xs text-zinc-700 dark:text-zinc-300">{skill}</span>
                                                 <button
                                                     onClick={() => handleDeleteSkill(s.category, skill)}
-                                                    className="w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                                    className="w-5 h-5 flex items-center justify-center rounded-full text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                                 >
                                                     <X className="h-3 w-3" />
                                                 </button>
@@ -279,14 +278,14 @@ export default function SkillsForm({
                                                 })
                                             }
                                             placeholder={`Add a skill to ${s.category}...`}
-                                            className="w-full h-10 px-4 bg-gray-50/50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition-all"
+                                            className="w-full h-10 px-4 bg-zinc-50/50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 dark:focus:ring-white/5 focus:bg-white dark:focus:bg-zinc-900 transition-all"
                                             onKeyDown={(e) => e.key === 'Enter' && handleAddSkill(s.category)}
                                         />
                                     </div>
                                     <Button
                                         size="icon"
                                         onClick={() => handleAddSkill(s.category)}
-                                        className="h-10 w-10 rounded-xl"
+                                        className="h-10 w-10 rounded-xl bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                                     >
                                         <Plus className="h-4 w-4" />
                                     </Button>
@@ -301,7 +300,7 @@ export default function SkillsForm({
             {jobDescription && jobDescriptionId && (
                 <div className="pt-4">
                     <div className="flex items-center gap-2 mb-4 px-2">
-                        <Sparkles className="h-4 w-4 text-brand-600" />
+                        <Sparkles className="h-4 w-4 text-zinc-900 dark:text-white" />
                         <h4 className="text-sm font-bold text-foreground uppercase tracking-widest">AI Power Tools</h4>
                     </div>
                     <SuggestionCard

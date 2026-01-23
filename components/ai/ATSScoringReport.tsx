@@ -176,7 +176,7 @@ export default function ATSScoringReport({ score, resumeId, jobDescriptionId }: 
                             </p>
                         </div>
                         {resumeId && jobDescriptionId && (
-                            <Link href={`/ai/tailor-resume?resumeId=${resumeId}&jobDescriptionId=${jobDescriptionId}`} className="w-full lg:w-auto">
+                            <Link href={`/resume/${resumeId}?jobDescriptionId=${jobDescriptionId}&tailoring=true`} className="w-full lg:w-auto">
                                 <Button size="xl" className="w-full lg:w-auto h-16 px-10 rounded-2xl bg-white text-black hover:bg-zinc-200 dark:bg-black dark:text-white dark:hover:bg-zinc-800 text-lg font-bold shadow-xl">
                                     Launch AI Optimizer
                                 </Button>
