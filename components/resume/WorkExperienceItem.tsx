@@ -1,0 +1,362 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { FloatingLabelInput } from '@/components/ui/floating-label-input';
+import {
+    GripVertical,
+    Trash2,
+    ChevronDown,
+    ChevronUp,
+    Sparkles,
+    Loader2,
+    Building2,
+    Briefcase,
+    MapPin,
+    Calendar
+} from 'lucide-react';
+import type { WorkExperience } from '@/types/resume.types';
+import { BulletPointEditor } from './BulletPointEditor';
+import SuggestionCard from './SuggestionCard';
+import { AIService } from '@/lib/services/ai.service';
+import { AlertDialog } from '@/components/ui/AlertDialog';
+import { cn } from '@/lib/utils/cn';
+
+interface JobDescription {
+    id: string;
+    title: string;
+    company: string;
+    description: string;
+    requirements: string[];
+    responsibilities: string[];
+    keywords: string[];
+}
+
+interface WorkExperienceItemProps {
+    experience: WorkExperience;
+    isExpanded: boolean;
+    onToggleExpand: () => void;
+    onUpdate: (updatedExp: WorkExperience) => void;
+    onDelete: () => void;
+    jobDescription?: JobDescription | null;
+    jobDescriptionId?: string | null;
+    resumeId?: string;
+}
+
+export function WorkExperienceItem({
+    experience,
+    isExpanded,
+    onToggleExpand,
+    onUpdate,
+    onDelete,
+    jobDescription,
+    jobDescriptionId,
+    resumeId,
+}: WorkExperienceItemProps) {
+    const [aiLoading, setAiLoading] = useState<boolean>(false);
+    const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
+    const [tailoringSuggestions, setTailoringSuggestions] = useState<{ achievements: string[]; tips: string[] } | null>(null);
+
+    const [alertModal, setAlertModal] = useState<{
+        show: boolean;
+        title: string;
+        message: string;
+        type: 'success' | 'error' | 'info';
+    }>({ show: false, title: '', message: '', type: 'info' });
+
+    const handleChange = (field: keyof WorkExperience, value: unknown) => {
+        onUpdate({ ...experience, [field]: value });
+    };
+
+    const handleGenerateBullets = async () => {
+        if (!experience.description || experience.description.trim().length === 0) {
+            setAlertModal({
+                show: true,
+                title: 'Description Required',
+                message: 'Please enter a description first to generate bullet points.',
+                type: 'info',
+            });
+            return;
+        }
+
+        setAiLoading(true);
+        try {
+            const result = await AIService.generateBulletPoints(experience.description, {
+                role: experience.position,
+                company: experience.company,
+                count: 5
+            });
+
+            onUpdate({ ...experience, achievements: [...experience.achievements, ...result.bulletPoints] });
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to generate bullet points: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    const handleGenerateTailoringSuggestions = async () => {
+        if (!jobDescriptionId || !resumeId) {
+            setAlertModal({
+                show: true,
+                title: 'Tailoring Unavailable',
+                message: 'Job description information is missing',
+                type: 'info',
+            });
+            return;
+        }
+
+        if (!experience.company || !experience.position) {
+            setAlertModal({
+                show: true,
+                title: 'Missing Information',
+                message: 'Please fill in company and position before generating suggestions',
+                type: 'info',
+            });
+            return;
+        }
+
+        setSuggestionLoading(true);
+        try {
+            const response = await fetch('/api/ai/tailor-section', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resumeId,
+                    jobDescriptionId,
+                    section: 'workExperience',
+                    sectionData: experience,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'Failed to generate suggestions');
+            }
+
+            setTailoringSuggestions(data.data.suggestions);
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to generate suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        } finally {
+            setSuggestionLoading(false);
+        }
+    };
+
+    const handleApplyTailoringSuggestions = (suggestions: string[]) => {
+        onUpdate({ ...experience, achievements: [...experience.achievements, ...suggestions] });
+        setAlertModal({
+            show: true,
+            title: 'Success',
+            message: 'AI suggestions applied successfully!',
+            type: 'success',
+        });
+    };
+
+    return (
+        <Card
+            variant={isExpanded ? "default" : "outlined"}
+            className={cn(
+                "overflow-hidden transition-all duration-300",
+                isExpanded ? "shadow-lg ring-1 ring-brand-100" : "hover:border-brand-200"
+            )}
+        >
+            {/* Header */}
+            <div
+                className={cn(
+                    "flex cursor-pointer items-center justify-between p-5 transition-colors",
+                    isExpanded ? "bg-brand-50/30" : "hover:bg-gray-50/50"
+                )}
+                onClick={onToggleExpand}
+            >
+                <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                        <GripVertical className="h-5 w-5 text-gray-300 hover:text-gray-400" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-display font-bold text-gray-900">
+                                {experience.position || 'Untitled Position'}
+                            </h3>
+                            {experience.current && (
+                                <Badge variant="success" size="sm" shape="pill">Current</Badge>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                                <Building2 className="h-3.5 w-3.5" />
+                                {experience.company || 'Company'}
+                            </span>
+                            {(experience.startDate || experience.endDate) && (
+                                <span className="flex items-center gap-1">
+                                    <Calendar className="h-3.5 w-3.5" />
+                                    {experience.startDate || '...'} — {experience.current ? 'Present' : experience.endDate || '...'}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghostSubtle"
+                        size="icon"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete();
+                        }}
+                        className="text-gray-400 hover:text-red-500 rounded-full h-9 w-9"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                        isExpanded ? "bg-brand-100 text-brand-600" : "text-gray-400"
+                    )}>
+                        {isExpanded ? (
+                            <ChevronUp className="h-5 w-5" />
+                        ) : (
+                            <ChevronDown className="h-5 w-5" />
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Expanded Content */}
+            {isExpanded && (
+                <div className="p-6 space-y-8 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <FloatingLabelInput
+                            label="Job Title"
+                            value={experience.position}
+                            onChange={(e) => handleChange('position', e.target.value)}
+                            leftIcon={<Briefcase className="h-4 w-4" />}
+                            placeholder="e.g. Senior Software Engineer"
+                        />
+                        <FloatingLabelInput
+                            label="Company"
+                            value={experience.company}
+                            onChange={(e) => handleChange('company', e.target.value)}
+                            leftIcon={<Building2 className="h-4 w-4" />}
+                            placeholder="e.g. Acme Corp"
+                        />
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-3">
+                        <FloatingLabelInput
+                            label="Location"
+                            value={experience.location || ''}
+                            onChange={(e) => handleChange('location', e.target.value)}
+                            leftIcon={<MapPin className="h-4 w-4" />}
+                            placeholder="e.g. San Francisco, CA"
+                            className="md:col-span-1"
+                        />
+                        <FloatingLabelInput
+                            label="Start Date"
+                            value={experience.startDate}
+                            onChange={(e) => handleChange('startDate', e.target.value)}
+                            type="month"
+                            leftIcon={<Calendar className="h-4 w-4" />}
+                        />
+                        <div className="space-y-2">
+                            <FloatingLabelInput
+                                label="End Date"
+                                value={experience.endDate || ''}
+                                onChange={(e) => handleChange('endDate', e.target.value)}
+                                type="month"
+                                disabled={experience.current}
+                                leftIcon={<Calendar className="h-4 w-4" />}
+                            />
+                            <label className="flex items-center gap-2 px-1 cursor-pointer group">
+                                <input
+                                    type="checkbox"
+                                    checked={experience.current}
+                                    onChange={(e) => {
+                                        onUpdate({
+                                            ...experience,
+                                            current: e.target.checked,
+                                            endDate: e.target.checked ? undefined : experience.endDate
+                                        });
+                                    }}
+                                    className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                                />
+                                <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700 transition-colors tracking-wide uppercase">I currently work here</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Role Description</label>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={handleGenerateBullets}
+                                disabled={aiLoading}
+                                className="rounded-full h-8 px-4 text-xs font-bold"
+                            >
+                                {aiLoading ? (
+                                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                ) : (
+                                    <Sparkles className="mr-2 h-3 w-3 text-brand-500" />
+                                )}
+                                Auto-Generate Bullets
+                            </Button>
+                        </div>
+                        <Textarea
+                            value={experience.description}
+                            onChange={(e) => handleChange('description', e.target.value)}
+                            placeholder="Briefly describe your core responsibilities and team context..."
+                            className="min-h-[100px] bg-gray-50/50 border-gray-200 focus:bg-white transition-all resize-none"
+                        />
+                        <p className="text-[11px] text-gray-400 italic">
+                            Tip: Describe what you did in plain text, then use the button above to transform it into professional bullet points.
+                        </p>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100">
+                        <BulletPointEditor
+                            bullets={experience.achievements}
+                            onChange={(bullets) => handleChange('achievements', bullets)}
+                            context={{ role: experience.position, company: experience.company }}
+                        />
+                    </div>
+
+                    {jobDescription && jobDescriptionId && (
+                        <div className="mt-8">
+                            <SuggestionCard
+                                title="Tailoring Recommendations"
+                                suggestions={tailoringSuggestions?.achievements || []}
+                                tips={tailoringSuggestions?.tips || []}
+                                isLoading={suggestionLoading}
+                                onGenerate={handleGenerateTailoringSuggestions}
+                                onApply={handleApplyTailoringSuggestions}
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <AlertDialog
+                isOpen={alertModal.show}
+                title={alertModal.title}
+                message={alertModal.message}
+                type={alertModal.type}
+                onClose={() => setAlertModal({ ...alertModal, show: false })}
+            />
+        </Card>
+    );
+}

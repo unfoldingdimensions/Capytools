@@ -1,0 +1,50 @@
+# Resume Builder - Cursor Rules
+You are building a resume builder SaaS platform.
+
+## Tech Stack
+- Frontend: Next.js 15, React 19, TypeScript, Tailwind CSS, Redux Toolkit
+- Backend: Express.js, TypeScript, Prisma ORM
+- Database: PostgreSQL (Neon)
+- Cache: Upstash Redis
+- Auth: Clerk
+- Payments: Stripe + Razorpay
+- AI: OpenAI GPT-4
+- Storage: Supabase Storage
+- Deployment: Vercel
+
+## Architecture Principles
+- Use TypeScript strictly (no `any` types)
+- Implement AES-256 encryption for sensitive data
+- All API routes must have rate limiting
+- Follow Prisma ORM for all DB queries
+- Use Redux for credit/payment state management
+- Implement input validation with Zod
+
+## Security Requirements
+- Password hashing with Argon2
+- JWT tokens with httpOnly cookies
+- HTTPS/TLS for all connections
+- Data encryption at rest (AES-256)
+- Sanitize all file uploads
+
+## API Conventions
+- Use TypeScript types for all endpoints
+- Return structured error responses
+- Implement proper HTTP status codes
+- Add request logging for security audits
+
+## File Structure
+- /pages for Next.js routes
+- /pages/api for backend API
+- /components for React components
+- /lib for utilities
+- /prisma for database schema
+- /middleware for authentication
+
+
+## Error Handling & Logging
+**Critical Rule: NO silent fallbacks, NO graceful degradation that masks underlying issues.
+- NEVER use fallback data that could hide the real problem
+- ALWAYS raise an exception with detailed context
+- ALWAYS log the full error with all relevant parameters
+- ALWAYS make the failure obvious to the developer
