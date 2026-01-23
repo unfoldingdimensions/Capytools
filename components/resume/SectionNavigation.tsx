@@ -38,26 +38,19 @@ export function SectionNavigation({ activeSection, setActiveSection, completedSe
                         key={item.id}
                         onClick={() => setActiveSection(item.id)}
                         className={cn(
-                            "group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium",
+                            "group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-300 text-sm font-medium",
                             isActive
-                                ? "bg-brand-50 text-brand-700 shadow-sm shadow-brand-100/50"
-                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                                ? "bg-black text-white dark:bg-white dark:text-black shadow-lg shadow-gray-200 dark:shadow-none translate-x-1"
+                                : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
                         )}
                     >
-                        <div className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
-                            isActive
-                                ? "bg-brand-600 text-white"
-                                : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
-                        )}>
-                            <Icon className="h-4 w-4" />
-                        </div>
+                        <Icon className={cn("h-4 w-4", isActive ? "text-white dark:text-black" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300")} />
                         <span className="flex-1 text-left">{item.label}</span>
                         {isCompleted && (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                            <CheckCircle2 className={cn("h-4 w-4", isActive ? "text-white/50 dark:text-black/50" : "text-emerald-500")} />
                         )}
                         {isActive && (
-                            <div className="h-1.5 w-1.5 rounded-full bg-brand-600" />
+                            <div className="h-1.5 w-1.5 rounded-full bg-white dark:bg-black" />
                         )}
                     </button>
                 );

@@ -69,6 +69,10 @@ const config: Config = {
                 sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
                 display: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
             },
+            boxShadow: {
+                'swiss': 'var(--shadow-swiss)',
+                'swiss-hover': '0 20px 40px -8px rgba(0, 0, 0, 0.1)',
+            },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
                 'accordion-up': 'accordion-up 0.2s ease-out',

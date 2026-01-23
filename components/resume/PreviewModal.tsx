@@ -10,9 +10,10 @@ interface PreviewModalProps {
     data: ResumeData;
     resumeTitle: string;
     onDownload: () => void;
+    template?: string;
 }
 
-export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload }: PreviewModalProps) {
+export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, template }: PreviewModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -61,7 +62,7 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload }:
             {/* Scrollable Preview Area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-12">
                 <div className="mx-auto max-w-4xl animate-in slide-in-from-bottom-8 duration-500">
-                    <ResumePreview data={data} />
+                    <ResumePreview data={data} template={template} />
                 </div>
             </div>
 

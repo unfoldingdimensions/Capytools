@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
+import { MonthPicker } from '@/components/ui/month-picker';
 import {
     GripVertical,
     Trash2,
@@ -236,19 +237,17 @@ export function EducationItem({
                             leftIcon={<MapPin className="h-4 w-4" />}
                             placeholder="e.g. Stanford, CA"
                         />
-                        <FloatingLabelInput
+                        <MonthPicker
                             label="Start Date"
                             value={education.startDate || ''}
-                            onChange={(e) => handleChange('startDate', e.target.value)}
-                            type="month"
+                            onChange={(val) => handleChange('startDate', val)}
                             leftIcon={<Calendar className="h-4 w-4" />}
                         />
                         <div className="space-y-2">
-                            <FloatingLabelInput
+                            <MonthPicker
                                 label="End Date"
                                 value={education.endDate || ''}
-                                onChange={(e) => handleChange('endDate', e.target.value)}
-                                type="month"
+                                onChange={(val) => handleChange('endDate', val)}
                                 disabled={education.current}
                                 leftIcon={<Calendar className="h-4 w-4" />}
                             />

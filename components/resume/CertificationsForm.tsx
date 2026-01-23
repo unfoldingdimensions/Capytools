@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
+import { MonthPicker } from '@/components/ui/month-picker';
 import {
     Plus,
     Trash2,
@@ -201,18 +202,16 @@ export default function CertificationsForm({
                                         </div>
 
                                         <div className="grid gap-6 md:grid-cols-2">
-                                            <FloatingLabelInput
+                                            <MonthPicker
                                                 label="Issue Date"
-                                                type="month"
                                                 value={cert.issueDate}
-                                                onChange={(e) => handleUpdate(index, 'issueDate', e.target.value)}
+                                                onChange={(val) => handleUpdate(index, 'issueDate', val)}
                                                 leftIcon={<Calendar className="h-4 w-4" />}
                                             />
-                                            <FloatingLabelInput
+                                            <MonthPicker
                                                 label="Expiry Date (if applicable)"
-                                                type="month"
                                                 value={cert.expiryDate || ''}
-                                                onChange={(e) => handleUpdate(index, 'expiryDate', e.target.value)}
+                                                onChange={(val) => handleUpdate(index, 'expiryDate', val)}
                                                 leftIcon={<Calendar className="h-4 w-4" />}
                                             />
                                         </div>

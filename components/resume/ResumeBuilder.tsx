@@ -17,7 +17,7 @@ import { TailoringContext } from '@/store/TailoringProvider';
 import { ResumeProvider } from '@/context/ResumeContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { SectionNavigation } from './SectionNavigation';
-import { Card } from '@/components/ui/card';
+
 import { Badge } from '@/components/ui/badge';
 import {
     setTitle,
@@ -58,8 +58,9 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
     const { resumeData: loadedResumeData, isLoading, title: loadedTitle } = useResumeLoader(resumeId);
     const { saveResume, isSaving } = useResumeSaver(resumeId);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
     const [lastSaved, setLastSaved] = useState<string | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState('modern-indigo');
 
     const completedSections = useMemo(() => {
         const completed = [];
@@ -91,8 +92,17 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                 title: loadedTitle || 'Untitled Resume',
                 data: loadedResumeData
             }));
+            // Save as last active resume
+            localStorage.setItem('lastActiveResumeId', resumeId);
         }
     }, [loadedResumeData, loadedTitle, resumeId, dispatch]);
+
+    useEffect(() => {
+        const savedTemplate = localStorage.getItem('selectedTemplate');
+        if (savedTemplate) {
+            setSelectedTemplate(savedTemplate);
+        }
+    }, []);
 
     const handleSave = async () => {
         const resumeState = {
@@ -112,7 +122,6 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
             return;
         }
 
-        setDownloadingId(resumeId);
         try {
             const response = await fetch('/api/resumes/export', {
                 method: 'POST',
@@ -142,17 +151,15 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         } catch (err) {
             console.error('Download error:', err);
             alert(err instanceof Error ? err.message : 'Failed to export resume');
-        } finally {
-            setDownloadingId(null);
         }
     };
 
     if (isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
+            <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
                 <div className="flex flex-col items-center gap-4">
                     <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-                    <p className="text-gray-500 font-medium animate-pulse">Loading your resume...</p>
+                    <p className="text-muted-foreground font-medium animate-pulse">Loading your resume...</p>
                 </div>
             </div>
         );
@@ -160,90 +167,90 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
 
     return (
         <ResumeProvider resumeId={resumeId}>
-            <div className="min-h-screen bg-[#FDFDFF]">
-                {/* Modern Header */}
-                <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-                    <div className="container mx-auto px-4">
-                        <div className="flex h-16 items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <Button
-                                    variant="ghostSubtle"
-                                    size="icon"
-                                    className="rounded-full"
-                                    onClick={() => router.push('/dashboard')}
-                                >
-                                    <ChevronLeft className="h-5 w-5" />
-                                </Button>
-                                <div className="h-8 w-[1px] bg-gray-200 mx-1" />
-                                <div className="flex flex-col min-w-[200px]">
-                                    <Input
-                                        id="title"
-                                        value={title}
-                                        onChange={(e) => dispatch(setTitle(e.target.value))}
-                                        placeholder="Enter resume title..."
-                                        className="h-9 border-none bg-transparent px-0 font-display font-bold text-lg focus-visible:ring-0 placeholder:text-gray-400"
-                                    />
-                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-                                        {lastSaved ? `Last saved: ${lastSaved}` : 'Changes not saved'}
-                                    </p>
-                                </div>
+            <div className="min-h-screen bg-[#FDFDFF] dark:bg-gray-950">
+                {/* Swiss Builder Header */}
+                <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
+                    <div className="container mx-auto px-6 h-20 flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                                onClick={() => router.push('/dashboard')}
+                            >
+                                <ChevronLeft className="h-5 w-5" />
+                            </Button>
+                            <div className="flex flex-col">
+                                <Input
+                                    id="title"
+                                    value={title}
+                                    onChange={(e) => dispatch(setTitle(e.target.value))}
+                                    placeholder="Untitled Resume"
+                                    className="h-8 border-none bg-transparent px-0 font-display font-medium text-xl focus-visible:ring-0 placeholder:text-muted-foreground/50 text-foreground w-[300px]"
+                                />
+                                <p className="text-xs text-muted-foreground font-medium">
+                                    {lastSaved ? `Saved ${lastSaved}` : 'Unsaved changes'}
+                                </p>
                             </div>
+                        </div>
 
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghostSubtle" className="rounded-full hidden sm:flex">
-                                    <Layout className="mr-2 h-4 w-4" />
-                                    Templates
-                                </Button>
-                                <Button
-                                    variant="ghostSubtle"
-                                    className="rounded-full hidden sm:flex"
-                                    onClick={() => setIsPreviewOpen(true)}
-                                >
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Preview
-                                </Button>
-                                <Button
-                                    variant="gradient"
-                                    size="default"
-                                    className="rounded-full px-6 shadow-md shadow-brand-200"
-                                    onClick={handleSave}
-                                    disabled={isSaving}
-                                    loading={isSaving}
-                                >
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Save Changes
-                                </Button>
-                            </div>
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="ghost"
+                                className="hidden sm:flex rounded-full text-muted-foreground hover:text-foreground"
+                                onClick={() => router.push('/templates')}
+                            >
+                                <Layout className="mr-2 h-4 w-4" />
+                                Templates
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                className="rounded-full hidden sm:flex bg-gray-100 dark:bg-gray-800 text-foreground hover:bg-gray-200 dark:hover:bg-gray-700 border-none"
+                                onClick={() => setIsPreviewOpen(true)}
+                            >
+                                <Eye className="mr-2 h-4 w-4" />
+                                Preview
+                            </Button>
+                            <Button
+                                size="lg"
+                                className="rounded-full px-8 font-bold bg-foreground text-background hover:bg-foreground/90 shadow-none"
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                loading={isSaving}
+                            >
+                                <Save className="mr-2 h-4 w-4" />
+                                Save
+                            </Button>
                         </div>
                     </div>
                 </header>
 
                 <main className="container mx-auto px-4 py-8">
                     <div className="flex flex-col lg:flex-row gap-8 items-start">
-                        {/* Sidebar Navigation */}
-                        <aside className="w-full lg:w-64 lg:sticky lg:top-24">
-                            <Card className="p-2 border-none shadow-sm bg-white/50 backdrop-blur">
+                        {/* Sidebar Navigation - Detached & Transparent */}
+                        <aside className="w-full lg:w-72 lg:sticky lg:top-28 space-y-6">
+                            <div className="px-2">
                                 <SectionNavigation
                                     activeSection={activeSection}
                                     setActiveSection={setActiveSection}
                                     completedSections={completedSections}
                                 />
-                            </Card>
+                            </div>
 
                             {isTailoringMode && jobDescription && (
-                                <Card className="mt-6 p-4 bg-brand-50 border-brand-100 border-none shadow-sm">
-                                    <div className="flex items-start gap-3">
-                                        <Sparkles className="h-5 w-5 text-brand-600 shrink-0" />
+                                <div className="p-6 rounded-[1.5rem] bg-black text-white dark:bg-white dark:text-black shadow-swiss-hover">
+                                    <div className="flex items-start gap-3 mb-4">
+                                        <Sparkles className="h-5 w-5 text-brand-400 shrink-0" />
                                         <div>
-                                            <p className="text-xs font-bold text-brand-700 uppercase tracking-wider mb-1">Tailoring For</p>
-                                            <p className="text-sm font-semibold text-brand-900 line-clamp-1">{jobDescription.title}</p>
-                                            <p className="text-xs text-brand-600 line-clamp-1">{jobDescription.company}</p>
+                                            <p className="text-xs font-bold uppercase tracking-wider opacity-70 mb-1">Tailoring For</p>
+                                            <p className="text-sm font-semibold line-clamp-2">{jobDescription.title}</p>
+                                            <p className="text-xs opacity-70 line-clamp-1">{jobDescription.company}</p>
                                         </div>
                                     </div>
                                     <Button
-                                        variant="ghostSubtle"
+                                        variant="outline"
                                         size="xs"
-                                        className="w-full mt-4 text-brand-700 hover:bg-brand-100"
+                                        className="w-full rounded-full border-white/20 hover:bg-white/10 text-white dark:text-black dark:border-black/10"
                                         onClick={() => {
                                             setIsTailoringMode(false);
                                             setJobDescription(null);
@@ -252,17 +259,17 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                         <X className="mr-1 h-3 w-3" />
                                         Exit Mode
                                     </Button>
-                                </Card>
+                                </div>
                             )}
                         </aside>
 
-                        {/* Form Area */}
+                        {/* Form Area - Bento Card */}
                         <div className="flex-1 w-full max-w-4xl">
-                            <Card className="p-8 border-none shadow-xl shadow-gray-200/50 min-h-[600px] animate-fade-in">
+                            <div className="p-8 md:p-12 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss min-h-[600px]">
                                 {activeSection === 'personal' && (
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-display font-bold text-gray-900 leading-none">
+                                            <h2 className="text-2xl font-display font-bold text-foreground leading-none">
                                                 Personal Information
                                             </h2>
                                             <Badge variant="brand" shape="pill">Section 1/6</Badge>
@@ -287,7 +294,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                 {activeSection === 'experience' && (
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-display font-bold text-gray-900 leading-none">
+                                            <h2 className="text-2xl font-display font-bold text-foreground leading-none">
                                                 Work Experience
                                             </h2>
                                             <Badge variant="brand" shape="pill">Section 2/6</Badge>
@@ -313,7 +320,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                 {activeSection === 'education' && (
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-display font-bold text-gray-900 leading-none">
+                                            <h2 className="text-2xl font-display font-bold text-foreground leading-none">
                                                 Education
                                             </h2>
                                             <Badge variant="brand" shape="pill">Section 3/6</Badge>
@@ -339,7 +346,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                 {activeSection === 'projects' && (
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-display font-bold text-gray-900 leading-none">
+                                            <h2 className="text-2xl font-display font-bold text-foreground leading-none">
                                                 Projects
                                             </h2>
                                             <Badge variant="brand" shape="pill">Section 4/6</Badge>
@@ -365,7 +372,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                 {activeSection === 'skills' && (
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-display font-bold text-gray-900 leading-none">
+                                            <h2 className="text-2xl font-display font-bold text-foreground leading-none">
                                                 Skills
                                             </h2>
                                             <Badge variant="brand" shape="pill">Section 5/6</Badge>
@@ -391,7 +398,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                 {activeSection === 'certifications' && (
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-display font-bold text-gray-900 leading-none">
+                                            <h2 className="text-2xl font-display font-bold text-foreground leading-none">
                                                 Certifications
                                             </h2>
                                             <Badge variant="brand" shape="pill">Section 6/6</Badge>
@@ -414,7 +421,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                         </div>
                                     </section>
                                 )}
-                            </Card>
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -425,6 +432,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                 data={resumeData}
                 resumeTitle={title}
                 onDownload={handleDownload}
+                template={selectedTemplate}
             />
         </ResumeProvider>
     );

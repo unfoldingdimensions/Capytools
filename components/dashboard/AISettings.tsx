@@ -111,7 +111,7 @@ export function AISettings() {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-md rounded-[1.5rem] bg-white dark:bg-gray-900 p-8 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss animate-in zoom-in-95 duration-200">
                 <button
                     onClick={() => setOpen(false)}
                     className="absolute right-4 top-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500"

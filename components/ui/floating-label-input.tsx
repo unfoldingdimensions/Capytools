@@ -39,7 +39,7 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
                             onBlur?.(e);
                         }}
                         className={cn(
-                            "peer w-full rounded-xl border-2 border-gray-200 bg-transparent px-4 py-3 pt-6 text-base transition-colors focus:border-brand-500 focus:outline-none focus:ring-0",
+                            "peer w-full rounded-xl border-2 border-gray-200 bg-transparent px-4 py-3 pt-6 text-base transition-all focus:border-brand-500 focus:outline-none focus:ring-0 placeholder:opacity-0 focus:placeholder:opacity-100",
                             leftIcon && "pl-11",
                             rightIcon && "pr-11"
                         )}
@@ -49,8 +49,10 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
                     <label
                         htmlFor={inputId}
                         className={cn(
-                            "absolute left-4 top-1/2 -translate-y-1/2 cursor-text text-sm text-gray-500 transition-all duration-200 peer-focus:-translate-y-1/2 peer-focus:top-3 peer-focus:text-xs peer-focus:text-brand-600",
-                            (hasValue || focused) && "-translate-y-1/2 top-3 text-xs text-brand-600",
+                            "absolute left-4 top-1/2 -translate-y-1/2 cursor-text text-sm text-gray-500 transition-all duration-200 pointer-events-none",
+                            (hasValue || focused || !!props.placeholder)
+                                ? "-translate-y-1/2 top-2.5 text-[10px] font-bold uppercase tracking-wider text-brand-600"
+                                : "top-1/2",
                             leftIcon && "left-11"
                         )}
                     >

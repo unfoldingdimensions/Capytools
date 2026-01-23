@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
+import { MonthPicker } from '@/components/ui/month-picker';
 import {
     GripVertical,
     Trash2,
@@ -263,19 +264,17 @@ export function WorkExperienceItem({
                             placeholder="e.g. San Francisco, CA"
                             className="md:col-span-1"
                         />
-                        <FloatingLabelInput
+                        <MonthPicker
                             label="Start Date"
                             value={experience.startDate}
-                            onChange={(e) => handleChange('startDate', e.target.value)}
-                            type="month"
+                            onChange={(val) => handleChange('startDate', val)}
                             leftIcon={<Calendar className="h-4 w-4" />}
                         />
                         <div className="space-y-2">
-                            <FloatingLabelInput
+                            <MonthPicker
                                 label="End Date"
                                 value={experience.endDate || ''}
-                                onChange={(e) => handleChange('endDate', e.target.value)}
-                                type="month"
+                                onChange={(val) => handleChange('endDate', val)}
                                 disabled={experience.current}
                                 leftIcon={<Calendar className="h-4 w-4" />}
                             />

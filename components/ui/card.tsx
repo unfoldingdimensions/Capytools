@@ -15,8 +15,8 @@ const Card = React.forwardRef<
             className={cn(
                 'rounded-2xl bg-card text-card-foreground transition-all duration-300',
                 {
-                    'shadow-sm border border-border bg-card': variant === 'elevated' || variant === 'default',
-                    'border border-border bg-transparent': variant === 'outlined',
+                    'shadow-swiss border border-black/[0.08] dark:border-white/[0.08] bg-card': variant === 'elevated' || variant === 'default',
+                    'border border-black/[0.08] dark:border-white/[0.08] bg-transparent': variant === 'outlined',
                     'bg-muted/50 border-none': variant === 'flat',
                 },
                 hover && 'hover:shadow-lg hover:-translate-y-1',
