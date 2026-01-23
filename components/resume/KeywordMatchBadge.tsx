@@ -37,8 +37,8 @@ export function KeywordMatchBadge({
                 'inline-flex items-center gap-1 rounded-full font-medium transition-all',
                 isSmall ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm',
                 matched
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                    ? 'bg-black text-white dark:bg-white dark:text-black border border-transparent'
+                    : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700',
                 className
             )}
             title={matched && foundIn.length > 0 ? `Found in: ${foundIn.join(', ')}` : undefined}
@@ -57,7 +57,7 @@ export function KeywordMatchBadge({
                         onAdd();
                     }}
                     className={cn(
-                        'ml-0.5 rounded-full p-0.5 hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors',
+                        'ml-0.5 rounded-full p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors',
                         isSmall ? '-mr-0.5' : '-mr-1'
                     )}
                     title="Add to skills"

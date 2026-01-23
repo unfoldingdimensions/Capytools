@@ -59,7 +59,7 @@ export function WorkflowSection() {
                 </div>
 
                 <div className="mt-16 text-center">
-                    <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-lg hover:shadow-xl bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200">
+                    <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-lg hover:shadow-xl">
                         Try It Yourself
                     </Button>
                 </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { SignUpButton, useUser } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
 
 export function StartBuildingButton() {
@@ -10,25 +11,31 @@ export function StartBuildingButton() {
     // Show nothing while loading
     if (!isLoaded) {
         return (
-            <button
+            <Button
                 disabled
-                className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-4 text-lg font-medium text-white opacity-50"
+                size="xl"
+                className="rounded-lg px-8 py-4 text-lg font-medium opacity-50"
             >
                 <Sparkles className="mr-2 h-5 w-5" />
                 Start Building for Free
-            </button>
+            </Button>
         );
     }
 
     // If signed in, show dashboard link
     if (isSignedIn) {
         return (
-            <Link
-                href="/dashboard"
-                className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-blue-700"
-            >
-                <Sparkles className="mr-2 h-5 w-5" />
-                Go to Dashboard
+            <Link href="/dashboard" passHref legacyBehavior>
+                <Button
+                    asChild
+                    size="xl"
+                    className="rounded-lg px-8 py-4 text-lg font-medium"
+                >
+                    <a className="inline-flex items-center">
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Go to Dashboard
+                    </a>
+                </Button>
             </Link>
         );
     }
@@ -36,10 +43,13 @@ export function StartBuildingButton() {
     // If not signed in, show sign up button
     return (
         <SignUpButton mode="modal">
-            <button className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-blue-700">
+            <Button
+                size="xl"
+                className="rounded-lg px-8 py-4 text-lg font-medium"
+            >
                 <Sparkles className="mr-2 h-5 w-5" />
                 Start Building for Free
-            </button>
+            </Button>
         </SignUpButton>
     );
 }

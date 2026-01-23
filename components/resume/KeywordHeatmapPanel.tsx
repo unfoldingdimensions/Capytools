@@ -44,15 +44,15 @@ export function KeywordHeatmapPanel({
 
     // Get color based on match percentage
     const getPercentageColor = (percentage: number) => {
-        if (percentage >= 70) return 'text-emerald-600 dark:text-emerald-400';
-        if (percentage >= 40) return 'text-amber-600 dark:text-amber-400';
-        return 'text-red-600 dark:text-red-400';
+        if (percentage >= 70) return 'text-zinc-900 dark:text-white';
+        if (percentage >= 40) return 'text-zinc-600 dark:text-zinc-300';
+        return 'text-zinc-400 dark:text-zinc-500';
     };
 
     const getBarColor = (percentage: number) => {
-        if (percentage >= 70) return 'bg-emerald-500';
-        if (percentage >= 40) return 'bg-amber-500';
-        return 'bg-red-500';
+        if (percentage >= 70) return 'bg-zinc-900 dark:bg-white';
+        if (percentage >= 40) return 'bg-zinc-500';
+        return 'bg-zinc-300 dark:bg-zinc-700';
     };
 
     return (
@@ -73,7 +73,7 @@ export function KeywordHeatmapPanel({
                 )}
             >
                 <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-brand-500" />
+                    <Target className="h-4 w-4 text-zinc-900 dark:text-white" />
                     <h3 className="text-sm font-semibold text-foreground">Keyword Match</h3>
                 </div>
                 <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function KeywordHeatmapPanel({
                     {matchResult.matched.length > 0 && (
                         <div className="space-y-2">
                             <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white" />
                                 Matched ({matchResult.matched.length})
                             </p>
                             <div className="flex flex-wrap gap-1">
@@ -140,7 +140,7 @@ export function KeywordHeatmapPanel({
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                                    <span className="w-2 h-2 rounded-full bg-red-500" />
+                                    <span className="w-2 h-2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
                                     Missing ({matchResult.missing.length})
                                 </p>
                                 {onAddToSkills && matchResult.missing.length > 0 && (
@@ -207,7 +207,7 @@ export function KeywordHeatmapPanel({
                                                 key={keyword}
                                                 type="button"
                                                 onClick={() => onAddToSkills?.(keyword)}
-                                                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/50 transition-colors"
+                                                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors border border-zinc-200 dark:border-zinc-700"
                                             >
                                                 <Plus className="h-3 w-3" />
                                                 {keyword}

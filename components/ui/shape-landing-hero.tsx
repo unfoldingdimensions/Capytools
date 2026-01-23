@@ -61,14 +61,14 @@ function HeroGeometric({
     };
 
     return (
-        <div className="relative min-h-screen w-full flex flex-col items-center justify-start overflow-x-hidden bg-gradient-to-br from-slate-50 via-indigo-50/50 to-white">
+        <div className="relative min-h-screen w-full flex flex-col items-center justify-start overflow-x-hidden bg-white dark:bg-black">
             <nav className="absolute top-0 left-0 right-0 z-50 container mx-auto px-4 py-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black text-white dark:bg-white dark:text-black">
                             <FileText className="h-5 w-5" />
                         </div>
-                        <span className="text-xl font-display font-bold text-gray-900 tracking-tight">Handcraft Resume</span>
+                        <span className="text-xl font-display font-bold text-gray-900 dark:text-gray-100 tracking-tight">Handcraft Resume</span>
                     </div>
                     <div className="flex items-center space-x-4">
                         <SignedOut>
@@ -78,14 +78,14 @@ function HeroGeometric({
                                 </Button>
                             </SignInButton>
                             <SignUpButton mode="modal">
-                                <Button variant="default" className="rounded-full">
+                                <Button variant="default" className="rounded-full px-6">
                                     Get Started
                                 </Button>
                             </SignUpButton>
                         </SignedOut>
                         <SignedIn>
                             <Link href="/dashboard">
-                                <Button variant="default" className="rounded-full">
+                                <Button variant="default" className="rounded-full px-6">
                                     Go to Dashboard
                                 </Button>
                             </Link>
@@ -105,7 +105,7 @@ function HeroGeometric({
                         animate="visible"
                         className="flex justify-center mb-6"
                     >
-                        <Badge variant="brand" shape="pill" className="px-4 py-1.5 text-sm">
+                        <Badge variant="outline" className="px-4 py-1.5 text-sm rounded-full bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                             ✨ AI-Powered Resume Builder
                         </Badge>
                     </motion.div>
@@ -116,8 +116,8 @@ function HeroGeometric({
                         initial="hidden"
                         animate="visible"
                     >
-                        <h1 className="text-5xl sm:text-7xl md:text-8xl font-display font-bold text-gray-900 tracking-tight mb-8">
-                            Craft Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600">Perfect Resume</span>
+                        <h1 className="text-5xl sm:text-7xl md:text-8xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-8">
+                            Craft Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500">Perfect Resume</span>
                         </h1>
                     </motion.div>
 
@@ -127,7 +127,7 @@ function HeroGeometric({
                         initial="hidden"
                         animate="visible"
                     >
-                        <p className="text-lg sm:text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto px-4">
+                        <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-2xl mx-auto px-4">
                             Create professional, ATS-friendly resumes in minutes with AI assistance.
                             Upload your old resume or start from scratch using our intuitive builder.
                         </p>
@@ -135,7 +135,7 @@ function HeroGeometric({
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
                             <SignedOut>
                                 <SignUpButton mode="modal">
-                                    <Button size="xl" variant="gradient" className="w-full sm:w-auto rounded-full group">
+                                    <Button size="xl" variant="default" className="w-full sm:w-auto rounded-full group h-14 px-8">
                                         Build Your Resume
                                         <MoveRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                     </Button>
@@ -143,34 +143,34 @@ function HeroGeometric({
                             </SignedOut>
                             <SignedIn>
                                 <Link href="/dashboard">
-                                    <Button size="xl" variant="gradient" className="w-full sm:w-auto rounded-full group">
+                                    <Button size="xl" variant="default" className="w-full sm:w-auto rounded-full group h-14 px-8">
                                         Go to Dashboard
                                         <MoveRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                     </Button>
                                 </Link>
                             </SignedIn>
 
-                            <Button size="xl" variant="outline" className="w-full sm:w-auto rounded-full border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400">
+                            <Button size="xl" variant="outline" className="w-full sm:w-auto rounded-full h-14 px-8">
                                 View Examples
                             </Button>
                         </div>
 
                         {/* Trust indicators */}
-                        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm font-medium text-gray-500">
+                        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm font-medium text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100/50 text-emerald-600">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
                                     <CheckCircle className="h-3.5 w-3.5" />
                                 </div>
                                 <span>Free to use</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100/50 text-brand-600">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
                                     <Shield className="h-3.5 w-3.5" />
                                 </div>
                                 <span>AES-256 Encrypted</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100/50 text-purple-600">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
                                     <Users className="h-3.5 w-3.5" />
                                 </div>
                                 <span>10,000+ Users</span>

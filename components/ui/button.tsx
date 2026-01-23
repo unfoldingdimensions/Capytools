@@ -9,16 +9,16 @@ const buttonVariants = cva(
     {
         variants: {
             variant: {
-                default: 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md interactive-hover',
-                destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm interactive-hover',
-                outline: 'border-2 border-brand-200 text-brand-700 hover:bg-brand-50 bg-transparent',
-                secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm interactive-hover',
-                ghost: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
-                ghostSubtle: 'text-gray-500 hover:text-brand-700 hover:bg-brand-50',
-                link: 'text-primary underline-offset-4 hover:underline',
-                gradient: 'bg-gradient-to-r from-brand-600 to-purple-600 text-white hover:shadow-lg interactive-hover border-none',
-                brand: 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm interactive-hover border-none',
-                softLanding: 'bg-white/90 backdrop-blur text-brand-700 hover:bg-white shadow-lg inner-border border-white/20',
+                default: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-sm hover:shadow-md interactive-hover',
+                destructive: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 shadow-sm interactive-hover',
+                outline: 'border-2 border-gray-200 text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-100 dark:hover:bg-gray-800 bg-transparent',
+                secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 shadow-sm interactive-hover',
+                ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100',
+                ghostSubtle: 'text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-100 dark:hover:bg-gray-800',
+                link: 'text-black dark:text-white underline-offset-4 hover:underline',
+                gradient: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black hover:shadow-lg interactive-hover border-none',
+                brand: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black shadow-sm interactive-hover border-none',
+                softLanding: 'bg-white/90 backdrop-blur text-black hover:bg-white shadow-lg inner-border border-gray-200 dark:bg-black/90 dark:text-white dark:border-gray-800',
             },
             size: {
                 default: 'h-10 px-4 py-2',

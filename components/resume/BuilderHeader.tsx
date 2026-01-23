@@ -64,7 +64,7 @@ export function BuilderHeader({
                     </Button>
                     <Button
                         variant="secondary"
-                        className="rounded-full hidden sm:flex bg-gray-100 dark:bg-gray-800 text-foreground hover:bg-gray-200 dark:hover:bg-gray-700 border-none"
+                        className="rounded-full hidden sm:flex"
                         onClick={onPreview}
                     >
                         <Eye className="mr-2 h-4 w-4" />
@@ -72,7 +72,7 @@ export function BuilderHeader({
                     </Button>
                     <Button
                         size="lg"
-                        className="rounded-full px-8 font-bold bg-foreground text-background hover:bg-foreground/90 shadow-none"
+                        className="rounded-full px-8 font-bold"
                         onClick={onSave}
                         disabled={isSaving}
                         loading={isSaving}

@@ -360,7 +360,7 @@ export default function DashboardClient() {
                         <div className="flex flex-col gap-3">
                             {successModal.resumeId && (
                                 <Link href={`/resume/${successModal.resumeId}`} className="w-full">
-                                    <Button className="w-full h-12 rounded-xl text-lg font-semibold" variant="gradient">
+                                    <Button className="w-full h-12 rounded-xl text-lg font-semibold" variant="default">
                                         Edit Resume Now
                                     </Button>
                                 </Link>
@@ -423,7 +423,7 @@ export default function DashboardClient() {
                                     }
                                 }}
                             >
-                                <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 flex items-center justify-center group-hover:scale-110 transition-transform">
                                     {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6" />}
                                 </div>
                                 <div>
