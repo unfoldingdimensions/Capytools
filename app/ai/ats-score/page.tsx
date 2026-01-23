@@ -331,17 +331,67 @@ export function ATSScoreContent() {
                         </Card>
                     ) : scoreResult ? (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-xl font-display font-medium text-foreground">Scoring Results</h3>
-                                <Button variant="ghostSubtle" size="sm" onClick={() => { setScoreResult(null); setSelectedResumeId(null); }}>
-                                    Reset
-                                </Button>
+                            {/* Unified Results Header (Concise Top Bar) */}
+                            <div className="sticky top-20 z-40 -mx-4 px-4 py-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-black/[0.05] dark:border-white/[0.05] flex items-center justify-between mb-8 shadow-sm">
+                                <div className="flex flex-col">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-widest border-zinc-200 dark:border-zinc-800">Target Role</Badge>
+                                        <div className="h-1 w-1 rounded-full bg-zinc-300" />
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                            {jobDescriptions.find(j => j.id === selectedJobDescriptionId)?.company}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-lg font-display font-medium text-foreground tracking-tight leading-none">
+                                        {jobDescriptions.find(j => j.id === selectedJobDescriptionId)?.title}
+                                    </h3>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <Button
+                                        variant="ghostSubtle"
+                                        size="sm"
+                                        onClick={() => { setScoreResult(null); setSelectedResumeId(null); }}
+                                        className="text-[10px] font-bold uppercase tracking-widest"
+                                    >
+                                        New Score
+                                    </Button>
+
+                                    {selectedResumeId && selectedJobDescriptionId && (
+                                        <Link href={`/resume/${selectedResumeId}?jobDescriptionId=${selectedJobDescriptionId}&tailoring=true`}>
+                                            <Button
+                                                size="sm"
+                                                className="rounded-xl px-4 bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 font-bold flex items-center gap-2 h-10 shadow-lg shadow-black/5"
+                                            >
+                                                <Sparkles className="h-3.5 w-3.5" />
+                                                Launch AI Optimizer
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </div>
                             </div>
-                            <ATSScoringReport
-                                score={scoreResult}
-                                resumeId={selectedResumeId || undefined}
-                                jobDescriptionId={selectedJobDescriptionId || undefined}
-                            />
+
+                            <ATSScoringReport score={scoreResult} />
+
+                            {/* Dense Tips/Overview Card at bottom if needed */}
+                            <Card className="bg-zinc-900 text-white dark:bg-white dark:text-black p-6 rounded-[1.5rem] border-none shadow-xl overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                                    <Sparkles className="h-24 w-24" />
+                                </div>
+                                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-50 mb-1">Strategic Advice</p>
+                                        <h4 className="text-xl font-display font-medium">Ready to reach 90%+?</h4>
+                                        <p className="text-xs text-white/60 dark:text-black/60 mt-1 max-w-sm">Use the optimizer to automatically inject the missing keywords into your bullet points with natural phrasing.</p>
+                                    </div>
+                                    {selectedResumeId && selectedJobDescriptionId && (
+                                        <Link href={`/resume/${selectedResumeId}?jobDescriptionId=${selectedJobDescriptionId}&tailoring=true`} className="w-full md:w-auto">
+                                            <Button className="w-full md:w-auto rounded-full bg-white text-black dark:bg-black dark:text-white font-bold h-12 px-8">
+                                                Optimize Now
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </div>
+                            </Card>
                         </div>
                     ) : (
                         <div className="space-y-6">
