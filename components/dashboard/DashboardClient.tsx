@@ -357,10 +357,10 @@ export default function DashboardClient() {
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 animate-bounce">
                                 <CheckCircle className="h-10 w-10" />
                             </div>
-                            <h3 className="text-2xl font-display font-bold text-gray-900">
+                            <h3 className="text-2xl font-display font-bold text-foreground">
                                 {successModal.title}
                             </h3>
-                            <p className="mt-2 text-gray-500">
+                            <p className="mt-2 text-muted-foreground">
                                 {successModal.message}
                             </p>
                         </div>
@@ -447,10 +447,10 @@ export default function DashboardClient() {
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
                                 <AlertCircle className="h-10 w-10" />
                             </div>
-                            <h3 className="text-2xl font-display font-bold text-gray-900">
+                            <h3 className="text-2xl font-display font-bold text-foreground">
                                 {errorModal.title}
                             </h3>
-                            <p className="mt-2 text-gray-500">
+                            <p className="mt-2 text-muted-foreground">
                                 {errorModal.message}
                             </p>
                         </div>
@@ -474,8 +474,8 @@ export default function DashboardClient() {
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
                                 <Trash2 className="h-8 w-8" />
                             </div>
-                            <h3 className="text-2xl font-display font-bold text-gray-900">Delete File?</h3>
-                            <p className="mt-2 text-gray-500">This will permanently remove the uploaded resume file.</p>
+                            <h3 className="text-2xl font-display font-bold text-foreground">Delete File?</h3>
+                            <p className="mt-2 text-muted-foreground">This will permanently remove the uploaded resume file.</p>
                         </div>
                         <div className="flex gap-4">
                             <Button variant="outline" onClick={cancelDeleteUpload} className="flex-1 h-12 rounded-xl">Cancel</Button>
@@ -494,8 +494,8 @@ export default function DashboardClient() {
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
                                 <Trash2 className="h-8 w-8" />
                             </div>
-                            <h3 className="text-2xl font-display font-bold text-gray-900">Delete Resume?</h3>
-                            <p className="mt-2 text-gray-500">Are you sure you want to delete &quot;{resumeToDelete.title}&quot;? This cannot be undone.</p>
+                            <h3 className="text-2xl font-display font-bold text-foreground">Delete Resume?</h3>
+                            <p className="mt-2 text-muted-foreground">Are you sure you want to delete &quot;{resumeToDelete.title}&quot;? This cannot be undone.</p>
                         </div>
                         <div className="flex gap-4">
                             <Button variant="outline" onClick={cancelDeleteResume} className="flex-1 h-12 rounded-xl">Cancel</Button>
@@ -627,40 +627,40 @@ export default function DashboardClient() {
                             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                                 <Sparkles className="h-24 w-24 text-brand-600" />
                             </div>
-                            <h3 className="text-xl font-display font-bold text-gray-900 mb-2">AI Toolbox</h3>
-                            <p className="text-gray-500 text-sm mb-8">Boost your application with these intelligent power-ups.</p>
+                            <h3 className="text-xl font-display font-bold text-foreground mb-2">AI Toolbox</h3>
+                            <p className="text-muted-foreground text-sm mb-8">Boost your application with these intelligent power-ups.</p>
 
                             <div className="space-y-4">
-                                <Link href="/ai/job-description" className="block p-4 rounded-2xl bg-gray-50 hover:bg-brand-50 hover:ring-1 hover:ring-brand-200 transition-all group">
+                                <Link href="/ai/job-description" className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:text-brand-600 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors">
                                             <Search className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 leading-none mb-1">Role Analyzer</p>
-                                            <p className="text-xs text-gray-500">Extract skills from job posts</p>
+                                            <p className="text-sm font-bold text-foreground leading-none mb-1 group-hover:text-brand-600 transition-colors">Role Analyzer</p>
+                                            <p className="text-xs text-muted-foreground">Extract skills from job posts</p>
                                         </div>
                                     </div>
                                 </Link>
-                                <Link href="/ai/ats-score" className="block p-4 rounded-2xl bg-gray-50 hover:bg-brand-50 hover:ring-1 hover:ring-brand-200 transition-all group">
+                                <Link href="/ai/ats-score" className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:text-brand-600 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors">
                                             <Target className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 leading-none mb-1">ATS Matcher</p>
-                                            <p className="text-xs text-gray-500">Calculate your compatibility</p>
+                                            <p className="text-sm font-bold text-foreground leading-none mb-1 group-hover:text-brand-600 transition-colors">ATS Matcher</p>
+                                            <p className="text-xs text-muted-foreground">Calculate your compatibility</p>
                                         </div>
                                     </div>
                                 </Link>
-                                <Link href="/ai/interview-prep" className="block p-4 rounded-2xl bg-gray-50 hover:bg-brand-50 hover:ring-1 hover:ring-brand-200 transition-all group">
+                                <Link href="/ai/interview-prep" className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:text-brand-600 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors">
                                             <MessageSquare className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 leading-none mb-1">Interview Prep</p>
-                                            <p className="text-xs text-gray-500">Personalized AI coaching</p>
+                                            <p className="text-sm font-bold text-foreground leading-none mb-1 group-hover:text-brand-600 transition-colors">Interview Prep</p>
+                                            <p className="text-xs text-muted-foreground">Personalized AI coaching</p>
                                         </div>
                                     </div>
                                 </Link>
@@ -670,7 +670,7 @@ export default function DashboardClient() {
                         {/* Recent Activity / Uploads */}
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-display font-bold text-gray-900">Recent Uploads</h3>
+                                <h3 className="text-lg font-display font-bold text-foreground">Recent Uploads</h3>
                                 <Badge variant="brand" size="xs" shape="pill">{uploadedResumes.length}</Badge>
                             </div>
 
@@ -679,7 +679,7 @@ export default function DashboardClient() {
                                     {[1, 2].map(i => <div key={i} className="h-20 rounded-2xl bg-gray-100 animate-pulse" />)}
                                 </div>
                             ) : uploadedResumes.length === 0 ? (
-                                <div className="p-8 text-center rounded-3xl bg-gray-50 text-gray-400 text-sm">
+                                <div className="p-8 text-center rounded-3xl bg-gray-50 dark:bg-white/5 text-muted-foreground text-sm">
                                     No recent files uploaded.
                                 </div>
                             ) : (
@@ -687,12 +687,12 @@ export default function DashboardClient() {
                                     {uploadedResumes.slice(0, 3).map((upload) => (
                                         <div key={upload.id} className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-sm group">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-10 w-10 shrink-0 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                                <div className="h-10 w-10 shrink-0 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 flex items-center justify-center">
                                                     <FileUp className="h-5 w-5" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-gray-900 truncate">{upload.originalFilename}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none mt-1">
+                                                    <p className="text-sm font-bold text-foreground truncate">{upload.originalFilename}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none mt-1">
                                                         {upload.status} • {formatFileSize(upload.fileSize)}
                                                     </p>
                                                 </div>
