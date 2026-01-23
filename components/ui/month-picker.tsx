@@ -81,14 +81,14 @@ export function MonthPicker({
             <div
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 className={cn(
-                    "peer group relative w-full cursor-pointer rounded-xl border-2 border-gray-200 bg-white px-4 py-3 pt-6 transition-all focus-within:border-brand-500",
+                    "peer group relative w-full cursor-pointer rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 pt-6 transition-all focus-within:border-brand-500",
                     disabled && "opacity-50 cursor-not-allowed",
                     isOpen && "border-brand-500 ring-4 ring-brand-500/10",
                     leftIcon && "pl-11"
                 )}
             >
                 {leftIcon && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-brand-500 transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 group-hover:text-brand-500 transition-colors">
                         {leftIcon}
                     </div>
                 )}
@@ -96,7 +96,7 @@ export function MonthPicker({
                 <div className="flex items-center justify-between">
                     <span className={cn(
                         "text-base font-medium transition-colors",
-                        displayValue ? "text-gray-900" : "text-gray-300",
+                        displayValue ? "text-foreground" : "text-muted-foreground",
                         (!displayValue && !isOpen && !placeholder) && "opacity-0"
                     )}>
                         {displayValue || placeholder || "Select date"}
@@ -113,7 +113,7 @@ export function MonthPicker({
 
                 <label
                     className={cn(
-                        "absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-sm text-gray-500 transition-all duration-200 pointer-events-none",
+                        "absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-sm text-muted-foreground transition-all duration-200 pointer-events-none",
                         (displayValue || isOpen || !!placeholder)
                             ? "-translate-y-1/2 top-2.5 text-[10px] font-bold uppercase tracking-wider text-brand-600"
                             : "top-1/2",

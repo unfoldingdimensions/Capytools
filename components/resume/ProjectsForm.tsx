@@ -94,8 +94,8 @@ export default function ProjectsForm({
                     <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
                         <Code className="h-8 w-8 text-brand-600" />
                     </div>
-                    <h3 className="text-xl font-display font-bold text-gray-900 mb-2">No projects yet</h3>
-                    <p className="text-gray-500 max-w-xs mb-8">
+                    <h3 className="text-xl font-display font-bold text-foreground mb-2">No projects yet</h3>
+                    <p className="text-muted-foreground max-w-xs mb-8">
                         Showcase your personal projects, open source contributions, or side hustles.
                     </p>
                     <Button

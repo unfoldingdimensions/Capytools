@@ -20,7 +20,7 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
             <div className={cn("relative w-full", className)}>
                 < div className="relative">
                     {leftIcon && (
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                             {leftIcon}
                         </div>
                     )}
@@ -39,7 +39,7 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
                             onBlur?.(e);
                         }}
                         className={cn(
-                            "peer w-full rounded-xl border-2 border-gray-200 bg-transparent px-4 py-3 pt-6 text-base transition-all focus:border-brand-500 focus:outline-none focus:ring-0 placeholder:opacity-0 focus:placeholder:opacity-100",
+                            "peer w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-transparent px-4 py-3 pt-6 text-base text-foreground transition-all focus:border-brand-500 focus:outline-none focus:ring-0 placeholder:opacity-0 focus:placeholder:opacity-100",
                             leftIcon && "pl-11",
                             rightIcon && "pr-11"
                         )}
@@ -49,7 +49,7 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
                     <label
                         htmlFor={inputId}
                         className={cn(
-                            "absolute left-4 top-1/2 -translate-y-1/2 cursor-text text-sm text-gray-500 transition-all duration-200 pointer-events-none",
+                            "absolute left-4 top-1/2 -translate-y-1/2 cursor-text text-sm text-muted-foreground transition-all duration-200 pointer-events-none",
                             (hasValue || focused || !!props.placeholder)
                                 ? "-translate-y-1/2 top-2.5 text-[10px] font-bold uppercase tracking-wider text-brand-600"
                                 : "top-1/2",
@@ -59,14 +59,14 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
                         {label}
                     </label>
                     {rightIcon && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                             {rightIcon}
                         </div>
                     )}
                 </div>
 
                 {helperText && (
-                    <p className="mt-1 text-xs text-gray-500 pl-4">{helperText}</p>
+                    <p className="mt-1 text-xs text-muted-foreground pl-4">{helperText}</p>
                 )}
             </div>
         );

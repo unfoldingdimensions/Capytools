@@ -127,7 +127,7 @@ export function BulletPointEditor({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <ListChecks className="h-4 w-4 text-brand-600" />
-                    <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Achievements & Impact</label>
+                    <label className="text-sm font-bold text-foreground uppercase tracking-wider">Achievements & Impact</label>
                 </div>
                 <Button
                     type="button"
@@ -144,19 +144,19 @@ export function BulletPointEditor({
             <div className="space-y-4">
                 {bullets.length === 0 ? (
                     <div
-                        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50 group cursor-pointer hover:border-brand-200 transition-colors"
+                        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-gray-900/50 group cursor-pointer hover:border-brand-200 dark:hover:border-brand-700 transition-colors"
                         onClick={handleAddBullet}
                     >
-                        <Wand2 className="h-8 w-8 text-gray-200 group-hover:text-brand-300 transition-colors mb-2" />
-                        <p className="text-sm text-gray-400 font-medium">Click to add your first achievement</p>
+                        <Wand2 className="h-8 w-8 text-muted-foreground/30 group-hover:text-brand-300 transition-colors mb-2" />
+                        <p className="text-sm text-muted-foreground font-medium">Click to add your first achievement</p>
                     </div>
                 ) : (
                     bullets.map((bullet, index) => (
                         <div
                             key={index}
                             className={cn(
-                                "group relative rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-200",
-                                "hover:border-brand-200 hover:shadow-md hover:shadow-brand-500/5"
+                                "group relative rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 transition-all duration-200",
+                                "hover:border-brand-200 dark:hover:border-brand-700 hover:shadow-md hover:shadow-brand-500/5"
                             )}
                         >
                             <div className="flex items-start gap-3 mb-3">
@@ -165,7 +165,7 @@ export function BulletPointEditor({
                                     value={bullet}
                                     onChange={(e) => handleUpdateBullet(index, e.target.value)}
                                     placeholder="e.g. Led a team of 5 to deliver a 20% increase in system performance..."
-                                    className="flex-1 min-h-[60px] border-none bg-transparent p-0 focus-visible:ring-0 text-gray-700 placeholder:text-gray-300 resize-none leading-relaxed"
+                                    className="flex-1 min-h-[60px] border-none bg-transparent p-0 focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/50 resize-none leading-relaxed"
                                 />
                                 <Button
                                     type="button"
@@ -178,8 +178,8 @@ export function BulletPointEditor({
                                 </Button>
                             </div>
 
-                            <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-                                <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">AI Power Tools</span>
+                            <div className="flex items-center justify-between pt-3 border-t border-gray-50 dark:border-gray-800">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">AI Power Tools</span>
                                 <AIActionButtons
                                     onCheckGrammar={() => handleCheckGrammar(index)}
                                     onImprove={() => handleImproveBullet(index)}

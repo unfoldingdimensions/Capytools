@@ -203,11 +203,12 @@ handcraft-resume/
 │   └── utils/
 │       └── cn.ts                 (Utility functions)
 │
-├── 🛡️ Middleware
-│   ├── auth.ts                   (Authentication)
-│   ├── rateLimit.ts              (Rate limiting)
-│   ├── errorHandler.ts           (Error handling)
-│   └── middleware.ts             (Clerk middleware)
+├── 🛡️ Edge Configuration & Middleware
+│   ├── proxy.ts                  (Clerk middleware / Proxy)
+│   └── middleware/               (Custom logic)
+│       ├── auth.ts               (Authentication)
+│       ├── rateLimit.ts          (Rate limiting)
+│       └── errorHandler.ts       (Error handling)
 │
 ├── 🏪 State Management
 │   └── store/
@@ -241,7 +242,7 @@ handcraft-resume/
 ## 🛠️ Technology Stack
 
 ### Core
-- **Next.js 15**: Latest version with App Router
+- **Next.js 16**: Latest version with App Router and Proxy convention
 - **React 18**: Latest stable version
 - **TypeScript**: Strict mode, no `any` types
 - **Node.js**: v18+
@@ -385,7 +386,7 @@ handcraft-resume/
 
 ### Vercel Optimized
 - ✅ Next.js 15 compatible
-- ✅ Edge-ready middleware
+- ✅ Edge-ready proxy
 - ✅ Serverless function optimized
 - ✅ Environment variable management
 - ✅ Automatic HTTPS
@@ -500,7 +501,7 @@ Handcraft Resume Phase 1 is **complete and production-ready**. The application i
 
 ---
 
-**Built with ❤️ using Next.js 15, React 18, TypeScript, and modern web technologies**
+**Built with ❤️ using Next.js 16, React 19, TypeScript, and modern web technologies**
 
 *Total Development Time: Phase 1 Complete*
 *Lines of Code: ~8,000+*

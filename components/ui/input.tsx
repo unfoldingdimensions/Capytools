@@ -25,6 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         error && "border-destructive/50 bg-destructive/5 focus-visible:border-destructive",
                         className
                     )}
+                    aria-invalid={!!error}
                     ref={ref}
                     {...props}
                 />

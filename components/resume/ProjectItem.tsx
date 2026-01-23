@@ -177,7 +177,7 @@ export function ProjectItem({
             <div
                 className={cn(
                     "flex cursor-pointer items-center justify-between p-5 transition-colors",
-                    isExpanded ? "bg-brand-50/30" : "hover:bg-gray-50/50"
+                    isExpanded ? "bg-brand-50/30 dark:bg-brand-950/30" : "hover:bg-gray-50/50 dark:hover:bg-gray-900/50"
                 )}
                 onClick={onToggleExpand}
             >
@@ -186,21 +186,21 @@ export function ProjectItem({
                         <GripVertical className="h-5 w-5 text-gray-300 hover:text-gray-400" />
                     </div>
                     <div>
-                        <h3 className="font-display font-bold text-gray-900 mb-1">
+                        <h3 className="font-display font-bold text-foreground mb-1">
                             {project.title || 'Untitled Project'}
                         </h3>
                         <div className="flex flex-wrap gap-1.5">
                             {project.technologies && project.technologies.length > 0 ? (
                                 project.technologies.slice(0, 4).map((tech, i) => (
-                                    <Badge key={i} variant="secondary" size="sm" className="bg-gray-100 text-gray-600 border-none">
+                                    <Badge key={i} variant="secondary" size="sm" className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-none">
                                         {tech}
                                     </Badge>
                                 ))
                             ) : (
-                                <span className="text-xs text-gray-400 italic">No technologies listed</span>
+                                <span className="text-xs text-muted-foreground italic">No technologies listed</span>
                             )}
                             {project.technologies && project.technologies.length > 4 && (
-                                <span className="text-[10px] text-gray-400 self-center">+{project.technologies.length - 4} more</span>
+                                <span className="text-[10px] text-muted-foreground self-center">+{project.technologies.length - 4} more</span>
                             )}
                         </div>
                     </div>
@@ -260,7 +260,7 @@ export function ProjectItem({
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Technologies Used</label>
+                        <label className="text-sm font-bold text-foreground uppercase tracking-wider">Technologies Used</label>
                         <FloatingLabelInput
                             label="Technologies (comma separated)"
                             value={project.technologies?.join(', ') || ''}
@@ -276,12 +276,12 @@ export function ProjectItem({
                             leftIcon={<Cpu className="h-4 w-4" />}
                             placeholder="e.g. React, TypeScript, Tailwind"
                         />
-                        <p className="text-[11px] text-gray-400">Separate values with commas for best presentation.</p>
+                        <p className="text-[11px] text-muted-foreground">Separate values with commas for best presentation.</p>
                     </div>
 
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">What was this project about?</label>
+                            <label className="text-sm font-bold text-foreground uppercase tracking-wider">What was this project about?</label>
                             <Button
                                 type="button"
                                 size="sm"
@@ -302,11 +302,11 @@ export function ProjectItem({
                             value={project.description}
                             onChange={(e) => handleChange('description', e.target.value)}
                             placeholder="Briefly explain the goal and your role in this project..."
-                            className="min-h-[100px] bg-gray-50/50 border-gray-200 focus:bg-white transition-all resize-none"
+                            className="min-h-[100px] bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 transition-all resize-none"
                         />
                     </div>
 
-                    <div className="pt-4 border-t border-gray-100">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                         <BulletPointEditor
                             bullets={project.highlights || []}
                             onChange={(bullets) => handleChange('highlights', bullets)}

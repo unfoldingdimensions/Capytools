@@ -1,8 +1,11 @@
 'use client';
 
-
 import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { Modal } from '@/components/ui/modal/Modal';
+import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
+import { ModalFooter } from '@/components/ui/modal/ModalFooter';
+import { ModalBody } from '@/components/ui/modal/ModalBody';
 
 export type AlertType = 'success' | 'error' | 'info';
 
@@ -23,8 +26,6 @@ export function AlertDialog({
     buttonText = 'OK',
     onClose,
 }: AlertDialogProps) {
-    if (!isOpen) return null;
-
     const getIcon = () => {
         switch (type) {
             case 'success':
@@ -48,21 +49,23 @@ export function AlertDialog({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="max-w-md w-full rounded-lg bg-white p-6 shadow-xl animate-in fade-in zoom-in duration-200">
-                <div className="mb-4 flex items-center gap-3">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${getBgColor()}`}>
-                        {getIcon()}
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <Modal isOpen={isOpen} onClose={onClose} size="sm">
+            <ModalHeader className="flex-row items-center gap-3 space-y-0">
+                <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-full ${getBgColor()}`}
+                >
+                    {getIcon()}
                 </div>
-                <p className="mb-6 text-gray-600 whitespace-pre-wrap">{message}</p>
-                <div className="flex justify-end">
-                    <Button onClick={onClose} variant="default">
-                        {buttonText}
-                    </Button>
-                </div>
-            </div>
-        </div>
+                <ModalTitle>{title}</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <p className="text-gray-600 whitespace-pre-wrap">{message}</p>
+            </ModalBody>
+            <ModalFooter>
+                <Button onClick={onClose} variant="default">
+                    {buttonText}
+                </Button>
+            </ModalFooter>
+        </Modal>
     );
 }

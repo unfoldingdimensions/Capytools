@@ -4,11 +4,35 @@ const nextConfig: NextConfig = {
     reactStrictMode: true,
     poweredByHeader: false,
     typedRoutes: false, // Disabled until all routes are created
+    compress: true, // Enable gzip/brotli compression
 
     experimental: {
+        // Tree-shake heavy libraries for smaller bundles
+        optimizePackageImports: [
+            'lucide-react',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-toast',
+            'framer-motion',
+        ],
     },
 
-    // Security headers
+    // Remove console logs in production
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production',
+    },
+
+    // Image optimization
+    images: {
+        formats: ['image/avif', 'image/webp'],
+        deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+        imageSizes: [16, 32, 48, 64, 96, 128, 256],
+        minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    },
+
+    // Security headers + Resource hints
     async headers() {
         return [
             {
@@ -41,6 +65,21 @@ const nextConfig: NextConfig = {
                     {
                         key: 'Permissions-Policy',
                         value: 'camera=(), microphone=(), geolocation=()'
+                    },
+                    // Preconnect to external services for faster loads
+                    {
+                        key: 'Link',
+                        value: '<https://clerk.com>; rel=preconnect, <https://api.clerk.com>; rel=preconnect'
+                    }
+                ]
+            },
+            // Cache static assets immutably
+            {
+                source: '/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable'
                     }
                 ]
             }
@@ -54,4 +93,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-

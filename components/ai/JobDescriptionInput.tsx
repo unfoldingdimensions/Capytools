@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -56,12 +57,11 @@ export default function JobDescriptionInput({
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Job Description Details
-                </h3>
-
-                <div className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Job Description Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                     {/* Job Title */}
                     <div>
                         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -136,8 +136,8 @@ export default function JobDescriptionInput({
                             <p className="mt-1 text-sm text-red-600">{errors.description}</p>
                         )}
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Submit Button */}
             <div className="flex justify-end">

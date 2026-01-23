@@ -1,31 +1,27 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useUser, UserButton } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import {
     Plus,
-    FileText,
-    Download,
-    Sparkles,
-    Target,
-    MessageSquare,
-    Upload,
-    Trash2,
-    FileUp,
     CheckCircle,
     AlertCircle,
     Loader2,
     Search,
-    Zap,
-    TrendingUp
+    Target,
+    MessageSquare,
+    Sparkles,
+    Trash2,
+    Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { AISettings } from '@/components/dashboard/AISettings';
 import { cn } from '@/lib/utils/cn';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { DashboardStats } from '@/components/dashboard/DashboardStats';
+import { ResumeGrid } from '@/components/dashboard/ResumeGrid';
+import { UploadsList } from '@/components/dashboard/UploadsList';
 
 interface Resume {
     id: string;
@@ -341,14 +337,11 @@ export default function DashboardClient() {
         setResumeToDelete(null);
     }
 
-    function formatFileSize(bytes: number): string {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    }
-
     return (
-        <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-950">
+        <div className="min-h-screen bg-background dark:bg-gray-950">
+            {/* Standardized Header */}
+            <DashboardHeader />
+
             {/* Success Modal */}
             {successModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -393,6 +386,7 @@ export default function DashboardClient() {
                             size="icon"
                             className="absolute top-4 right-4 rounded-full"
                             onClick={() => setShowCreateOptions(false)}
+                            aria-label="Close create options"
                         >
                             <span className="text-xl">×</span>
                         </Button>
@@ -418,6 +412,16 @@ export default function DashboardClient() {
                                     "group p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4",
                                     isUploading && "opacity-50 pointer-events-none cursor-not-allowed"
                                 )}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        if (!isUploading) {
+                                            setShowCreateOptions(false);
+                                            fileInputRef.current?.click();
+                                        }
+                                    }
+                                }}
                             >
                                 <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                                     {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6" />}
@@ -441,7 +445,7 @@ export default function DashboardClient() {
 
             {/* Error Modal */}
             {errorModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                <div role="alertdialog" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
                     <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08]">
                         <div className="mb-6 flex flex-col items-center text-center">
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
@@ -465,10 +469,9 @@ export default function DashboardClient() {
                 </div>
             )}
 
-            {/* Delete Confirmation Modals... (omitted for brevity but kept in final output) */}
-            {/* Keeping the confirmation modals from previous version but with better styling */}
+            {/* Delete Confirmation Modals */}
             {uploadToDelete && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                <div role="alertdialog" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
                     <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08]">
                         <div className="mb-6 flex flex-col items-center text-center">
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
@@ -488,7 +491,7 @@ export default function DashboardClient() {
             )}
 
             {resumeToDelete && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                <div role="alertdialog" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
                     <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08]">
                         <div className="mb-6 flex flex-col items-center text-center">
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
@@ -507,33 +510,7 @@ export default function DashboardClient() {
                 </div>
             )}
 
-            {/* Swiss Header */}
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
-                <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/dashboard" className="flex items-center gap-2 group">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white dark:bg-white dark:text-black shadow-none group-hover:scale-110 transition-transform">
-                                <Sparkles className="h-5 w-5" />
-                            </div>
-                            <span className="text-xl font-display font-medium tracking-tight text-foreground">Handcraft</span>
-                        </Link>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-                            <Link href="/templates" className="hover:text-foreground transition-colors">Templates</Link>
-                            <Link href="/career-advice" className="hover:text-foreground transition-colors">Career Advice</Link>
-                        </div>
-                        <div className="h-6 w-[1px] bg-border" />
-                        <div className="flex items-center gap-4">
-                            <AISettings />
-                            <ThemeToggle />
-                            <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "h-9 w-9" } }} />
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="container mx-auto px-6 py-12 max-w-7xl">
+            <main id="main-content" className="container mx-auto px-6 py-12 max-w-7xl">
                 {/* Hero Typography */}
                 <div className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-display font-medium tracking-tight text-foreground mb-4">
@@ -543,25 +520,7 @@ export default function DashboardClient() {
                 </div>
 
                 {/* Bento Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                    {[
-                        { label: 'Total Resumes', value: resumes.length, icon: FileText },
-                        { label: 'ATS Score Avg', value: '--', icon: TrendingUp },
-                        { label: 'Tailored Roles', value: '0', icon: Zap },
-                        { label: 'Total Uploads', value: uploadedResumes.length, icon: Upload }
-                    ].map((stat, i) => (
-                        <div key={i} className="group relative p-6 bg-white dark:bg-gray-900 rounded-[2rem] border border-black/[0.08] dark:border-white/[0.08] shadow-swiss transition-all hover:border-black/20 dark:hover:border-white/20 hover:shadow-swiss-hover hover:-translate-y-1">
-                            <div className="mb-4 text-muted-foreground group-hover:text-foreground transition-colors">
-                                <stat.icon className="h-6 w-6" />
-                            </div>
-                            <div className="absolute bottom-6 left-6">
-                                <p className="text-3xl font-display font-medium text-foreground mb-1">{stat.value}</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
-                            </div>
-                            <div className="h-24" /> {/* Spacer for absolute positioning */}
-                        </div>
-                    ))}
-                </div>
+                <DashboardStats resumeCount={resumes.length} uploadCount={uploadedResumes.length} />
 
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Left: Main Grid (Resumes + Actions) */}
@@ -571,53 +530,14 @@ export default function DashboardClient() {
                             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">View Archive</Button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-[minmax(280px,auto)]">
-                            {/* 1. Create New Card (Bento Style) */}
-                            <div className="relative group p-8 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 transition-all cursor-pointer bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900 flex flex-col items-center justify-center text-center space-y-4" onClick={() => setShowCreateOptions(true)}>
-                                <div className="h-16 w-16 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                                    <Plus className="h-8 w-8" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-foreground">Create New</h3>
-                                    <p className="text-sm text-muted-foreground">Start from scratch or import</p>
-                                </div>
-                                {/* Hidden Input Hack if needed or logic trigger */}
-                            </div>
-
-                            {/* Resume Cards */}
-                            {isLoading ? (
-                                [1, 2].map(i => <div key={i} className="rounded-[2.5rem] bg-gray-100 dark:bg-gray-900 animate-pulse h-full min-h-[280px]" />)
-                            ) : (
-                                resumes.map((resume) => (
-                                    <div key={resume.id} className="group relative p-8 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss hover:scale-[1.02] hover:shadow-swiss-hover transition-all duration-300 flex flex-col">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className="h-12 w-12 rounded-2xl bg-white dark:bg-black flex items-center justify-center text-foreground shadow-sm">
-                                                <FileText className="h-6 w-6" />
-                                            </div>
-                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(e) => { e.stopPropagation(); handleDownload(resume.id, resume.title); }}>
-                                                    <Download className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:text-red-500" onClick={(e) => { e.stopPropagation(); showDeleteConfirmation(resume.id, resume.title); }}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-auto">
-                                            <h3 className="text-xl font-display font-medium text-foreground mb-2 line-clamp-1">{resume.title}</h3>
-                                            <p className="text-sm text-muted-foreground mb-6">Edited {new Date(resume.updatedAt).toLocaleDateString()}</p>
-
-                                            <Link href={`/resume/${resume.id}`}>
-                                                <Button className="w-full rounded-xl font-bold bg-foreground text-background hover:bg-foreground/90">
-                                                    Edit Resume
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                        {/* Resume Grid Component */}
+                        <ResumeGrid
+                            resumes={resumes}
+                            isLoading={isLoading}
+                            onCreateNew={() => setShowCreateOptions(true)}
+                            onDownload={handleDownload}
+                            onDelete={showDeleteConfirmation}
+                        />
                     </div>
 
                     {/* Right: Sidebar Content */}
@@ -668,60 +588,13 @@ export default function DashboardClient() {
                         </Card>
 
                         {/* Recent Activity / Uploads */}
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-display font-bold text-foreground">Recent Uploads</h3>
-                                <Badge variant="brand" size="xs" shape="pill">{uploadedResumes.length}</Badge>
-                            </div>
-
-                            {isLoadingUploads ? (
-                                <div className="space-y-4">
-                                    {[1, 2].map(i => <div key={i} className="h-20 rounded-2xl bg-gray-100 animate-pulse" />)}
-                                </div>
-                            ) : uploadedResumes.length === 0 ? (
-                                <div className="p-8 text-center rounded-3xl bg-gray-50 dark:bg-white/5 text-muted-foreground text-sm">
-                                    No recent files uploaded.
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {uploadedResumes.slice(0, 3).map((upload) => (
-                                        <div key={upload.id} className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-sm group">
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-10 w-10 shrink-0 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 flex items-center justify-center">
-                                                    <FileUp className="h-5 w-5" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-foreground truncate">{upload.originalFilename}</p>
-                                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none mt-1">
-                                                        {upload.status} • {formatFileSize(upload.fileSize)}
-                                                    </p>
-                                                </div>
-                                                {upload.status === 'COMPLETED' && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 rounded-full text-brand-600 hover:bg-brand-50"
-                                                        onClick={() => void handleCreateResumeFromUpload(upload.id)}
-                                                        loading={creatingResumeFromId === upload.id}
-                                                        disabled={creatingResumeFromId !== null}
-                                                    >
-                                                        <Plus className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50"
-                                                    onClick={() => showDeleteUploadConfirmation(upload.id)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                        <UploadsList
+                            uploads={uploadedResumes}
+                            isLoading={isLoadingUploads}
+                            creatingFromId={creatingResumeFromId}
+                            onCreateFromUpload={(id) => void handleCreateResumeFromUpload(id)}
+                            onDelete={showDeleteUploadConfirmation}
+                        />
                     </div>
                 </div>
             </main>

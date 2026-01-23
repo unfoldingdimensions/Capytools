@@ -143,7 +143,7 @@ export function EducationItem({
             <div
                 className={cn(
                     "flex cursor-pointer items-center justify-between p-5 transition-colors",
-                    isExpanded ? "bg-brand-50/30" : "hover:bg-gray-50/50"
+                    isExpanded ? "bg-brand-50/30 dark:bg-brand-950/30" : "hover:bg-gray-50/50 dark:hover:bg-gray-900/50"
                 )}
                 onClick={onToggleExpand}
             >
@@ -153,15 +153,15 @@ export function EducationItem({
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-display font-bold text-gray-900">
+                            <h3 className="font-display font-bold text-foreground">
                                 {education.degree || 'Degree'}
-                                {education.field && <span className="text-gray-500 font-normal"> in {education.field}</span>}
+                                {education.field && <span className="text-muted-foreground font-normal"> in {education.field}</span>}
                             </h3>
                             {education.current && (
                                 <Badge variant="brand" size="sm" shape="pill">Currently Attending</Badge>
                             )}
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                                 <GraduationCap className="h-3.5 w-3.5" />
                                 {education.institution || 'Institution'}
@@ -264,7 +264,7 @@ export function EducationItem({
                                     }}
                                     className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                                 />
-                                <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700 transition-colors tracking-wide uppercase">I am still studying here</span>
+                                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors tracking-wide uppercase">I am still studying here</span>
                             </label>
                         </div>
                     </div>
@@ -279,7 +279,7 @@ export function EducationItem({
                         />
                     </div>
 
-                    <div className="pt-4 border-t border-gray-100">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                         <BulletPointEditor
                             bullets={education.achievements || []}
                             onChange={(bullets) => handleChange('achievements', bullets)}

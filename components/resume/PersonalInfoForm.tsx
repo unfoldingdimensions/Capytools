@@ -288,7 +288,7 @@ export default function PersonalInfoForm({
                     <Button
                         type="submit"
                         size="lg"
-                        className="rounded-full px-10 shadow-lg shadow-brand-100"
+                        className="rounded-full px-10"
                         disabled={isSubmitting}
                         loading={isSubmitting}
                     >

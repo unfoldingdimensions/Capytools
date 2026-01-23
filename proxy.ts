@@ -8,7 +8,7 @@ const isPublicRoute = createRouteMatcher([
     '/api/webhooks(.*)',
 ]);
 
-export default clerkMiddleware(async (auth, request) => {
+export const proxy = clerkMiddleware(async (auth, request) => {
     const { userId } = await auth();
 
     // If user is trying to access sign-in/sign-up while authenticated, redirect to dashboard

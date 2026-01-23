@@ -103,8 +103,8 @@ export default function CertificationsForm({
                     <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
                         <Award className="h-8 w-8 text-brand-600" />
                     </div>
-                    <h3 className="text-xl font-display font-bold text-gray-900 mb-2">No certifications yet</h3>
-                    <p className="text-gray-500 max-w-xs mb-8">
+                    <h3 className="text-xl font-display font-bold text-foreground mb-2">No certifications yet</h3>
+                    <p className="text-muted-foreground max-w-xs mb-8">
                         Highlight your professional certifications and specialized training.
                     </p>
                     <Button
@@ -139,7 +139,7 @@ export default function CertificationsForm({
                                     <div className="flex items-center gap-4">
                                         <GripVertical className="h-5 w-5 text-gray-300" />
                                         <div>
-                                            <h3 className="font-display font-bold text-gray-900 mb-1">
+                                            <h3 className="font-display font-bold text-foreground mb-1">
                                                 {cert.name || 'Untitled Certification'}
                                             </h3>
                                             <div className="flex items-center gap-3 text-sm text-gray-500">

@@ -179,7 +179,7 @@ export function WorkExperienceItem({
             <div
                 className={cn(
                     "flex cursor-pointer items-center justify-between p-5 transition-colors",
-                    isExpanded ? "bg-brand-50/30" : "hover:bg-gray-50/50"
+                    isExpanded ? "bg-brand-50/30 dark:bg-brand-950/30" : "hover:bg-gray-50/50 dark:hover:bg-gray-900/50"
                 )}
                 onClick={onToggleExpand}
             >
@@ -189,14 +189,14 @@ export function WorkExperienceItem({
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-display font-bold text-gray-900">
+                            <h3 className="font-display font-bold text-foreground">
                                 {experience.position || 'Untitled Position'}
                             </h3>
                             {experience.current && (
                                 <Badge variant="success" size="sm" shape="pill">Current</Badge>
                             )}
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                                 <Building2 className="h-3.5 w-3.5" />
                                 {experience.company || 'Company'}
@@ -291,14 +291,14 @@ export function WorkExperienceItem({
                                     }}
                                     className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                                 />
-                                <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700 transition-colors tracking-wide uppercase">I currently work here</span>
+                                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors tracking-wide uppercase">I currently work here</span>
                             </label>
                         </div>
                     </div>
 
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Role Description</label>
+                            <label className="text-sm font-bold text-foreground uppercase tracking-wider">Role Description</label>
                             <Button
                                 type="button"
                                 size="sm"
@@ -319,14 +319,14 @@ export function WorkExperienceItem({
                             value={experience.description}
                             onChange={(e) => handleChange('description', e.target.value)}
                             placeholder="Briefly describe your core responsibilities and team context..."
-                            className="min-h-[100px] bg-gray-50/50 border-gray-200 focus:bg-white transition-all resize-none"
+                            className="min-h-[100px] bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 transition-all resize-none"
                         />
-                        <p className="text-[11px] text-gray-400 italic">
+                        <p className="text-[11px] text-muted-foreground italic">
                             Tip: Describe what you did in plain text, then use the button above to transform it into professional bullet points.
                         </p>
                     </div>
 
-                    <div className="pt-4 border-t border-gray-100">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                         <BulletPointEditor
                             bullets={experience.achievements}
                             onChange={(bullets) => handleChange('achievements', bullets)}

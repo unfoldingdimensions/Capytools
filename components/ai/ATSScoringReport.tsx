@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ATSScoreResult } from '@/types/ai.types';
 
 interface ATSScoringReportProps {
@@ -13,15 +14,15 @@ interface ATSScoringReportProps {
 
 export default function ATSScoringReport({ score, resumeId, jobDescriptionId }: ATSScoringReportProps) {
     const getScoreColor = (value: number) => {
-        if (value >= 80) return 'text-green-600';
-        if (value >= 60) return 'text-yellow-600';
-        return 'text-red-600';
+        if (value >= 80) return 'text-green-600 dark:text-green-400';
+        if (value >= 60) return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-red-600 dark:text-red-400';
     };
 
     const getScoreBgColor = (value: number) => {
-        if (value >= 80) return 'bg-green-100';
-        if (value >= 60) return 'bg-yellow-100';
-        return 'bg-red-100';
+        if (value >= 80) return 'bg-green-100 dark:bg-green-900/20';
+        if (value >= 60) return 'bg-yellow-100 dark:bg-yellow-900/20';
+        return 'bg-red-100 dark:bg-red-900/20';
     };
 
     const getScoreLabel = (value: number) => {
@@ -34,47 +35,49 @@ export default function ATSScoringReport({ score, resumeId, jobDescriptionId }: 
     return (
         <div className="space-y-6">
             {/* Overall Score */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="text-center">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                        ATS Compatibility Score
-                    </h3>
-                    <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full ${getScoreBgColor(score.overallScore)}`}>
-                        <div className="text-center">
-                            <div className={`text-4xl font-bold ${getScoreColor(score.overallScore)}`}>
-                                {score.overallScore}
+            <Card>
+                <CardContent className="p-8">
+                    <div className="text-center">
+                        <h3 className="text-lg font-semibold text-foreground mb-6">
+                            ATS Compatibility Score
+                        </h3>
+                        <div className={`inline-flex items-center justify-center w-40 h-40 rounded-full ${getScoreBgColor(score.overallScore)} ring-8 ring-background`}>
+                            <div className="text-center">
+                                <div className={`text-5xl font-bold tracking-tight ${getScoreColor(score.overallScore)}`}>
+                                    {score.overallScore}
+                                </div>
+                                <div className="text-sm font-medium text-muted-foreground mt-1">/ 100</div>
                             </div>
-                            <div className="text-sm text-gray-600">/ 100</div>
                         </div>
+                        <p className={`mt-6 text-xl font-bold ${getScoreColor(score.overallScore)}`}>
+                            {getScoreLabel(score.overallScore)}
+                        </p>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            Analyzed on {new Date(score.analysisDate).toLocaleDateString()}
+                        </p>
                     </div>
-                    <p className={`mt-4 text-lg font-medium ${getScoreColor(score.overallScore)}`}>
-                        {getScoreLabel(score.overallScore)}
-                    </p>
-                    <p className="mt-2 text-sm text-gray-500">
-                        Analyzed on {new Date(score.analysisDate).toLocaleDateString()}
-                    </p>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Category Scores */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h4 className="text-md font-semibold text-gray-900 mb-4">
-                    Category Breakdown
-                </h4>
-                <div className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Category Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
                     {Object.entries(score.categoryScores).map(([category, value]) => (
                         <div key={category}>
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm font-medium text-gray-700 capitalize">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm font-medium text-foreground capitalize">
                                     {category}
                                 </span>
                                 <span className={`text-sm font-bold ${getScoreColor(value)}`}>
                                     {value}/100
                                 </span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
                                 <div
-                                    className={`h-2 rounded-full transition-all duration-300 ${value >= 80
+                                    className={`h-full rounded-full transition-all duration-500 ease-out ${value >= 80
                                         ? 'bg-green-500'
                                         : value >= 60
                                             ? 'bg-yellow-500'
@@ -85,99 +88,101 @@ export default function ATSScoringReport({ score, resumeId, jobDescriptionId }: 
                             </div>
                         </div>
                     ))}
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Matched Requirements */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h4 className="text-md font-semibold text-gray-900 mb-3">
-                    Job Match Analysis
-                </h4>
-                <div className="flex items-center">
-                    <div className="flex-1">
-                        <p className="text-sm text-gray-600">Requirements Matched</p>
-                        <p className="text-2xl font-bold text-gray-900">
-                            {score.matchedRequirements}
-                        </p>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Job Match Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="rounded-lg bg-muted/40 p-4 border text-center">
+                            <p className="text-sm text-muted-foreground mb-1">Requirements Matched</p>
+                            <p className="text-3xl font-bold text-foreground">
+                                {score.matchedRequirements}
+                            </p>
+                        </div>
+                        <div className="rounded-lg bg-muted/40 p-4 border text-center">
+                            <p className="text-sm text-muted-foreground mb-1">Missing Keywords</p>
+                            <p className="text-3xl font-bold text-foreground">
+                                {score.missingKeywords.length}
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex-1">
-                        <p className="text-sm text-gray-600">Missing Keywords</p>
-                        <p className="text-2xl font-bold text-gray-900">
-                            {score.missingKeywords.length}
-                        </p>
-                    </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Missing Keywords */}
             {score.missingKeywords.length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">
-                        Missing Keywords
-                    </h4>
-                    <p className="text-sm text-gray-600 mb-3">
-                        Consider adding these keywords to improve your resume's ATS compatibility:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                        {score.missingKeywords.slice(0, 15).map((keyword, index) => (
-                            <span
-                                key={index}
-                                className="px-3 py-1 bg-red-50 text-red-700 text-sm rounded-full border border-red-200"
-                            >
-                                {keyword}
-                            </span>
-                        ))}
-                    </div>
-                    {score.missingKeywords.length > 15 && (
-                        <p className="mt-3 text-sm text-gray-500">
-                            + {score.missingKeywords.length - 15} more keywords
-                        </p>
-                    )}
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Missing Keywords</CardTitle>
+                        <CardDescription>Consider adding these keywords to improve your resume's ATS compatibility</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-wrap gap-2">
+                            {score.missingKeywords.slice(0, 15).map((keyword, index) => (
+                                <span
+                                    key={index}
+                                    className="px-3 py-1 bg-destructive/10 text-destructive text-sm font-medium rounded-full border border-destructive/20"
+                                >
+                                    {keyword}
+                                </span>
+                            ))}
+                            {score.missingKeywords.length > 15 && (
+                                <span className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full">
+                                    + {score.missingKeywords.length - 15} more
+                                </span>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
             )}
 
             {/* Improvement Suggestions */}
             {score.suggestions.length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">
-                        Improvement Suggestions
-                    </h4>
-                    <ul className="space-y-3">
-                        {score.suggestions.map((suggestion, index) => (
-                            <li key={index} className="flex items-start">
-                                <svg
-                                    className="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                                <span className="text-sm text-gray-700">{suggestion}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Improvement Suggestions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="space-y-4">
+                            {score.suggestions.map((suggestion, index) => (
+                                <li key={index} className="flex gap-3 text-sm">
+                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                        {index + 1}
+                                    </span>
+                                    <span className="text-foreground/90 pt-0.5">{suggestion}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </CardContent>
+                </Card>
             )}
 
             {/* Action Button */}
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800 mb-3">
-                    💡 <strong>Pro Tip:</strong> Use our AI Resume Tailoring feature to automatically
-                    optimize your resume based on these recommendations.
-                </p>
-                {resumeId && jobDescriptionId && (
-                    <Link href={`/ai/tailor-resume?resumeId=${resumeId}&jobDescriptionId=${jobDescriptionId}`}>
-                        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                            <Sparkles className="mr-2 h-4 w-4" />
-                            Tailor Your Resume with AI
-                        </Button>
-                    </Link>
-                )}
-            </div>
+            <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="space-y-1">
+                            <h4 className="font-semibold text-primary">Pro Tip</h4>
+                            <p className="text-sm text-muted-foreground max-w-md">
+                                Use our AI Resume Tailoring feature to automatically optimize your resume based on these recommendations.
+                            </p>
+                        </div>
+                        {resumeId && jobDescriptionId && (
+                            <Link href={`/ai/tailor-resume?resumeId=${resumeId}&jobDescriptionId=${jobDescriptionId}`}>
+                                <Button className="w-full md:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0">
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    Tailor Your Resume with AI
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

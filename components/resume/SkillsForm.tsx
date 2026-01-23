@@ -221,8 +221,8 @@ export default function SkillsForm({
             <div className="grid grid-cols-1 gap-6">
                 {skills.length === 0 ? (
                     <div className="text-center py-12 px-4 rounded-3xl border-2 border-dashed border-gray-100 bg-gray-50/30">
-                        <Star className="h-10 w-10 text-gray-200 mx-auto mb-4" />
-                        <p className="text-gray-400 font-medium">Add categories to start organizing your skills.</p>
+                        <Star className="h-10 w-10 text-muted-foreground/30 mx-auto mb-4" />
+                        <p className="text-muted-foreground font-medium">Add categories to start organizing your skills.</p>
                     </div>
                 ) : (
                     skills.map((s) => (
@@ -230,7 +230,7 @@ export default function SkillsForm({
                             <div className="p-5 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 rounded-full bg-brand-500" />
-                                    <h3 className="font-display font-bold text-gray-900 uppercase tracking-wider text-xs">{s.category}</h3>
+                                    <h3 className="font-display font-bold text-foreground uppercase tracking-wider text-xs">{s.category}</h3>
                                     <Badge variant="secondary" size="sm" className="ml-2 bg-white">{s.skills.length}</Badge>
                                 </div>
                                 <Button
@@ -302,7 +302,7 @@ export default function SkillsForm({
                 <div className="pt-4">
                     <div className="flex items-center gap-2 mb-4 px-2">
                         <Sparkles className="h-4 w-4 text-brand-600" />
-                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest">AI Power Tools</h4>
+                        <h4 className="text-sm font-bold text-foreground uppercase tracking-widest">AI Power Tools</h4>
                     </div>
                     <SuggestionCard
                         title="Keyword Matching"

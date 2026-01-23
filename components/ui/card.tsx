@@ -19,10 +19,11 @@ const Card = React.forwardRef<
                     'border border-black/[0.08] dark:border-white/[0.08] bg-transparent': variant === 'outlined',
                     'bg-muted/50 border-none': variant === 'flat',
                 },
-                hover && 'hover:shadow-lg hover:-translate-y-1',
+                hover && 'interactive-hover',
                 gradient && 'bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950',
                 className
-            )}
+            )
+            }
             {...props}
         />
     );
