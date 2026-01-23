@@ -178,16 +178,17 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                         onPreview={() => setIsPreviewOpen(true)}
                     />
                 }
-                sidebar={
-                    <>
-                        <div className="px-2">
-                            <SectionNavigation
-                                activeSection={activeSection}
-                                setActiveSection={setActiveSection}
-                                completedSections={completedSections}
-                            />
-                        </div>
-
+                leftSidebar={
+                    <div className="px-2">
+                        <SectionNavigation
+                            activeSection={activeSection}
+                            setActiveSection={setActiveSection}
+                            completedSections={completedSections}
+                        />
+                    </div>
+                }
+                rightSidebar={
+                    <div className="space-y-6">
                         {/* Resume Score Panel */}
                         <ResumeScorePanel
                             resumeData={resumeData}
@@ -251,7 +252,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                 </Button>
                             </div>
                         )}
-                    </>
+                    </div>
                 }
             >
                 <div className="p-8 md:p-12 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss min-h-[600px]">

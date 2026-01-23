@@ -563,7 +563,7 @@ export default function DashboardClient() {
                                     </div>
                                 </Link>
                                 <Link
-                                    href={resumes.length > 0 ? `/resume/${resumes[0]?.id}?tailoring=true` : "/ai/ats-score"}
+                                    href="/ai/ats-score"
                                     className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group"
                                 >
                                     <div className="flex items-center gap-4">

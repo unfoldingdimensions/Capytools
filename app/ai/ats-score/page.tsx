@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, Loader2, AlertCircle, Target, Sparkles, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,8 @@ interface SavedATSScore {
     } | null;
 }
 
-function ATSScoreContent() {
+export function ATSScoreContent() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const jobDescriptionId = searchParams?.get('jobDescriptionId') || null;
 
@@ -148,6 +149,12 @@ function ATSScoreContent() {
                 if (scoresData.success) {
                     setSavedScores(scoresData.data || []);
                 }
+
+                // Automatically route to the resume builder after a brief delay
+                // to allow the user to see the score result briefly
+                setTimeout(() => {
+                    router.push(`/resume/${resumeId}?jobDescriptionId=${selectedJobDescriptionId}&tailoring=true`);
+                }, 2000);
             } else {
                 throw new Error('Invalid response from server');
             }
