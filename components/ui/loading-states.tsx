@@ -14,19 +14,19 @@ export function AIGlowingLoader({ size = "md", className }: { size?: "sm" | "md"
     return (
         <div className={cn("relative flex items-center justify-center", sizes[size], className)}>
             {/* Outer Glow Pulse */}
-            <div className="absolute inset-0 rounded-full bg-brand-500/20 blur-xl animate-pulse" />
+            <div className="absolute inset-0 rounded-full bg-zinc-400/20 dark:bg-white/10 blur-xl animate-pulse" />
 
             {/* Morphing Background Layer */}
-            <div className="absolute inset-2 rounded-full border border-brand-500/10 bg-gradient-to-br from-brand-500/5 to-purple-500/5 animate-[spin_4s_linear_infinite]" />
+            <div className="absolute inset-2 rounded-full border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-zinc-100/10 to-transparent animate-[spin_4s_linear_infinite]" />
 
             {/* Rotating Outer Ring */}
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-brand-600/30 border-l-brand-600/30 animate-[spin_2s_ease-in-out_infinite]" />
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-zinc-900/30 dark:border-t-white/30 border-l-zinc-900/10 dark:border-l-white/10 animate-[spin_2s_ease-in-out_infinite]" />
 
             {/* Counter-Rotating Inner Ring */}
-            <div className="absolute inset-3 rounded-full border border-transparent border-b-purple-500/40 border-r-purple-500/40 animate-[spin_1.5s_ease-in-out_infinite_reverse]" />
+            <div className="absolute inset-3 rounded-full border border-transparent border-b-zinc-400/40 dark:border-b-zinc-500/40 border-r-zinc-400/20 dark:border-r-zinc-500/20 animate-[spin_1.5s_ease-in-out_infinite_reverse]" />
 
             {/* Solid Center Core */}
-            <div className="h-2 w-2 rounded-full bg-brand-600 shadow-[0_0_15px_rgba(var(--brand-600-rgb),0.5)]" />
+            <div className="h-2.5 w-2.5 rounded-full bg-zinc-900 dark:bg-white shadow-[0_0_15px_rgba(0,0,0,0.2)] dark:shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
         </div>
     )
 }
