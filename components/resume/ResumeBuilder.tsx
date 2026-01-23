@@ -59,6 +59,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
     const { saveResume, isSaving } = useResumeSaver(resumeId);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [downloadingId, setDownloadingId] = useState<string | null>(null);
+    const [lastSaved, setLastSaved] = useState<string | null>(null);
 
     const completedSections = useMemo(() => {
         const completed = [];
@@ -99,7 +100,10 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
             ...resumeData
         };
         // @ts-ignore
-        await saveResume(resumeState, title);
+        const savedData = await saveResume(resumeState, title);
+        if (savedData) {
+            setLastSaved(new Date().toLocaleTimeString());
+        }
     };
 
     const handleDownload = async () => {
@@ -180,7 +184,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                         className="h-9 border-none bg-transparent px-0 font-display font-bold text-lg focus-visible:ring-0 placeholder:text-gray-400"
                                     />
                                     <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-                                        Last saved: {new Date().toLocaleTimeString()}
+                                        {lastSaved ? `Last saved: ${lastSaved}` : 'Changes not saved'}
                                     </p>
                                 </div>
                             </div>

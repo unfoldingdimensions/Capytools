@@ -1,4 +1,4 @@
-import { createCompletion, getDefaultModel, AIConfig } from './openai.service';
+import { createCompletion, createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import type { ResumeData, WorkExperience, Education, Project, Skill } from '@/types/resume.types';
 import type { ParsedJobDescription } from '@/types/ai.types';
 
@@ -148,7 +148,7 @@ Generate 3-5 powerful achievement bullets that align with this job. Focus on:
 Return ONLY a JSON array of strings.`;
 
     try {
-        const response = await createCompletion(
+        const achievements = await createJSONCompletion<string[]>(
             [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
@@ -156,36 +156,10 @@ Return ONLY a JSON array of strings.`;
             {
                 model: getDefaultModel(config),
                 temperature: 0.7,
-                maxTokens: 400,
+                maxTokens: 1000,
                 config
             }
         );
-
-        const cleaned = cleanAIResponse(response);
-
-        // Try to parse as JSON array
-        let achievements: string[];
-        try {
-            // Remove markdown code blocks if present
-            const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-                achievements = JSON.parse(jsonMatch[0]) as string[];
-            } else {
-                // Fallback: split by newlines and filter
-                achievements = cleaned.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line && !line.startsWith('{') && !line.startsWith('}'))
-                    .map(line => line.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, ''))
-                    .filter(line => line.length > 10);
-            }
-        } catch {
-            // Fallback parsing
-            achievements = cleaned.split('\n')
-                .map(line => line.trim())
-                .filter(line => line.length > 10)
-                .map(line => line.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, ''))
-                .slice(0, 5);
-        }
 
         const tips = [
             `Include keywords: ${jobDescription.keywords.slice(0, 3).join(', ')}`,
@@ -236,7 +210,7 @@ Key Skills: ${jobDescription.keywords.slice(0, 8).join(', ')}
 Generate 2-3 relevant education highlights that connect to this job. Return ONLY a JSON array.`;
 
     try {
-        const response = await createCompletion(
+        const relevantPoints = await createJSONCompletion<string[]>(
             [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
@@ -244,31 +218,10 @@ Generate 2-3 relevant education highlights that connect to this job. Return ONLY
             {
                 model: getDefaultModel(config),
                 temperature: 0.7,
-                maxTokens: 300,
+                maxTokens: 1000,
                 config
             }
         );
-
-        const cleaned = cleanAIResponse(response);
-        let relevantPoints: string[];
-
-        try {
-            const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-                relevantPoints = JSON.parse(jsonMatch[0]) as string[];
-            } else {
-                relevantPoints = cleaned.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 10)
-                    .map(line => line.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, ''))
-                    .slice(0, 3);
-            }
-        } catch {
-            relevantPoints = cleaned.split('\n')
-                .map(line => line.trim())
-                .filter(line => line.length > 10)
-                .slice(0, 3);
-        }
 
         const tips = [
             'Highlight relevant coursework or projects',
@@ -319,7 +272,7 @@ Required Skills: ${jobDescription.keywords.slice(0, 8).join(', ')}
 Generate 2-4 project highlights that demonstrate relevant skills for this job. Return ONLY a JSON array.`;
 
     try {
-        const response = await createCompletion(
+        const highlights = await createJSONCompletion<string[]>(
             [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
@@ -327,31 +280,10 @@ Generate 2-4 project highlights that demonstrate relevant skills for this job. R
             {
                 model: getDefaultModel(config),
                 temperature: 0.7,
-                maxTokens: 350,
+                maxTokens: 1000,
                 config
             }
         );
-
-        const cleaned = cleanAIResponse(response);
-        let highlights: string[];
-
-        try {
-            const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-                highlights = JSON.parse(jsonMatch[0]) as string[];
-            } else {
-                highlights = cleaned.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 10)
-                    .map(line => line.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, ''))
-                    .slice(0, 4);
-            }
-        } catch {
-            highlights = cleaned.split('\n')
-                .map(line => line.trim())
-                .filter(line => line.length > 10)
-                .slice(0, 4);
-        }
 
         const tips = [
             'Emphasize relevant technologies and methodologies',
@@ -398,7 +330,7 @@ Suggest 5-8 relevant skills I should highlight or add to match this job. Priorit
 Return ONLY a JSON array of skill names.`;
 
     try {
-        const response = await createCompletion(
+        const suggestedSkills = await createJSONCompletion<string[]>(
             [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
@@ -406,31 +338,10 @@ Return ONLY a JSON array of skill names.`;
             {
                 model: getDefaultModel(config),
                 temperature: 0.6,
-                maxTokens: 300,
+                maxTokens: 1000,
                 config
             }
         );
-
-        const cleaned = cleanAIResponse(response);
-        let suggestedSkills: string[];
-
-        try {
-            const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-                suggestedSkills = JSON.parse(jsonMatch[0]) as string[];
-            } else {
-                suggestedSkills = cleaned.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 2)
-                    .map(line => line.replace(/^[-•*]\s*/, '').replace(/^\d+\.\s*/, ''))
-                    .slice(0, 8);
-            }
-        } catch {
-            suggestedSkills = cleaned.split('\n')
-                .map(line => line.trim())
-                .filter(line => line.length > 2)
-                .slice(0, 8);
-        }
 
         const tips = [
             'Prioritize skills mentioned in job description',

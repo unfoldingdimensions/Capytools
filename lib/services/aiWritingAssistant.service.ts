@@ -131,10 +131,12 @@ Return a JSON object with this structure:
         const result = await createJSONCompletion<GrammarCheckResult>(messages, {
             model: getDefaultModel(config),
             temperature: 0.3,
-            maxTokens: 2000,
+            maxTokens: 3000,
             config
         });
 
+        // Ensure originalText is present
+        result.originalText = text;
         return result;
     } catch (error) {
         console.error('Grammar check error:', error);
@@ -192,8 +194,7 @@ Guidelines:
 
 Return a JSON object with this structure:
 {
-  "bulletPoints": ["bullet 1", "bullet 2", ...],
-  "originalInput": "the original text"
+  "bulletPoints": ["bullet 1", "bullet 2", ...]
 }`,
         },
         {
@@ -210,10 +211,12 @@ ${description}`,
         const result = await createJSONCompletion<BulletPointsResult>(messages, {
             model: getDefaultModel(config),
             temperature: 0.7,
-            maxTokens: 1500,
+            maxTokens: 2500,
             config
         });
 
+        // Restore originalInput from the input itself to save tokens in response
+        result.originalInput = description;
         return result;
     } catch (error) {
         console.error('Bullet point generation error:', error);
@@ -247,7 +250,8 @@ export async function improveBulletPoint(
 - Ensuring ATS-friendliness
 - Maintaining professional tone
 
-CRITICAL: Return ONLY the improved bullet point text itself. No preambles, no notes, no explanations, no meta-commentary.`,
+CRITICAL: Return ONLY the improved bullet point text itself. No preambles, no notes, no explanations.
+If the bullet point is already optimal and needs no improvement, return the original bullet point exactly as is.`,
         },
         {
             role: 'user',
@@ -262,7 +266,7 @@ Bullet: ${bulletPoint}`,
         const improvedText = await createCompletion(messages, {
             model: getDefaultModel(config),
             temperature: 0.7,
-            maxTokens: 200,
+            maxTokens: 2000,
             config
         });
 
@@ -302,6 +306,7 @@ export async function improveContent(
         {
             role: 'system',
             content: `You are a professional content writer. Improve the given text to make it more professional, impactful, and suitable for ${typeGuidelines[type]}.
+If the text is already excellent, you may return the improved version as the original text, but try to provide at least some subtle enhancements or professional polish.
 
 Return a JSON object with:
 {
@@ -319,7 +324,7 @@ Return a JSON object with:
         const result = await createJSONCompletion<ContentImprovementResult>(messages, {
             model: getDefaultModel(config),
             temperature: 0.7,
-            maxTokens: 1500,
+            maxTokens: 2500,
             config
         });
 
@@ -429,7 +434,7 @@ Return a JSON object with:
         const result = await createJSONCompletion<{ verbs: string[] }>(messages, {
             model: getDefaultModel(config),
             temperature: 0.8,
-            maxTokens: 300,
+            maxTokens: 1000,
             config
         });
 

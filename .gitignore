@@ -10,3 +10,5 @@ build/
 coverage/
 .turbo/
 *.tsbuildinfo
+PAT.txt
+GITHUB_PUSH.md

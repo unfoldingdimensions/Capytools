@@ -115,22 +115,39 @@ export async function createCompletion(
             top_p: topP,
         });
 
-        const content = completion.choices[0]?.message?.content;
+        const choice = completion.choices[0];
+        const content = choice?.message?.content;
+        const finishReason = choice?.finish_reason;
 
-        if (!content) {
+        if (content === null || content === undefined) {
             throw new Error(
-                'OpenAI returned empty response. ' +
-                `Finish reason: ${completion.choices[0]?.finish_reason || 'unknown'}`
+                'AI Provider returned no content message. ' +
+                `Finish reason: ${finishReason || 'unknown'}`
+            );
+        }
+
+        if (content.trim().length === 0) {
+            // Some providers return empty string if they hit a limit or filter immediately
+            if (finishReason === 'length') {
+                throw new Error(
+                    'AI response was truncated before any content could be generated. ' +
+                    'The input may be too long or the maxTokens limit is too low for this provider.'
+                );
+            }
+            throw new Error(
+                'AI Provider returned an empty string. ' +
+                `Finish reason: ${finishReason || 'unknown'}`
             );
         }
 
         // Log token usage for monitoring
-        console.log('OpenAI API Usage:', {
+        console.log('AI API Usage:', {
             provider: config?.baseURL ? 'Custom/BYOK' : 'Default',
             model,
             promptTokens: completion.usage?.prompt_tokens,
             completionTokens: completion.usage?.completion_tokens,
             totalTokens: completion.usage?.total_tokens,
+            finishReason
         });
 
         return content;
@@ -162,26 +179,64 @@ export async function createJSONCompletion<T>(
         config?: AIConfig;
     } = {}
 ): Promise<T> {
-    const content = await createCompletion(
-        [
-            ...messages,
-            {
-                role: 'system',
-                content: 'You must respond with valid JSON only. No markdown, no explanations, just JSON.',
-            },
-        ],
-        options
-    );
+    const jsonInstruction = 'You must respond with valid JSON only. No markdown, no explanations, just JSON.';
+    const finalMessages = [...messages];
+
+    // Find the first system message to merge into, or prepend if none exists
+    const systemIndex = finalMessages.findIndex(m => m.role === 'system');
+    if (systemIndex !== -1) {
+        const existingSystem = finalMessages[systemIndex] as OpenAIMessage;
+        finalMessages[systemIndex] = {
+            role: 'system',
+            content: `${existingSystem.content}\n\nIMPORTANT: ${jsonInstruction}`
+        };
+    } else {
+        finalMessages.unshift({
+            role: 'system',
+            content: jsonInstruction
+        });
+    }
+
+    const content = await createCompletion(finalMessages, options);
 
     try {
-        // Remove markdown code blocks if present
-        const cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        return JSON.parse(cleanedContent) as T;
+        // Robust JSON extraction from common AI formatting
+        let jsonStr = content.trim();
+
+        // 1. Remove markdown code blocks
+        if (jsonStr.includes('```')) {
+            const matches = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+            if (matches && matches[1]) {
+                jsonStr = matches[1].trim();
+            } else {
+                jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            }
+        }
+
+        // 2. Extra safety: Find the first { or [ and the matching last or ]
+        const firstBrace = jsonStr.indexOf('{');
+        const firstBracket = jsonStr.indexOf('[');
+        const start = (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) ? firstBrace : firstBracket;
+
+        if (start === -1) {
+            throw new Error('No JSON structures ( { or [ ) found in response');
+        }
+
+        const lastBrace = jsonStr.lastIndexOf('}');
+        const lastBracket = jsonStr.lastIndexOf(']');
+        const end = Math.max(lastBrace, lastBracket);
+
+        if (end === -1 || end < start) {
+            throw new Error('Incomplete JSON structure in response');
+        }
+
+        const exactJson = jsonStr.substring(start, end + 1);
+        return JSON.parse(exactJson) as T;
     } catch (parseError) {
         throw new Error(
-            `Failed to parse OpenAI JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}. ` +
+            `Failed to parse AI JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}. ` +
             `Raw content length: ${content.length} characters. ` +
-            `Content preview: ${content.substring(0, 200)}...`
+            `Content preview: ${content.substring(0, 150)}${content.length > 150 ? '...' : ''}`
         );
     }
 }

@@ -52,10 +52,12 @@ export function useResumeSaver(resumeId?: string) {
 
             if (result.success) {
                 if (!resumeId) {
+                    // If it's a new resume, redirect to the new edit page
                     router.push(`/resume/${result.data.id}`);
-                } else {
-                    router.push('/dashboard');
                 }
+                // For existing resumes, we stay on the page. 
+                // We could add a toast here if available.
+                return result.data;
             } else {
                 throw new Error(result.message || 'Failed to save resume');
             }
