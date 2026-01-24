@@ -1,33 +1,37 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, CheckCircle, Wand2 } from 'lucide-react';
+import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 interface AIActionButtonsProps {
-    onCheckGrammar?: () => void;
     onImprove?: () => void;
     onGenerate?: () => void;
     loadingType?: string | null;
     identifiers?: {
-        grammar?: string;
         improve?: string;
         generate?: string;
     };
-    showGrammar?: boolean;
     showImprove?: boolean;
     showGenerate?: boolean;
     size?: 'default' | 'sm' | 'lg' | 'icon';
     className?: string;
 }
 
+/**
+ * AI action buttons for content improvement and generation.
+ * 
+ * Note: The "Check Grammar" functionality has been deprecated
+ * in favor of the unified "Enhance with AI" batch processing
+ * in BulletPointEditor.
+ * 
+ * Design: Uses monochrome design system (zinc palette).
+ */
 export function AIActionButtons({
-    onCheckGrammar,
     onImprove,
     onGenerate,
     loadingType,
     identifiers = {},
-    showGrammar = true,
     showImprove = true,
     showGenerate = false,
     size = 'sm',
@@ -35,24 +39,6 @@ export function AIActionButtons({
 }: AIActionButtonsProps) {
     return (
         <div className={cn("flex gap-2 items-center", className)}>
-            {showGrammar && onCheckGrammar && (
-                <Button
-                    type="button"
-                    size={size}
-                    variant="ghostSubtle"
-                    onClick={onCheckGrammar}
-                    disabled={loadingType === identifiers.grammar}
-                    className="h-8 rounded-full px-3 text-[10px] font-bold uppercase tracking-wider text-foreground hover:bg-secondary hover:text-foreground"
-                >
-                    {loadingType === identifiers.grammar ? (
-                        <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                    ) : (
-                        <CheckCircle className="mr-1.5 h-3 w-3" />
-                    )}
-                    Check Grammar
-                </Button>
-            )}
-
             {showImprove && onImprove && (
                 <Button
                     type="button"
@@ -60,7 +46,7 @@ export function AIActionButtons({
                     variant="ghostSubtle"
                     onClick={onImprove}
                     disabled={loadingType === identifiers.improve}
-                    className="h-8 rounded-full px-3 text-[10px] font-bold uppercase tracking-wider text-brand-600 hover:bg-brand-50 hover:text-brand-700"
+                    className="h-8 rounded-full px-3 text-[10px] font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100"
                 >
                     {loadingType === identifiers.improve ? (
                         <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
@@ -75,10 +61,15 @@ export function AIActionButtons({
                 <Button
                     type="button"
                     size={size}
-                    variant="brand"
                     onClick={onGenerate}
                     disabled={loadingType === identifiers.generate}
-                    className="rounded-full shadow-lg shadow-brand-500/10"
+                    className={cn(
+                        "h-8 rounded-full px-4",
+                        "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900",
+                        "hover:bg-zinc-800 dark:hover:bg-zinc-200",
+                        "disabled:opacity-50",
+                        "shadow-sm btn-press"
+                    )}
                 >
                     {loadingType === identifiers.generate ? (
                         <>
