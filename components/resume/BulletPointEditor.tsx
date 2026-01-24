@@ -9,6 +9,7 @@ import { AIService } from '@/lib/services/ai.service';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils/cn';
 import { retryWithBackoff, delay } from '@/lib/utils/rateLimitedQueue';
+import { ActionVerbSelector } from './ActionVerbSelector';
 
 interface BulletPointEditorProps {
     bullets: string[];
@@ -368,6 +369,7 @@ export function BulletPointEditor({
                             </Button>
                         )
                     )}
+                    <ActionVerbSelector />
                     <Button
                         type="button"
                         size="sm"

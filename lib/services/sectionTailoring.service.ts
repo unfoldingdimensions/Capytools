@@ -54,15 +54,18 @@ export async function generateTailoredSummary(
     const workExperience = resume.workExperience || [];
     const allSkills = (resume.skills || []).flatMap((s) => s.skills);
 
-    const systemPrompt = `You are an expert resume writer specializing in ATS-optimized professional summaries. 
-Create a compelling 2-3 sentence professional summary tailored to the job description.
-Focus on relevant skills, quantifiable achievements, and value proposition.
-Write in first person without using "I". Be specific and results-oriented.
-Include relevant keywords from the job description naturally.
+    const systemPrompt = `You are an expert resume writer and ATS optimization specialist.
+Your goal is to write a professional summary that ranks high in ATS systems for the specific target role.
 
-CRITICAL: Return ONLY the summary text. No introductions, no explanations, no notes.`;
+CRITICAL RULES:
+1.  **Keyword Injection:** You MUST naturally include the top 3 hard skills/keywords from the job description.
+2.  **First Person (Implied):** Write in implied first person (e.g., "Experienced Software Engineer..." instead of "I am an...").
+3.  **Measurable Impact:** Mention years of experience and a key quantifiable achievement if available in the source data.
+4.  **Length:** Strictly 3-4 sentences (approx. 50-75 words).
+5.  **No Fluff:** Remove generic soft skills like "hard worker" unless specifically requested.
+6.  **Format:** Return ONLY the summary text. No introductions, no notes.`;
 
-    const userPrompt = `Job Title: ${jobDescription.title}
+    const userPrompt = `Target Role: ${jobDescription.title}
 Company: ${jobDescription.company}
 
 Current Summary: ${currentSummary}
@@ -72,12 +75,10 @@ ${workExperience.slice(0, 3).map((exp, i) => `${i + 1}. ${exp.position} at ${exp
 
 My Skills: ${allSkills.slice(0, 15).join(', ')}
 
-Key Job Requirements:
-${jobDescription.requirements.slice(0, 5).map((req, i) => `${i + 1}. ${req}`).join('\n')}
+Job Requirements (Prioritize these keywords):
+${jobDescription.keywords.slice(0, 10).join(', ')}
 
-Required Skills/Keywords: ${jobDescription.keywords.slice(0, 10).join(', ')}
-
-Create a tailored professional summary that positions me as an ideal candidate. Use power words and quantifiable achievements where possible.`;
+Write a high-ranking ATS summary. Return ONLY the text.`;
 
     try {
         const summary = await createCompletion(
@@ -117,35 +118,28 @@ export async function generateTailoredWorkExperience(
 
     const exp = experiences[0]; // Focus on the first/most relevant experience
 
-    const systemPrompt = `You are an expert resume writer specializing in achievement-based bullet points.
-Transform work experience into compelling, ATS-optimized achievement bullets.
-Use the STAR method (Situation, Task, Action, Result) and quantify results where possible.
-Start with strong action verbs and include relevant keywords from the job description.
-Each bullet should be 1-2 lines maximum.
+    const systemPrompt = `You are a Resume Optimization AI. Transform the user's experience into elite "Action-Result" bullet points optimized for ATS.
 
-CRITICAL: Return ONLY 3-5 achievement bullets in JSON array format: ["bullet1", "bullet2", ...]
-No introductions, no explanations, just the JSON array.`;
+FORMULA: [Strong Action Verb] + [Specific Task/Project] + [Quantifiable Result/Impact]
 
-    const userPrompt = `Target Job: ${jobDescription.title} at ${jobDescription.company}
+RULES:
+1.  **Quantify:** If exact numbers aren't provided, distinctively estimate or use relative metrics (e.g., "increased efficiency," "reduced load time").
+2.  **Keywords:** Swap generic terms for specific industry standard keywords found in the job description.
+3.  **Formatting:** Plain text, standard bullet points only. No sub-bullets or rich text.
+4.  **Length:** 1-2 lines maximum per bullet.
+5.  **Tone:** Professional, assertive, and direct.
+6.  **Context:** Align strictly with the target job's requirements.
 
-My Current Experience:
-Position: ${exp.position} at ${exp.company}
-Location: ${exp.location || 'N/A'}
-Duration: ${exp.startDate} - ${exp.current ? 'Present' : exp.endDate || 'N/A'}
-Current Description: ${exp.description || 'N/A'}
+CRITICAL: Return ONLY 3-5 achievement bullets in JSON array format: ["bullet1", "bullet2", ...]`;
+
+    const userPrompt = `Target Job: ${jobDescription.title}
+Key Requirements: ${jobDescription.keywords.slice(0, 8).join(', ')}
+
+My Role: ${exp.position} at ${exp.company}
+Description: ${exp.description || 'N/A'}
 Current Achievements: ${exp.achievements?.join('; ') || 'None listed'}
 
-Job Requirements: ${jobDescription.requirements.slice(0, 5).join(', ')}
-Key Skills Needed: ${jobDescription.keywords.slice(0, 8).join(', ')}
-Responsibilities: ${jobDescription.responsibilities.slice(0, 5).join(', ')}
-
-Generate 3-5 powerful achievement bullets that align with this job. Focus on:
-- Quantifiable results
-- Relevant keywords
-- Action-oriented language
-- Demonstrating impact
-
-Return ONLY a JSON array of strings.`;
+Generate 3-5 powerful, ATS-optimized achievement bullets. Return ONLY a JSON array.`;
 
     try {
         const achievements = await createJSONCompletion<string[]>(
@@ -162,9 +156,9 @@ Return ONLY a JSON array of strings.`;
         );
 
         const tips = [
-            `Include keywords: ${jobDescription.keywords.slice(0, 3).join(', ')}`,
-            'Use action verbs: Led, Implemented, Increased, Reduced, Developed',
-            'Quantify results with numbers, percentages, or timeframes',
+            `Use keywords: ${jobDescription.keywords.slice(0, 3).join(', ')}`,
+            'Follow "Action + Context + Result" format',
+            'Quantify impact with numbers or %',
         ];
 
         return { achievements: achievements.slice(0, 5), tips };
@@ -190,24 +184,22 @@ export async function generateTailoredEducation(
 
     const edu = educations[0];
 
-    const systemPrompt = `You are an expert resume writer. Generate 2-3 achievement bullets for education section.
-Focus on relevant coursework, projects, honors, or extracurriculars that align with the target job.
-Be specific and highlight transferable skills.
+    const systemPrompt = `You are an expert resume writer. Generate 2-3 ATS-optimized achievement bullets for education.
+Focus on relevant coursework, projects, honors, or transferable skills that align with the target job.
+Enforce the "Action + Context" structure.
 
 CRITICAL: Return ONLY a JSON array of 2-3 strings: ["point1", "point2", "point3"]`;
 
     const userPrompt = `Target Job: ${jobDescription.title}
+Required Skills: ${jobDescription.keywords.slice(0, 8).join(', ')}
 
 My Education:
 Degree: ${edu.degree} in ${edu.field || 'N/A'}
 School: ${edu.institution}
 GPA: ${edu.gpa || 'N/A'}
-Current Achievements: ${edu.achievements?.join('; ') || 'None listed'}
+Achievements: ${edu.achievements?.join('; ') || 'None listed'}
 
-Job Requirements: ${jobDescription.requirements.slice(0, 5).join(', ')}
-Key Skills: ${jobDescription.keywords.slice(0, 8).join(', ')}
-
-Generate 2-3 relevant education highlights that connect to this job. Return ONLY a JSON array.`;
+Generate 2-3 high-impact education highlights. Return ONLY a JSON array.`;
 
     try {
         const relevantPoints = await createJSONCompletion<string[]>(
@@ -224,9 +216,9 @@ Generate 2-3 relevant education highlights that connect to this job. Return ONLY
         );
 
         const tips = [
-            'Highlight relevant coursework or projects',
-            'Mention honors, awards, or leadership roles',
-            'Connect academic achievements to job requirements',
+            'Highlight relevant coursework',
+            'Mention honors/awards',
+            'Connect academic projects to job skills',
         ];
 
         return { relevantPoints: relevantPoints.slice(0, 3), tips };
@@ -252,24 +244,26 @@ export async function generateTailoredProjects(
 
     const project = projectList[0];
 
-    const systemPrompt = `You are an expert resume writer. Generate 2-4 achievement-focused highlights for a project.
-Focus on technical skills, impact, and results that align with the job description.
-Use action verbs and quantify results where possible.
+    const systemPrompt = `You are an expert resume writer. Generate 2-4 achievement-focused highlights for a project, optimized for ATS.
+FORMULA: [Strong Verb] + [Technology/Methodology] + [Outcome/Impact]
+
+RULES:
+1.  **Tech Stack:** Explicitly mention the technologies used (matches keywords).
+2.  **Quantify:** Include metrics if possible.
+3.  **Relevance:** Focus on features/challenges relevant to the target job.
 
 CRITICAL: Return ONLY a JSON array of 2-4 strings: ["highlight1", "highlight2", ...]`;
 
     const userPrompt = `Target Job: ${jobDescription.title}
+Key Skills: ${jobDescription.keywords.slice(0, 8).join(', ')}
 
 My Project:
-Name: ${project.title}
+Title: ${project.title}
 Description: ${project.description || 'N/A'}
 Technologies: ${project.technologies?.join(', ') || 'N/A'}
-Current Highlights: ${project.highlights?.join('; ') || 'None listed'}
+Highlights: ${project.highlights?.join('; ') || 'None listed'}
 
-Job Requirements: ${jobDescription.requirements.slice(0, 5).join(', ')}
-Required Skills: ${jobDescription.keywords.slice(0, 8).join(', ')}
-
-Generate 2-4 project highlights that demonstrate relevant skills for this job. Return ONLY a JSON array.`;
+Generate 2-4 high-impact project highlights. Return ONLY a JSON array.`;
 
     try {
         const highlights = await createJSONCompletion<string[]>(
@@ -286,9 +280,9 @@ Generate 2-4 project highlights that demonstrate relevant skills for this job. R
         );
 
         const tips = [
-            'Emphasize relevant technologies and methodologies',
-            'Highlight measurable outcomes or impact',
-            'Connect project skills to job requirements',
+            'Mention specific technologies used',
+            'Focus on the problem you solved',
+            'Quantify the outcome',
         ];
 
         return { highlights: highlights.slice(0, 4), tips };
@@ -309,25 +303,22 @@ export async function generateTailoredSkills(
 ): Promise<{ suggestedSkills: string[]; tips: string[] }> {
     const allCurrentSkills = currentSkills.flatMap(cat => cat.skills);
 
-    const systemPrompt = `You are an expert resume writer. Analyze the job description and suggest relevant skills to add or emphasize.
-Focus on skills mentioned in the job posting that align with the candidate's background.
+    const systemPrompt = `You are an ATS Keyword Analyst. Extract and recommend the most valuable skills for this job.
+
+RULES:
+1.  **Hard Skills First:** Prioritize software, tools, languages, and technical methodologies.
+2.  **Exact Matching:** Use the exact spelling/phrasing found in the job description to ensure ATS parsing.
+3.  **Relevance:** Only suggest skills logical for the candidate's profile.
+4.  **No Generic Soft Skills:** Avoid "Communication", "Teamwork" unless critical. Focus on "Agile", "Project Management", "Stakeholder Analysis".
 
 CRITICAL: Return ONLY a JSON array of 5-8 skill strings: ["skill1", "skill2", ...]`;
 
     const userPrompt = `Target Job: ${jobDescription.title}
+Job Requirements: ${jobDescription.keywords.join(', ')}
 
 My Current Skills: ${allCurrentSkills.join(', ') || 'None listed'}
 
-Job Requirements: ${jobDescription.requirements.join(', ')}
-Required Skills: ${jobDescription.keywords.join(', ')}
-Responsibilities: ${jobDescription.responsibilities.slice(0, 5).join(', ')}
-
-Suggest 5-8 relevant skills I should highlight or add to match this job. Prioritize:
-1. Skills mentioned in job description
-2. Industry-standard related skills
-3. Technical and soft skills balance
-
-Return ONLY a JSON array of skill names.`;
+Suggest 5-8 high-value skills to add/emphasize. Return ONLY a JSON array.`;
 
     try {
         const suggestedSkills = await createJSONCompletion<string[]>(
@@ -344,9 +335,9 @@ Return ONLY a JSON array of skill names.`;
         );
 
         const tips = [
-            'Prioritize skills mentioned in job description',
-            'Group skills by category (Technical, Soft, Tools)',
-            'Keep most relevant skills near the top',
+            'Use exact keyword phrasing',
+            'Prioritize hard technical skills',
+            'Place key skills at the top',
         ];
 
         return { suggestedSkills: suggestedSkills.slice(0, 8), tips };

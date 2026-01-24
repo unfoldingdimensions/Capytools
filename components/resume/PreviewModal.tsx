@@ -1,20 +1,38 @@
 'use client';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Download, FileText, Printer } from 'lucide-react';
+import { X, Printer, FileText } from 'lucide-react';
 import { ResumePreview } from './ResumePreview';
 import { ResumeData } from '@/types/resume.types';
+import { ExportMenu } from './ExportMenu';
+import { generateVisualPdf } from '@/lib/pdf/clientPdfGenerator';
 
 interface PreviewModalProps {
     isOpen: boolean;
     onClose: () => void;
     data: ResumeData;
     resumeTitle: string;
-    onDownload: () => void;
+    onDownload: (options?: { isAtsMode?: boolean }) => void;
     template?: string;
 }
 
 export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, template }: PreviewModalProps) {
+    const [isGenerating, setIsGenerating] = useState(false);
+
     if (!isOpen) return null;
+
+    const handleVisualDownload = async () => {
+        try {
+            setIsGenerating(true);
+            const filename = `${resumeTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_visual.pdf`;
+            await generateVisualPdf('resume-preview-content', filename);
+        } catch (error) {
+            console.error('Failed to generate visual PDF', error);
+            alert('Failed to generate visual PDF. Please try again.');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex flex-col bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300">
@@ -38,15 +56,13 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
                     >
                         <Printer className="h-5 w-5" />
                     </Button>
-                    <Button
-                        variant="gradient"
-                        size="sm"
-                        className="rounded-full px-5 font-bold shadow-lg shadow-brand-500/20"
-                        onClick={onDownload}
-                    >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download PDF
-                    </Button>
+
+                    <ExportMenu
+                        onDownloadATS={onDownload}
+                        onDownloadVisual={handleVisualDownload}
+                        isGenerating={isGenerating}
+                    />
+
                     <div className="w-[1px] h-6 bg-white/10 mx-2" />
                     <Button
                         variant="ghost"
@@ -61,7 +77,7 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
 
             {/* Scrollable Preview Area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-12">
-                <div className="mx-auto max-w-4xl animate-in slide-in-from-bottom-8 duration-500">
+                <div id="resume-preview-content" className="mx-auto max-w-4xl animate-in slide-in-from-bottom-8 duration-500">
                     <ResumePreview data={data} template={template} />
                 </div>
             </div>

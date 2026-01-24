@@ -229,6 +229,9 @@ ${description}`,
 /**
  * Improve a single bullet point
  */
+/**
+ * Improve a single bullet point
+ */
 export async function improveBulletPoint(
     bulletPoint: string,
     context: { role?: string; focus?: string } = {},
@@ -243,22 +246,24 @@ export async function improveBulletPoint(
     const messages: OpenAIMessage[] = [
         {
             role: 'system',
-            content: `You are a professional resume writer. Improve the given bullet point by:
-- Using stronger action verbs
-- Adding impact and results when possible
-- Making it more concise and powerful
-- Ensuring ATS-friendliness
-- Maintaining professional tone
+            content: `You are a Resume Optimization AI. Transform the user's bullet point into an elite "Action-Result" bullet optimized for ATS.
 
-CRITICAL: Return ONLY the improved bullet point text itself. No preambles, no notes, no explanations.
-If the bullet point is already optimal and needs no improvement, return the original bullet point exactly as is.`,
+FORMULA: [Strong Action Verb] + [Specific Task/Project] + [Quantifiable Result/Impact]
+
+RULES:
+1.  **Quantify:** If exact numbers aren't provided, distinctively estimate or use relative metrics (e.g., "significantly increased," "reduced latency").
+2.  **Keywords:** Swap generic terms for specific industry standard keywords.
+3.  **Tone:** Professional, assertive, and direct.
+4.  **Format:** One concise sentence. No preambles.
+
+CRITICAL: Return ONLY the improved bullet point text. If it cannot be improved, return the original.`,
         },
         {
             role: 'user',
             content: `Improve this bullet point:
 ${role ? `\nRole: ${role}` : ''}${focus ? `\nFocus: ${focus}` : ''}
 
-Bullet: ${bulletPoint}`,
+Original Bullet: ${bulletPoint}`,
         },
     ];
 
@@ -295,28 +300,26 @@ export async function improveContent(
         throw new Error('Text too long. Maximum 5000 characters for content improvement.');
     }
 
-    const typeGuidelines: Record<string, string> = {
-        summary: 'a professional resume summary',
-        description: 'a job/project description',
-        objective: 'a career objective statement',
-        general: 'professional content',
-    };
-
     const messages: OpenAIMessage[] = [
         {
             role: 'system',
-            content: `You are a professional content writer. Improve the given text to make it more professional, impactful, and suitable for ${typeGuidelines[type]}.
-If the text is already excellent, you may return the improved version as the original text, but try to provide at least some subtle enhancements or professional polish.
+            content: `You are a Career Editor. Polish the text to be concise, active, and professional.
+
+CHECKS:
+1.  **Passive to Active:** Convert passive voice (e.g., "was managed by") to active voice (e.g., "managed").
+2.  **Remove Softeners:** Remove weak words like "helped," "assisted with," "responsible for." Use strong verbs instead.
+3.  **Remove Pronouns:** Remove "I," "my," "we" (unless strictly necessary for context, but prefer implied first person).
+4.  **Clarity:** Fix grammar and awkward phrasing.
 
 Return a JSON object with:
 {
-  "improvedText": "the improved version",
+  "improvedText": "the polished version",
   "suggestions": ["tip 1", "tip 2", "tip 3"]
 }`,
         },
         {
             role: 'user',
-            content: `Improve this ${type}:\n\n${text}`,
+            content: `Improve this ${type} for a resume:\n\n${text}`,
         },
     ];
 

@@ -100,5 +100,6 @@ export interface ExportOptions {
     format: ExportFormat;
     resumeId: string;
     template?: string;
+    isAtsMode?: boolean;
 }
 

@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { SectionNavigation } from './SectionNavigation';
 import { ResumeScorePanel } from './ResumeScorePanel';
 import { KeywordHeatmapPanel } from './KeywordHeatmapPanel';
+import { JobMatchPanel } from './JobMatchPanel';
 
 import { Badge } from '@/components/ui/badge';
 import {
@@ -117,7 +118,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         }
     };
 
-    const handleDownload = async () => {
+    const handleDownload = async (options: { isAtsMode?: boolean } = {}) => {
         if (!resumeId) {
             alert("Please save your resume before exporting it.");
             return;
@@ -132,6 +133,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                 body: JSON.stringify({
                     resumeId,
                     format: 'PDF',
+                    isAtsMode: options.isAtsMode,
                 }),
             });
 
@@ -189,11 +191,45 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                 }
                 rightSidebar={
                     <div className="space-y-6">
+                        {/* Tailoring Mode Banner - Show at top when active */}
+                        {isTailoringMode && jobDescription && (
+                            <div className="p-6 rounded-[1.5rem] bg-black text-white dark:bg-white dark:text-black shadow-swiss-hover group">
+                                <div className="flex items-start gap-3 mb-4">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 dark:bg-black/5">
+                                        <Sparkles className="h-5 w-5 text-white dark:text-black shrink-0 group-hover:rotate-12 transition-transform" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mb-1">Tailoring For</p>
+                                        <p className="text-sm font-bold line-clamp-1">{jobDescription.title}</p>
+                                        <p className="text-xs opacity-50 line-clamp-1">{jobDescription.company}</p>
+                                    </div>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="xs"
+                                    className="w-full rounded-full border-white/20 hover:bg-white/10 text-white dark:text-black dark:border-black/10 font-bold"
+                                    onClick={() => {
+                                        setIsTailoringMode(false);
+                                        setJobDescription(null);
+                                    }}
+                                >
+                                    <X className="mr-1 h-3 w-3" />
+                                    Exit Tailoring Mode
+                                </Button>
+                            </div>
+                        )}
+
                         {/* Resume Score Panel */}
                         <ResumeScorePanel
                             resumeData={resumeData}
+                            jobDescription={jobDescription}
                             defaultCollapsed={false}
                         />
+
+                        {/* Job Match Panel - Hide when in tailoring mode */}
+                        {!isTailoringMode && (
+                            <JobMatchPanel resumeData={resumeData} resumeId={resumeId} />
+                        )}
 
                         {/* Keyword Match Heatmap - only visible in tailoring mode */}
                         {isTailoringMode && jobDescription && (
@@ -224,33 +260,6 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                     }
                                 }}
                             />
-                        )}
-
-                        {isTailoringMode && jobDescription && (
-                            <div className="p-6 rounded-[1.5rem] bg-black text-white dark:bg-white dark:text-black shadow-swiss-hover group">
-                                <div className="flex items-start gap-3 mb-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 dark:bg-black/5">
-                                        <Sparkles className="h-5 w-5 text-white dark:text-black shrink-0 group-hover:rotate-12 transition-transform" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mb-1">Tailoring For</p>
-                                        <p className="text-sm font-bold line-clamp-1">{jobDescription.title}</p>
-                                        <p className="text-xs opacity-50 line-clamp-1">{jobDescription.company}</p>
-                                    </div>
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="xs"
-                                    className="w-full rounded-full border-white/20 hover:bg-white/10 text-white dark:text-black dark:border-black/10 font-bold"
-                                    onClick={() => {
-                                        setIsTailoringMode(false);
-                                        setJobDescription(null);
-                                    }}
-                                >
-                                    <X className="mr-1 h-3 w-3" />
-                                    Exit Mode
-                                </Button>
-                            </div>
                         )}
                     </div>
                 }

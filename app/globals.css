@@ -148,13 +148,21 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-    transition: background-color 300ms, color 300ms, border-color 300ms;
+  html {
+    scrollbar-gutter: stable;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground;
+    scrollbar-gutter: stable;
+    /* Prevent UI libraries (Radix/HeadlessUI) from adding redundant padding when gutter is stable */
+    padding-right: 0px !important;
+  }
+
+  * {
+    @apply border-border;
+    transition: background-color 300ms, color 300ms, border-color 300ms;
   }
 }
 
