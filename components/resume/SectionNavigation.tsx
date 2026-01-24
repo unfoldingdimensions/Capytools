@@ -47,7 +47,7 @@ export function SectionNavigation({ activeSection, setActiveSection, completedSe
                         <Icon className={cn("h-4 w-4", isActive ? "text-white dark:text-black" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300")} />
                         <span className="text-left">{item.label}</span>
                         {isCompleted && (
-                            <CheckCircle2 className={cn("h-4 w-4", isActive ? "text-white/50 dark:text-black/50" : "text-emerald-500")} />
+                            <CheckCircle2 className={cn("h-4 w-4", isActive ? "text-white/50 dark:text-black/50" : "text-zinc-900 dark:text-zinc-100")} />
                         )}
                         {isActive && (
                             <div className="h-1.5 w-1.5 rounded-full bg-white dark:bg-black ml-auto lg:ml-0" />

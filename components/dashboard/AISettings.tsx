@@ -268,7 +268,7 @@ export function AISettings() {
                                     onClick={handleSave}
                                     className={cn(
                                         "flex-1 sm:flex-none min-w-[100px] font-bold transition-all",
-                                        saved ? "bg-emerald-500 hover:bg-emerald-600" : "bg-brand-600 hover:bg-brand-700"
+                                        saved ? "bg-zinc-800 hover:bg-zinc-900 text-white" : "bg-brand-600 hover:bg-brand-700"
                                     )}
                                 >
                                     {saved ? (

@@ -347,7 +347,7 @@ export default function DashboardClient() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08] animate-in zoom-in-95 duration-300">
                         <div className="mb-6 flex flex-col items-center text-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 animate-bounce">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600 animate-bounce">
                                 <CheckCircle className="h-10 w-10" />
                             </div>
                             <h3 className="text-2xl font-display font-bold text-foreground">

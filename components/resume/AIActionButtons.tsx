@@ -42,7 +42,7 @@ export function AIActionButtons({
                     variant="ghostSubtle"
                     onClick={onCheckGrammar}
                     disabled={loadingType === identifiers.grammar}
-                    className="h-8 rounded-full px-3 text-[10px] font-bold uppercase tracking-wider text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                    className="h-8 rounded-full px-3 text-[10px] font-bold uppercase tracking-wider text-foreground hover:bg-secondary hover:text-foreground"
                 >
                     {loadingType === identifiers.grammar ? (
                         <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />

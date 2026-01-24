@@ -12,3 +12,4 @@ coverage/
 *.tsbuildinfo
 PAT.txt
 GITHUB_PUSH.md
+.agent

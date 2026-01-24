@@ -254,9 +254,9 @@ function InterviewPrepContent() {
                         <h4 className="text-xs font-bold text-foreground uppercase tracking-widest mb-4">Question Types</h4>
                         <div className="space-y-3">
                             {[
-                                { label: 'Behavioral', color: 'bg-blue-500' },
-                                { label: 'Technical', color: 'bg-purple-500' },
-                                { label: 'Situational', color: 'bg-emerald-500' }
+                                { label: 'Behavioral', color: 'bg-zinc-800 dark:bg-zinc-200' },
+                                { label: 'Technical', color: 'bg-zinc-500 dark:bg-zinc-500' },
+                                { label: 'Situational', color: 'bg-zinc-300 dark:bg-zinc-700' }
                             ].map(type => (
                                 <div key={type.label} className="flex items-center gap-3">
                                     <div className={cn("h-1.5 w-1.5 rounded-full", type.color)} />
@@ -288,7 +288,7 @@ function InterviewPrepContent() {
                                 Our AI is reading your resume and the job details to craft high-impact interview challenges.
                             </p>
                             <div className="mt-12 overflow-hidden w-64 mx-auto rounded-full h-1 bg-gray-100 dark:bg-gray-800">
-                                <div className="h-full bg-gradient-to-r from-brand-600 to-purple-600 animate-[shimmer_2s_infinite] w-full origin-left" />
+                                <div className="h-full bg-gradient-to-r from-brand-600 to-brand-400 animate-[shimmer_2s_infinite] w-full origin-left" />
                             </div>
                         </Card>
                     ) : questions.length > 0 ? (

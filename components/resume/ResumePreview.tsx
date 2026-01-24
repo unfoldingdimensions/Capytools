@@ -10,7 +10,7 @@ interface ResumePreviewProps {
 const ModernIndigo = ({ data }: { data: ResumeData }) => {
     const { personalInfo, workExperience, education, projects, skills, certifications } = data;
     return (
-        <div className="bg-white text-gray-800 font-sans leading-relaxed h-full">
+        <div className="bg-white text-gray-800 font-sans leading-relaxed h-full p-10">
             <header className="border-b-4 border-brand-600 pb-8 mb-8 text-center">
                 <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-4">
                     {personalInfo?.fullName || 'Your Name'}
@@ -34,8 +34,8 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
                 </div>
             </header>
 
-            <div className="grid grid-cols-12 gap-10">
-                <div className="col-span-8 space-y-10">
+            <div className="grid grid-cols-12 gap-8">
+                <div className="col-span-8 space-y-8">
                     {personalInfo?.summary && (
                         <section>
                             <h2 className="text-lg font-bold text-gray-900 uppercase tracking-widest border-b border-gray-100 mb-4 pb-1">Professional Summary</h2>
@@ -67,10 +67,10 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
                             <h2 className="text-lg font-bold text-gray-900 uppercase tracking-widest border-b border-gray-100 mb-4 pb-1">Key Projects</h2>
                             <div className="space-y-6">
                                 {projects.map((proj, idx) => (
-                                    <div key={idx} className="relative pl-4 border-l-2 border-indigo-50">
+                                    <div key={idx} className="relative pl-4 border-l-2 border-brand-50">
                                         <div className="flex justify-between items-start mb-1">
                                             <h3 className="font-bold text-gray-900">{proj.title}</h3>
-                                            {proj.url && <span className="text-[10px] text-indigo-600 font-medium lowercase italic underline">{proj.url}</span>}
+                                            {proj.url && <span className="text-[10px] text-brand-600 font-medium lowercase italic underline">{proj.url}</span>}
                                         </div>
                                         <ul className="list-disc list-outside ml-4 space-y-1 mb-2">
                                             {proj.highlights?.map((high, hIdx) => <li key={hIdx} className="text-sm text-gray-700">{high}</li>)}
@@ -87,7 +87,7 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
                         </section>
                     )}
                 </div>
-                <div className="col-span-4 space-y-10">
+                <div className="col-span-4 space-y-8">
                     {skills && skills.length > 0 && (
                         <section>
                             <h2 className="text-lg font-bold text-gray-900 uppercase tracking-widest border-b border-gray-100 mb-4 pb-1">Skills</h2>
@@ -115,7 +115,7 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
                                             <span>{edu.field}</span>
                                             <span>{edu.startDate?.split('-')[0]} - {edu.current ? 'Present' : edu.endDate?.split('-')[0]}</span>
                                         </div>
-                                        {edu.gpa && <p className="text-[10px] font-medium text-emerald-600 italic">GPA: {edu.gpa}</p>}
+                                        {edu.gpa && <p className="text-[10px] font-medium text-brand-600 italic">GPA: {edu.gpa}</p>}
                                     </div>
                                 ))}
                             </div>
@@ -144,8 +144,8 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
 const ObsidianNight = ({ data }: { data: ResumeData }) => {
     const { personalInfo, workExperience, education, skills } = data;
     return (
-        <div className="bg-slate-900 text-slate-300 font-sans leading-relaxed h-full">
-            <header className="bg-slate-950 p-8 mb-8 flex flex-row justify-between items-center border-b border-slate-800">
+        <div className="bg-slate-900 text-slate-300 font-sans leading-relaxed h-full p-10">
+            <header className="bg-slate-950 p-8 mb-8 flex flex-row justify-between items-center border-b border-slate-800 rounded-xl">
                 <div>
                     <h1 className="text-4xl font-bold text-white mb-2">{personalInfo?.fullName || 'Your Name'}</h1>
                     <p className="text-brand-400 font-medium">{personalInfo?.email} • {personalInfo?.phone}</p>
@@ -155,8 +155,8 @@ const ObsidianNight = ({ data }: { data: ResumeData }) => {
                     {personalInfo?.linkedin && <p>LinkedIn</p>}
                 </div>
             </header>
-            <div className="px-8 grid grid-cols-12 gap-12">
-                <div className="col-span-8 space-y-12">
+            <div className="grid grid-cols-12 gap-8">
+                <div className="col-span-8 space-y-8">
                     {personalInfo?.summary && (
                         <section>
                             <h3 className="text-lg font-bold text-white mb-4 border-l-4 border-brand-500 pl-3">PROFILE</h3>
@@ -183,7 +183,7 @@ const ObsidianNight = ({ data }: { data: ResumeData }) => {
                         </section>
                     )}
                 </div>
-                <div className="col-span-4 space-y-10 border-l border-slate-800 pl-8">
+                <div className="col-span-4 space-y-8 border-l border-slate-800 pl-8">
                     {skills && (
                         <section>
                             <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">Skills</h3>
@@ -217,9 +217,9 @@ const ObsidianNight = ({ data }: { data: ResumeData }) => {
 const MinimalistPro = ({ data }: { data: ResumeData }) => {
     const { personalInfo, workExperience, education, skills } = data;
     return (
-        <div className="bg-white text-black font-serif leading-relaxed h-full p-12">
-            <header className="border-b-2 border-black pb-6 mb-8">
-                <h1 className="text-5xl mb-4">{personalInfo?.fullName || 'Your Name'}</h1>
+        <div className="bg-white text-black font-serif leading-relaxed h-full p-10">
+            <header className="border-b-2 border-black pb-8 mb-8">
+                <h1 className="text-4xl font-bold mb-4">{personalInfo?.fullName || 'Your Name'}</h1>
                 <div className="flex justify-between text-sm italic">
                     <div className="space-x-4">
                         <span>{personalInfo?.email}</span>
@@ -229,52 +229,57 @@ const MinimalistPro = ({ data }: { data: ResumeData }) => {
                 </div>
             </header>
 
-            {personalInfo?.summary && (
-                <section className="mb-8">
-                    <p className="text-base">{personalInfo.summary}</p>
-                </section>
-            )}
+            <div className="space-y-8">
+                {personalInfo?.summary && (
+                    <section>
+                        <h2 className="text-base font-bold border-b border-gray-300 mb-3 pb-1 uppercase tracking-wide">Summary</h2>
+                        <p className="text-sm">{personalInfo.summary}</p>
+                    </section>
+                )}
 
-            {workExperience && workExperience.length > 0 && (
-                <section className="mb-8">
-                    <h2 className="text-xl font-bold border-b border-gray-300 mb-4 pb-1 uppercase text-sm tracking-wide">Experience</h2>
-                    <div className="space-y-6">
-                        {workExperience.map((exp, i) => (
-                            <div key={i}>
-                                <div className="flex justify-between items-baseline mb-1">
-                                    <h3 className="font-bold text-lg">{exp.company}</h3>
-                                    <span className="text-sm">{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</span>
+                {workExperience && workExperience.length > 0 && (
+                    <section>
+                        <h2 className="text-base font-bold border-b border-gray-300 mb-4 pb-1 uppercase tracking-wide">Experience</h2>
+                        <div className="space-y-6">
+                            {workExperience.map((exp, i) => (
+                                <div key={i}>
+                                    <div className="flex justify-between items-baseline mb-1">
+                                        <h3 className="font-bold text-base">{exp.company}</h3>
+                                        <span className="text-sm">{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</span>
+                                    </div>
+                                    <p className="italic text-sm mb-2">{exp.position}</p>
+                                    <ul className="list-disc list-outside ml-5 space-y-1">
+                                        {exp.achievements?.map((ach, j) => <li key={j} className="text-sm">{ach}</li>)}
+                                    </ul>
                                 </div>
-                                <p className="italic mb-2">{exp.position}</p>
-                                <ul className="list-disc list-outside ml-5 space-y-1">
-                                    {exp.achievements?.map((ach, j) => <li key={j}>{ach}</li>)}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {education && (
-                <section className="mb-8">
-                    <h2 className="text-xl font-bold border-b border-gray-300 mb-4 pb-1 uppercase text-sm tracking-wide">Education</h2>
-                    {education.map((edu, i) => (
-                        <div key={i} className="flex justify-between mb-2">
-                            <div><span className="font-bold">{edu.institution}</span>, {edu.degree}</div>
-                            <span>{edu.endDate?.split('-')[0]}</span>
+                            ))}
                         </div>
-                    ))}
-                </section>
-            )}
+                    </section>
+                )}
 
-            {skills && (
-                <section>
-                    <h2 className="text-xl font-bold border-b border-gray-300 mb-4 pb-1 uppercase text-sm tracking-wide">Skills</h2>
-                    <p className="leading-7">
-                        {skills.flatMap(g => g.skills).join(' • ')}
-                    </p>
-                </section>
-            )}
+                {education && education.length > 0 && (
+                    <section>
+                        <h2 className="text-base font-bold border-b border-gray-300 mb-4 pb-1 uppercase tracking-wide">Education</h2>
+                        <div className="space-y-4">
+                            {education.map((edu, i) => (
+                                <div key={i} className="flex justify-between mb-2">
+                                    <div className="text-sm"><span className="font-bold">{edu.institution}</span>, {edu.degree}</div>
+                                    <span className="text-sm">{edu.endDate?.split('-')[0]}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {skills && (
+                    <section>
+                        <h2 className="text-base font-bold border-b border-gray-300 mb-3 pb-1 uppercase tracking-wide">Skills</h2>
+                        <p className="text-sm leading-relaxed">
+                            {skills.flatMap(g => g.skills).join(' • ')}
+                        </p>
+                    </section>
+                )}
+            </div>
         </div>
     );
 };

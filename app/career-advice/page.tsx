@@ -13,8 +13,8 @@ const ARTICLES = [
         category: 'Resume Strategy',
         readTime: '5 min read',
         icon: Target,
-        color: 'text-indigo-600',
-        bg: 'bg-indigo-50'
+        color: 'text-foreground',
+        bg: 'bg-secondary'
     },
     {
         title: 'Mastering the AI Interview',
@@ -22,8 +22,8 @@ const ARTICLES = [
         category: 'Interview Prep',
         readTime: '8 min read',
         icon: MessageSquare,
-        color: 'text-emerald-600',
-        bg: 'bg-emerald-50'
+        color: 'text-foreground',
+        bg: 'bg-secondary'
     },
     {
         title: 'Top 10 High-Growth Skills for Q1',
@@ -87,19 +87,19 @@ export default function CareerAdvicePage() {
                 </div>
 
                 {/* Newsletter Box */}
-                <div className="rounded-[40px] bg-gradient-to-br from-gray-900 to-indigo-950 p-12 text-center text-white relative overflow-hidden shadow-2xl">
+                <div className="rounded-[40px] bg-gradient-to-br from-gray-900 to-black p-12 text-center text-white relative overflow-hidden shadow-2xl">
                     <div className="absolute top-0 right-0 -m-8 h-48 w-48 bg-white/5 blur-3xl rounded-full" />
                     <div className="relative z-10 max-w-2xl mx-auto">
-                        <BookOpen className="h-12 w-12 text-brand-400 mx-auto mb-6" />
+                        <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-6" />
                         <h3 className="text-3xl font-display font-bold mb-4">Never miss an insight.</h3>
-                        <p className="text-indigo-200 mb-8">Join 10,000+ professionals receiving weekly career tips directly in their inbox.</p>
+                        <p className="text-gray-400 mb-8">Join 10,000+ professionals receiving weekly career tips directly in their inbox.</p>
                         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                             <input
                                 type="email"
                                 placeholder="Enter your email..."
-                                className="h-12 w-full sm:w-72 rounded-xl bg-white/10 border border-white/20 px-4 text-white placeholder:text-indigo-300/50 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-medium"
+                                className="h-12 w-full sm:w-72 rounded-xl bg-white/10 border border-white/20 px-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all font-medium"
                             />
-                            <Button variant="brand" size="xl" className="w-full sm:w-auto px-8 rounded-xl h-12 shadow-xl shadow-brand-500/20">
+                            <Button variant="brand" size="xl" className="w-full sm:w-auto px-8 rounded-xl h-12 shadow-xl shadow-black/20 bg-white text-black hover:bg-gray-200">
                                 Subscribe Now
                             </Button>
                         </div>
