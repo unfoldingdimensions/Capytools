@@ -21,7 +21,7 @@
         "prisma:seed": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} prisma/seed.ts"
     },
     "dependencies": {
-        "@clerk/nextjs": "^6.34.5",
+        "@clerk/nextjs": "^6.37.3",
         "@hookform/resolvers": "^3.9.1",
         "@prisma/client": "^5.22.0",
         "@radix-ui/react-dialog": "^1.1.2",
@@ -44,11 +44,12 @@
         "html-docx-js": "^0.3.1",
         "html2canvas": "^1.4.1",
         "jose": "^5.9.6",
-        "jspdf": "^2.5.2",
+        "jspdf": "^4.1.0",
+        "lodash.merge": "^4.6.2",
         "lucide-react": "^0.462.0",
         "mammoth": "^1.8.0",
         "micro": "^10.0.1",
-        "next": "^16.0.1",
+        "next": "^16.0.7",
         "next-themes": "^0.4.0",
         "openai": "^4.73.0",
         "pdf-parse": "^1.1.1",
@@ -96,5 +97,11 @@
     "engines": {
         "node": ">=18.0.0",
         "npm": ">=8.0.0"
+    },
+    "overrides": {
+        "qs": "^6.14.1",
+        "glob": "^10.5.0",
+        "jszip": "^3.10.1",
+        "lodash.merge": "^4.6.2"
     }
 }

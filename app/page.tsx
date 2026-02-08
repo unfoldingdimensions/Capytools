@@ -5,7 +5,7 @@ import { WorkflowSection } from '@/components/landing/WorkflowSection';
 import { EfficiencyMetric } from '@/components/landing/EfficiencyMetric';
 import { StickyCTA } from '@/components/landing/StickyCTA';
 import { AuthButtons } from '@/components/landing/AuthButtons';
-import { ThemeToggle } from '@/components/landing/ThemeToggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Footer } from '@/components/landing/Footer';
 
 // Static generation for optimal performance
