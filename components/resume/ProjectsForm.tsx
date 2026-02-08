@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Code } from 'lucide-react';
@@ -9,6 +9,7 @@ import { ProjectItem } from './ProjectItem';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface ProjectsFormProps {
     initialData?: Project[];
@@ -29,6 +30,10 @@ export default function ProjectsForm({
         projects.length > 0 ? 0 : null
     );
 
+    // Debounce state for updates
+    const debouncedProjects = useDebounce(projects, 500);
+    const lastSavedDataRef = useRef<string>(JSON.stringify(initialData));
+
     // Modal states
     const [confirmModal, setConfirmModal] = useState<{
         show: boolean;
@@ -37,12 +42,25 @@ export default function ProjectsForm({
         onConfirm: () => void;
     }>({ show: false, title: '', message: '', onConfirm: () => { } });
 
-    // Update projects when initialData changes
+    // Handle updates when debounced value changes
+    useEffect(() => {
+        const stringifiedData = JSON.stringify(debouncedProjects);
+        if (stringifiedData !== lastSavedDataRef.current) {
+            lastSavedDataRef.current = stringifiedData;
+            onUpdate(debouncedProjects);
+        }
+    }, [debouncedProjects, onUpdate]);
+
+    // Update projects when initialData changes externally
     useEffect(() => {
         if (initialData && initialData.length > 0) {
-            setProjects(initialData);
-            if (expandedIndex === null) {
-                setExpandedIndex(0);
+            const stringifiedInitial = JSON.stringify(initialData);
+            if (stringifiedInitial !== lastSavedDataRef.current) {
+                setProjects(initialData);
+                lastSavedDataRef.current = stringifiedInitial;
+                if (expandedIndex === null) {
+                    setExpandedIndex(0);
+                }
             }
         }
     }, [initialData]);
@@ -60,7 +78,6 @@ export default function ProjectsForm({
         const updated = [...projects, newProject];
         setProjects(updated);
         setExpandedIndex(updated.length - 1);
-        onUpdate(updated);
     };
 
     const handleDelete = (index: number) => {
@@ -74,7 +91,6 @@ export default function ProjectsForm({
                 if (expandedIndex === index) {
                     setExpandedIndex(updated.length > 0 ? 0 : null);
                 }
-                onUpdate(updated);
                 setConfirmModal({ show: false, title: '', message: '', onConfirm: () => { } });
             },
         });
@@ -84,7 +100,6 @@ export default function ProjectsForm({
         const updated = [...projects];
         updated[index] = updatedProject;
         setProjects(updated);
-        onUpdate(updated);
     };
 
     return (

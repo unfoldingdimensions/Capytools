@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
@@ -21,6 +21,7 @@ import {
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Certification } from '@/types/resume.types';
 import { cn } from '@/lib/utils';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface CertificationsFormProps {
     initialData?: Certification[];
@@ -38,6 +39,10 @@ export default function CertificationsForm({
         certifications.length > 0 ? 0 : null
     );
 
+    // Debounce state for updates
+    const debouncedCertifications = useDebounce(certifications, 500);
+    const lastSavedDataRef = useRef<string>(JSON.stringify(initialData));
+
     // Modal states
     const [confirmModal, setConfirmModal] = useState<{
         show: boolean;
@@ -46,12 +51,25 @@ export default function CertificationsForm({
         onConfirm: () => void;
     }>({ show: false, title: '', message: '', onConfirm: () => { } });
 
-    // Update certifications when initialData changes
+    // Handle updates when debounced value changes
+    useEffect(() => {
+        const stringifiedData = JSON.stringify(debouncedCertifications);
+        if (stringifiedData !== lastSavedDataRef.current) {
+            lastSavedDataRef.current = stringifiedData;
+            onUpdate(debouncedCertifications);
+        }
+    }, [debouncedCertifications, onUpdate]);
+
+    // Update certifications when initialData changes externally
     useEffect(() => {
         if (initialData && initialData.length > 0) {
-            setCertifications(initialData);
-            if (expandedIndex === null) {
-                setExpandedIndex(0);
+            const stringifiedInitial = JSON.stringify(initialData);
+            if (stringifiedInitial !== lastSavedDataRef.current) {
+                setCertifications(initialData);
+                lastSavedDataRef.current = stringifiedInitial;
+                if (expandedIndex === null) {
+                    setExpandedIndex(0);
+                }
             }
         }
     }, [initialData]);
@@ -69,7 +87,6 @@ export default function CertificationsForm({
         const updated = [...certifications, newCert];
         setCertifications(updated);
         setExpandedIndex(updated.length - 1);
-        onUpdate(updated);
     };
 
     const handleDelete = (index: number) => {
@@ -83,7 +100,6 @@ export default function CertificationsForm({
                 if (expandedIndex === index) {
                     setExpandedIndex(updated.length > 0 ? 0 : null);
                 }
-                onUpdate(updated);
                 setConfirmModal({ show: false, title: '', message: '', onConfirm: () => { } });
             },
         });
@@ -93,7 +109,6 @@ export default function CertificationsForm({
         const updated = [...certifications];
         updated[index] = { ...updated[index], [field]: value } as Certification;
         setCertifications(updated);
-        onUpdate(updated);
     };
 
     return (

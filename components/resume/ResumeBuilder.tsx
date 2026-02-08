@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useDeferredValue } from 'react';
 import { Button } from '@/components/ui/button';
 import PersonalInfoForm from './PersonalInfoForm';
 import WorkExperienceForm from './WorkExperienceForm';
@@ -48,6 +48,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
     // const router = useRouter(); // Kept for consistency if needed by children, though Header handles nav
     const dispatch = useAppDispatch();
     const { title, resumeData } = useAppSelector((state) => state.resume);
+    const deferredResumeData = useDeferredValue(resumeData);
     const [activeSection, setActiveSection] = useState('personal');
 
     const {
@@ -221,20 +222,20 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
 
                         {/* Resume Score Panel */}
                         <ResumeScorePanel
-                            resumeData={resumeData}
+                            resumeData={deferredResumeData}
                             jobDescription={jobDescription}
                             defaultCollapsed={false}
                         />
 
                         {/* Job Match Panel - Hide when in tailoring mode */}
                         {!isTailoringMode && (
-                            <JobMatchPanel resumeData={resumeData} resumeId={resumeId} />
+                            <JobMatchPanel resumeData={deferredResumeData} resumeId={resumeId} />
                         )}
 
                         {/* Keyword Match Heatmap - only visible in tailoring mode */}
                         {isTailoringMode && jobDescription && (
                             <KeywordHeatmapPanel
-                                resumeData={resumeData}
+                                resumeData={deferredResumeData}
                                 jobDescription={jobDescription}
                                 onAddToSkills={(keyword) => {
                                     // Add keyword to skills - find or create "Other" category

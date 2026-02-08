@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, GraduationCap } from 'lucide-react';
@@ -9,6 +9,7 @@ import { EducationItem } from './EducationItem';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface EducationFormProps {
     initialData?: Education[];
@@ -29,6 +30,10 @@ export default function EducationForm({
         educationList.length > 0 ? 0 : null
     );
 
+    // Debounce state for updates
+    const debouncedEducationList = useDebounce(educationList, 500);
+    const lastSavedDataRef = useRef<string>(JSON.stringify(initialData));
+
     // Modal states
     const [confirmModal, setConfirmModal] = useState<{
         show: boolean;
@@ -37,12 +42,25 @@ export default function EducationForm({
         onConfirm: () => void;
     }>({ show: false, title: '', message: '', onConfirm: () => { } });
 
-    // Update educationList when initialData changes
+    // Handle updates when debounced value changes
+    useEffect(() => {
+        const stringifiedData = JSON.stringify(debouncedEducationList);
+        if (stringifiedData !== lastSavedDataRef.current) {
+            lastSavedDataRef.current = stringifiedData;
+            onUpdate(debouncedEducationList);
+        }
+    }, [debouncedEducationList, onUpdate]);
+
+    // Update educationList when initialData changes externally
     useEffect(() => {
         if (initialData && initialData.length > 0) {
-            setEducationList(initialData);
-            if (expandedIndex === null) {
-                setExpandedIndex(0);
+            const stringifiedInitial = JSON.stringify(initialData);
+            if (stringifiedInitial !== lastSavedDataRef.current) {
+                setEducationList(initialData);
+                lastSavedDataRef.current = stringifiedInitial;
+                if (expandedIndex === null) {
+                    setExpandedIndex(0);
+                }
             }
         }
     }, [initialData]);
@@ -63,7 +81,6 @@ export default function EducationForm({
         const updated = [...educationList, newEducation];
         setEducationList(updated);
         setExpandedIndex(updated.length - 1);
-        onUpdate(updated);
     };
 
     const handleDelete = (index: number) => {
@@ -77,7 +94,6 @@ export default function EducationForm({
                 if (expandedIndex === index) {
                     setExpandedIndex(updated.length > 0 ? 0 : null);
                 }
-                onUpdate(updated);
                 setConfirmModal({ show: false, title: '', message: '', onConfirm: () => { } });
             },
         });
@@ -87,7 +103,6 @@ export default function EducationForm({
         const updated = [...educationList];
         updated[index] = updatedEducation;
         setEducationList(updated);
-        onUpdate(updated);
     };
 
     return (

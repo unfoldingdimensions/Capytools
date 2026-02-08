@@ -31,6 +31,11 @@ export async function generateVisualPdf(elementId: string, filename: string): Pr
         const imgWidth = pdfWidth;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
+        // Cleanup canvas memory immediately
+        canvas.width = 0;
+        canvas.height = 0;
+        canvas.remove();
+
         const doc = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',

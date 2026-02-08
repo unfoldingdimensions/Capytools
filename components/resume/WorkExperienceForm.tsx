@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Briefcase } from 'lucide-react';
@@ -9,6 +9,7 @@ import { WorkExperienceItem } from './WorkExperienceItem';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface WorkExperienceFormProps {
     initialData?: WorkExperience[];
@@ -29,6 +30,10 @@ export default function WorkExperienceForm({
         experiences.length > 0 ? 0 : null
     );
 
+    // Debounce state for updates
+    const debouncedExperiences = useDebounce(experiences, 500);
+    const lastSavedDataRef = useRef<string>(JSON.stringify(initialData));
+
     // Modal states
     const [confirmModal, setConfirmModal] = useState<{
         show: boolean;
@@ -37,12 +42,25 @@ export default function WorkExperienceForm({
         onConfirm: () => void;
     }>({ show: false, title: '', message: '', onConfirm: () => { } });
 
-    // Update experiences when initialData changes
+    // Handle updates when debounced value changes
+    useEffect(() => {
+        const stringifiedData = JSON.stringify(debouncedExperiences);
+        if (stringifiedData !== lastSavedDataRef.current) {
+            lastSavedDataRef.current = stringifiedData;
+            onUpdate(debouncedExperiences);
+        }
+    }, [debouncedExperiences, onUpdate]);
+
+    // Update experiences when initialData changes externally
     useEffect(() => {
         if (initialData && initialData.length > 0) {
-            setExperiences(initialData);
-            if (expandedIndex === null) {
-                setExpandedIndex(0);
+            const stringifiedInitial = JSON.stringify(initialData);
+            if (stringifiedInitial !== lastSavedDataRef.current) {
+                setExperiences(initialData);
+                lastSavedDataRef.current = stringifiedInitial;
+                if (expandedIndex === null) {
+                    setExpandedIndex(0);
+                }
             }
         }
     }, [initialData]);
@@ -62,7 +80,6 @@ export default function WorkExperienceForm({
         const updated = [...experiences, newExperience];
         setExperiences(updated);
         setExpandedIndex(updated.length - 1);
-        onUpdate(updated);
     };
 
     const handleDeleteExperience = (index: number) => {
@@ -76,7 +93,6 @@ export default function WorkExperienceForm({
                 if (expandedIndex === index) {
                     setExpandedIndex(updated.length > 0 ? 0 : null);
                 }
-                onUpdate(updated);
                 setConfirmModal({ show: false, title: '', message: '', onConfirm: () => { } });
             },
         });
@@ -86,7 +102,6 @@ export default function WorkExperienceForm({
         const updated = [...experiences];
         updated[index] = updatedExp;
         setExperiences(updated);
-        onUpdate(updated);
     };
 
     return (

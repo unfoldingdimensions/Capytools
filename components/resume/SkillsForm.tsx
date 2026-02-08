@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import type { Skill } from '@/types/resume.types';
 import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
 import { AlertDialog } from '@/components/ui/AlertDialog';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface SkillsFormProps {
     initialData?: Skill[];
@@ -28,6 +29,10 @@ export default function SkillsForm({
     const [newCategory, setNewCategory] = useState('');
     const [newSkillInputs, setNewSkillInputs] = useState<Record<string, string>>({});
 
+    // Debounce state for updates
+    const debouncedSkills = useDebounce(skills, 500);
+    const lastSavedDataRef = useRef<string>(JSON.stringify(initialData));
+
     // Modal states
     const [alertModal, setAlertModal] = useState<{
         show: boolean;
@@ -40,10 +45,23 @@ export default function SkillsForm({
     const [tailoringSuggestion, setTailoringSuggestion] = useState<{ suggestedSkills: string[]; tips: string[] } | null>(null);
     const [suggestionLoading, setSuggestionLoading] = useState(false);
 
-    // Update skills when initialData changes
+    // Handle updates when debounced value changes
+    useEffect(() => {
+        const stringifiedData = JSON.stringify(debouncedSkills);
+        if (stringifiedData !== lastSavedDataRef.current) {
+            lastSavedDataRef.current = stringifiedData;
+            onUpdate(debouncedSkills);
+        }
+    }, [debouncedSkills, onUpdate]);
+
+    // Update skills when initialData changes externally
     useEffect(() => {
         if (initialData && initialData.length > 0) {
-            setSkills(initialData);
+            const stringifiedInitial = JSON.stringify(initialData);
+            if (stringifiedInitial !== lastSavedDataRef.current) {
+                setSkills(initialData);
+                lastSavedDataRef.current = stringifiedInitial;
+            }
         }
     }, [initialData]);
 
@@ -79,7 +97,6 @@ export default function SkillsForm({
 
         const updated = [...skills, newSkill];
         setSkills(updated);
-        onUpdate(updated);
         setNewCategory('');
         setNewSkillInputs({ ...newSkillInputs, [categoryName]: '' });
     };
@@ -99,7 +116,6 @@ export default function SkillsForm({
         });
 
         setSkills(updated);
-        onUpdate(updated);
         setNewSkillInputs({ ...newSkillInputs, [category]: '' });
     };
 
@@ -112,13 +128,11 @@ export default function SkillsForm({
         }).filter(s => s.skills.length > 0 || s.category === category);
 
         setSkills(updated);
-        onUpdate(updated);
     };
 
     const handleDeleteCategory = (category: string) => {
         const updated = skills.filter(s => s.category !== category);
         setSkills(updated);
-        onUpdate(updated);
     };
 
     const handleGenerateTailoringSuggestions = async () => {
@@ -181,7 +195,6 @@ export default function SkillsForm({
             }
 
             setSkills(updated);
-            onUpdate(updated);
             setAlertModal({
                 show: true,
                 title: 'Skills Applied',
