@@ -65,20 +65,18 @@ export async function tailorResumeToJob(
         throw new Error('Job description must have a title');
     }
 
-    // Generate tailored professional summary
-    const tailoredSummary = await generateTailoredSummary(resume, jobDescription);
-
-    // Optimize experience descriptions
-    const optimizedExperience = await optimizeExperienceDescriptions(
-        resume.workExperience || [],
-        jobDescription
-    );
-
-    // Suggest additional skills to highlight
-    const suggestedSkills = await suggestSkillsToHighlight(resume, jobDescription);
-
-    // Generate customized bullet points
-    const customizations = await generateCustomizations(resume, jobDescription);
+    // Generate tailored content concurrently
+    const [
+        tailoredSummary,
+        optimizedExperience,
+        suggestedSkills,
+        customizations,
+    ] = await Promise.all([
+        generateTailoredSummary(resume, jobDescription),
+        optimizeExperienceDescriptions(resume.workExperience || [], jobDescription),
+        suggestSkillsToHighlight(resume, jobDescription),
+        generateCustomizations(resume, jobDescription),
+    ]);
 
     return {
         originalResume: resume,
