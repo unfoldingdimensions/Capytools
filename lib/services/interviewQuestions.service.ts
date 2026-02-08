@@ -1,4 +1,4 @@
-import { createJSONCompletion, getDefaultModel } from './openai.service';
+import { createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import type { ResumeData } from '@/types/resume.types';
 import type { ParsedJobDescription, InterviewQuestion } from '@/types/ai.types';
 
@@ -14,7 +14,8 @@ import type { ParsedJobDescription, InterviewQuestion } from '@/types/ai.types';
 export async function generateInterviewQuestions(
     resume: ResumeData,
     jobDescription: ParsedJobDescription,
-    count: number = 10
+    count: number = 10,
+    config?: AIConfig
 ): Promise<InterviewQuestion[]> {
     if (count < 1 || count > 30) {
         throw new Error('Question count must be between 1 and 30');
@@ -62,9 +63,10 @@ Provide suggested answers and key points to cover.`;
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.8, // Higher temperature for variety
                 maxTokens: 3000,
+                config,
             }
         );
 

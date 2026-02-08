@@ -1,4 +1,4 @@
-import { createCompletion, getDefaultModel } from './openai.service';
+import { createCompletion, getDefaultModel, AIConfig } from './openai.service';
 import type { ResumeData } from '@/types/resume.types';
 import type { ParsedJobDescription, ATSScoreResult } from '@/types/ai.types';
 
@@ -13,7 +13,8 @@ import type { ParsedJobDescription, ATSScoreResult } from '@/types/ai.types';
  */
 export async function scoreResumeAgainstJob(
     resume: ResumeData,
-    jobDescription: ParsedJobDescription
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
 ): Promise<ATSScoreResult> {
     // Validate inputs
     if (!resume.personalInfo?.fullName) {
@@ -48,7 +49,8 @@ export async function scoreResumeAgainstJob(
             experienceScore,
             formattingScore,
             overallScore,
-        }
+        },
+        config
     );
 
     // Identify missing keywords
@@ -268,7 +270,8 @@ async function generateImprovementSuggestions(
         experienceScore: { score: number; details: string[] };
         formattingScore: { score: number; details: string[] };
         overallScore: number;
-    }
+    },
+    config?: AIConfig
 ): Promise<string[]> {
     const systemPrompt = `You are an expert resume consultant and ATS optimization specialist.
 Provide 5-7 specific, actionable suggestions to improve a resume for a specific job.
@@ -299,9 +302,10 @@ Provide specific, actionable suggestions to improve this resume for this job.`;
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.7,
                 maxTokens: 1000,
+                config,
             }
         );
 

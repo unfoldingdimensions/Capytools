@@ -3,6 +3,7 @@ import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
 import { parseJobDescription } from '@/lib/services/jobDescriptionParser.service';
+import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { AuthenticatedApiRequest } from '@/types/api.types';
 import type { JobDescriptionInput } from '@/types/ai.types';
@@ -64,13 +65,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             });
         }
 
-        // Parse job description using AI
+        // Parse job description using AI with BYOK config
+        const aiConfig = getAIConfigFromRequest(req);
         const parsed = await parseJobDescription({
             title,
             company,
             description,
             url,
-        });
+        }, aiConfig);
 
         // Store parsed job description in database
         // Save title as "Company - Role" format for easy identification

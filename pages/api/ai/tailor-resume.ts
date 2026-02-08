@@ -3,6 +3,7 @@ import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
 import { tailorResumeToJob } from '@/lib/services/resumeTailoring.service';
+import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { decryptJSON, encryptJSON } from '@/lib/security/encryption';
 import { AuthenticatedApiRequest } from '@/types/api.types';
@@ -182,8 +183,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 keywords: jobDescription.keywords,
             };
 
-            // Tailor resume to job
-            const tailoredResult = await tailorResumeToJob(resumeData, parsedJob);
+            // Tailor resume to job with BYOK config
+            const aiConfig = getAIConfigFromRequest(req);
+            const tailoredResult = await tailorResumeToJob(resumeData, parsedJob, aiConfig);
 
             // Create reference: "Company Name - Role - Resume Name"
             // Extract role from jobDescription.title (format: "Company - Role")

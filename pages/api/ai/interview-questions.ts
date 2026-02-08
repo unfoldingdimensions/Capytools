@@ -3,6 +3,7 @@ import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
 import { generateInterviewQuestions } from '@/lib/services/interviewQuestions.service';
+import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { decryptJSON } from '@/lib/security/encryption';
 import { AuthenticatedApiRequest } from '@/types/api.types';
@@ -193,11 +194,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 keywords: jobDescription.keywords,
             };
 
-            // Generate interview questions
+            // Generate interview questions with BYOK config
+            const aiConfig = getAIConfigFromRequest(req);
             const questions = await generateInterviewQuestions(
                 resumeData,
                 parsedJob,
-                count
+                count,
+                aiConfig
             );
 
             // Create reference: "Company Name - Role - Resume Name"

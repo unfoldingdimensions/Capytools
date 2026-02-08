@@ -4,6 +4,7 @@ import { asyncHandler } from '@/middleware/errorHandler';
 import { requireAuth } from '@/middleware/auth';
 import { rateLimit } from '@/middleware/rateLimit';
 import { generateProfessionalSummary } from '@/lib/services/aiWritingAssistant.service';
+import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import type { ResumeData } from '@/types/resume.types';
 
 /**
@@ -64,8 +65,9 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
         console.log('- Education entries:', resumeData.education?.length || 0);
         console.log('- Skills categories:', resumeData.skills?.length || 0);
         console.log('- Projects:', resumeData.projects?.length || 0);
-
-        const summary = await generateProfessionalSummary(resumeData);
+        // Generate professional summary with BYOK config
+        const aiConfig = getAIConfigFromRequest(req);
+        const summary = await generateProfessionalSummary(resumeData, aiConfig);
 
         console.log('Final summary returned:', summary);
         console.log('Final summary length:', summary.length);

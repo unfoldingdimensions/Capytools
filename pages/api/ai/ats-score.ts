@@ -3,6 +3,7 @@ import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
 import { scoreResumeAgainstJob } from '@/lib/services/atsScoring.service';
+import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { decryptJSON } from '@/lib/security/encryption';
 import { AuthenticatedApiRequest } from '@/types/api.types';
@@ -190,8 +191,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 keywords: jobDescription.keywords,
             };
 
-            // Score resume against job
-            const score = await scoreResumeAgainstJob(resumeData, parsedJob);
+            // Score resume against job with BYOK config
+            const aiConfig = getAIConfigFromRequest(req);
+            const score = await scoreResumeAgainstJob(resumeData, parsedJob, aiConfig);
 
             // Create reference: "Company Name - Role - Resume Name"
             // Extract role from jobDescription.title (format: "Company - Role")

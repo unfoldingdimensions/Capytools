@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import type { OpenAIMessage } from '@/types/ai.types';
+import { createGeminiCompletion, validateGeminiAPIKey } from './gemini.service';
 
 /**
  * Configuration for AI Service (BYOK support)
@@ -8,6 +9,13 @@ export interface AIConfig {
     apiKey?: string;
     baseURL?: string;
     model?: string;
+}
+
+/**
+ * Checks if the config is for Gemini provider
+ */
+export function isGeminiProvider(config?: AIConfig): boolean {
+    return config?.baseURL === 'gemini';
 }
 
 /**
@@ -75,7 +83,7 @@ export function getDefaultModel(config?: AIConfig): string {
 }
 
 /**
- * Makes a completion request to OpenAI/NVIDIA NIM/Custom Provider
+ * Makes a completion request to OpenAI/NVIDIA NIM/Custom Provider/Gemini
  */
 export async function createCompletion(
     messages: OpenAIMessage[],
@@ -97,6 +105,16 @@ export async function createCompletion(
         topP = 1,
         config
     } = options;
+
+    // Route to Gemini if provider is set to gemini
+    if (isGeminiProvider(config) && config?.apiKey) {
+        return createGeminiCompletion(messages, {
+            apiKey: config.apiKey,
+            model: options.model || config.model,
+            temperature,
+            maxTokens,
+        });
+    }
 
     // Resolve model: Option override -> Config override -> Env Default -> Fallback
     const model = options.model || getDefaultModel(config);
@@ -242,9 +260,14 @@ export async function createJSONCompletion<T>(
 }
 
 /**
- * Validates OpenAI API key
+ * Validates API key (OpenAI or Gemini)
  */
 export async function validateAPIKey(config?: AIConfig): Promise<boolean> {
+    // Route to Gemini validation if provider is gemini
+    if (isGeminiProvider(config) && config?.apiKey) {
+        return validateGeminiAPIKey(config.apiKey);
+    }
+
     try {
         const client = getOpenAIClient(config);
         const model = getDefaultModel(config);

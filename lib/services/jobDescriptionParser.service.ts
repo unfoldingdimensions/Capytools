@@ -1,4 +1,4 @@
-import { createJSONCompletion, getDefaultModel } from './openai.service';
+import { createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import type { ParsedJobDescription, JobDescriptionInput } from '@/types/ai.types';
 
 /**
@@ -11,7 +11,8 @@ import type { ParsedJobDescription, JobDescriptionInput } from '@/types/ai.types
  * Parses a job description text into structured data
  */
 export async function parseJobDescription(
-    input: JobDescriptionInput
+    input: JobDescriptionInput,
+    config?: AIConfig
 ): Promise<ParsedJobDescription> {
     if (!input.description || input.description.trim().length < 50) {
         throw new Error(
@@ -51,9 +52,10 @@ Extract all requirements, responsibilities, skills, and relevant keywords. Be th
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(), // Use model from environment (AI_MODEL) or default to gpt-4-turbo
+                model: getDefaultModel(config), // Use config model, env AI_MODEL, or default
                 temperature: 0.3, // Lower temperature for more consistent parsing
                 maxTokens: 2000,
+                config,
             }
         );
 
@@ -82,7 +84,7 @@ Extract all requirements, responsibilities, skills, and relevant keywords. Be th
 /**
  * Extracts keywords from job description for ATS matching
  */
-export async function extractKeywords(description: string): Promise<string[]> {
+export async function extractKeywords(description: string, config?: AIConfig): Promise<string[]> {
     if (!description || description.trim().length < 20) {
         throw new Error('Description too short for keyword extraction');
     }
@@ -99,9 +101,10 @@ Focus on: technical skills, tools, frameworks, qualifications, certifications, a
                 { role: 'user', content: description },
             ],
             {
-                model: getDefaultModel(), // Use model from environment (AI_MODEL) or default
+                model: getDefaultModel(config), // Use config model, env AI_MODEL, or default
                 temperature: 0.2,
                 maxTokens: 500,
+                config,
             }
         );
 

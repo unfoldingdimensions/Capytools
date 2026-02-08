@@ -9,7 +9,7 @@ import { AlertCircle, CheckCircle, Settings, Key, Cpu, X, Server } from 'lucide-
 import { cn } from '@/lib/utils';
 
 export interface AIConfig {
-    provider: 'default' | 'zai' | 'openrouter' | 'custom';
+    provider: 'default' | 'gemini' | 'zai' | 'openrouter' | 'custom';
     apiKey?: string;
     baseURL?: string;
     model?: string;
@@ -21,6 +21,12 @@ const PROVIDERS = {
         baseURL: '',
         model: 'gpt-4-turbo',
         placeholder: 'Managed by Handcraft',
+    },
+    gemini: {
+        name: 'Google Gemini',
+        baseURL: 'gemini', // Special marker for Gemini SDK routing
+        model: 'gemini-2.0-flash',
+        placeholder: 'Enter your Gemini API Key from Google AI Studio',
     },
     zai: {
         name: 'Z.ai (Zhipu AI)',

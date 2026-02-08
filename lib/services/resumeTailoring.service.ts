@@ -1,4 +1,4 @@
-import { createCompletion, createJSONCompletion, getDefaultModel } from './openai.service';
+import { createCompletion, createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import type { ResumeData } from '@/types/resume.types';
 import type { ParsedJobDescription, TailoredResumeResult } from '@/types/ai.types';
 
@@ -55,7 +55,8 @@ function cleanAIResponse(text: string): string {
  */
 export async function tailorResumeToJob(
     resume: ResumeData,
-    jobDescription: ParsedJobDescription
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
 ): Promise<TailoredResumeResult> {
     if (!resume.personalInfo?.fullName) {
         throw new Error('Resume must have personal information');
@@ -72,10 +73,10 @@ export async function tailorResumeToJob(
         suggestedSkills,
         customizations,
     ] = await Promise.all([
-        generateTailoredSummary(resume, jobDescription),
-        optimizeExperienceDescriptions(resume.workExperience || [], jobDescription),
-        suggestSkillsToHighlight(resume, jobDescription),
-        generateCustomizations(resume, jobDescription),
+        generateTailoredSummary(resume, jobDescription, config),
+        optimizeExperienceDescriptions(resume.workExperience || [], jobDescription, config),
+        suggestSkillsToHighlight(resume, jobDescription, config),
+        generateCustomizations(resume, jobDescription, config),
     ]);
 
     return {
@@ -92,7 +93,8 @@ export async function tailorResumeToJob(
  */
 async function generateTailoredSummary(
     resume: ResumeData,
-    jobDescription: ParsedJobDescription
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
 ): Promise<string> {
     const currentSummary = resume.personalInfo?.summary || 'No current summary';
     const workExperience = resume.workExperience || [];
@@ -127,9 +129,10 @@ Write a tailored professional summary that positions me as an ideal candidate fo
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.7,
                 maxTokens: 200,
+                config,
             }
         );
 
@@ -147,7 +150,8 @@ Write a tailored professional summary that positions me as an ideal candidate fo
  */
 async function optimizeExperienceDescriptions(
     workExperience: ResumeData['workExperience'],
-    jobDescription: ParsedJobDescription
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
 ): Promise<Array<{ position: string; company: string; optimizedAchievements: string[] }>> {
     if (!workExperience || workExperience.length === 0) {
         return [];
@@ -181,9 +185,10 @@ Keep the core responsibilities but emphasize relevant skills and quantifiable re
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.6,
                 maxTokens: 2000,
+                config,
             }
         );
 
@@ -203,7 +208,8 @@ Keep the core responsibilities but emphasize relevant skills and quantifiable re
  */
 async function suggestSkillsToHighlight(
     resume: ResumeData,
-    jobDescription: ParsedJobDescription
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
 ): Promise<string[]> {
     const currentSkills = (resume.skills || []).flatMap((s) => s.skills);
     const requiredSkills = jobDescription.skills;
@@ -232,9 +238,10 @@ Include both exact matches and closely related skills they likely have.`;
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.4,
                 maxTokens: 300,
+                config,
             }
         );
 
@@ -258,7 +265,8 @@ Include both exact matches and closely related skills they likely have.`;
  */
 async function generateCustomizations(
     resume: ResumeData,
-    jobDescription: ParsedJobDescription
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
 ): Promise<string[]> {
     const systemPrompt = `You are a resume consultant providing specific customization advice.
 Return ONLY a JSON array of actionable recommendations: ["action1", "action2", ...]
@@ -285,9 +293,10 @@ Provide 5-7 specific customizations this candidate should make to optimize their
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.7,
                 maxTokens: 800,
+                config,
             }
         );
 
@@ -311,7 +320,8 @@ export async function optimizeSection(
     sectionName: string,
     currentContent: string,
     jobDescription: ParsedJobDescription,
-    keywords: string[]
+    keywords: string[],
+    config?: AIConfig
 ): Promise<string> {
     if (!currentContent || currentContent.trim().length < 10) {
         throw new Error('Section content is too short to optimize');
@@ -338,9 +348,10 @@ Include relevant keywords naturally.`;
                 { role: 'user', content: userPrompt },
             ],
             {
-                model: getDefaultModel(),
+                model: getDefaultModel(config),
                 temperature: 0.6,
                 maxTokens: 300,
+                config,
             }
         );
 
