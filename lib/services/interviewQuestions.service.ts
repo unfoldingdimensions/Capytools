@@ -1,6 +1,6 @@
 import { createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import type { ResumeData } from '@/types/resume.types';
-import type { ParsedJobDescription, InterviewQuestion } from '@/types/ai.types';
+import type { ParsedJobDescription, InterviewQuestion, InterviewPreparationFeedback } from '@/types/ai.types';
 
 /**
  * Interview Questions Generator Service
@@ -333,6 +333,109 @@ function validateAndEnrichQuestion(question: InterviewQuestion): InterviewQuesti
     }
 
     return question;
+}
+
+/**
+ * Generates personalized interview preparation feedback based on resume and job description
+ */
+export async function generateInterviewPreparationFeedback(
+    resume: ResumeData,
+    jobDescription: ParsedJobDescription,
+    config?: AIConfig
+): Promise<InterviewPreparationFeedback> {
+    const systemPrompt = `You are an expert career coach and interview preparation specialist.
+Analyze the candidate's resume against the job description and provide personalized feedback.
+Return JSON with this exact structure:
+{
+  "matchScore": 0-100 (how well the resume matches the job),
+  "strengths": ["strength1", "strength2", ...] (3-5 key strengths from resume that align with job),
+  "areasToImprove": ["area1", "area2", ...] (2-4 areas candidate should work on),
+  "recommendations": ["rec1", "rec2", ...] (5-7 specific, actionable interview preparation tips),
+  "matchedKeywords": ["keyword1", "keyword2", ...] (job keywords found in resume),
+  "missingKeywords": ["keyword1", "keyword2", ...] (important job keywords missing from resume),
+  "starExamples": [
+    {
+      "situation": "Behavioral question type this applies to",
+      "relevantExperience": "Specific experience from resume to highlight",
+      "tip": "How to structure this answer using STAR method"
+    }
+  ] (2-3 personalized STAR examples based on their actual experience),
+  "companyInsights": ["insight1", "insight2", ...] (2-3 tips about preparing for this specific company/role)
+}`;
+
+    const userPrompt = `Analyze this candidate's fit for the position and provide personalized interview preparation feedback.
+
+JOB DETAILS:
+Title: ${jobDescription.title}
+Company: ${jobDescription.company}
+Description: ${jobDescription.description}
+
+Key Requirements: ${jobDescription.requirements.slice(0, 10).join('\n- ')}
+Required Skills: ${jobDescription.skills.slice(0, 15).join(', ')}
+Key Responsibilities: ${jobDescription.responsibilities.slice(0, 8).join('\n- ')}
+
+CANDIDATE RESUME:
+Name: ${resume.personalInfo?.fullName || 'Unknown'}
+Professional Summary: ${resume.personalInfo?.summary || 'Not provided'}
+
+Work Experience:
+${(resume.workExperience || []).slice(0, 4).map((exp) => 
+    `- ${exp.position} at ${exp.company} (${exp.startDate}${exp.current ? ' - Present' : exp.endDate ? ` - ${exp.endDate}` : ''})
+  Achievements: ${(exp.achievements || []).slice(0, 3).join('; ')}`
+).join('\n')}
+
+Skills: ${(resume.skills || []).flatMap((s) => s.skills).slice(0, 20).join(', ')}
+
+Education: ${(resume.education || []).map((edu) => 
+    `${edu.degree} in ${edu.field || 'N/A'} from ${edu.institution}`).join(', ')}
+
+Projects: ${(resume.projects || []).slice(0, 3).map((p) => p.title).join(', ')}
+
+Provide detailed, actionable feedback to help this candidate prepare for their interview.`;
+
+    try {
+        const feedback = await createJSONCompletion<InterviewPreparationFeedback>(
+            [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+            ],
+            {
+                model: getDefaultModel(config),
+                temperature: 0.6,
+                maxTokens: 2500,
+                config,
+            }
+        );
+
+        // Validate and ensure all required fields
+        return {
+            matchScore: Math.max(0, Math.min(100, feedback.matchScore || 0)),
+            strengths: Array.isArray(feedback.strengths) ? feedback.strengths : [],
+            areasToImprove: Array.isArray(feedback.areasToImprove) ? feedback.areasToImprove : [],
+            recommendations: Array.isArray(feedback.recommendations) ? feedback.recommendations : [],
+            matchedKeywords: Array.isArray(feedback.matchedKeywords) ? feedback.matchedKeywords : [],
+            missingKeywords: Array.isArray(feedback.missingKeywords) ? feedback.missingKeywords : [],
+            starExamples: Array.isArray(feedback.starExamples) ? feedback.starExamples : [],
+            companyInsights: Array.isArray(feedback.companyInsights) ? feedback.companyInsights : [],
+        };
+    } catch (error) {
+        console.error('Failed to generate interview preparation feedback:', error);
+        // Return minimal fallback feedback
+        return {
+            matchScore: 0,
+            strengths: ['Consider highlighting your relevant experience'],
+            areasToImprove: ['Review the job requirements carefully'],
+            recommendations: [
+                'Research the company thoroughly before the interview',
+                'Prepare specific examples from your experience',
+                'Practice answering questions out loud',
+            ],
+            matchedKeywords: [],
+            missingKeywords: [],
+            starExamples: [],
+            companyInsights: ['Research the company culture and values'],
+        };
+    }
 }
 
 /**

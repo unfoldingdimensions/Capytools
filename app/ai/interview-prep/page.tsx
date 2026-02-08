@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AIGlowingLoader, Skeleton } from '@/components/ui/loading-states';
 import InterviewQuestionsList from '@/components/ai/InterviewQuestionsList';
-import type { InterviewQuestion } from '@/types/ai.types';
+import type { InterviewQuestion, InterviewPreparationFeedback } from '@/types/ai.types';
 import { cn } from '@/lib/utils';
 
 interface Resume {
@@ -55,6 +55,7 @@ function InterviewPrepContent() {
     const [selectedResumeId, setSelectedResumeId] = useState<string | null>(resumeIdParam);
     const [selectedJobDescriptionId, setSelectedJobDescriptionId] = useState<string | null>(jobDescriptionIdParam);
     const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
+    const [feedback, setFeedback] = useState<InterviewPreparationFeedback | null>(null);
     const [savedSessions, setSavedSessions] = useState<SavedInterviewSession[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingJobs, setIsLoadingJobs] = useState(false);
@@ -109,6 +110,7 @@ function InterviewPrepContent() {
         setIsGenerating(true);
         setError(null);
         setQuestions([]);
+        setFeedback(null);
 
         try {
             // Get AI config from localStorage for BYOK support
@@ -144,6 +146,9 @@ function InterviewPrepContent() {
 
             if (responseData.success && responseData.data?.questions) {
                 setQuestions(responseData.data.questions);
+                if (responseData.data.feedback) {
+                    setFeedback(responseData.data.feedback);
+                }
                 // Refresh saved sessions after generating
                 const sessionsResponse = await fetch('/api/ai/interview-questions');
                 const sessionsData = await sessionsResponse.json();
@@ -308,11 +313,11 @@ function InterviewPrepContent() {
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-xl font-display font-medium text-foreground">Interview Questions</h3>
-                                <Button variant="ghostSubtle" size="sm" onClick={() => { setQuestions([]); setSelectedResumeId(null); }}>
+                                <Button variant="ghostSubtle" size="sm" onClick={() => { setQuestions([]); setFeedback(null); setSelectedResumeId(null); }}>
                                     Reset
                                 </Button>
                             </div>
-                            <InterviewQuestionsList questions={questions} />
+                            <InterviewQuestionsList questions={questions} feedback={feedback ?? undefined} />
                         </div>
                     ) : (
                         <div className="space-y-6">

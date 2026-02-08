@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
-import { generateInterviewQuestions } from '@/lib/services/interviewQuestions.service';
+import { generateInterviewQuestions, generateInterviewPreparationFeedback } from '@/lib/services/interviewQuestions.service';
 import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { decryptJSON } from '@/lib/security/encryption';
@@ -194,14 +194,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 keywords: jobDescription.keywords,
             };
 
-            // Generate interview questions with BYOK config
+            // Generate interview questions and feedback in parallel with BYOK config
             const aiConfig = getAIConfigFromRequest(req);
-            const questions = await generateInterviewQuestions(
-                resumeData,
-                parsedJob,
-                count,
-                aiConfig
-            );
+            const [questions, feedback] = await Promise.all([
+                generateInterviewQuestions(
+                    resumeData,
+                    parsedJob,
+                    count,
+                    aiConfig
+                ),
+                generateInterviewPreparationFeedback(
+                    resumeData,
+                    parsedJob,
+                    aiConfig
+                )
+            ]);
 
             // Create reference: "Company Name - Role - Resume Name"
             // Extract role from jobDescription.title (format: "Company - Role")
@@ -226,6 +233,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 data: {
                     sessionId: session.id,
                     questions,
+                    feedback,
                 },
             });
         } catch (generationError) {

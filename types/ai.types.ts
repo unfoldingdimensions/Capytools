@@ -149,6 +149,30 @@ export interface InterviewQuestion {
     keywords?: string[];
 }
 
+/** Personalized interview preparation feedback based on resume and job description analysis */
+export interface InterviewPreparationFeedback {
+    /** Overall match score between resume and job description (0-100) */
+    matchScore: number;
+    /** Key strengths from the resume that align with the job */
+    strengths: string[];
+    /** Areas where the candidate could improve or upskill */
+    areasToImprove: string[];
+    /** Specific recommendations for interview preparation */
+    recommendations: string[];
+    /** Keywords from job description found in resume */
+    matchedKeywords: string[];
+    /** Important keywords missing from resume */
+    missingKeywords: string[];
+    /** Personalized STAR method examples based on candidate's experience */
+    starExamples: {
+        situation: string;
+        relevantExperience: string;
+        tip: string;
+    }[];
+    /** Company-specific preparation tips */
+    companyInsights: string[];
+}
+
 // Simplified ATS scoring result for service layer
 export interface ATSScoreResult {
     overallScore: number;
@@ -299,5 +323,6 @@ export interface GenerateInterviewQuestionsResponse {
     sessionId: string;
     questions: InterviewQuestion[];
     preparationTips: string[];
+    feedback?: InterviewPreparationFeedback;
 }
 
