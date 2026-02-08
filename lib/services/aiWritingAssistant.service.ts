@@ -11,11 +11,7 @@ import type { ResumeData } from '@/types/resume.types';
  * Remove common AI preambles and explanatory text from responses
  */
 function cleanAIResponse(text: string): string {
-    const original = text;
     let cleaned = text.trim();
-
-    console.log('=== CLEANING AI RESPONSE ===');
-    console.log('Original:', original);
 
     // Remove common preambles at the start
     const preambles = [
@@ -31,11 +27,7 @@ function cleanAIResponse(text: string): string {
     ];
 
     for (const pattern of preambles) {
-        const before = cleaned;
         cleaned = cleaned.replace(pattern, '');
-        if (before !== cleaned) {
-            console.log(`Removed preamble with pattern: ${pattern}`);
-        }
     }
 
     // Remove explanatory notes and trailing text
@@ -51,15 +43,8 @@ function cleanAIResponse(text: string): string {
     ];
 
     for (const pattern of trailingPatterns) {
-        const before = cleaned;
         cleaned = cleaned.replace(pattern, '');
-        if (before !== cleaned) {
-            console.log(`Removed trailing text with pattern: ${pattern}`);
-        }
     }
-
-    console.log('After cleaning:', cleaned);
-    console.log('=== END CLEANING ===');
 
     return cleaned.trim();
 }
@@ -508,10 +493,6 @@ export async function generateProfessionalSummary(resumeData: ResumeData, config
             });
         }
 
-        console.log('=== CONTEXT SENT TO AI ===');
-        console.log(context);
-        console.log('=== END CONTEXT ===');
-
         const messages: OpenAIMessage[] = [
             {
                 role: 'system',
@@ -551,12 +532,7 @@ Return ONLY the summary text. Start directly with the first word of the summary.
             config
         });
 
-        console.log('Raw AI summary response:', summary);
-        console.log('Summary length:', summary.length);
-
         const cleaned = cleanAIResponse(summary);
-        console.log('Cleaned summary:', cleaned);
-        console.log('Cleaned length:', cleaned.length);
 
         // Validate the summary is substantial
         if (cleaned.length < 50) {
