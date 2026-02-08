@@ -22,6 +22,7 @@ import { BulletPointEditor } from './BulletPointEditor';
 import SuggestionCard from './SuggestionCard';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
+import { getAIHeaders } from '@/lib/ai-config-client';
 
 interface JobDescription {
     id: string;
@@ -93,7 +94,7 @@ export function EducationItem({
         try {
             const response = await fetch('/api/ai/tailor-section', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAIHeaders(),
                 body: JSON.stringify({
                     resumeId,
                     jobDescriptionId,

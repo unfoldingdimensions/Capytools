@@ -89,7 +89,7 @@ Write a high-ranking ATS summary. Return ONLY the text.`;
             {
                 model: getDefaultModel(config),
                 temperature: 0.7,
-                maxTokens: 250,
+                maxTokens: 1000,
                 config
             }
         );

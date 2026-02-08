@@ -13,6 +13,7 @@ import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
 import { Mail, Phone, MapPin, Globe, Linkedin, Github, User } from 'lucide-react';
+import { getAIHeaders } from '@/lib/ai-config-client';
 
 interface PersonalInfoFormProps {
     initialData?: PersonalInfoInput;
@@ -94,9 +95,7 @@ export default function PersonalInfoForm({
 
             const response = await fetch('/api/ai/generate-summary', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: getAIHeaders(),
                 body: JSON.stringify({ resumeData: fullResumeData }),
             });
 
@@ -140,7 +139,7 @@ export default function PersonalInfoForm({
         try {
             const response = await fetch('/api/ai/tailor-section', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAIHeaders(),
                 body: JSON.stringify({
                     resumeId,
                     jobDescriptionId,
@@ -199,7 +198,7 @@ export default function PersonalInfoForm({
                         label="Full Name"
                         leftIcon={<User className="h-4 w-4" />}
                         {...register('fullName')}
-                        value={formValues.fullName}
+                        value={formValues.fullName || ''}
                         helperText={errors.fullName?.message}
                     />
 
@@ -208,7 +207,7 @@ export default function PersonalInfoForm({
                         leftIcon={<Mail className="h-4 w-4" />}
                         type="email"
                         {...register('email')}
-                        value={formValues.email}
+                        value={formValues.email || ''}
                         helperText={errors.email?.message}
                     />
 
@@ -216,7 +215,7 @@ export default function PersonalInfoForm({
                         label="Phone Number"
                         leftIcon={<Phone className="h-4 w-4" />}
                         {...register('phone')}
-                        value={formValues.phone}
+                        value={formValues.phone || ''}
                         helperText={errors.phone?.message}
                     />
 
@@ -224,7 +223,7 @@ export default function PersonalInfoForm({
                         label="Location"
                         leftIcon={<MapPin className="h-4 w-4" />}
                         {...register('location')}
-                        value={formValues.location}
+                        value={formValues.location || ''}
                         helperText={errors.location?.message}
                     />
 
@@ -232,7 +231,7 @@ export default function PersonalInfoForm({
                         label="Website / Portfolio"
                         leftIcon={<Globe className="h-4 w-4" />}
                         {...register('website')}
-                        value={formValues.website}
+                        value={formValues.website || ''}
                         helperText={errors.website?.message}
                     />
 
@@ -240,7 +239,7 @@ export default function PersonalInfoForm({
                         label="LinkedIn URL"
                         leftIcon={<Linkedin className="h-4 w-4" />}
                         {...register('linkedin')}
-                        value={formValues.linkedin}
+                        value={formValues.linkedin || ''}
                         helperText={errors.linkedin?.message}
                     />
 
@@ -248,7 +247,7 @@ export default function PersonalInfoForm({
                         label="GitHub URL"
                         leftIcon={<Github className="h-4 w-4" />}
                         {...register('github')}
-                        value={formValues.github}
+                        value={formValues.github || ''}
                         helperText={errors.github?.message}
                     />
                 </div>

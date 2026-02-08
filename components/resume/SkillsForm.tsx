@@ -12,6 +12,7 @@ import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { useDebounce } from '@/hooks/useDebounce';
+import { getAIHeaders } from '@/lib/ai-config-client';
 
 interface SkillsFormProps {
     initialData?: Skill[];
@@ -150,7 +151,7 @@ export default function SkillsForm({
         try {
             const response = await fetch('/api/ai/tailor-section', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAIHeaders(),
                 body: JSON.stringify({
                     resumeId,
                     jobDescriptionId,

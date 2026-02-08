@@ -24,6 +24,7 @@ import SuggestionCard from './SuggestionCard';
 import { AIService } from '@/lib/services/ai.service';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
+import { getAIHeaders } from '@/lib/ai-config-client';
 
 interface JobDescription {
     id: string;
@@ -127,7 +128,7 @@ export function ProjectItem({
         try {
             const response = await fetch('/api/ai/tailor-section', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAIHeaders(),
                 body: JSON.stringify({
                     resumeId,
                     jobDescriptionId,
