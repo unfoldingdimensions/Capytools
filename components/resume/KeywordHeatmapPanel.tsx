@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { ChevronDown, Target, Lightbulb, Plus } from 'lucide-react';
 import { KeywordMatchBadge } from './KeywordMatchBadge';
 import {

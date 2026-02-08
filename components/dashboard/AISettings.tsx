@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, CheckCircle, Settings, Key, Cpu, X, Server } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 export interface AIConfig {
     provider: 'default' | 'zai' | 'openrouter' | 'custom';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { ChevronDown, Lightbulb, FileText, Layout, CheckSquare, ShieldCheck, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 import { ScoreProgressRing } from '@/components/ui/score-progress-ring';
 import { CategoryScoreCard } from './CategoryScoreCard';

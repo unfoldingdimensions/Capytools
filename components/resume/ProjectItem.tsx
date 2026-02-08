@@ -23,7 +23,7 @@ import { BulletPointEditor } from './BulletPointEditor';
 import SuggestionCard from './SuggestionCard';
 import { AIService } from '@/lib/services/ai.service';
 import { AlertDialog } from '@/components/ui/AlertDialog';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface JobDescription {
     id: string;

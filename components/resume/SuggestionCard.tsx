@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Sparkles, RefreshCw, CheckCircle, X, Loader2, Zap, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface SuggestionCardProps {
     title: string;

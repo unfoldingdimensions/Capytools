@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Target, ArrowRight, ExternalLink, Plus, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { validateResumeForAts } from '@/lib/utils/atsValidation';
 import type { ResumeData } from '@/types/resume.types';

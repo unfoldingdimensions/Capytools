@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/cn"
+import { cn } from "@/lib/utils"
 
 /**
  * A sophisticated, multi-layered glowing loader designed for AI thinking states.

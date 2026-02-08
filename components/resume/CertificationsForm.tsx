@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Certification } from '@/types/resume.types';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface CertificationsFormProps {
     initialData?: Certification[];

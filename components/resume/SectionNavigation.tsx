@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { User, Briefcase, GraduationCap, Code, Star, Award, CheckCircle2 } from 'lucide-react';
 
 interface NavItem {

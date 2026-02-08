@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { AIGlowingLoader, Skeleton } from '@/components/ui/loading-states';
 import InterviewQuestionsList from '@/components/ai/InterviewQuestionsList';
 import type { InterviewQuestion } from '@/types/ai.types';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface Resume {
     id: string;

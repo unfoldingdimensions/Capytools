@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { ResumeGrid } from '@/components/dashboard/ResumeGrid';

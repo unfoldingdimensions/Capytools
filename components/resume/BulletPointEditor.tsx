@@ -7,7 +7,7 @@ import { Plus, Trash2, ListChecks, Wand2, Sparkles, Loader2, XCircle, RotateCcw,
 import { BulletRecommendationCard } from './BulletRecommendationCard';
 import { AIService } from '@/lib/services/ai.service';
 import { AlertDialog } from '@/components/ui/AlertDialog';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { retryWithBackoff, delay } from '@/lib/utils/rateLimitedQueue';
 import { ActionVerbSelector } from './ActionVerbSelector';
 

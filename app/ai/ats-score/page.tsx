@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { AIGlowingLoader, Skeleton } from '@/components/ui/loading-states';
 import ATSScoringReport from '@/components/ai/ATSScoringReport';
 import type { ATSScoreResult } from '@/types/ai.types';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface Resume {
     id: string;

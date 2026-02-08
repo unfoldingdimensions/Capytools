@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal/Modal';
 import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
 import { BookOpen, Copy, Check } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface ActionVerbSelectorProps {
     onSelect?: (verb: string) => void;
