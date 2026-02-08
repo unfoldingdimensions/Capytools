@@ -20,10 +20,13 @@ interface EncryptedData {
 }
 
 /**
- * Gets the encryption key from environment variables
+ * Gets the encryption key from environment variables.
+ * If a salt is provided, it's used for PBKDF2. If not, a deterministic salt is used.
+ *
+ * @param providedSalt - Optional salt for key derivation
  * @throws {Error} If ENCRYPTION_KEY is not set or invalid
  */
-function getEncryptionKey(): Buffer {
+function getEncryptionKey(providedSalt?: Buffer): Buffer {
     const key = process.env.ENCRYPTION_KEY;
 
     if (!key) {
@@ -43,7 +46,8 @@ function getEncryptionKey(): Buffer {
 
     try {
         // Derive a 256-bit key using PBKDF2
-        const salt = crypto.createHash('sha256').update(key).digest();
+        // Use provided salt if available, otherwise fallback to deterministic salt for backward compatibility
+        const salt = providedSalt || crypto.createHash('sha256').update(key).digest();
         return crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha256');
     } catch (error) {
         throw new Error(
@@ -64,9 +68,9 @@ export function encrypt(data: string): EncryptedData {
     }
 
     try {
-        const key = getEncryptionKey();
         const iv = crypto.randomBytes(IV_LENGTH);
         const salt = crypto.randomBytes(SALT_LENGTH);
+        const key = getEncryptionKey(salt);
 
         const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
@@ -104,19 +108,40 @@ export function decrypt(encryptedData: EncryptedData): string {
     }
 
     try {
-        const key = getEncryptionKey();
-        const decipher = crypto.createDecipheriv(
-            ALGORITHM,
-            key,
-            Buffer.from(encryptedData.iv, 'hex')
-        );
+        let key: Buffer;
+        let decrypted: string | null = null;
 
-        decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
+        // Attempt 1: Use the salt from the encrypted data (new secure way)
+        try {
+            const salt = Buffer.from(encryptedData.salt, 'hex');
+            key = getEncryptionKey(salt);
+            const decipher = crypto.createDecipheriv(
+                ALGORITHM,
+                key,
+                Buffer.from(encryptedData.iv, 'hex')
+            );
+            decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
+            decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
+            decrypted += decipher.final('utf8');
+        } catch (error) {
+            // Attempt 2: Fallback to deterministic salt (old way) for backward compatibility
+            try {
+                key = getEncryptionKey(); // Uses deterministic salt
+                const decipher = crypto.createDecipheriv(
+                    ALGORITHM,
+                    key,
+                    Buffer.from(encryptedData.iv, 'hex')
+                );
+                decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
+                decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
+                decrypted += decipher.final('utf8');
+            } catch (fallbackError) {
+                // If both fail, throw the original error or a combined one
+                throw error;
+            }
+        }
 
-        let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-
-        return decrypted;
+        return decrypted as string;
     } catch (error) {
         throw new Error(
             `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}. ` +
