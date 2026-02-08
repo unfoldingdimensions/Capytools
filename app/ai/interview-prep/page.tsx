@@ -111,11 +111,24 @@ function InterviewPrepContent() {
         setQuestions([]);
 
         try {
+            // Get AI config from localStorage for BYOK support
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json',
+            };
+            if (typeof window !== 'undefined') {
+                const storedConfig = localStorage.getItem('ai-config');
+                if (storedConfig) {
+                    try {
+                        headers['x-ai-config'] = btoa(storedConfig);
+                    } catch (e) {
+                        console.error('Failed to encode AI config', e);
+                    }
+                }
+            }
+
             const response = await fetch('/api/ai/interview-questions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers,
                 body: JSON.stringify({
                     resumeId,
                     jobDescriptionId: selectedJobDescriptionId,
