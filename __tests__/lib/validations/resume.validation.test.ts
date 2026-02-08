@@ -114,14 +114,14 @@ describe('Resume Validation Schemas', () => {
             expect(result.success).toBe(true);
         });
 
-        it('should reject empty skills array', () => {
-            const invalidData = {
+        it('should allow empty skills array', () => {
+            const validData = {
                 category: 'Programming Languages',
                 skills: [],
             };
 
-            const result = skillSchema.safeParse(invalidData);
-            expect(result.success).toBe(false);
+            const result = skillSchema.safeParse(validData);
+            expect(result.success).toBe(true);
         });
     });
 });
