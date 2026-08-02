@@ -1,7 +1,4 @@
-import type { ResumeData, WorkExperience, Education, Project, Skill } from '@/types/resume.types';
-import type { ParsedJobDescription } from '@/types/ai.types';
 import * as aiWritingService from './aiWritingAssistant.service';
-import * as sectionTailoringService from './sectionTailoring.service';
 import { AIConfig } from './openai.service';
 
 
@@ -137,92 +134,5 @@ export class AIService {
         const data = await response.json();
         if (!data.success) throw new Error(data.error?.message || 'Failed to enhance responsibilities');
         return data.data.bulletPoints;
-    }
-
-    // --- Tailoring Methods ---
-
-    static async generateTailoredSummary(resume: ResumeData, jobDescription: ParsedJobDescription, config?: AIConfig): Promise<string> {
-        if (typeof window === 'undefined') {
-            return sectionTailoringService.generateTailoredSummary(resume, jobDescription, config);
-        }
-
-        const response = await fetch('/api/ai/tailor-section', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify({ section: 'summary', resumeData: resume, jobDescription }),
-        });
-
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error?.message || 'Failed to generate tailored summary');
-        return data.data.suggestions;
-    }
-
-    static async generateTailoredWorkExperience(
-        workExperience: WorkExperience[] | WorkExperience,
-        resume: ResumeData,
-        jobDescription: ParsedJobDescription,
-        config?: AIConfig
-    ): Promise<{ achievements: string[]; tips: string[] }> {
-        if (typeof window === 'undefined') {
-            return sectionTailoringService.generateTailoredWorkExperience(workExperience, resume, jobDescription, config);
-        }
-
-        const response = await fetch('/api/ai/tailor-section', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify({ section: 'workExperience', sectionData: workExperience, resumeData: resume, jobDescription }),
-        });
-
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error?.message || 'Failed to generate tailored work experience');
-        return data.data.suggestions;
-    }
-
-    static async generateTailoredEducation(education: Education[] | Education, jobDescription: ParsedJobDescription, config?: AIConfig): Promise<{ relevantPoints: string[]; tips: string[] }> {
-        if (typeof window === 'undefined') {
-            return sectionTailoringService.generateTailoredEducation(education, jobDescription, config);
-        }
-
-        const response = await fetch('/api/ai/tailor-section', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify({ section: 'education', sectionData: education, jobDescription }),
-        });
-
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error?.message || 'Failed to generate tailored education');
-        return data.data.suggestions;
-    }
-
-    static async generateTailoredProjects(projects: Project[] | Project, jobDescription: ParsedJobDescription, config?: AIConfig): Promise<{ highlights: string[]; tips: string[] }> {
-        if (typeof window === 'undefined') {
-            return sectionTailoringService.generateTailoredProjects(projects, jobDescription, config);
-        }
-
-        const response = await fetch('/api/ai/tailor-section', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify({ section: 'projects', sectionData: projects, jobDescription }),
-        });
-
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error?.message || 'Failed to generate tailored projects');
-        return data.data.suggestions;
-    }
-
-    static async generateTailoredSkills(skills: Skill[], jobDescription: ParsedJobDescription, config?: AIConfig): Promise<{ suggestedSkills: string[]; tips: string[] }> {
-        if (typeof window === 'undefined') {
-            return sectionTailoringService.generateTailoredSkills(skills, jobDescription, config);
-        }
-
-        const response = await fetch('/api/ai/tailor-section', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify({ section: 'skills', sectionData: skills, jobDescription }),
-        });
-
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error?.message || 'Failed to generate tailored skills');
-        return data.data.suggestions;
     }
 }

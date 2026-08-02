@@ -84,6 +84,7 @@ const config: Config = {
                 't-xl': 'var(--radius-xl)',
                 't-2xl': 'var(--radius-2xl)',
                 't-3xl': 'var(--radius-3xl)',
+                't-4xl': 'var(--radius-4xl)',
                 't-full': 'var(--radius-full)',
             },
             transitionDuration: {
@@ -91,6 +92,9 @@ const config: Config = {
                 normal: 'var(--duration-normal)',
                 slow: 'var(--duration-slow)',
                 slower: 'var(--duration-slower)',
+            },
+            transitionTimingFunction: {
+                'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
             },
             fontFamily: {
                 sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
@@ -107,6 +111,7 @@ const config: Config = {
                 'slide-up': 'slideUp 0.4s ease-out',
                 'scale-in': 'scaleIn 0.2s ease-out',
                 'shimmer': 'shimmer 2s infinite',
+                'float': 'float 6s ease-in-out infinite',
             },
             keyframes: {
                 'accordion-down': {
@@ -116,6 +121,10 @@ const config: Config = {
                 'accordion-up': {
                     from: { height: 'var(--radix-accordion-content-height)' },
                     to: { height: '0' },
+                },
+                float: {
+                    '0%, 100%': { transform: 'translateY(0px)' },
+                    '50%': { transform: 'translateY(-10px)' },
                 },
                 fadeIn: {
                     '0%': { opacity: '0' },

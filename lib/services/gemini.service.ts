@@ -1,5 +1,6 @@
 import { GoogleGenAI, GenerateContentConfig } from '@google/genai';
 import type { OpenAIMessage } from '@/types/ai.types';
+import { parseJsonFromText } from '@/lib/utils/jsonExtraction';
 
 /**
  * Gemini Service Configuration
@@ -172,38 +173,7 @@ export async function createGeminiJSONCompletion<T>(
     const content = await createGeminiCompletion(finalMessages, options);
 
     try {
-        // Robust JSON extraction from common AI formatting
-        let jsonStr = content.trim();
-
-        // 1. Remove markdown code blocks
-        if (jsonStr.includes('```')) {
-            const matches = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-            if (matches && matches[1]) {
-                jsonStr = matches[1].trim();
-            } else {
-                jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-            }
-        }
-
-        // 2. Extra safety: Find the first { or [ and the matching last } or ]
-        const firstBrace = jsonStr.indexOf('{');
-        const firstBracket = jsonStr.indexOf('[');
-        const start = (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) ? firstBrace : firstBracket;
-
-        if (start === -1) {
-            throw new Error('No JSON structures ( { or [ ) found in response');
-        }
-
-        const lastBrace = jsonStr.lastIndexOf('}');
-        const lastBracket = jsonStr.lastIndexOf(']');
-        const end = Math.max(lastBrace, lastBracket);
-
-        if (end === -1 || end < start) {
-            throw new Error('Incomplete JSON structure in response');
-        }
-
-        const exactJson = jsonStr.substring(start, end + 1);
-        return JSON.parse(exactJson) as T;
+        return parseJsonFromText<T>(content);
     } catch (parseError) {
         throw new Error(
             `Failed to parse Gemini JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}. ` +

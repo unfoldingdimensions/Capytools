@@ -41,6 +41,11 @@ export function BulletPointEditor({
     // Abort controller for cancelling enhancement
     const abortControllerRef = useRef<AbortController | null>(null);
 
+    // Counts recommendations actually added during the current run. State updates
+    // are async, so reading `recommendations.size` right after the loop sees a
+    // stale (empty) value; a ref gives us the true count for the summary modal.
+    const recommendationCountRef = useRef(0);
+
     // Alert modal for feedback
     const [alertModal, setAlertModal] = useState<{
         show: boolean;
@@ -104,6 +109,7 @@ export function BulletPointEditor({
     const addRecommendation = useCallback((index: number, improved: string, originalBullet: string) => {
         // Only add if different from original
         if (improved.trim() !== originalBullet.trim()) {
+            recommendationCountRef.current += 1;
             setRecommendations(prev => {
                 const updated = new Map(prev);
                 updated.set(index, improved);
@@ -189,6 +195,7 @@ export function BulletPointEditor({
         // Clear previous recommendations and states
         setRecommendations(new Map());
         setBulletStates(new Map());
+        recommendationCountRef.current = 0;
 
         let successCount = 0;
         let failedCount = 0;
@@ -228,7 +235,7 @@ export function BulletPointEditor({
                 message: `Enhanced ${successCount} of ${nonEmptyBullets.length} bullets. ${failedCount} failed - you can retry them individually.`,
                 type: 'info'
             });
-        } else if (recommendations.size === 0 && successCount > 0) {
+        } else if (recommendationCountRef.current === 0 && successCount > 0) {
             setAlertModal({
                 show: true,
                 title: 'Already Optimized',

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useContext, useMemo, useDeferredValue } from 'react';
+import { useState, useEffect, useContext, useMemo, useRef, useDeferredValue } from 'react';
 import { Button } from '@/components/ui/button';
 import PersonalInfoForm from './PersonalInfoForm';
 import WorkExperienceForm from './WorkExperienceForm';
@@ -9,6 +9,7 @@ import SkillsForm from './SkillsForm';
 import CertificationsForm from './CertificationsForm';
 import { PreviewModal } from './PreviewModal';
 import { Sparkles, X } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 import { useResumeLoader } from '@/lib/hooks/useResumeLoader';
 import { useResumeSaver } from '@/lib/hooks/useResumeSaver';
 import { TailoringContext } from '@/store/TailoringProvider';
@@ -58,12 +59,65 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         setIsTailoringMode,
     } = useContext(TailoringContext);
 
-    const { resumeData: loadedResumeData, isLoading, title: loadedTitle } = useResumeLoader(resumeId);
+    const { resumeData: loadedResumeData, isLoading, title: loadedTitle, templateId: loadedTemplateId } = useResumeLoader(resumeId);
     const { saveResume, isSaving } = useResumeSaver(resumeId);
+    const { error: toastError } = useToast();
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     const [lastSaved, setLastSaved] = useState<string | null>(null);
     const [selectedTemplate, setSelectedTemplate] = useState('modern-indigo');
+
+    // Snapshot of the last state that was successfully saved. Used to avoid a
+    // no-op save right after loading and to drive the beforeunload guard.
+    const lastSavedSnapshotRef = useRef<string | null>(null);
+
+    // Capture the initial snapshot so we never treat the pristine state as "dirty".
+    useEffect(() => {
+        if (lastSavedSnapshotRef.current === null) {
+            lastSavedSnapshotRef.current = JSON.stringify({ title, ...resumeData });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Once an existing resume is loaded, lock the snapshot so autosave only fires on real edits.
+    useEffect(() => {
+        if (loadedResumeData && resumeId) {
+            lastSavedSnapshotRef.current = JSON.stringify(loadedResumeData);
+        }
+    }, [loadedResumeData, resumeId]);
+
+    // Debounced autosave for existing resumes. New resumes keep the explicit
+    // "Finish & Save" flow (which creates the resume and redirects).
+    useEffect(() => {
+        if (!resumeId || isLoading || isSaving) return;
+
+        const currentSnapshot = JSON.stringify({ title, ...resumeData });
+        if (lastSavedSnapshotRef.current === currentSnapshot) return;
+
+        const timer = setTimeout(async () => {
+            const saved = await saveResume({ title, ...resumeData }, title);
+            if (saved) {
+                lastSavedSnapshotRef.current = JSON.stringify({ title, ...resumeData });
+                setLastSaved(new Date().toLocaleTimeString());
+            }
+        }, 1200);
+
+        return () => clearTimeout(timer);
+    }, [resumeId, resumeData, title, isLoading, isSaving, saveResume]);
+
+    // Warn before closing/leaving with unsaved changes.
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            const currentSnapshot = JSON.stringify({ title, ...resumeData });
+            if (lastSavedSnapshotRef.current !== currentSnapshot) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [title, resumeData]);
 
     const completedSections = useMemo(() => {
         const completed = [];
@@ -107,6 +161,13 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         }
     }, []);
 
+    // The persisted template on the resume wins once loaded (takes precedence over localStorage).
+    useEffect(() => {
+        if (loadedTemplateId) {
+            setSelectedTemplate(loadedTemplateId);
+        }
+    }, [loadedTemplateId]);
+
     const handleSave = async () => {
         const resumeState = {
             title,
@@ -116,12 +177,16 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         const savedData = await saveResume(resumeState, title);
         if (savedData) {
             setLastSaved(new Date().toLocaleTimeString());
+            lastSavedSnapshotRef.current = JSON.stringify(resumeState);
         }
     };
 
     const handleDownload = async (options: { isAtsMode?: boolean } = {}) => {
         if (!resumeId) {
-            alert("Please save your resume before exporting it.");
+            toastError({
+                title: 'Save required',
+                message: 'Please save your resume before exporting it.',
+            });
             return;
         }
 
@@ -154,7 +219,10 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
             document.body.removeChild(a);
         } catch (err) {
             console.error('Download error:', err);
-            alert(err instanceof Error ? err.message : 'Failed to export resume');
+            toastError({
+                title: 'Export failed',
+                message: err instanceof Error ? err.message : 'Please try again.',
+            });
         }
     };
 
@@ -200,7 +268,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                         <Sparkles className="h-5 w-5 text-white dark:text-black shrink-0 group-hover:rotate-12 transition-transform" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mb-1">Tailoring For</p>
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] opacity-70 mb-1">Tailoring For</p>
                                         <p className="text-sm font-bold line-clamp-1">{jobDescription.title}</p>
                                         <p className="text-xs opacity-50 line-clamp-1">{jobDescription.company}</p>
                                     </div>
@@ -265,7 +333,15 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     </div>
                 }
             >
-                <div className="p-8 md:p-12 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss min-h-[600px]">
+                {/* Mobile section navigation - the left sidebar is hidden below lg */}
+                <div className="lg:hidden mb-6">
+                    <SectionNavigation
+                        activeSection={activeSection}
+                        setActiveSection={setActiveSection}
+                        completedSections={completedSections}
+                    />
+                </div>
+                <div className="p-8 md:p-12 rounded-t-4xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss min-h-[600px]">
                     {activeSection === 'personal' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">

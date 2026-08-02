@@ -12,6 +12,15 @@ export const personalInfoSchema = z.object({
     summary: z.string().max(1000, 'Summary must be less than 1000 characters').optional(),
 });
 
+// Permissive variant for server-side draft saving.
+// The strict personalInfoSchema above is still used by the builder form to gate
+// progression past the Personal section, but the API accepts incomplete drafts
+// (including missing name/email) so users can save and return later.
+export const personalInfoDraftSchema = personalInfoSchema.extend({
+    fullName: z.string().max(100).optional().default(''),
+    email: z.union([z.string().email('Invalid email address'), z.literal('')]).optional().default(''),
+});
+
 // Work Experience Schema
 export const workExperienceSchema = z.object({
     id: z.string().optional(),
@@ -109,7 +118,7 @@ export const customSectionSchema = z.object({
 
 // Complete Resume Data Schema
 export const resumeDataSchema = z.object({
-    personalInfo: personalInfoSchema,
+    personalInfo: personalInfoDraftSchema,
     workExperience: z.array(workExperienceSchema).default([]),
     education: z.array(educationSchema).default([]),
     projects: z.array(projectSchema).default([]),

@@ -36,7 +36,7 @@ export function EfficiencyMetric() {
                 </div>
 
                 {/* Infographic Chart */}
-                <div className="bg-card border border-border rounded-[2rem] p-8 shadow-sm">
+                <div className="bg-card border border-border rounded-t-3xl p-8 shadow-sm">
                     <h3 className="text-lg font-medium mb-8 flex items-center gap-2">
                         <span className="w-2 h-6 bg-zinc-900 dark:bg-zinc-100 rounded-full"></span>
                         Time per Application

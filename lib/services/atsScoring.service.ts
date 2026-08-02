@@ -1,4 +1,5 @@
 import { createCompletion, getDefaultModel, AIConfig } from './openai.service';
+import { calculateAtsFormattingScore } from '@/lib/utils/atsFormattingScore';
 import type { ResumeData } from '@/types/resume.types';
 import type { ParsedJobDescription, ATSScoreResult } from '@/types/ai.types';
 
@@ -204,58 +205,17 @@ function calculateExperienceMatch(
 }
 
 /**
- * Calculates formatting score (ATS-friendliness)
+ * Calculates formatting score (ATS-friendliness).
+ * Delegates to the shared canonical rubric so the ATS report and the
+ * client-side resume score panel produce identical scores.
  */
 function calculateFormattingScore(resume: ResumeData): { score: number; details: string[] } {
-    const details: string[] = [];
-    let score = 100;
+    const result = calculateAtsFormattingScore(resume);
 
-    // Check for essential sections
-    if (!resume.personalInfo?.fullName) {
-        score -= 20;
-        details.push('Missing full name');
-    }
-
-    if (!resume.personalInfo?.email) {
-        score -= 20;
-        details.push('Missing email address');
-    }
-
-    if (!resume.workExperience || resume.workExperience.length === 0) {
-        score -= 20;
-        details.push('Missing work experience');
-    }
-
-    if (!resume.skills || resume.skills.length === 0) {
-        score -= 15;
-        details.push('Missing skills section');
-    }
-
-    if (!resume.education || resume.education.length === 0) {
-        score -= 10;
-        details.push('Missing education section');
-    }
-
-    // Positive checks
-    if (resume.personalInfo?.summary) {
-        details.push('Has professional summary');
-    }
-
-    if (resume.certifications && resume.certifications.length > 0) {
-        details.push('Includes certifications');
-    }
-
-    if (score >= 90) {
-        details.push('Excellent ATS formatting');
-    } else if (score >= 70) {
-        details.push('Good ATS formatting');
-    } else if (score >= 50) {
-        details.push('Needs formatting improvements');
-    } else {
-        details.push('Poor ATS formatting - major improvements needed');
-    }
-
-    return { score: Math.max(0, score), details };
+    return {
+        score: result.score,
+        details: result.details.map((detail) => detail.message),
+    };
 }
 
 /**
@@ -429,7 +389,15 @@ function calculateTotalExperience(
 
     workExperience.forEach((exp) => {
         const start = new Date(exp.startDate);
+        if (isNaN(start.getTime())) {
+            // Skip entries without a valid start date instead of polluting the total with NaN
+            return;
+        }
+
         const end = exp.endDate ? new Date(exp.endDate) : new Date();
+        if (isNaN(end.getTime())) {
+            return;
+        }
 
         const months = (end.getFullYear() - start.getFullYear()) * 12 +
             (end.getMonth() - start.getMonth());

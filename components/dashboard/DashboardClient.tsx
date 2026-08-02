@@ -5,19 +5,20 @@ import { useUser } from '@clerk/nextjs';
 import {
     Plus,
     CheckCircle,
-    AlertCircle,
     Loader2,
     Search,
     Target,
     MessageSquare,
     Sparkles,
-    Trash2,
     Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Modal } from '@/components/ui/modal/Modal';
+import { AlertDialog } from '@/components/ui/AlertDialog';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { ResumeGrid } from '@/components/dashboard/ResumeGrid';
@@ -343,9 +344,9 @@ export default function DashboardClient() {
             <DashboardHeader />
 
             {/* Success Modal */}
-            {successModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08] animate-in zoom-in-95 duration-300">
+            <Modal isOpen={!!successModal} onClose={() => setSuccessModal(null)} size="sm" showCloseButton={false}>
+                {successModal && (
+                    <>
                         <div className="mb-6 flex flex-col items-center text-center">
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600 animate-bounce">
                                 <CheckCircle className="h-10 w-10" />
@@ -368,147 +369,94 @@ export default function DashboardClient() {
                             <Button
                                 variant="outline"
                                 onClick={() => setSuccessModal(null)}
-                                className="w-full h-12 rounded-xl text-gray-500"
+                                className="w-full h-12 rounded-xl"
                             >
                                 Back to Dashboard
                             </Button>
                         </div>
-                    </Card>
-                </div>
-            )}
+                    </>
+                )}
+            </Modal>
 
             {/* Create Options Modal */}
-            {showCreateOptions && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <Card className="w-full max-w-lg p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08] animate-in zoom-in-95 duration-200 relative bg-white dark:bg-gray-900">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute top-4 right-4 rounded-full"
-                            onClick={() => setShowCreateOptions(false)}
-                            aria-label="Close create options"
-                        >
-                            <span className="text-xl">×</span>
-                        </Button>
-                        <div className="text-center mb-8">
-                            <h3 className="text-2xl font-display font-bold text-foreground mb-2">Create Resume</h3>
-                            <p className="text-muted-foreground">Choose how you want to start building.</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Link href="/resume/new" onClick={() => setShowCreateOptions(false)}>
-                                <div className="group p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4">
-                                    <div className="h-12 w-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Plus className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-foreground">Start Fresh</h4>
-                                        <p className="text-xs text-muted-foreground mt-1">Build from scratch</p>
-                                    </div>
-                                </div>
-                            </Link>
-                            <div
-                                onClick={() => { if (!isUploading) { setShowCreateOptions(false); fileInputRef.current?.click(); } }}
-                                className={cn(
-                                    "group p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4",
-                                    isUploading && "opacity-50 pointer-events-none cursor-not-allowed"
-                                )}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        if (!isUploading) {
-                                            setShowCreateOptions(false);
-                                            fileInputRef.current?.click();
-                                        }
-                                    }
-                                }}
-                            >
-                                <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6" />}
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-foreground">{isUploading ? 'Uploading...' : 'Import File'}</h4>
-                                    <p className="text-xs text-muted-foreground mt-1">PDF or DOCX</p>
-                                </div>
+            <Modal isOpen={showCreateOptions} onClose={() => setShowCreateOptions(false)} size="md">
+                <div className="text-center mb-8">
+                    <h3 className="text-2xl font-display font-bold text-foreground mb-2">Create Resume</h3>
+                    <p className="text-muted-foreground">Choose how you want to start building.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Link href="/resume/new" onClick={() => setShowCreateOptions(false)}>
+                        <div className="group p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4">
+                            <div className="h-12 w-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Plus className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-foreground">Start Fresh</h4>
+                                <p className="text-xs text-muted-foreground mt-1">Build from scratch</p>
                             </div>
                         </div>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".pdf,.docx,.doc"
-                            onChange={(e) => void handleFileUpload(e)}
-                            className="hidden"
-                        />
-                    </Card>
+                    </Link>
+                    <button
+                        type="button"
+                        onClick={() => { if (!isUploading) { setShowCreateOptions(false); fileInputRef.current?.click(); } }}
+                        className={cn(
+                            "group p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4",
+                            isUploading && "opacity-50 pointer-events-none cursor-not-allowed"
+                        )}
+                    >
+                        <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6" />}
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-foreground">{isUploading ? 'Uploading...' : 'Import File'}</h4>
+                            <p className="text-xs text-muted-foreground mt-1">PDF or DOCX</p>
+                        </div>
+                    </button>
                 </div>
-            )}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.docx,.doc"
+                    onChange={(e) => void handleFileUpload(e)}
+                    className="hidden"
+                />
+            </Modal>
 
             {/* Error Modal */}
-            {errorModal && (
-                <div role="alertdialog" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                    <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08]">
-                        <div className="mb-6 flex flex-col items-center text-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
-                                <AlertCircle className="h-10 w-10" />
-                            </div>
-                            <h3 className="text-2xl font-display font-bold text-foreground">
-                                {errorModal.title}
-                            </h3>
-                            <p className="mt-2 text-muted-foreground">
-                                {errorModal.message}
-                            </p>
-                        </div>
-                        <Button
-                            onClick={() => setErrorModal(null)}
-                            className="w-full h-12 rounded-xl"
-                            variant="default"
-                        >
-                            Got it
-                        </Button>
-                    </Card>
-                </div>
-            )}
+            <AlertDialog
+                isOpen={!!errorModal}
+                title={errorModal?.title || 'Error'}
+                message={errorModal?.message || 'An unexpected error occurred'}
+                type="error"
+                buttonText="Got it"
+                onClose={() => setErrorModal(null)}
+            />
 
-            {/* Delete Confirmation Modals */}
-            {uploadToDelete && (
-                <div role="alertdialog" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                    <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08]">
-                        <div className="mb-6 flex flex-col items-center text-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
-                                <Trash2 className="h-8 w-8" />
-                            </div>
-                            <h3 className="text-2xl font-display font-bold text-foreground">Delete File?</h3>
-                            <p className="mt-2 text-muted-foreground">This will permanently remove the uploaded resume file.</p>
-                        </div>
-                        <div className="flex gap-4">
-                            <Button variant="outline" onClick={cancelDeleteUpload} className="flex-1 h-12 rounded-xl">Cancel</Button>
-                            <Button variant="destructive" onClick={() => void confirmDeleteUpload()} className="flex-1 h-12 rounded-xl">
-                                {deletingUploadId ? <Loader2 className="animate-spin h-5 w-5" /> : 'Delete'}
-                            </Button>
-                        </div>
-                    </Card>
-                </div>
-            )}
+            {/* Delete Upload Confirmation */}
+            <ConfirmDialog
+                isOpen={!!uploadToDelete}
+                title="Delete File?"
+                message="This will permanently remove the uploaded resume file."
+                confirmText="Delete"
+                cancelText="Cancel"
+                confirmVariant="destructive"
+                isLoading={deletingUploadId !== null}
+                onConfirm={() => void confirmDeleteUpload()}
+                onCancel={cancelDeleteUpload}
+            />
 
-            {resumeToDelete && (
-                <div role="alertdialog" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                    <Card className="w-full max-w-md p-8 shadow-swiss border border-black/[0.08] dark:border-white/[0.08]">
-                        <div className="mb-6 flex flex-col items-center text-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
-                                <Trash2 className="h-8 w-8" />
-                            </div>
-                            <h3 className="text-2xl font-display font-bold text-foreground">Delete Resume?</h3>
-                            <p className="mt-2 text-muted-foreground">Are you sure you want to delete &quot;{resumeToDelete.title}&quot;? This cannot be undone.</p>
-                        </div>
-                        <div className="flex gap-4">
-                            <Button variant="outline" onClick={cancelDeleteResume} className="flex-1 h-12 rounded-xl">Cancel</Button>
-                            <Button variant="destructive" onClick={() => void confirmDeleteResume()} className="flex-1 h-12 rounded-xl">
-                                {deletingResumeId ? <Loader2 className="animate-spin h-5 w-5" /> : 'Delete'}
-                            </Button>
-                        </div>
-                    </Card>
-                </div>
-            )}
+            {/* Delete Resume Confirmation */}
+            <ConfirmDialog
+                isOpen={!!resumeToDelete}
+                title="Delete Resume?"
+                message={`Are you sure you want to delete "${resumeToDelete?.title}"? This cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                confirmVariant="destructive"
+                isLoading={deletingResumeId !== null}
+                onConfirm={() => void confirmDeleteResume()}
+                onCancel={cancelDeleteResume}
+            />
 
             <main id="main-content" className="container mx-auto px-6 py-12 max-w-7xl">
                 {/* Hero Typography */}
@@ -527,7 +475,6 @@ export default function DashboardClient() {
                     <div className="flex-1">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-2xl font-display font-medium text-foreground">My Documents</h2>
-                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">View Archive</Button>
                         </div>
 
                         {/* Resume Grid Component */}

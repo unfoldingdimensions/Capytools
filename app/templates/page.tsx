@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Modal } from '@/components/ui/modal/Modal';
 import { ChevronLeft, Sparkles, Layout, Check, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -53,6 +54,20 @@ export default function TemplatesPage() {
 
         // Smart redirection: check if there's a last active resume
         const lastActiveResumeId = localStorage.getItem('lastActiveResumeId');
+
+        // Persist the template choice to the resume so it survives reloads and shows in the builder.
+        if (lastActiveResumeId) {
+            void fetch(`/api/resumes/${lastActiveResumeId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: lastActiveResumeId, templateId: id }),
+            }).catch(() => {
+                // Non-critical: the choice is still saved locally for this session.
+            });
+        }
+
         if (lastActiveResumeId) {
             router.push(`/resume/${lastActiveResumeId}`);
         } else {
@@ -121,16 +136,6 @@ export default function TemplatesPage() {
                                     </div>
                                 </div>
 
-                                <div className="absolute inset-0 bg-gray-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                                    <Button
-                                        variant="secondary"
-                                        className="rounded-full font-bold shadow-xl"
-                                        onClick={() => handleApplyTemplate(template.id)}
-                                    >
-                                        {selectedTemplate === template.id ? 'Applied' : 'Use Template'}
-                                    </Button>
-                                </div>
-
                                 {template.featured && (
                                     <Badge className="absolute top-4 right-4 bg-brand-600 text-white border-none shadow-lg">
                                         Popular
@@ -148,19 +153,28 @@ export default function TemplatesPage() {
                                 </p>
                                 <div className="flex gap-2">
                                     <Button
-                                        variant="ghostSubtle"
+                                        variant={selectedTemplate === template.id ? 'secondary' : 'default'}
                                         size="sm"
                                         className="flex-1 rounded-xl"
-                                        onClick={() => setPreviewTemplate(template)}
+                                        onClick={() => handleApplyTemplate(template.id)}
                                     >
-                                        <Sparkles className="h-4 w-4 mr-2" />
-                                        Preview
+                                        {selectedTemplate === template.id ? 'Applied' : 'Use Template'}
+                                    </Button>
+                                    <Button
+                                        variant="ghostSubtle"
+                                        size="icon"
+                                        className="h-9 w-9 rounded-xl"
+                                        onClick={() => setPreviewTemplate(template)}
+                                        aria-label={`Preview ${template.name}`}
+                                    >
+                                        <Sparkles className="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghostSubtle"
                                         size="icon"
                                         className="h-9 w-9 rounded-xl"
                                         onClick={() => window.open(template.image, '_blank')}
+                                        aria-label={`Open ${template.name} in a new tab`}
                                     >
                                         <ExternalLink className="h-4 w-4" />
                                     </Button>
@@ -176,7 +190,7 @@ export default function TemplatesPage() {
                     ))}
                 </div>
 
-                <div className="mt-20 p-12 rounded-[40px] bg-white dark:bg-gray-900 text-center border border-black/[0.08] dark:border-white/[0.08] border-dashed shadow-swiss">
+                <div className="mt-20 p-12 rounded-t-4xl bg-white dark:bg-gray-900 text-center border border-black/[0.08] dark:border-white/[0.08] border-dashed shadow-swiss">
                     <div className="h-16 w-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-6 text-brand-600 dark:text-brand-400">
                         <Layout className="h-8 w-8" />
                     </div>
@@ -187,19 +201,14 @@ export default function TemplatesPage() {
             </main>
 
             {/* Preview Modal */}
-            {previewTemplate && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 p-2">
-                        <div className="absolute top-4 right-4 z-10">
-                            <Button
-                                variant="secondary"
-                                size="icon"
-                                className="rounded-full shadow-lg h-10 w-10 bg-white/90 backdrop-blur hover:bg-white"
-                                onClick={() => setPreviewTemplate(null)}
-                            >
-                                <ChevronLeft className="h-5 w-5 rotate-180" /> {/* Using rotate for X-like feel or just import X */}
-                            </Button>
-                        </div>
+            <Modal
+                isOpen={!!previewTemplate}
+                onClose={() => setPreviewTemplate(null)}
+                size="lg"
+                showCloseButton={false}
+            >
+                {previewTemplate && (
+                    <>
                         <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-gray-100">
                             <img
                                 src={previewTemplate.image}
@@ -207,7 +216,7 @@ export default function TemplatesPage() {
                                 className="w-full h-full object-contain"
                             />
                         </div>
-                        <div className="p-6 flex items-center justify-between bg-white dark:bg-gray-900">
+                        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{previewTemplate.name}</h3>
                                 <p className="text-gray-500 dark:text-gray-400">{previewTemplate.description}</p>
@@ -224,9 +233,9 @@ export default function TemplatesPage() {
                                 Use This Template
                             </Button>
                         </div>
-                    </div>
-                </div>
-            )}
+                    </>
+                )}
+            </Modal>
         </div>
     );
 }

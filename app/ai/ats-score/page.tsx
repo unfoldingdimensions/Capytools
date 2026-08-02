@@ -201,7 +201,7 @@ export function ATSScoreContent() {
                         {scoreResult ? (
                             <div className="flex flex-col overflow-hidden">
                                 <div className="flex items-center gap-2 mb-0.5">
-                                    <Badge variant="outline" className="text-[8px] h-4 font-bold uppercase tracking-widest border-zinc-200 dark:border-zinc-800 shrink-0">Target Role</Badge>
+                                    <Badge variant="outline" className="text-[10px] h-5 font-bold uppercase tracking-widest border-zinc-200 dark:border-zinc-800 shrink-0">Target Role</Badge>
                                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest truncate">
                                         {jobDescriptions.find(j => j.id === selectedJobDescriptionId)?.company}
                                     </span>
@@ -457,7 +457,7 @@ export function ATSScoreContent() {
                                                     <div className="flex-1">
                                                         <h4 className="font-bold text-foreground leading-tight line-clamp-1">{savedScore.jobDescription?.company || 'Unknown Company'}</h4>
                                                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 mb-4">{savedScore.jobDescription?.title || 'Unknown Role'}</p>
-                                                        <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground/60 tracking-wider">
+                                                        <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground tracking-wider">
                                                             <span>{new Date(savedScore.createdAt).toLocaleDateString()}</span>
                                                             <span className="group-hover:text-brand-600 flex items-center gap-1">VIEW REPORT <ArrowLeft className="h-3 w-3 rotate-180" /></span>
                                                         </div>

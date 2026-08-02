@@ -27,16 +27,16 @@ export default function HomePage() {
                 {/* Gradient Mesh */}
                 <div className="gradient-mesh" />
 
-                {/* Floating Orbs */}
-                <div className="landing-orb landing-orb-1" />
-                <div className="landing-orb landing-orb-2" />
-                <div className="landing-orb landing-orb-3" />
+                {/* Floating Orbs - hidden on small screens (blur is expensive on low-end devices) */}
+                <div className="landing-orb landing-orb-1 hidden md:block" />
+                <div className="landing-orb landing-orb-2 hidden md:block" />
+                <div className="landing-orb landing-orb-3 hidden md:block" />
 
                 {/* Animated Grid */}
                 <div className="animated-grid" />
 
-                {/* Noise Texture */}
-                <div className="noise-overlay" />
+                {/* Noise Texture - hidden on small screens */}
+                <div className="noise-overlay hidden md:block" />
             </div>
 
             {/* Fixed Theme Toggle */}
@@ -55,7 +55,7 @@ export default function HomePage() {
 
                 {/* FINAL CTA */}
                 <section className="py-32 px-6 border-t border-border bg-background relative overflow-hidden">
-                    <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
+                    <div className="grid-overlay" />
                     <div className="max-w-4xl mx-auto text-center relative z-10">
                         <h2 className="text-5xl md:text-7xl font-display font-medium tracking-tight mb-8">
                             Your career. <br />
@@ -71,7 +71,7 @@ export default function HomePage() {
                                 textSignedOut="Start Building Free"
                             />
                         </div>
-                        <p className="mt-8 text-sm text-muted-foreground uppercase tracking-widest font-medium opacity-60">
+                        <p className="mt-8 text-sm text-muted-foreground uppercase tracking-widest font-medium opacity-80">
                             No credit card required • GDPR Compliant
                         </p>
                     </div>

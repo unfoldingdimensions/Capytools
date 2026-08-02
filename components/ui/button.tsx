@@ -5,10 +5,11 @@ import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 const buttonVariants = cva(
-    'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 btn-press',
+    'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed btn-press',
     {
         variants: {
             variant: {
+                // Primary action - intentionally monochrome (matches the brand system)
                 default: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-sm hover:shadow-md interactive-hover',
                 destructive: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 shadow-sm interactive-hover',
                 outline: 'border-2 border-gray-200 text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-100 dark:hover:bg-gray-800 bg-transparent',
@@ -16,7 +17,8 @@ const buttonVariants = cva(
                 ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100',
                 ghostSubtle: 'text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-100 dark:hover:bg-gray-800',
                 link: 'text-black dark:text-white underline-offset-4 hover:underline',
-                gradient: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black hover:shadow-lg interactive-hover border-none',
+                // Aliases for the primary action (kept for API compatibility; same styling as default)
+                gradient: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-sm hover:shadow-md interactive-hover border-none',
                 brand: 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black shadow-sm interactive-hover border-none',
                 softLanding: 'bg-white/90 backdrop-blur text-black hover:bg-white shadow-lg inner-border border-gray-200 dark:bg-black/90 dark:text-white dark:border-gray-800',
             },

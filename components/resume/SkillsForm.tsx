@@ -126,7 +126,7 @@ export default function SkillsForm({
                 return { ...s, skills: s.skills.filter(sk => sk !== skillName) };
             }
             return s;
-        }).filter(s => s.skills.length > 0 || s.category === category);
+        });
 
         setSkills(updated);
     };

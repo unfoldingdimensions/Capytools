@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth, clerkClient } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db/prisma';
+import { getClientIp } from '@/lib/utils/clientIp';
 import { AuthenticatedApiRequest } from '@/types/api.types';
 
 /**
@@ -21,17 +22,14 @@ async function logAuthAttempt(
     errorMessage?: string
 ): Promise<void> {
     try {
-        const forwarded = req.headers['x-forwarded-for'];
-        const ipAddress = typeof forwarded === 'string'
-            ? forwarded.split(',')[0]?.trim()
-            : req.socket.remoteAddress;
+        const ipAddress = getClientIp(req);
 
         await prisma.auditLog.create({
             data: {
                 userId: userId || undefined,
                 action,
                 resource: 'authentication',
-                ipAddress: ipAddress || 'unknown',
+                ipAddress,
                 userAgent: req.headers['user-agent'] || undefined,
                 success,
                 errorMessage,

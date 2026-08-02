@@ -4,6 +4,7 @@
  */
 
 import type { ResumeData } from '@/types/resume.types';
+import { calculateAtsFormattingScore } from './atsFormattingScore';
 
 // Common action verbs that indicate strong resume content
 const ACTION_VERBS = [
@@ -197,123 +198,19 @@ export function calculateContentScore(resumeData: ResumeData): ScoreResult {
 
 /**
  * Calculate formatting score
- * Checks for consistent structure and ATS-friendly formatting
+ * Uses the same canonical ATS formatting rubric as the ATS scoring service,
+ * so the real-time panel and the ATS report always agree.
  */
 export function calculateFormattingScore(resumeData: ResumeData): ScoreResult {
-    const details: ScoreDetail[] = [];
-    let score = 0;
-    const maxScore = 100;
+    const result = calculateAtsFormattingScore(resumeData);
 
-    // Check personal info completeness
-    const personalInfo = resumeData.personalInfo;
-    if (personalInfo) {
-        const hasEmail = !!personalInfo.email;
-        const hasPhone = !!personalInfo.phone;
-        const hasLocation = !!personalInfo.location;
-        const hasLinkedIn = !!personalInfo.linkedin;
+    const details: ScoreDetail[] = result.details.map((detail) => ({
+        label: detail.label,
+        status: detail.status,
+        message: detail.message,
+    }));
 
-        if (hasEmail && hasPhone && hasLocation) {
-            score += 25;
-            details.push({
-                label: 'Contact Info',
-                status: 'success',
-                message: 'Complete contact information'
-            });
-        } else {
-            score += 10;
-            const missing = [];
-            if (!hasEmail) missing.push('email');
-            if (!hasPhone) missing.push('phone');
-            if (!hasLocation) missing.push('location');
-            details.push({
-                label: 'Contact Info',
-                status: 'warning',
-                message: `Missing: ${missing.join(', ')}`
-            });
-        }
-
-        if (hasLinkedIn) {
-            score += 10;
-            details.push({
-                label: 'LinkedIn',
-                status: 'success',
-                message: 'LinkedIn profile included'
-            });
-        }
-
-        // Check for professional summary
-        if (personalInfo.summary && personalInfo.summary.length >= 100) {
-            score += 20;
-            details.push({
-                label: 'Summary',
-                status: 'success',
-                message: 'Professional summary present'
-            });
-        } else if (personalInfo.summary && personalInfo.summary.length > 0) {
-            score += 10;
-            details.push({
-                label: 'Summary',
-                status: 'warning',
-                message: 'Consider expanding your summary'
-            });
-        } else {
-            details.push({
-                label: 'Summary',
-                status: 'error',
-                message: 'Add a professional summary'
-            });
-        }
-    }
-
-    // Check date consistency in work experience
-    const hasConsistentDates = resumeData.workExperience?.every(exp => {
-        return exp.startDate && (exp.current || exp.endDate);
-    });
-
-    if (hasConsistentDates && (resumeData.workExperience?.length || 0) > 0) {
-        score += 20;
-        details.push({
-            label: 'Date Format',
-            status: 'success',
-            message: 'Consistent date formatting'
-        });
-    } else if ((resumeData.workExperience?.length || 0) > 0) {
-        score += 10;
-        details.push({
-            label: 'Date Format',
-            status: 'warning',
-            message: 'Some dates may be missing'
-        });
-    }
-
-    // Check skills categorization
-    if (resumeData.skills && resumeData.skills.length > 0) {
-        const totalSkills = resumeData.skills.reduce((acc, cat) => acc + cat.skills.length, 0);
-        if (totalSkills >= 8) {
-            score += 25;
-            details.push({
-                label: 'Skills',
-                status: 'success',
-                message: `${totalSkills} skills across ${resumeData.skills.length} categories`
-            });
-        } else if (totalSkills >= 4) {
-            score += 15;
-            details.push({
-                label: 'Skills',
-                status: 'warning',
-                message: 'Consider adding more relevant skills'
-            });
-        } else {
-            score += 5;
-            details.push({
-                label: 'Skills',
-                status: 'error',
-                message: 'Add more skills to your resume'
-            });
-        }
-    }
-
-    return { score: Math.min(score, maxScore), maxScore, details };
+    return { score: result.score, maxScore: 100, details };
 }
 
 /**

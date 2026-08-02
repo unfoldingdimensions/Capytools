@@ -57,6 +57,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     requirements: jobDescription.requirements,
                     responsibilities: jobDescription.responsibilities,
                     keywords: jobDescription.keywords,
+                    experienceLevel: jobDescription.experienceLevel,
+                    employmentType: jobDescription.employmentType,
                     createdAt: jobDescription.createdAt,
                     updatedAt: jobDescription.updatedAt,
                 },
@@ -78,6 +80,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     requirements: true,
                     responsibilities: true,
                     keywords: true,
+                    experienceLevel: true,
+                    employmentType: true,
                     createdAt: true,
                     updatedAt: true,
                 },
@@ -108,8 +112,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        await rateLimit()(req, res, async () => {
-            await requireAuth(req, res, async () => {
+        await requireAuth(req, res, async () => {
+            await rateLimit()(req, res, async () => {
                 await handler(req, res);
             });
         });

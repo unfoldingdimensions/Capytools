@@ -372,7 +372,7 @@ function InterviewPrepContent() {
                                                 <div className="flex-1">
                                                     <h4 className="font-bold text-foreground leading-tight line-clamp-1">{session.jobDescription?.company || 'Unknown Company'}</h4>
                                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 mb-4">{session.jobDescription?.title || 'Unknown Role'}</p>
-                                                    <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground/60 tracking-wider">
+                                                    <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground tracking-wider">
                                                         <span>{new Date(session.createdAt).toLocaleDateString()}</span>
                                                         <span className="group-hover:text-brand-600 flex items-center gap-1">VIEW SESSION <ArrowLeft className="h-3 w-3 rotate-180" /></span>
                                                     </div>

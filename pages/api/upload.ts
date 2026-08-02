@@ -6,6 +6,7 @@ import { requireAuth } from '@/middleware/auth';
 import { rateLimit } from '@/middleware/rateLimit';
 import { parseResumeFile, validateParsedData } from '@/lib/services/resumeParser.service';
 import { encryptJSON } from '@/lib/security/encryption';
+import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import formidable from 'formidable';
 import fs from 'fs/promises';
 
@@ -55,14 +56,17 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
         throw new Error('File upload failed');
     }
 
-    // Create upload record
+    // Create upload record.
+    // There is no durable file storage yet: the parsed content is stored encrypted
+    // in extractedDataEncrypted and the temp file is deleted after processing, so
+    // storageUrl is left empty rather than pointing at a soon-to-be-deleted temp path.
     const uploadRecord = await prisma.uploadedFile.create({
         data: {
             userId,
             originalFilename: file.originalFilename || 'unknown',
             fileSize: file.size,
             mimeType: file.mimetype || 'application/octet-stream',
-            storageUrl: file.filepath, // Temporary, would be Supabase URL in production
+            storageUrl: '',
             status: 'PROCESSING',
         },
     });
@@ -71,8 +75,8 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
         // Read file buffer
         const buffer = await fs.readFile(file.filepath);
 
-        // Parse resume
-        const parsedData = await parseResumeFile(buffer, file.mimetype || '');
+        // Parse resume with the user's BYOK config (falls back to server default)
+        const parsedData = await parseResumeFile(buffer, file.mimetype || '', getAIConfigFromRequest(req));
 
         // Validate parsed data
         const validation = validateParsedData(parsedData);

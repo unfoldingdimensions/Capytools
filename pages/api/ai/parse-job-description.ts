@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
-import { parseJobDescription } from '@/lib/services/jobDescriptionParser.service';
+import { parseJobDescription, inferExperienceLevel } from '@/lib/services/jobDescriptionParser.service';
 import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { AuthenticatedApiRequest } from '@/types/api.types';
@@ -86,6 +86,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 requirements: parsed.requirements,
                 responsibilities: parsed.responsibilities,
                 keywords: parsed.keywords,
+                experienceLevel: parsed.experienceLevel ?? inferExperienceLevel(parsed.description),
+                employmentType: parsed.employmentType,
             },
         });
 
@@ -128,8 +130,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        await rateLimit()(req, res, async () => {
-            await requireAuth(req, res, async () => {
+        await requireAuth(req, res, async () => {
+            await rateLimit()(req, res, async () => {
                 await handler(req, res);
             });
         });

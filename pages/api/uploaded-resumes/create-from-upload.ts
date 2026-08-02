@@ -152,16 +152,6 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
     }));
 
     // Create structured resume data
-    const resumeData = {
-        personalInfo,
-        workExperience,
-        education,
-        projects,
-        skills,
-        certifications,
-        customSections: [],
-    };
-
     const resume = await prisma.resume.create({
         data: {
             userId,
@@ -173,7 +163,6 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
             skillsEncrypted: encryptJSON(skills),
             certificationsEncrypted: encryptJSON(certifications),
             customSectionsEncrypted: encryptJSON([]), // Initialize with empty array
-            data: JSON.parse(JSON.stringify(resumeData)), // Store full data for AI features
         },
     });
 

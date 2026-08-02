@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import { prisma } from '@/lib/db/prisma';
+import { getClientIp } from '@/lib/utils/clientIp';
 
 /**
  * Global Error Handler Middleware
@@ -26,10 +27,7 @@ interface ErrorLog {
  */
 async function logError(req: NextApiRequest, error: Error, errorLog: ErrorLog): Promise<void> {
     try {
-        const forwarded = req.headers['x-forwarded-for'];
-        const ipAddress = typeof forwarded === 'string'
-            ? forwarded.split(',')[0]?.trim()
-            : req.socket.remoteAddress;
+        const ipAddress = getClientIp(req);
 
         await prisma.auditLog.create({
             data: {

@@ -131,6 +131,32 @@ describe('ATS Scoring Service', () => {
          expect(result.categoryScores.experience).toBe(30);
     });
 
+    it('should not produce NaN experience scores for missing or invalid dates', async () => {
+        // Real resumes frequently contain entries without a start date.
+        const missingDateResume = {
+            ...mockResume,
+            workExperience: [
+                {
+                    id: '1',
+                    company: 'Tech Corp',
+                    position: 'Software Engineer',
+                    startDate: '',
+                    endDate: '',
+                    current: false,
+                    description: '',
+                    achievements: [],
+                },
+            ],
+        };
+
+        const result = await scoreResumeAgainstJob(missingDateResume, mockJobDescription);
+
+        expect(Number.isNaN(result.categoryScores.experience)).toBe(false);
+        expect(Number.isNaN(result.overallScore)).toBe(false);
+        // No valid dates -> 0 years experience -> below senior threshold.
+        expect(result.categoryScores.experience).toBe(30);
+    });
+
     it('should handle formatting score correctly', async () => {
         // Resume has all essential sections.
         // Score starts at 100.

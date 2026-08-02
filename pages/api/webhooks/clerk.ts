@@ -53,9 +53,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
         switch (type) {
             case 'user.created':
-                // Create user in database
-                await prisma.user.create({
-                    data: {
+            case 'user.updated':
+                // Upsert so event order and races don't matter:
+                // - user.created can arrive after requireAuth already auto-created the row
+                //   (previously a unique-constraint 500 that made Clerk retry forever).
+                // - user.updated can arrive before user.created (previously P2025 -> 500).
+                // The update path only touches profile fields, never resetting credits.
+                await prisma.user.upsert({
+                    where: { clerkUserId },
+                    update: {
+                        email,
+                        firstName: data.first_name,
+                        lastName: data.last_name,
+                        profileImageUrl: data.profile_image_url,
+                    },
+                    create: {
                         clerkUserId,
                         email,
                         firstName: data.first_name,
@@ -67,29 +79,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     },
                 });
 
-                console.log(`User created: ${clerkUserId}`);
-                break;
-
-            case 'user.updated':
-                // Update user in database
-                await prisma.user.update({
-                    where: { clerkUserId },
-                    data: {
-                        email,
-                        firstName: data.first_name,
-                        lastName: data.last_name,
-                        profileImageUrl: data.profile_image_url,
-                    },
-                });
-
-                console.log(`User updated: ${clerkUserId}`);
+                console.log(`User synced (${type}): ${clerkUserId}`);
                 break;
 
             case 'user.deleted':
-                // Delete user from database (cascades to resumes)
-                await prisma.user.delete({
-                    where: { clerkUserId },
-                });
+                // deleteMany is idempotent - no error if the row is already gone.
+                await prisma.user.deleteMany({ where: { clerkUserId } });
 
                 console.log(`User deleted: ${clerkUserId}`);
                 break;

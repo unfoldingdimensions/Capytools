@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { AuthButtons } from '@/components/landing/AuthButtons';
-import { FileText } from 'lucide-react';
+import { FileText, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export function HeroSection() {
@@ -38,22 +38,20 @@ export function HeroSection() {
                     </div>
 
                     <div className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex -space-x-2">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-medium">
-                                    {String.fromCharCode(64 + i)}
-                                </div>
+                        <div className="flex items-center gap-1" aria-label="Rated 5 out of 5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <Star key={i} className="h-4 w-4 fill-current text-foreground" />
                             ))}
                         </div>
-                        <p>Trusted by professionals from top tech companies</p>
+                        <p>Built for professionals who want total control of their resume.</p>
                     </div>
                 </div>
 
                 {/* Visual Mockup - Preview vs Editor */}
                 <div className="relative group perspective-1000">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-zinc-200 to-zinc-400/20 dark:from-zinc-800 dark:to-zinc-700/20 rounded-[2rem] blur-3xl opacity-50 -z-10 transform rotate-3 scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-zinc-200 to-zinc-400/20 dark:from-zinc-800 dark:to-zinc-700/20 rounded-t-3xl blur-3xl opacity-50 -z-10 transform rotate-3 scale-110" />
 
-                    <div className="relative bg-background border border-border shadow-2xl rounded-[2rem] p-4 md:p-6 overflow-hidden transform group-hover:rotate-1 transition-transform duration-700 ease-out-expo">
+                    <div className="relative bg-background border border-border shadow-2xl rounded-t-3xl p-4 md:p-6 overflow-hidden transform group-hover:rotate-1 transition-transform duration-700 ease-out-expo">
                         <div className="flex items-center justify-between mb-4 border-b border-border pb-4">
                             <div className="flex gap-2">
                                 <div className="w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-600" />

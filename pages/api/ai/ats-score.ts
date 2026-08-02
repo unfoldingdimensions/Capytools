@@ -3,12 +3,12 @@ import { requireAuth } from '@/middleware/auth';
 import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimit } from '@/middleware/rateLimit';
 import { scoreResumeAgainstJob } from '@/lib/services/atsScoring.service';
+import { buildParsedJobDescription } from '@/lib/services/jobDescriptionParser.service';
 import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 import { prisma } from '@/lib/db/prisma';
 import { decryptJSON } from '@/lib/security/encryption';
 import { AuthenticatedApiRequest } from '@/types/api.types';
 import type { ResumeData } from '@/types/resume.types';
-import type { ParsedJobDescription } from '@/types/ai.types';
 
 /**
  * API Route: ATS Score
@@ -181,15 +181,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             };
 
             // Prepare parsed job description
-            const parsedJob: ParsedJobDescription = {
-                title: jobDescription.title,
-                company: jobDescription.company,
-                description: jobDescription.description,
-                requirements: jobDescription.requirements,
-                responsibilities: jobDescription.responsibilities,
-                skills: jobDescription.keywords, // Use keywords as skills
-                keywords: jobDescription.keywords,
-            };
+            const parsedJob = buildParsedJobDescription(jobDescription);
 
             // Score resume against job with BYOK config
             const aiConfig = getAIConfigFromRequest(req);
@@ -269,8 +261,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        await rateLimit()(req, res, async () => {
-            await requireAuth(req, res, async () => {
+        await requireAuth(req, res, async () => {
+            await rateLimit()(req, res, async () => {
                 // NOTE: requireFeature removed for testing (no credit checks)
                 await handler(req, res);
             });

@@ -1,4 +1,5 @@
 import { createCompletion, createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
+import { cleanAIResponse } from '@/lib/utils/aiTextCleanup';
 import type { ResumeData, WorkExperience, Education, Project, Skill } from '@/types/resume.types';
 import type { ParsedJobDescription } from '@/types/ai.types';
 
@@ -6,41 +7,6 @@ import type { ParsedJobDescription } from '@/types/ai.types';
  * Section-specific Resume Tailoring Service
  * Generates AI-powered suggestions for individual resume sections
  */
-
-/**
- * Remove common AI preambles and explanatory text
- */
-function cleanAIResponse(text: string): string {
-    let cleaned = text.trim();
-
-    const preambles = [
-        /^Here is (a|an|the) (professional )?.*?:\s*/i,
-        /^Here are (the )?.*?:\s*/i,
-        /^Here'?s (a|an|the).*?:\s*/i,
-        /^I'?ve (generated|created|written).*?:\s*/i,
-        /^Based on.*?:\s*/i,
-        /^Sure[,!]? (here'?s|here is).*?:\s*/i,
-        /^Certainly[,!]? (here'?s|here is).*?:\s*/i,
-    ];
-
-    for (const pattern of preambles) {
-        cleaned = cleaned.replace(pattern, '');
-    }
-
-    const trailingPatterns = [
-        /\n\s*Note that this.*/is,
-        /\n\s*This (summary|content).*/is,
-        /\n\s*Let me know if you.*/is,
-        /\n\s*Feel free to.*/is,
-        /\n\s*I hope this.*/is,
-    ];
-
-    for (const pattern of trailingPatterns) {
-        cleaned = cleaned.replace(pattern, '');
-    }
-
-    return cleaned.trim();
-}
 
 /**
  * Generate tailored professional summary

@@ -1,13 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/toast';
 import { ResumeData } from '@/types/resume.types';
 
 export function useResumeLoader(resumeId?: string) {
     const router = useRouter();
+    const { error: toastError } = useToast();
     const [isLoading, setIsLoading] = useState(!!resumeId);
     const [resumeData, setResumeData] = useState<ResumeData | null>(null);
     const [title, setTitle] = useState<string>('Untitled Resume');
+    const [templateId, setTemplateId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -26,6 +29,7 @@ export function useResumeLoader(resumeId?: string) {
                 if (result.success && result.data) {
                     const loadedData = result.data.data || {};
                     setTitle(result.data.title || 'Untitled Resume');
+                    setTemplateId(result.data.templateId || null);
                     setResumeData({
                         personalInfo: loadedData.personalInfo || { fullName: '', email: '' },
                         workExperience: loadedData.workExperience || [],
@@ -42,7 +46,10 @@ export function useResumeLoader(resumeId?: string) {
                 const errorMessage = err instanceof Error ? err.message : 'Unknown error';
                 console.error('Error loading resume:', errorMessage);
                 setError(errorMessage);
-                alert(`Failed to load resume: ${errorMessage}`);
+                toastError({
+                    title: 'Failed to load resume',
+                    message: errorMessage,
+                });
                 router.push('/dashboard');
             } finally {
                 setIsLoading(false);
@@ -50,7 +57,7 @@ export function useResumeLoader(resumeId?: string) {
         }
 
         void loadResume();
-    }, [resumeId, router]);
+    }, [resumeId, router, toastError]);
 
-    return { resumeData, title, isLoading, error, setResumeData, setTitle };
+    return { resumeData, title, templateId, isLoading, error, setResumeData, setTitle };
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/toast';
 import type { PersonalInfoInput } from '@/lib/validations/resume.validation';
 import type {
     WorkExperience,
@@ -24,6 +25,7 @@ interface ResumeData {
 export function useResumeSaver(resumeId?: string) {
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
+    const { error: toastError } = useToast();
 
     async function saveResume(resumeData: ResumeData, title: string) {
         setIsSaving(true);
@@ -63,7 +65,10 @@ export function useResumeSaver(resumeId?: string) {
             }
         } catch (error) {
             console.error('Error saving resume:', error);
-            alert(`Error saving resume: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            toastError({
+                title: 'Error saving resume',
+                message: error instanceof Error ? error.message : 'Unknown error',
+            });
         } finally {
             setIsSaving(false);
         }

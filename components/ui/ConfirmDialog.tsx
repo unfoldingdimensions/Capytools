@@ -12,6 +12,7 @@ interface ConfirmDialogProps {
     message: string;
     confirmText?: string;
     cancelText?: string;
+    confirmVariant?: 'default' | 'destructive';
     onConfirm: () => void;
     onCancel: () => void;
     isLoading?: boolean;
@@ -23,6 +24,7 @@ export function ConfirmDialog({
     message,
     confirmText = 'Confirm',
     cancelText = 'Cancel',
+    confirmVariant = 'default',
     onConfirm,
     onCancel,
     isLoading = false,
@@ -43,7 +45,7 @@ export function ConfirmDialog({
                 >
                     {cancelText}
                 </Button>
-                <Button onClick={onConfirm} disabled={isLoading}>
+                <Button variant={confirmVariant} onClick={onConfirm} disabled={isLoading}>
                     {isLoading ? 'Processing...' : confirmText}
                 </Button>
             </ModalFooter>

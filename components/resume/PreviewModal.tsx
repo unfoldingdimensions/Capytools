@@ -6,6 +6,7 @@ import { ResumePreview } from './ResumePreview';
 import { ResumeData } from '@/types/resume.types';
 import { ExportMenu } from './ExportMenu';
 import { generateVisualPdf } from '@/lib/pdf/clientPdfGenerator';
+import { useToast } from '@/components/ui/toast';
 
 interface PreviewModalProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ interface PreviewModalProps {
 
 export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, template }: PreviewModalProps) {
     const [isGenerating, setIsGenerating] = useState(false);
+    const { error: toastError } = useToast();
 
     if (!isOpen) return null;
 
@@ -28,7 +30,10 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
             await generateVisualPdf('resume-preview-content', filename);
         } catch (error) {
             console.error('Failed to generate visual PDF', error);
-            alert('Failed to generate visual PDF. Please try again.');
+            toastError({
+                title: 'Export failed',
+                message: 'Failed to generate visual PDF. Please try again.',
+            });
         } finally {
             setIsGenerating(false);
         }
@@ -84,7 +89,7 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
 
             {/* Footer hint */}
             <div className="h-10 border-t border-white/5 bg-gray-900/50 flex items-center justify-center">
-                <p className="text-[10px] text-white/30 font-bold uppercase tracking-[0.3em]">
+                <p className="text-[10px] text-white/60 font-bold uppercase tracking-[0.3em]">
                     Handcraft AI Precision Preview
                 </p>
             </div>

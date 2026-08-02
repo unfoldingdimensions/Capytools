@@ -122,6 +122,37 @@ Focus on: technical skills, tools, frameworks, qualifications, certifications, a
 }
 
 /**
+ * Builds a ParsedJobDescription from a stored job description record.
+ * Falls back to heuristic inference when experienceLevel was not persisted
+ * (e.g. records created before the field existed).
+ */
+export function buildParsedJobDescription(input: {
+    title: string;
+    company: string;
+    description: string;
+    requirements: string[];
+    responsibilities: string[];
+    keywords: string[];
+    experienceLevel?: string | null;
+    employmentType?: string | null;
+}): ParsedJobDescription {
+    const experienceLevel = input.experienceLevel as ParsedJobDescription['experienceLevel'] | undefined;
+    const employmentType = input.employmentType as ParsedJobDescription['employmentType'] | undefined;
+
+    return {
+        title: input.title,
+        company: input.company,
+        description: input.description,
+        requirements: input.requirements,
+        responsibilities: input.responsibilities,
+        skills: input.keywords,
+        keywords: input.keywords,
+        experienceLevel: experienceLevel ?? inferExperienceLevel(input.description),
+        employmentType: employmentType ?? undefined,
+    };
+}
+
+/**
  * Determines experience level from job description
  */
 export function inferExperienceLevel(

@@ -13,3 +13,6 @@ coverage/
 PAT.txt
 GITHUB_PUSH.md
 .agent
+.gemini/
+.genubu_security/
+graphify-out/

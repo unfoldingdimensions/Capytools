@@ -1,5 +1,7 @@
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
+import { createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
+import type { OpenAIMessage } from '@/types/ai.types';
 import { ParsedResumeData } from '@/types/api.types';
 
 /**
@@ -188,18 +190,8 @@ function identifySections(text: string): Record<string, string> {
 /**
  * Extracts structured data from parsed text using AI
  */
-async function extractStructuredDataWithAI(text: string): Promise<ParsedResumeData> {
-    console.log('=== AI Resume Parsing Starting ===');
-    console.log('Text length:', text.length);
-    console.log('Text preview:', text.substring(0, 500));
-
-    try {
-        console.log('Loading OpenAI client...');
-        const { getOpenAIClient } = await import('./openai.service');
-        const openai = getOpenAIClient();
-        console.log('OpenAI client loaded successfully');
-
-        const prompt = `Extract structured data from this resume text and return it as JSON.
+async function extractStructuredDataWithAI(text: string, config?: AIConfig): Promise<ParsedResumeData> {
+    const prompt = `Extract structured data from this resume text and return it as JSON.
 
 Resume Text:
 ${text}
@@ -271,72 +263,29 @@ Return ONLY valid JSON in this exact format (no markdown, no explanations):
   ]
 }`;
 
-        console.log('Making AI request...');
-        const completion = await openai.chat.completions.create({
-            model: 'meta/llama-3.1-8b-instruct',
-            messages: [{ role: 'user', content: prompt }],
+    try {
+        const messages: OpenAIMessage[] = [
+            {
+                role: 'system',
+                content:
+                    'You are a resume parser. Extract structured data from resume text into the exact JSON schema requested. ' +
+                    'Preserve dates in their original format. Omit fields that are not present. Return valid JSON only.',
+            },
+            { role: 'user', content: prompt },
+        ];
+
+        const rawData = await createJSONCompletion<ParsedResumeData>(messages, {
+            model: getDefaultModel(config),
             temperature: 0.1,
-            max_tokens: 4000,
+            maxTokens: 4000,
+            config,
         });
 
-        console.log('AI response received');
-        const responseText = completion.choices[0]?.message?.content?.trim();
-        console.log('Response text length:', responseText?.length);
-        console.log('Response text preview:', responseText?.substring(0, 500));
-
-        if (!responseText) {
-            throw new Error('AI returned empty response');
-        }
-
-        // Try to clean up the response if it has markdown code blocks or extra text
-        let cleanedResponse = responseText;
-
-        // Remove markdown code blocks
-        if (responseText.includes('```json')) {
-            cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-            console.log('Cleaned markdown from response');
-        } else if (responseText.includes('```')) {
-            cleanedResponse = responseText.replace(/```\n?/g, '').trim();
-            console.log('Cleaned code blocks from response');
-        }
-
-        // Remove any text before the JSON starts (common with AI responses)
-        const jsonStart = cleanedResponse.indexOf('{');
-        if (jsonStart > 0) {
-            cleanedResponse = cleanedResponse.substring(jsonStart);
-            console.log('Removed text before JSON (starting at position', jsonStart, ')');
-        }
-
-        // Remove any text after the JSON ends
-        const jsonEnd = cleanedResponse.lastIndexOf('}');
-        if (jsonEnd > 0 && jsonEnd < cleanedResponse.length - 1) {
-            cleanedResponse = cleanedResponse.substring(0, jsonEnd + 1);
-            console.log('Removed text after JSON');
-        }
-
-        console.log('Final cleaned response length:', cleanedResponse.length);
-        console.log('Final cleaned response preview:', cleanedResponse.substring(0, 200));
-
-        // Parse the JSON response
-        console.log('Parsing JSON...');
-        const rawData = JSON.parse(cleanedResponse) as ParsedResumeData;
-
-        console.log('AI parsed resume successfully!');
-        console.log('- Work Experience entries:', rawData.workExperience?.length || 0);
-        console.log('- Education entries:', rawData.education?.length || 0);
-        console.log('- Projects:', rawData.projects?.length || 0);
-        console.log('- Skills categories:', rawData.skills?.length || 0);
-        console.log('- Certifications:', rawData.certifications?.length || 0);
-
         // Post-process the data to fix common formatting issues
-        const cleanedData = cleanupParsedData(rawData);
-        console.log('Data cleaned and normalized');
-
-        return cleanedData;
+        return cleanupParsedData(rawData);
     } catch (error) {
         console.error('=== AI PARSING FAILED ===');
         console.error('Error:', error);
-        console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
         console.error('Falling back to basic extraction...');
 
         // Fall back to basic extraction
@@ -526,7 +475,8 @@ function extractStructuredDataBasic(text: string): ParsedResumeData {
  */
 export async function parseResumeFile(
     buffer: Buffer,
-    mimeType: string
+    mimeType: string,
+    config?: AIConfig
 ): Promise<ParsedResumeData> {
     if (!buffer || buffer.length === 0) {
         throw new Error('Cannot parse empty file buffer');
@@ -562,7 +512,7 @@ export async function parseResumeFile(
         }
 
         // Use AI to extract structured data
-        const parsedData = await extractStructuredDataWithAI(extractedText);
+        const parsedData = await extractStructuredDataWithAI(extractedText, config);
 
         if (!parsedData.personalInfo?.email && !parsedData.personalInfo?.fullName) {
             console.warn(

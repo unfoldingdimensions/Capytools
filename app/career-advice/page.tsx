@@ -87,7 +87,7 @@ export default function CareerAdvicePage() {
                 </div>
 
                 {/* Newsletter Box */}
-                <div className="rounded-[40px] bg-gradient-to-br from-gray-900 to-black p-12 text-center text-white relative overflow-hidden shadow-2xl">
+                <div className="rounded-t-4xl bg-gradient-to-br from-gray-900 to-black p-12 text-center text-white relative overflow-hidden shadow-2xl">
                     <div className="absolute top-0 right-0 -m-8 h-48 w-48 bg-white/5 blur-3xl rounded-full" />
                     <div className="relative z-10 max-w-2xl mx-auto">
                         <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-6" />

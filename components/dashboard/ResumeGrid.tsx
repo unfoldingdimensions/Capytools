@@ -24,16 +24,10 @@ export function ResumeGrid({ resumes, isLoading, onCreateNew, onDownload, onDele
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-[minmax(280px,auto)]">
             {/* 1. Create New Card (Bento Style) */}
-            <div
-                className="relative group p-8 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 transition-all cursor-pointer bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900 flex flex-col items-center justify-center text-center space-y-4"
+            <button
+                type="button"
                 onClick={onCreateNew}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        onCreateNew();
-                    }
-                }}
+                className="relative group p-8 rounded-t-4xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 transition-all cursor-pointer bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900 flex flex-col items-center justify-center text-center space-y-4"
             >
                 <div className="h-16 w-16 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
                     <Plus className="h-8 w-8" />
@@ -42,19 +36,20 @@ export function ResumeGrid({ resumes, isLoading, onCreateNew, onDownload, onDele
                     <h3 className="text-lg font-bold text-foreground">Create New</h3>
                     <p className="text-sm text-muted-foreground">Start from scratch or import</p>
                 </div>
-            </div>
+            </button>
 
             {/* Resume Cards */}
             {isLoading ? (
-                [1, 2, 3].map(i => <SkeletonCard key={i} className="rounded-[2.5rem] h-full min-h-[280px]" />)
+                [1, 2, 3].map(i => <SkeletonCard key={i} className="rounded-t-4xl h-full min-h-[280px]" />)
             ) : (
                 resumes.map((resume) => (
-                    <div key={resume.id} className="group relative p-8 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss hover:scale-[1.02] hover:shadow-swiss-hover transition-all duration-300 flex flex-col">
+                    <div key={resume.id} className="group relative p-8 rounded-t-4xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss hover:scale-[1.02] hover:shadow-swiss-hover transition-all duration-300 flex flex-col">
                         <div className="flex justify-between items-start mb-6">
                             <div className="h-12 w-12 rounded-2xl bg-white dark:bg-black flex items-center justify-center text-foreground shadow-sm">
                                 <FileText className="h-6 w-6" />
                             </div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 focus-within:opacity-100">
+                            {/* Actions always visible on touch; hover-reveal on desktop */}
+                            <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100 transition-opacity">
                                 <Button
                                     variant="ghost"
                                     size="icon"

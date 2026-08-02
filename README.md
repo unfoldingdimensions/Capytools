@@ -42,7 +42,7 @@ A modern, secure, and feature-rich resume builder application built with Next.js
 
 ### AI Engine
 - **OpenAI / Z.ai / OpenRouter** - Multiple provider support
-- **BYOK Architecture** - Client-side key encryption/delivery
+- **BYOK Architecture** - Client-side key delivery (keys stay in the browser and are never stored on our servers)
 
 ## 📋 Prerequisites
 

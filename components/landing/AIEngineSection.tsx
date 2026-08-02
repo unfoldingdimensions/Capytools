@@ -67,7 +67,7 @@ export function AIEngineSection() {
                         {/* Decorative Elements */}
                         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-zinc-100 dark:bg-zinc-800 rounded-full blur-3xl opacity-50" />
 
-                        <div className="relative bg-card border border-border rounded-[2rem] shadow-2xl overflow-hidden">
+                        <div className="relative bg-card border border-border rounded-t-3xl shadow-2xl overflow-hidden">
                             <div className="p-6 border-b border-border bg-muted/30 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-600" />

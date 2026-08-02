@@ -50,6 +50,17 @@ const PROVIDERS = {
 
 export function AISettings() {
     const [open, setOpen] = useState(false);
+
+    // Close the settings dialog on Escape.
+    useEffect(() => {
+        if (!open) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setOpen(false);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [open]);
+
     const [config, setConfig] = useState<AIConfig>({
         provider: 'default',
         apiKey: '',
@@ -126,6 +137,7 @@ export function AISettings() {
                 size="icon"
                 className="h-9 w-9 rounded-full text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-colors"
                 onClick={() => setOpen(true)}
+                aria-label="Open AI settings"
             >
                 <Settings className="h-5 w-5" />
             </Button>
@@ -152,6 +164,7 @@ export function AISettings() {
                                 size="icon"
                                 onClick={() => setOpen(false)}
                                 className="h-8 w-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                aria-label="Close AI settings"
                             >
                                 <X className="h-4 w-4" />
                             </Button>

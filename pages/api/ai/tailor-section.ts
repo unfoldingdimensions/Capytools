@@ -7,7 +7,7 @@ import { decryptJSON } from '@/lib/security/encryption';
 import { AuthenticatedApiRequest } from '@/types/api.types';
 import type { ResumeData } from '@/types/resume.types';
 import type { ParsedJobDescription } from '@/types/ai.types';
-import { AIService } from '@/lib/services/ai.service';
+import * as sectionTailoringService from '@/lib/services/sectionTailoring.service';
 import { getAIConfigFromRequest } from '@/lib/ai-config-helper';
 
 /**
@@ -162,10 +162,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
         switch (section) {
             case 'summary':
-                suggestions = await AIService.generateTailoredSummary(resumeData, parsedJob, aiConfig);
+                suggestions = await sectionTailoringService.generateTailoredSummary(resumeData, parsedJob, aiConfig);
                 break;
             case 'workExperience':
-                suggestions = await AIService.generateTailoredWorkExperience(
+                suggestions = await sectionTailoringService.generateTailoredWorkExperience(
                     sectionData || resumeData.workExperience,
                     resumeData,
                     parsedJob,
@@ -173,21 +173,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 );
                 break;
             case 'education':
-                suggestions = await AIService.generateTailoredEducation(
+                suggestions = await sectionTailoringService.generateTailoredEducation(
                     sectionData || resumeData.education,
                     parsedJob,
                     aiConfig
                 );
                 break;
             case 'projects':
-                suggestions = await AIService.generateTailoredProjects(
+                suggestions = await sectionTailoringService.generateTailoredProjects(
                     sectionData || resumeData.projects,
                     parsedJob,
                     aiConfig
                 );
                 break;
             case 'skills':
-                suggestions = await AIService.generateTailoredSkills(
+                suggestions = await sectionTailoringService.generateTailoredSkills(
                     resumeData.skills || [],
                     parsedJob,
                     aiConfig
@@ -242,8 +242,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export default async function (req: NextApiRequest, res: NextApiResponse) {
     try {
-        await rateLimit()(req, res, async () => {
-            await requireAuth(req, res, async () => {
+        await requireAuth(req, res, async () => {
+            await rateLimit()(req, res, async () => {
                 // NOTE: No credit checks for testing
                 await handler(req, res);
             });

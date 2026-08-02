@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/db/prisma';
+import { getClientIp } from '@/lib/utils/clientIp';
 
 /**
  * Rate Limiting Middleware
@@ -33,10 +34,7 @@ function getIdentifier(req: NextApiRequest): string {
     }
 
     // Get IP from various headers (for proxies, load balancers)
-    const forwarded = req.headers['x-forwarded-for'];
-    const ip = typeof forwarded === 'string'
-        ? forwarded.split(',')[0]?.trim()
-        : req.socket.remoteAddress;
+    const ip = getClientIp(req);
 
     if (!ip) {
         throw new Error(

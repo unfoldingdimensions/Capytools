@@ -1,5 +1,6 @@
 import {
     personalInfoSchema,
+    createResumeSchema,
     workExperienceSchema,
     educationSchema,
     skillSchema,
@@ -122,6 +123,31 @@ describe('Resume Validation Schemas', () => {
 
             const result = skillSchema.safeParse(validData);
             expect(result.success).toBe(true);
+        });
+    });
+
+    describe('createResumeSchema (permissive draft saving)', () => {
+        const emptyData = {
+            personalInfo: { fullName: '', email: '' },
+            workExperience: [],
+            education: [],
+            projects: [],
+            skills: [],
+            certifications: [],
+            customSections: [],
+        };
+
+        it('should allow saving an empty draft with no personal info', () => {
+            const result = createResumeSchema.safeParse({ title: 'My Draft', data: emptyData });
+            expect(result.success).toBe(true);
+        });
+
+        it('should still reject an invalid email format when one is provided', () => {
+            const result = createResumeSchema.safeParse({
+                title: 'My Draft',
+                data: { ...emptyData, personalInfo: { fullName: '', email: 'not-an-email' } },
+            });
+            expect(result.success).toBe(false);
         });
     });
 });

@@ -55,7 +55,6 @@ model Resume {
   createdAt               DateTime                   @default(now())
   updatedAt               DateTime                   @updatedAt
   lastAccessedAt          DateTime                   @default(now())
-  data                    Json?
   atsScores               ATSScore[]
   exports                 Export[]
   interviewSessions       InterviewPracticeSession[]
@@ -165,6 +164,8 @@ model JobDescription {
   requirements      String[]                   @default([])
   responsibilities  String[]                   @default([])
   keywords          String[]                   @default([])
+  experienceLevel   String?
+  employmentType    String?
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
   atsScores         ATSScore[]
