@@ -16,10 +16,10 @@ export function EfficiencyMetric() {
         <section className="py-24 px-6 bg-muted/10 border-t border-border">
             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                    <h2 className="text-3xl md:text-5xl font-display font-medium tracking-tight mb-6">
+                    <h2 className="text-display text-3xl md:text-5xl font-medium mb-6">
                         Efficiency, Quantified.
                     </h2>
-                    <p className="text-xl text-muted-foreground mb-8">
+                    <p className="text-xl text-muted-foreground mb-8 text-pretty">
                         Stop spending 3 hours on a single resume. Our power users cut formatting time by 90%, giving them back time to network and prep for interviews.
                     </p>
 

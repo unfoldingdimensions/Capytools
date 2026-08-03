@@ -51,7 +51,7 @@ export function ResumeScorePanel({
     return (
         <div
             className={cn(
-                'rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300',
+                'rounded-2xl border border-border/80 bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300',
                 className
             )}
         >
@@ -83,7 +83,7 @@ export function ResumeScorePanel({
             {!isCollapsed && (
                 <div className="p-4 space-y-4">
                     {/* Tabs */}
-                    <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <div className="flex p-1 bg-muted/60 rounded-lg">
                         <button
                             onClick={() => setActiveTab('general')}
                             className={cn(

@@ -43,6 +43,7 @@ model Resume {
   userId                  String
   title                   String                     @default("Untitled Resume")
   isPublic                Boolean                    @default(false)
+  targetRoles             String[]                   @default([])
   personalInfoEncrypted   String?
   workExperienceEncrypted String?
   educationEncrypted      String?

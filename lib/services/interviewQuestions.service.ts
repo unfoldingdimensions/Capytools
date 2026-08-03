@@ -1,4 +1,5 @@
 import { createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
+import { buildRoleGuidance } from '@/lib/ai/roleProfiles';
 import type { ResumeData } from '@/types/resume.types';
 import type { ParsedJobDescription, InterviewQuestion, InterviewPreparationFeedback } from '@/types/ai.types';
 
@@ -15,7 +16,8 @@ export async function generateInterviewQuestions(
     resume: ResumeData,
     jobDescription: ParsedJobDescription,
     count: number = 10,
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<InterviewQuestion[]> {
     if (count < 1 || count > 30) {
         throw new Error('Question count must be between 1 and 30');
@@ -25,8 +27,11 @@ export async function generateInterviewQuestions(
         throw new Error('Resume must have personal information');
     }
 
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
+
     const systemPrompt = `You are an expert interview coach and technical interviewer.
 Generate realistic interview questions for a specific job and candidate.
+${roleGuidance ? `\n${roleGuidance}\nMake questions probe the skills and qualities this role screens for.` : ''}
 Return JSON array with this structure:
 [{
   "question": "The interview question",

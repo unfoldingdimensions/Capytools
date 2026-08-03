@@ -26,7 +26,7 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
     }
 
     try {
-        const { resumeData } = req.body as { resumeData?: ResumeData };
+        const { resumeData, targetRoles } = req.body as { resumeData?: ResumeData; targetRoles?: string[] };
 
         if (!resumeData) {
             res.status(400).json({
@@ -65,9 +65,9 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
         console.log('- Education entries:', resumeData.education?.length || 0);
         console.log('- Skills categories:', resumeData.skills?.length || 0);
         console.log('- Projects:', resumeData.projects?.length || 0);
-        // Generate professional summary with BYOK config
+        // Generate professional summary with BYOK config and target-role guidance
         const aiConfig = getAIConfigFromRequest(req);
-        const summary = await generateProfessionalSummary(resumeData, aiConfig);
+        const summary = await generateProfessionalSummary(resumeData, aiConfig, targetRoles);
 
         console.log('Final summary returned:', summary);
         console.log('Final summary length:', summary.length);

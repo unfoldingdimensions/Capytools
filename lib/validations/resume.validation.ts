@@ -134,6 +134,7 @@ export const createResumeSchema = z.object({
     templateId: z.string().optional(),
     customStyles: z.string().optional(),
     isPublic: z.boolean().default(false),
+    targetRoles: z.array(z.string().trim().min(1).max(80)).max(3).optional(),
 });
 
 // Resume Update Schema

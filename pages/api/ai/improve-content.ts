@@ -23,13 +23,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return;
     }
 
-    const { text, type, mode, role, company, responsibilities } = req.body as {
+    const { text, type, mode, role, company, responsibilities, targetRoles } = req.body as {
         text?: string;
         type?: 'summary' | 'description' | 'objective' | 'general';
         mode?: 'content' | 'bullet' | 'responsibilities';
         role?: string;
         company?: string;
         responsibilities?: string[];
+        targetRoles?: string[];
     };
 
     const improvementMode = mode || 'content';
@@ -51,7 +52,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 return;
             }
 
-            const improvedBullet = await AIService.improveBulletPoint(text, { role }, config);
+            const improvedBullet = await AIService.improveBulletPoint(text, { role, targetRoles }, config);
             result = {
                 improvedText: improvedBullet,
                 mode: 'bullet',
@@ -69,7 +70,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 return;
             }
 
-            const enhanced = await AIService.enhanceResponsibilities(responsibilities, { role, company }, config);
+            const enhanced = await AIService.enhanceResponsibilities(responsibilities, { role, company, targetRoles }, config);
             result = {
                 bulletPoints: enhanced,
                 mode: 'responsibilities',
@@ -88,7 +89,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 return;
             }
 
-            const improved = await AIService.improveContent(text, type || 'general', config);
+            const improved = await AIService.improveContent(text, type || 'general', config, targetRoles);
             result = {
                 ...improved,
                 mode: 'content',

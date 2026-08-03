@@ -103,6 +103,8 @@ const config: Config = {
             boxShadow: {
                 'swiss': 'var(--shadow-swiss)',
                 'swiss-hover': '0 20px 40px -8px rgba(0, 0, 0, 0.1)',
+                'card': 'var(--shadow-card)',
+                'pop': 'var(--shadow-pop)',
             },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',

@@ -3,6 +3,8 @@ import { FeatureGrid } from '@/components/landing/FeatureGrid';
 import { AIEngineSection } from '@/components/landing/AIEngineSection';
 import { WorkflowSection } from '@/components/landing/WorkflowSection';
 import { EfficiencyMetric } from '@/components/landing/EfficiencyMetric';
+import { Testimonials } from '@/components/landing/Testimonials';
+import { PricingSection } from '@/components/landing/PricingSection';
 import { StickyCTA } from '@/components/landing/StickyCTA';
 import { AuthButtons } from '@/components/landing/AuthButtons';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -52,22 +54,24 @@ export default function HomePage() {
                 <AIEngineSection />
                 <EfficiencyMetric />
                 <WorkflowSection />
+                <Testimonials />
+                <PricingSection />
 
                 {/* FINAL CTA */}
                 <section className="py-32 px-6 border-t border-border bg-background relative overflow-hidden">
                     <div className="grid-overlay" />
                     <div className="max-w-4xl mx-auto text-center relative z-10">
-                        <h2 className="text-5xl md:text-7xl font-display font-medium tracking-tight mb-8">
+                        <h2 className="text-display text-5xl md:text-7xl font-medium mb-8">
                             Your career. <br />
                             <span className="text-muted-foreground">Next level.</span>
                         </h2>
-                        <p className="text-xl text-muted-foreground mb-12 max-w-xl mx-auto">
+                        <p className="text-xl text-muted-foreground mb-12 max-w-xl mx-auto text-pretty">
                             Join thousands of professionals who have stopped fighting with formatting and started landing interviews.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                             <AuthButtons
-                                className="h-16 px-10 rounded-full text-xl shadow-2xl hover:shadow-xl hover:-translate-y-1 transition-all"
+                                className="h-16 px-10 rounded-full text-xl shadow-pop hover:shadow-xl hover:-translate-y-1 transition-all duration-normal ease-out-expo"
                                 textSignedOut="Start Building Free"
                             />
                         </div>

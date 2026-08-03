@@ -14,6 +14,7 @@ interface ResumeState {
     currentResumeId: string | null;
     title: string;
     resumeData: ResumeData;
+    targetRoles: string[];
     isLoading: boolean;
     isSaving: boolean;
     lastSaved: Date | null;
@@ -38,6 +39,7 @@ const initialState: ResumeState = {
     currentResumeId: null,
     title: 'Untitled Resume',
     resumeData: initialResumeData,
+    targetRoles: [],
     isLoading: false,
     isSaving: false,
     lastSaved: null,
@@ -61,12 +63,17 @@ const resumeSlice = createSlice({
             state.hasUnsavedChanges = false;
             state.error = null;
         },
-        setFullResume: (state, action: PayloadAction<{ id: string; title: string; data: ResumeData }>) => {
+        setFullResume: (state, action: PayloadAction<{ id: string; title: string; data: ResumeData; targetRoles?: string[] }>) => {
             state.currentResumeId = action.payload.id;
             state.title = action.payload.title;
             state.resumeData = action.payload.data;
+            state.targetRoles = action.payload.targetRoles || [];
             state.hasUnsavedChanges = false;
             state.error = null;
+        },
+        setTargetRoles: (state, action: PayloadAction<string[]>) => {
+            state.targetRoles = action.payload;
+            state.hasUnsavedChanges = true;
         },
         updateResumeData: (state, action: PayloadAction<Partial<ResumeData>>) => {
             state.resumeData = { ...state.resumeData, ...action.payload };
@@ -117,6 +124,7 @@ const resumeSlice = createSlice({
             state.currentResumeId = null;
             state.title = 'Untitled Resume';
             state.resumeData = initialResumeData;
+            state.targetRoles = [];
             state.hasUnsavedChanges = false;
             state.error = null;
         },
@@ -128,6 +136,7 @@ export const {
     setTitle,
     setResumeData,
     setFullResume,
+    setTargetRoles,
     updateResumeData,
     setPersonalInfo,
     updateWorkExperience,

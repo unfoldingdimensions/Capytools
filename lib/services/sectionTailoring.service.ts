@@ -1,5 +1,6 @@
 import { createCompletion, createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import { cleanAIResponse } from '@/lib/utils/aiTextCleanup';
+import { buildRoleGuidance } from '@/lib/ai/roleProfiles';
 import type { ResumeData, WorkExperience, Education, Project, Skill } from '@/types/resume.types';
 import type { ParsedJobDescription } from '@/types/ai.types';
 
@@ -14,14 +15,17 @@ import type { ParsedJobDescription } from '@/types/ai.types';
 export async function generateTailoredSummary(
     resume: ResumeData,
     jobDescription: ParsedJobDescription,
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<string> {
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
     const currentSummary = resume.personalInfo?.summary || 'No current summary';
     const workExperience = resume.workExperience || [];
     const allSkills = (resume.skills || []).flatMap((s) => s.skills);
 
     const systemPrompt = `You are an expert resume writer and ATS optimization specialist.
 Your goal is to write a professional summary that ranks high in ATS systems for the specific target role.
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 CRITICAL RULES:
 1.  **Keyword Injection:** You MUST naturally include the top 3 hard skills/keywords from the job description.
@@ -75,8 +79,10 @@ export async function generateTailoredWorkExperience(
     workExperience: WorkExperience[] | WorkExperience,
     _resume: ResumeData,
     jobDescription: ParsedJobDescription,
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<{ achievements: string[]; tips: string[] }> {
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
     const experiences = Array.isArray(workExperience) ? workExperience : [workExperience];
     if (experiences.length === 0 || !experiences[0]) {
         return { achievements: [], tips: ['Add your work experience to get AI suggestions'] };
@@ -85,6 +91,7 @@ export async function generateTailoredWorkExperience(
     const exp = experiences[0]; // Focus on the first/most relevant experience
 
     const systemPrompt = `You are a Resume Optimization AI. Transform the user's experience into elite "Action-Result" bullet points optimized for ATS.
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 FORMULA: [Strong Action Verb] + [Specific Task/Project] + [Quantifiable Result/Impact]
 
@@ -141,8 +148,10 @@ Generate 3-5 powerful, ATS-optimized achievement bullets. Return ONLY a JSON arr
 export async function generateTailoredEducation(
     education: Education[] | Education,
     jobDescription: ParsedJobDescription,
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<{ relevantPoints: string[]; tips: string[] }> {
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
     const educations = Array.isArray(education) ? education : [education];
     if (educations.length === 0 || !educations[0]) {
         return { relevantPoints: [], tips: ['Add your education to get AI suggestions'] };
@@ -153,6 +162,7 @@ export async function generateTailoredEducation(
     const systemPrompt = `You are an expert resume writer. Generate 2-3 ATS-optimized achievement bullets for education.
 Focus on relevant coursework, projects, honors, or transferable skills that align with the target job.
 Enforce the "Action + Context" structure.
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 CRITICAL: Return ONLY a JSON array of 2-3 strings: ["point1", "point2", "point3"]`;
 
@@ -201,8 +211,10 @@ Generate 2-3 high-impact education highlights. Return ONLY a JSON array.`;
 export async function generateTailoredProjects(
     projects: Project[] | Project,
     jobDescription: ParsedJobDescription,
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<{ highlights: string[]; tips: string[] }> {
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
     const projectList = Array.isArray(projects) ? projects : [projects];
     if (projectList.length === 0 || !projectList[0]) {
         return { highlights: [], tips: ['Add your projects to get AI suggestions'] };
@@ -212,6 +224,7 @@ export async function generateTailoredProjects(
 
     const systemPrompt = `You are an expert resume writer. Generate 2-4 achievement-focused highlights for a project, optimized for ATS.
 FORMULA: [Strong Verb] + [Technology/Methodology] + [Outcome/Impact]
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 RULES:
 1.  **Tech Stack:** Explicitly mention the technologies used (matches keywords).
@@ -265,11 +278,14 @@ Generate 2-4 high-impact project highlights. Return ONLY a JSON array.`;
 export async function generateTailoredSkills(
     currentSkills: Skill[],
     jobDescription: ParsedJobDescription,
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<{ suggestedSkills: string[]; tips: string[] }> {
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
     const allCurrentSkills = currentSkills.flatMap(cat => cat.skills);
 
     const systemPrompt = `You are an ATS Keyword Analyst. Extract and recommend the most valuable skills for this job.
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 RULES:
 1.  **Hard Skills First:** Prioritize software, tools, languages, and technical methodologies.

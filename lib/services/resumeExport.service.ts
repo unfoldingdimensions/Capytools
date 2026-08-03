@@ -11,7 +11,7 @@ import { ResumeData, ExportFormat } from '@/types/resume.types';
 /**
  * Exports resume data to DOCX format
  */
-export async function exportToDocx(resumeData: ResumeData): Promise<Buffer> {
+export async function exportToDocx(resumeData: ResumeData, headline?: string): Promise<Buffer> {
     if (!resumeData) {
         throw new Error('Cannot export null or undefined resume data to DOCX');
     }
@@ -31,6 +31,16 @@ export async function exportToDocx(resumeData: ResumeData): Promise<Buffer> {
                     spacing: { after: 200 },
                 })
             );
+
+            if (headline) {
+                sections.push(
+                    new Paragraph({
+                        text: headline,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 },
+                    })
+                );
+            }
 
             const contactInfo: string[] = [];
             if (email) contactInfo.push(email);
@@ -386,7 +396,7 @@ function convertDescriptionToBullets(description: string): string[] {
 /**
  * Exports resume data to PDF format
  */
-export function exportToPdf(resumeData: ResumeData, isAtsMode: boolean = false): Buffer {
+export function exportToPdf(resumeData: ResumeData, isAtsMode: boolean = false, headline?: string): Buffer {
     if (!resumeData) {
         throw new Error('Cannot export null or undefined resume data to PDF');
     }
@@ -429,6 +439,13 @@ export function exportToPdf(resumeData: ResumeData, isAtsMode: boolean = false):
             doc.setFont(isAtsMode ? 'times' : 'helvetica', 'bold');
             doc.text(fullName || 'No Name', doc.internal.pageSize.width / 2, yPosition, { align: 'center' });
             yPosition += 12;
+
+            if (headline) {
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'normal');
+                doc.text(headline, doc.internal.pageSize.width / 2, yPosition, { align: 'center' });
+                yPosition += 10;
+            }
 
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
@@ -791,7 +808,7 @@ function formatDateForAts(dateString: string | undefined): string {
  */
 export function exportResume(
     resumeData: ResumeData,
-    formatOrOptions: ExportFormat | { format: ExportFormat; isAtsMode?: boolean }
+    formatOrOptions: ExportFormat | { format: ExportFormat; isAtsMode?: boolean; headline?: string }
 ): Promise<Buffer> | Buffer {
     if (!resumeData) {
         throw new Error('Resume data is required for export');
@@ -799,6 +816,7 @@ export function exportResume(
 
     const format = typeof formatOrOptions === 'string' ? formatOrOptions : formatOrOptions.format;
     const isAtsMode = typeof formatOrOptions === 'object' ? formatOrOptions.isAtsMode : false;
+    const headline = typeof formatOrOptions === 'object' ? formatOrOptions.headline : undefined;
 
     if (!format) {
         throw new Error('Export format is required (PDF or DOCX)');
@@ -806,10 +824,10 @@ export function exportResume(
 
     switch (format) {
         case 'PDF':
-            return exportToPdf(resumeData, !!isAtsMode);
+            return exportToPdf(resumeData, !!isAtsMode, headline);
         case 'DOCX':
             // DOCX is already ATS friendly
-            return exportToDocx(resumeData);
+            return exportToDocx(resumeData, headline);
         default:
             throw new Error(
                 `Unsupported export format: ${String(format)}. Supported formats: PDF, DOCX`

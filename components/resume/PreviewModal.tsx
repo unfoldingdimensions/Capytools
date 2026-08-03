@@ -13,11 +13,14 @@ interface PreviewModalProps {
     onClose: () => void;
     data: ResumeData;
     resumeTitle: string;
-    onDownload: (options?: { isAtsMode?: boolean }) => void;
+    onDownload: (options?: { isAtsMode?: boolean; headline?: string }) => void;
     template?: string;
+    headline?: string;
+    headlineEnabled?: boolean;
+    onHeadlineChange?: (enabled: boolean) => void;
 }
 
-export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, template }: PreviewModalProps) {
+export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, template, headline, headlineEnabled = false, onHeadlineChange }: PreviewModalProps) {
     const [isGenerating, setIsGenerating] = useState(false);
     const { error: toastError } = useToast();
 
@@ -54,6 +57,17 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {headline && (
+                        <label className="flex cursor-pointer items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/15">
+                            <input
+                                type="checkbox"
+                                checked={headlineEnabled}
+                                onChange={(e) => onHeadlineChange?.(e.target.checked)}
+                                className="h-3.5 w-3.5 accent-current"
+                            />
+                            Role headline
+                        </label>
+                    )}
                     <Button
                         variant="ghostSubtle"
                         className="text-white hover:bg-white/10 rounded-full h-10 w-10 p-0"
@@ -63,7 +77,7 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
                     </Button>
 
                     <ExportMenu
-                        onDownloadATS={onDownload}
+                        onDownloadATS={(options) => onDownload({ ...options, headline: headlineEnabled ? headline : undefined })}
                         onDownloadVisual={handleVisualDownload}
                         isGenerating={isGenerating}
                     />
@@ -83,7 +97,7 @@ export function PreviewModal({ isOpen, onClose, data, resumeTitle, onDownload, t
             {/* Scrollable Preview Area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-12">
                 <div id="resume-preview-content" className="mx-auto max-w-4xl animate-in slide-in-from-bottom-8 duration-500">
-                    <ResumePreview data={data} template={template} />
+                    <ResumePreview data={data} template={template} headline={headlineEnabled ? headline : undefined} />
                 </div>
             </div>
 

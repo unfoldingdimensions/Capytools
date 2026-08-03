@@ -28,40 +28,49 @@ export function WorkflowSection() {
     return (
         <section className="py-24 px-6 bg-background">
             <div className="max-w-7xl mx-auto">
-                <div className="mb-16 text-center">
-                    <h2 className="text-3xl md:text-5xl font-display font-medium tracking-tight mb-4">
-                        A Frictionless Workflow.
+                <div className="mb-16 max-w-2xl">
+                    <p className="micro-label mb-3">How it works</p>
+                    <h2 className="text-display text-3xl md:text-5xl text-foreground mb-4">
+                        A frictionless workflow.
                     </h2>
-                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                    <p className="text-lg text-muted-foreground leading-relaxed">
                         From upload to export, every step is optimized for efficiency.
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-                    {/* Connecting Line (Desktop) */}
-                    <div className="hidden lg:block absolute top-12 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent -z-10" />
-
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-t-3xl border border-border/70 bg-border/50 md:bg-transparent">
                     {steps.map((step, index) => (
-                        <div key={index} className="relative group bg-background md:bg-transparent rounded-2xl p-6 md:p-0 border md:border-0 border-border">
-                            <div className="w-24 h-24 rounded-3xl bg-card border border-border shadow-sm flex items-center justify-center mb-6 text-foreground group-hover:scale-105 transition-transform duration-300 mx-auto md:mx-0 z-10 relative">
-                                <step.icon size={32} strokeWidth={1.5} />
-                                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center text-sm font-bold shadow-md">
-                                    {index + 1}
+                        <div
+                            key={step.title}
+                            className="group relative flex flex-col gap-6 bg-card p-8 transition-all duration-normal ease-out-expo hover:bg-muted/30"
+                        >
+                            <div className="flex items-start justify-between">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-foreground transition-transform duration-normal ease-out-expo group-hover:scale-105">
+                                    <step.icon size={22} strokeWidth={1.5} />
                                 </div>
+                                <span className="font-display text-5xl font-semibold tracking-tight text-foreground/10">
+                                    {String(index + 1).padStart(2, '0')}
+                                </span>
                             </div>
-
-                            <h3 className="text-xl font-display font-medium mb-3 text-center md:text-left">{step.title}</h3>
-                            <p className="text-muted-foreground leading-normal text-center md:text-left text-sm md:text-base">
-                                {step.description}
-                            </p>
+                            <div>
+                                <h3 className="font-display text-xl font-medium tracking-tight text-foreground mb-2">
+                                    {step.title}
+                                </h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed md:text-base">
+                                    {step.description}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-16 text-center">
-                    <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-lg hover:shadow-xl">
+                <div className="mt-12 flex flex-col items-center gap-4">
+                    <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-card hover:shadow-pop">
                         Try It Yourself
                     </Button>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground/70">
+                        Free to start · No credit card required
+                    </p>
                 </div>
             </div>
         </section>

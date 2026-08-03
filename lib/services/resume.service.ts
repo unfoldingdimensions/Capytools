@@ -48,6 +48,7 @@ export class ResumeService {
         return {
             id: resume.id,
             title: resume.title,
+            targetRoles: resume.targetRoles,
             data: resumeData,
             templateId: resume.templateId,
             customStyles: resume.customStyles,
@@ -79,6 +80,7 @@ export class ResumeService {
         templateId?: string;
         customStyles?: string;
         isPublic?: boolean;
+        targetRoles?: string[];
     }) {
         const { personalInfo, workExperience, education, projects, skills, certifications, customSections } = data.data;
 
@@ -86,6 +88,7 @@ export class ResumeService {
             data: {
                 userId,
                 title: data.title,
+                targetRoles: data.targetRoles || [],
                 personalInfoEncrypted: encryptJSON(personalInfo),
                 workExperienceEncrypted: encryptJSON(workExperience),
                 educationEncrypted: encryptJSON(education),
@@ -116,6 +119,7 @@ export class ResumeService {
         templateId?: string;
         customStyles?: string; // string type based on schema usage in API
         isPublic?: boolean;
+        targetRoles?: string[];
     }) {
         // Verify ownership
         const existing = await prisma.resume.findFirst({
@@ -132,6 +136,7 @@ export class ResumeService {
         if (data.templateId) updateData.templateId = data.templateId;
         if (data.customStyles !== undefined) updateData.customStyles = data.customStyles;
         if (data.isPublic !== undefined) updateData.isPublic = data.isPublic;
+        if (data.targetRoles !== undefined) updateData.targetRoles = data.targetRoles;
 
         if (data.data) {
             const { personalInfo, workExperience, education, projects, skills, certifications, customSections } = data.data;

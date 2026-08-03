@@ -23,6 +23,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { ResumeGrid } from '@/components/dashboard/ResumeGrid';
 import { UploadsList } from '@/components/dashboard/UploadsList';
+import { NewResumeModal } from '@/components/resume/NewResumeModal';
 
 interface Resume {
     id: string;
@@ -68,6 +69,7 @@ export default function DashboardClient() {
     const [successModal, setSuccessModal] = useState<{ title: string; message: string; resumeId?: string } | null>(null);
     const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
     const [showCreateOptions, setShowCreateOptions] = useState(false);
+    const [showNewResumeModal, setShowNewResumeModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -385,14 +387,14 @@ export default function DashboardClient() {
                     <p className="text-muted-foreground">Choose how you want to start building.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Link href="/resume/new" onClick={() => setShowCreateOptions(false)}>
+                    <Link href="/resume/new" onClick={() => { setShowCreateOptions(false); setShowNewResumeModal(true); }}>
                         <div className="group p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4">
                             <div className="h-12 w-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Plus className="h-6 w-6" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-foreground">Start Fresh</h4>
-                                <p className="text-xs text-muted-foreground mt-1">Build from scratch</p>
+                                <p className="text-xs text-muted-foreground mt-1">Name it &amp; pick target roles</p>
                             </div>
                         </div>
                     </Link>
@@ -458,6 +460,12 @@ export default function DashboardClient() {
                 onCancel={cancelDeleteResume}
             />
 
+            {/* New Resume Modal (name + target roles) */}
+            <NewResumeModal
+                isOpen={showNewResumeModal}
+                onClose={() => setShowNewResumeModal(false)}
+            />
+
             <main id="main-content" className="container mx-auto px-6 py-12 max-w-7xl">
                 {/* Hero Typography */}
                 <div className="mb-12">
@@ -481,7 +489,7 @@ export default function DashboardClient() {
                         <ResumeGrid
                             resumes={resumes}
                             isLoading={isLoading}
-                            onCreateNew={() => setShowCreateOptions(true)}
+                            onCreateNew={() => setShowNewResumeModal(true)}
                             onDownload={handleDownload}
                             onDelete={showDeleteConfirmation}
                         />
@@ -490,46 +498,46 @@ export default function DashboardClient() {
                     {/* Right: Sidebar Content */}
                     <div className="w-full lg:w-96 space-y-8">
                         {/* AI Toolbox */}
-                        <Card variant="default" className="p-8 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss relative overflow-hidden">
+                        <Card variant="default" className="p-8 border-border/70 shadow-card relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                <Sparkles className="h-24 w-24 text-brand-600" />
+                                <Sparkles className="h-24 w-24 text-foreground" />
                             </div>
-                            <h3 className="text-xl font-display font-bold text-foreground mb-2">AI Toolbox</h3>
+                            <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">AI Toolbox</h3>
                             <p className="text-muted-foreground text-sm mb-8">Boost your application with these intelligent power-ups.</p>
 
-                            <div className="space-y-4">
-                                <Link href="/ai/job-description" className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group">
+                            <div className="space-y-3">
+                                <Link href="/ai/job-description" className="block p-4 rounded-2xl bg-muted/40 hover:bg-muted/70 hover:ring-1 hover:ring-border transition-all duration-normal ease-out-expo group">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-card shadow-card flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
                                             <Search className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-foreground leading-none mb-1 group-hover:text-brand-600 transition-colors">Role Analyzer</p>
+                                            <p className="text-sm font-semibold text-foreground leading-none mb-1 group-hover:text-foreground transition-colors">Role Analyzer</p>
                                             <p className="text-xs text-muted-foreground">Extract skills from job posts</p>
                                         </div>
                                     </div>
                                 </Link>
                                 <Link
                                     href="/ai/ats-score"
-                                    className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group"
+                                    className="block p-4 rounded-2xl bg-muted/40 hover:bg-muted/70 hover:ring-1 hover:ring-border transition-all duration-normal ease-out-expo group"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-card shadow-card flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
                                             <Target className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-foreground leading-none mb-1 group-hover:text-brand-600 transition-colors">ATS Matcher</p>
+                                            <p className="text-sm font-semibold text-foreground leading-none mb-1 group-hover:text-foreground transition-colors">ATS Matcher</p>
                                             <p className="text-xs text-muted-foreground">Calculate your compatibility</p>
                                         </div>
                                     </div>
                                 </Link>
-                                <Link href="/ai/interview-prep" className="block p-4 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:ring-1 hover:ring-brand-200 transition-all group">
+                                <Link href="/ai/interview-prep" className="block p-4 rounded-2xl bg-muted/40 hover:bg-muted/70 hover:ring-1 hover:ring-border transition-all duration-normal ease-out-expo group">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors">
+                                        <div className="h-10 w-10 rounded-xl bg-card shadow-card flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
                                             <MessageSquare className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-foreground leading-none mb-1 group-hover:text-brand-600 transition-colors">Interview Prep</p>
+                                            <p className="text-sm font-semibold text-foreground leading-none mb-1 group-hover:text-foreground transition-colors">Interview Prep</p>
                                             <p className="text-xs text-muted-foreground">Personalized AI coaching</p>
                                         </div>
                                     </div>

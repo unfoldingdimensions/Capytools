@@ -7,7 +7,7 @@ const ModalBody = ({
     className,
     ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-    <div className={cn('py-4', className)} {...props} />
+    <div className={cn('py-5', className)} {...props} />
 );
 ModalBody.displayName = 'ModalBody';
 

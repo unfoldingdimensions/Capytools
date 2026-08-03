@@ -13,11 +13,11 @@ export function AIEngineSection() {
             <div className="max-w-7xl mx-auto">
                 <div className="mb-20 text-center max-w-3xl mx-auto">
                     <Badge variant="secondary" className="mb-6 bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700">Core Engine</Badge>
-                    <h2 className="text-4xl md:text-5xl font-display font-medium tracking-tight mb-6">
+                    <h2 className="text-display text-4xl md:text-5xl font-medium mb-6">
                         Intelligent Content Generation.
                     </h2>
-                    <p className="text-xl text-muted-foreground">
-                        We don't just format your resume. We engineer it to beat ATS filters and impress human recruiters.
+                    <p className="text-xl text-muted-foreground text-pretty">
+                        We don&apos;t just format your resume. We engineer it to beat ATS filters and impress human recruiters.
                     </p>
                 </div>
 
@@ -44,7 +44,7 @@ export function AIEngineSection() {
                             <div>
                                 <h3 className="text-xl font-display font-medium mb-2">Professional Summary Generation</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    Generate impactful, industry-specific summaries in one click. No more writer's block.
+                                    Generate impactful, industry-specific summaries in one click. No more writer&apos;s block.
                                 </p>
                             </div>
                         </div>
@@ -56,7 +56,7 @@ export function AIEngineSection() {
                             <div>
                                 <h3 className="text-xl font-display font-medium mb-2">Real-time Grammar & Tone</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    A built-in "Professional Tone" validator ensures you sound like an expert, flagging passive voice and weak verbs instantly.
+                                    A built-in &ldquo;Professional Tone&rdquo; validator ensures you sound like an expert, flagging passive voice and weak verbs instantly.
                                 </p>
                             </div>
                         </div>
@@ -99,7 +99,7 @@ export function AIEngineSection() {
                                                     <div className="w-2 h-2 rounded-full bg-zinc-400" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-lg text-foreground mb-2">"Responsible for managing the team and talking to clients about project updates."</p>
+                                                    <p className="text-lg text-foreground mb-2">&ldquo;Responsible for managing the team and talking to clients about project updates.&rdquo;</p>
                                                     <div className="inline-flex items-center gap-2 text-xs font-medium text-zinc-600 bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 px-2 py-1 rounded">
                                                         <span>Weak Passive Voice</span>
                                                     </div>
@@ -119,7 +119,7 @@ export function AIEngineSection() {
                                                 </div>
                                                 <div>
                                                     <p className="text-lg text-foreground mb-2">
-                                                        "Orchestrated a cross-functional team of 10, facilitating weekly stakeholder communications that improved project transparency metrics by 40%."
+                                                        &ldquo;Orchestrated a cross-functional team of 10, facilitating weekly stakeholder communications that improved project transparency metrics by 40%.&rdquo;
                                                     </p>
                                                     <div className="flex gap-2">
                                                         <div className="inline-flex items-center gap-2 text-xs font-medium text-zinc-900 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-100 px-2 py-1 rounded">

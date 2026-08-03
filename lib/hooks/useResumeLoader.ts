@@ -11,6 +11,7 @@ export function useResumeLoader(resumeId?: string) {
     const [resumeData, setResumeData] = useState<ResumeData | null>(null);
     const [title, setTitle] = useState<string>('Untitled Resume');
     const [templateId, setTemplateId] = useState<string | null>(null);
+    const [targetRoles, setTargetRoles] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -30,6 +31,7 @@ export function useResumeLoader(resumeId?: string) {
                     const loadedData = result.data.data || {};
                     setTitle(result.data.title || 'Untitled Resume');
                     setTemplateId(result.data.templateId || null);
+                    setTargetRoles(result.data.targetRoles || []);
                     setResumeData({
                         personalInfo: loadedData.personalInfo || { fullName: '', email: '' },
                         workExperience: loadedData.workExperience || [],
@@ -59,5 +61,5 @@ export function useResumeLoader(resumeId?: string) {
         void loadResume();
     }, [resumeId, router, toastError]);
 
-    return { resumeData, title, templateId, isLoading, error, setResumeData, setTitle };
+    return { resumeData, title, templateId, targetRoles, isLoading, error, setResumeData, setTitle };
 }

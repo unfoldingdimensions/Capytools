@@ -16,17 +16,17 @@ export function DashboardStats({ resumeCount, uploadCount }: DashboardStatsProps
     ];
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
             {stats.map((stat, i) => (
-                <div key={i} className="group relative p-6 bg-white dark:bg-gray-900 rounded-t-3xl border border-black/[0.08] dark:border-white/[0.08] shadow-swiss transition-all hover:border-black/20 dark:hover:border-white/20 hover:shadow-swiss-hover hover:-translate-y-1">
-                    <div className="mb-4 text-muted-foreground group-hover:text-foreground transition-colors">
-                        <stat.icon className="h-6 w-6" />
+                <div
+                    key={i}
+                    className="group rounded-t-3xl border border-border/70 bg-card p-6 transition-all duration-normal ease-out-expo hover:border-border hover:shadow-card hover:-translate-y-0.5"
+                >
+                    <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-foreground transition-transform duration-normal ease-out-expo group-hover:scale-105">
+                        <stat.icon className="h-5 w-5" strokeWidth={1.5} />
                     </div>
-                    <div className="absolute bottom-6 left-6">
-                        <p className="text-3xl font-display font-medium text-foreground mb-1">{stat.value}</p>
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
-                    </div>
-                    <div className="h-24" /> {/* Spacer for absolute positioning */}
+                    <p className="font-display text-4xl font-semibold tracking-tight text-foreground">{stat.value}</p>
+                    <p className="micro-label mt-2">{stat.label}</p>
                 </div>
             ))}
         </div>

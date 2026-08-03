@@ -17,6 +17,7 @@ const exportSchema = z.object({
     resumeId: z.string().cuid(),
     format: z.enum(['PDF', 'DOCX']),
     isAtsMode: z.boolean().optional(),
+    headline: z.string().max(120).optional(),
 });
 
 async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
@@ -35,7 +36,7 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
     const { userId } = req;
 
     // Validate request body
-    const { resumeId, format, isAtsMode } = exportSchema.parse(req.body);
+    const { resumeId, format, isAtsMode, headline } = exportSchema.parse(req.body);
 
     // Get resume
     const resume = await prisma.resume.findFirst({
@@ -93,7 +94,7 @@ async function handler(req: AuthenticatedApiRequest, res: NextApiResponse) {
 
     try {
         // Export resume
-        const result = exportResume(resumeData, { format: format as ExportFormat, isAtsMode });
+        const result = exportResume(resumeData, { format: format as ExportFormat, isAtsMode, headline });
         const buffer = result instanceof Promise ? await result : result;
 
         // Update export record

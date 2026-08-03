@@ -1,5 +1,6 @@
 import { createCompletion, createJSONCompletion, getDefaultModel, AIConfig } from './openai.service';
 import { cleanAIResponse } from '@/lib/utils/aiTextCleanup';
+import { buildRoleGuidance } from '@/lib/ai/roleProfiles';
 import type { OpenAIMessage } from '@/types/ai.types';
 import type { ResumeData } from '@/types/resume.types';
 
@@ -99,6 +100,7 @@ export async function generateBulletPoints(
         role?: string;
         company?: string;
         count?: number;
+        targetRoles?: string[];
     } = {},
     config?: AIConfig
 ): Promise<BulletPointsResult> {
@@ -112,7 +114,8 @@ export async function generateBulletPoints(
         );
     }
 
-    const { role, company, count = 5 } = context;
+    const { role, company, count = 5, targetRoles } = context;
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
 
     const contextInfo =
         role && company
@@ -135,6 +138,7 @@ Guidelines:
 - Keep bullets concise (1-2 lines each)
 - Use professional language appropriate for resumes
 - Make them ATS-friendly (avoid special characters)
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 Return a JSON object with this structure:
 {
@@ -178,14 +182,15 @@ ${description}`,
  */
 export async function improveBulletPoint(
     bulletPoint: string,
-    context: { role?: string; focus?: string } = {},
+    context: { role?: string; focus?: string; targetRoles?: string[] } = {},
     config?: AIConfig
 ): Promise<string> {
     if (!bulletPoint || bulletPoint.trim().length === 0) {
         throw new Error('Cannot improve bullet point: text is empty');
     }
 
-    const { role, focus } = context;
+    const { role, focus, targetRoles } = context;
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
 
     const messages: OpenAIMessage[] = [
         {
@@ -199,6 +204,7 @@ RULES:
 2.  **Keywords:** Swap generic terms for specific industry standard keywords.
 3.  **Tone:** Professional, assertive, and direct.
 4.  **Format:** One concise sentence. No preambles.
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 CRITICAL: Return ONLY the improved bullet point text. If it cannot be improved, return the original.`,
         },
@@ -234,7 +240,8 @@ Original Bullet: ${bulletPoint}`,
 export async function improveContent(
     text: string,
     type: 'summary' | 'description' | 'objective' | 'general' = 'general',
-    config?: AIConfig
+    config?: AIConfig,
+    targetRoles?: string[]
 ): Promise<ContentImprovementResult> {
     if (!text || text.trim().length === 0) {
         throw new Error('Cannot improve content: text is empty');
@@ -243,6 +250,8 @@ export async function improveContent(
     if (text.length > 5000) {
         throw new Error('Text too long. Maximum 5000 characters for content improvement.');
     }
+
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
 
     const messages: OpenAIMessage[] = [
         {
@@ -254,6 +263,7 @@ CHECKS:
 2.  **Remove Softeners:** Remove weak words like "helped," "assisted with," "responsible for." Use strong verbs instead.
 3.  **Remove Pronouns:** Remove "I," "my," "we" (unless strictly necessary for context, but prefer implied first person).
 4.  **Clarity:** Fix grammar and awkward phrasing.
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 Return a JSON object with:
 {
@@ -292,14 +302,15 @@ Return a JSON object with:
  */
 export async function enhanceResponsibilities(
     responsibilities: string[],
-    context: { role?: string; company?: string } = {},
+    context: { role?: string; company?: string; targetRoles?: string[] } = {},
     config?: AIConfig
 ): Promise<string[]> {
     if (!responsibilities || responsibilities.length === 0) {
         throw new Error('Cannot enhance responsibilities: list is empty');
     }
 
-    const { role, company } = context;
+    const { role, company, targetRoles } = context;
+    const roleGuidance = buildRoleGuidance(targetRoles || []);
     const contextInfo =
         role && company
             ? `Role: ${role} at ${company}`
@@ -320,6 +331,7 @@ Guidelines:
 - Use strong action verbs
 - Keep professional and ATS-friendly
 - Make each bullet unique and powerful
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 Return a JSON object with:
 {
@@ -356,15 +368,18 @@ ${responsibilities.map((r, i) => `${i + 1}. ${r}`).join('\n')}`,
 /**
  * Suggest action verbs for a given context
  */
-export async function suggestActionVerbs(context: string, config?: AIConfig): Promise<string[]> {
+export async function suggestActionVerbs(context: string, config?: AIConfig, targetRoles?: string[]): Promise<string[]> {
     if (!context || context.trim().length === 0) {
         throw new Error('Cannot suggest action verbs: context is empty');
     }
+
+    const profiles = buildRoleGuidance(targetRoles || []);
 
     const messages: OpenAIMessage[] = [
         {
             role: 'system',
             content: `You are a professional resume writer. Suggest 10 powerful action verbs appropriate for the given context.
+${profiles ? `\n${profiles}` : ''}
 
 Return a JSON object with:
 {
@@ -397,8 +412,9 @@ Return a JSON object with:
 /**
  * Generate an ATS-compliant professional summary from resume data
  */
-export async function generateProfessionalSummary(resumeData: ResumeData, config?: AIConfig): Promise<string> {
+export async function generateProfessionalSummary(resumeData: ResumeData, config?: AIConfig, targetRoles?: string[]): Promise<string> {
     try {
+        const roleGuidance = buildRoleGuidance(targetRoles || []);
         // Extract key information from resume
         const workExperience = resumeData.workExperience || [];
         const education = resumeData.education || [];
@@ -456,6 +472,7 @@ export async function generateProfessionalSummary(resumeData: ResumeData, config
             {
                 role: 'system',
                 content: `You are an expert resume writer specializing in creating ATS-compliant professional summaries. 
+${roleGuidance ? `\n${roleGuidance}` : ''}
 
 CRITICAL INSTRUCTIONS:
 - Output ONLY the professional summary text itself

@@ -8,16 +8,16 @@ export function HeroSection() {
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden">
             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
                 <div className="max-w-2xl">
-                    <Badge variant="outline" className="mb-6 rounded-full px-4 py-1 text-sm border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-100 font-medium">
+                    <Badge variant="outline" className="mb-6 rounded-full px-4 py-1 text-sm font-medium border-border bg-muted/40 text-foreground">
                         v2.0 Now Available
                     </Badge>
 
-                    <h1 className="text-5xl md:text-7xl font-display font-medium tracking-tight leading-[1.1] text-foreground mb-6">
+                    <h1 className="text-display text-5xl md:text-7xl font-medium leading-[1.05] text-foreground mb-6">
                         Stop Wrestling with Formatting. <br />
                         <span className="text-zinc-500 dark:text-zinc-400">Start Winning Interviews.</span>
                     </h1>
 
-                    <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-lg">
+                    <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-lg text-pretty">
                         The first AI resume builder designed for professionals who want total control.
                         Bring your own API keys, parse existing resumes in seconds, and export high-fidelity PDFs.
                     </p>
@@ -85,7 +85,7 @@ export function HeroSection() {
                                         <span className="text-xs font-bold text-foreground">AI Suggestion</span>
                                     </div>
                                     <p className="text-xs text-foreground/80">
-                                        "Led cross-functional team" → "Orchestrated 12-person agile team delivering..."
+                                        &ldquo;Led cross-functional team&rdquo; &rarr; &ldquo;Orchestrated 12-person agile team delivering...&rdquo;
                                     </p>
                                     <div className="mt-2 flex gap-2">
                                         <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">

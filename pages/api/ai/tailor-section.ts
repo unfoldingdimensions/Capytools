@@ -159,38 +159,43 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
         // Generate section-specific suggestions
         let suggestions: unknown;
+        const targetRoles = resume.targetRoles || [];
 
         switch (section) {
             case 'summary':
-                suggestions = await sectionTailoringService.generateTailoredSummary(resumeData, parsedJob, aiConfig);
+                suggestions = await sectionTailoringService.generateTailoredSummary(resumeData, parsedJob, aiConfig, targetRoles);
                 break;
             case 'workExperience':
                 suggestions = await sectionTailoringService.generateTailoredWorkExperience(
                     sectionData || resumeData.workExperience,
                     resumeData,
                     parsedJob,
-                    aiConfig
+                    aiConfig,
+                    targetRoles
                 );
                 break;
             case 'education':
                 suggestions = await sectionTailoringService.generateTailoredEducation(
                     sectionData || resumeData.education,
                     parsedJob,
-                    aiConfig
+                    aiConfig,
+                    targetRoles
                 );
                 break;
             case 'projects':
                 suggestions = await sectionTailoringService.generateTailoredProjects(
                     sectionData || resumeData.projects,
                     parsedJob,
-                    aiConfig
+                    aiConfig,
+                    targetRoles
                 );
                 break;
             case 'skills':
                 suggestions = await sectionTailoringService.generateTailoredSkills(
                     resumeData.skills || [],
                     parsedJob,
-                    aiConfig
+                    aiConfig,
+                    targetRoles
                 );
                 break;
             default:

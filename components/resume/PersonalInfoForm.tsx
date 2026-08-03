@@ -14,6 +14,7 @@ import { TailoringContext } from '@/store/TailoringProvider';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
 import { Mail, Phone, MapPin, Globe, Linkedin, Github, User } from 'lucide-react';
 import { getAIHeaders } from '@/lib/ai-config-client';
+import { useAppSelector } from '@/store/hooks';
 
 interface PersonalInfoFormProps {
     initialData?: PersonalInfoInput;
@@ -37,6 +38,7 @@ export default function PersonalInfoForm({
 }: PersonalInfoFormProps) {
     const { resumeId } = useResumeContext();
     const { jobDescription, jobDescriptionId } = useContext(TailoringContext);
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
 
     const [isGeneratingSummary, setIsGeneratingSummary] = React.useState(false);
     const [alertModal, setAlertModal] = React.useState<{
@@ -96,7 +98,7 @@ export default function PersonalInfoForm({
             const response = await fetch('/api/ai/generate-summary', {
                 method: 'POST',
                 headers: getAIHeaders(),
-                body: JSON.stringify({ resumeData: fullResumeData }),
+                body: JSON.stringify({ resumeData: fullResumeData, targetRoles }),
             });
 
             const result = await response.json();

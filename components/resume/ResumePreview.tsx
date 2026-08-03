@@ -5,9 +5,10 @@ import { Mail, Phone, MapPin, Globe, Linkedin, Github } from 'lucide-react';
 interface ResumePreviewProps {
     data: ResumeData;
     template?: string;
+    headline?: string;
 }
 
-const ModernIndigo = ({ data }: { data: ResumeData }) => {
+const ModernIndigo = ({ data, headline }: { data: ResumeData; headline?: string }) => {
     const { personalInfo, workExperience, education, projects, skills, certifications } = data;
     return (
         <div className="bg-white text-gray-800 font-sans leading-relaxed h-full p-10">
@@ -15,6 +16,11 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
                 <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-4">
                     {personalInfo?.fullName || 'Your Name'}
                 </h1>
+                {headline && (
+                    <p className="text-base font-semibold text-brand-600 uppercase tracking-wider mb-4">
+                        {headline}
+                    </p>
+                )}
                 <div className="flex flex-wrap justify-center gap-4 text-sm font-medium text-gray-600">
                     {personalInfo?.email && (
                         <div className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-brand-600" /><span>{personalInfo.email}</span></div>
@@ -141,13 +147,16 @@ const ModernIndigo = ({ data }: { data: ResumeData }) => {
     );
 };
 
-const ObsidianNight = ({ data }: { data: ResumeData }) => {
+const ObsidianNight = ({ data, headline }: { data: ResumeData; headline?: string }) => {
     const { personalInfo, workExperience, education, skills } = data;
     return (
         <div className="bg-slate-900 text-slate-300 font-sans leading-relaxed h-full p-10">
             <header className="bg-slate-950 p-8 mb-8 flex flex-row justify-between items-center border-b border-slate-800 rounded-xl">
                 <div>
                     <h1 className="text-4xl font-bold text-white mb-2">{personalInfo?.fullName || 'Your Name'}</h1>
+                    {headline && (
+                        <p className="text-brand-400 font-semibold uppercase tracking-wider mb-1">{headline}</p>
+                    )}
                     <p className="text-brand-400 font-medium">{personalInfo?.email} • {personalInfo?.phone}</p>
                 </div>
                 <div className="text-right text-xs text-slate-500">
@@ -214,12 +223,15 @@ const ObsidianNight = ({ data }: { data: ResumeData }) => {
     );
 };
 
-const MinimalistPro = ({ data }: { data: ResumeData }) => {
+const MinimalistPro = ({ data, headline }: { data: ResumeData; headline?: string }) => {
     const { personalInfo, workExperience, education, skills } = data;
     return (
         <div className="bg-white text-black font-serif leading-relaxed h-full p-10">
             <header className="border-b-2 border-black pb-8 mb-8">
                 <h1 className="text-4xl font-bold mb-4">{personalInfo?.fullName || 'Your Name'}</h1>
+                {headline && (
+                    <p className="text-base font-semibold uppercase tracking-wider mb-4">{headline}</p>
+                )}
                 <div className="flex justify-between text-sm italic">
                     <div className="space-x-4">
                         <span>{personalInfo?.email}</span>
@@ -284,15 +296,15 @@ const MinimalistPro = ({ data }: { data: ResumeData }) => {
     );
 };
 
-export const ResumePreview = ({ data, template = 'modern-indigo' }: ResumePreviewProps) => {
+export const ResumePreview = ({ data, template = 'modern-indigo', headline }: ResumePreviewProps) => {
     return (
         <div className="bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-[1100px] overflow-hidden">
             {template === 'sleek-dark' ? (
-                <ObsidianNight data={data} />
+                <ObsidianNight data={data} headline={headline} />
             ) : template === 'minimalist-pro' ? (
-                <MinimalistPro data={data} />
+                <MinimalistPro data={data} headline={headline} />
             ) : (
-                <ModernIndigo data={data} />
+                <ModernIndigo data={data} headline={headline} />
             )}
 
             <footer className="py-4 text-center border-t border-gray-100 bg-gray-50/50">

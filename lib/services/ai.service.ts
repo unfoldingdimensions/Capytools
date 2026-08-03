@@ -72,7 +72,7 @@ export class AIService {
         return data.data;
     }
 
-    static async generateBulletPoints(description: string, context: { role?: string; company?: string; count?: number } = {}, config?: AIConfig): Promise<BulletPointsResult> {
+    static async generateBulletPoints(description: string, context: { role?: string; company?: string; count?: number; targetRoles?: string[] } = {}, config?: AIConfig): Promise<BulletPointsResult> {
         if (typeof window === 'undefined') {
             return aiWritingService.generateBulletPoints(description, context, config);
         }
@@ -88,15 +88,15 @@ export class AIService {
         return data.data;
     }
 
-    static async improveContent(text: string, type: 'summary' | 'description' | 'objective' | 'general' = 'general', config?: AIConfig): Promise<ContentImprovementResult> {
+    static async improveContent(text: string, type: 'summary' | 'description' | 'objective' | 'general' = 'general', config?: AIConfig, targetRoles?: string[]): Promise<ContentImprovementResult> {
         if (typeof window === 'undefined') {
-            return aiWritingService.improveContent(text, type, config);
+            return aiWritingService.improveContent(text, type, config, targetRoles);
         }
 
         const response = await fetch('/api/ai/improve-content', {
             method: 'POST',
             headers: this.getHeaders(),
-            body: JSON.stringify({ text, type, mode: 'content' }),
+            body: JSON.stringify({ text, type, mode: 'content', targetRoles }),
         });
 
         const data = await response.json();
@@ -104,7 +104,7 @@ export class AIService {
         return data.data;
     }
 
-    static async improveBulletPoint(bulletPoint: string, context: { role?: string; focus?: string } = {}, config?: AIConfig): Promise<string> {
+    static async improveBulletPoint(bulletPoint: string, context: { role?: string; focus?: string; targetRoles?: string[] } = {}, config?: AIConfig): Promise<string> {
         if (typeof window === 'undefined') {
             return aiWritingService.improveBulletPoint(bulletPoint, context, config);
         }
@@ -112,7 +112,7 @@ export class AIService {
         const response = await fetch('/api/ai/improve-content', {
             method: 'POST',
             headers: this.getHeaders(),
-            body: JSON.stringify({ text: bulletPoint, mode: 'bullet', role: context.role }),
+            body: JSON.stringify({ text: bulletPoint, mode: 'bullet', role: context.role, focus: context.focus, targetRoles: context.targetRoles }),
         });
 
         const data = await response.json();
@@ -120,7 +120,7 @@ export class AIService {
         return data.data.improvedText;
     }
 
-    static async enhanceResponsibilities(responsibilities: string[], context: { role?: string; company?: string } = {}, config?: AIConfig): Promise<string[]> {
+    static async enhanceResponsibilities(responsibilities: string[], context: { role?: string; company?: string; targetRoles?: string[] } = {}, config?: AIConfig): Promise<string[]> {
         if (typeof window === 'undefined') {
             return aiWritingService.enhanceResponsibilities(responsibilities, context, config);
         }

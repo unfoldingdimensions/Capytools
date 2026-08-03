@@ -23,12 +23,12 @@ const buttonVariants = cva(
                 softLanding: 'bg-white/90 backdrop-blur text-black hover:bg-white shadow-lg inner-border border-gray-200 dark:bg-black/90 dark:text-white dark:border-gray-800',
             },
             size: {
-                default: 'h-10 px-4 py-2',
-                xs: 'h-8 px-2 text-xs rounded-md',
-                sm: 'h-9 rounded-md px-3',
+                default: 'h-10 px-5',
+                xs: 'h-8 rounded-md px-3 text-xs',
+                sm: 'h-9 rounded-lg px-4',
                 lg: 'h-11 rounded-lg px-8 text-base',
                 xl: 'h-12 rounded-xl px-8 text-lg font-semibold',
-                icon: 'h-10 w-10',
+                icon: 'h-10 w-10 rounded-lg',
             },
         },
         defaultVariants: {

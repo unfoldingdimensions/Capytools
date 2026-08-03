@@ -25,6 +25,7 @@ import { AIService } from '@/lib/services/ai.service';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
 import { getAIHeaders } from '@/lib/ai-config-client';
+import { useAppSelector } from '@/store/hooks';
 
 interface JobDescription {
     id: string;
@@ -57,6 +58,7 @@ export function ProjectItem({
     jobDescriptionId,
     resumeId,
 }: ProjectItemProps) {
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
     const [aiLoading, setAiLoading] = useState<boolean>(false);
     const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
     const [tailoringSuggestions, setTailoringSuggestions] = useState<{ highlights: string[]; tips: string[] } | null>(null);
@@ -87,7 +89,8 @@ export function ProjectItem({
         try {
             const result = await AIService.generateBulletPoints(project.description, {
                 role: `Project: ${project.title}`,
-                count: 3
+                count: 3,
+                targetRoles: targetRoles.length > 0 ? targetRoles : undefined,
             });
 
             onUpdate({ ...project, highlights: [...(project.highlights || []), ...result.bulletPoints] });

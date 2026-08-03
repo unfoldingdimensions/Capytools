@@ -26,6 +26,7 @@ import { AIService } from '@/lib/services/ai.service';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
 import { getAIHeaders } from '@/lib/ai-config-client';
+import { useAppSelector } from '@/store/hooks';
 
 interface JobDescription {
     id: string;
@@ -58,6 +59,7 @@ export function WorkExperienceItem({
     jobDescriptionId,
     resumeId,
 }: WorkExperienceItemProps) {
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
     const [aiLoading, setAiLoading] = useState<boolean>(false);
     const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
     const [tailoringSuggestions, setTailoringSuggestions] = useState<{ achievements: string[]; tips: string[] } | null>(null);
@@ -89,7 +91,8 @@ export function WorkExperienceItem({
             const result = await AIService.generateBulletPoints(experience.description, {
                 role: experience.position,
                 company: experience.company,
-                count: 5
+                count: 5,
+                targetRoles: targetRoles.length > 0 ? targetRoles : undefined,
             });
 
             onUpdate({ ...experience, achievements: [...experience.achievements, ...result.bulletPoints] });

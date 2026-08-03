@@ -73,6 +73,7 @@
     --duration-normal: 250ms;
     --duration-slow: 400ms;
     --duration-slower: 600ms;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
     /* Semantic Colors Custom Vars */
     --success: 142.1 76.2% 36.3%;
@@ -86,6 +87,8 @@
     --shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 48px -10px rgb(0 0 0 / 0.12);
     --shadow-swiss: 0 8px 32px -4px rgba(0, 0, 0, 0.05);
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 8px 32px -4px rgb(0 0 0 / 0.05);
+    --shadow-pop: 0 20px 48px -8px rgb(0 0 0 / 0.12);
 
     /* Brand Scale (for Tailwind extension) - Mapped to Zinc */
     --brand-50: 0 0% 98%;
@@ -196,15 +199,15 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Smooth interactive hover */
+  /* Smooth interactive hover - one easing, consistent lift */
   .interactive-hover {
-    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
-      box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo);
   }
 
   .interactive-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-pop);
   }
 
   .interactive-hover:active {
@@ -215,6 +218,20 @@
   /* Button press effect */
   .btn-press:active {
     transform: scale(0.98);
+  }
+
+  /* =====================================================
+     Typographic helpers (monochrome - type-only refinement)
+     ===================================================== */
+
+  /* Canonical display heading: display face + tight tracking + balanced wrapping */
+  .text-display {
+    @apply font-display tracking-tight text-balance;
+  }
+
+  /* Canonical uppercase micro-label */
+  .micro-label {
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground;
   }
 
   /* Card hover gradient */

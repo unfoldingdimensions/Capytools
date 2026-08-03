@@ -10,6 +10,7 @@ import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
 import { retryWithBackoff, delay } from '@/lib/utils/rateLimitedQueue';
 import { ActionVerbSelector } from './ActionVerbSelector';
+import { useAppSelector } from '@/store/hooks';
 
 interface BulletPointEditorProps {
     bullets: string[];
@@ -30,6 +31,7 @@ export function BulletPointEditor({
     onChange,
     context,
 }: BulletPointEditorProps) {
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
     // Enhancement state: maps bullet index to AI recommendation
     const [recommendations, setRecommendations] = useState<Map<number, string>>(new Map());
     const [isEnhancing, setIsEnhancing] = useState(false);
@@ -132,7 +134,7 @@ export function BulletPointEditor({
 
         try {
             const improved = await retryWithBackoff(
-                () => AIService.improveBulletPoint(bullet, { role: context.role }),
+                () => AIService.improveBulletPoint(bullet, { role: context.role, targetRoles: targetRoles.length > 0 ? targetRoles : undefined }),
                 {
                     maxRetries: 3,
                     initialDelayMs: 1500,

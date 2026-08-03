@@ -23,11 +23,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return;
     }
 
-    const { description, role, company, count } = req.body as {
+    const { description, role, company, count, targetRoles } = req.body as {
         description?: string;
         role?: string;
         company?: string;
         count?: number;
+        targetRoles?: string[];
     };
 
     if (!description || description.trim().length === 0) {
@@ -44,7 +45,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
         const config = getAIConfigFromRequest(req);
-        const result = await AIService.generateBulletPoints(description, { role, company, count }, config);
+        const result = await AIService.generateBulletPoints(description, { role, company, count, targetRoles }, config);
 
         res.status(200).json({
             success: true,

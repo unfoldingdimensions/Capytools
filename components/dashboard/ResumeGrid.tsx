@@ -27,7 +27,7 @@ export function ResumeGrid({ resumes, isLoading, onCreateNew, onDownload, onDele
             <button
                 type="button"
                 onClick={onCreateNew}
-                className="relative group p-8 rounded-t-4xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600 transition-all cursor-pointer bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900 flex flex-col items-center justify-center text-center space-y-4"
+                className="relative group p-8 rounded-t-4xl border-2 border-dashed border-border/70 hover:border-border transition-all duration-normal ease-out-expo cursor-pointer bg-transparent hover:bg-muted/40 flex flex-col items-center justify-center text-center space-y-4"
             >
                 <div className="h-16 w-16 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
                     <Plus className="h-8 w-8" />
@@ -43,10 +43,10 @@ export function ResumeGrid({ resumes, isLoading, onCreateNew, onDownload, onDele
                 [1, 2, 3].map(i => <SkeletonCard key={i} className="rounded-t-4xl h-full min-h-[280px]" />)
             ) : (
                 resumes.map((resume) => (
-                    <div key={resume.id} className="group relative p-8 rounded-t-4xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss hover:scale-[1.02] hover:shadow-swiss-hover transition-all duration-300 flex flex-col">
+                    <div key={resume.id} className="group relative p-8 rounded-t-4xl bg-card border border-border/70 shadow-card hover:shadow-pop hover:-translate-y-1 transition-all duration-normal ease-out-expo flex flex-col">
                         <div className="flex justify-between items-start mb-6">
-                            <div className="h-12 w-12 rounded-2xl bg-white dark:bg-black flex items-center justify-center text-foreground shadow-sm">
-                                <FileText className="h-6 w-6" />
+                            <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center text-foreground">
+                                <FileText className="h-6 w-6" strokeWidth={1.5} />
                             </div>
                             {/* Actions always visible on touch; hover-reveal on desktop */}
                             <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100 transition-opacity">
@@ -62,7 +62,7 @@ export function ResumeGrid({ resumes, isLoading, onCreateNew, onDownload, onDele
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-full hover:text-red-500"
+                                    className="h-8 w-8 rounded-full hover:text-red-600 hover:bg-red-500/10"
                                     onClick={(e) => { e.stopPropagation(); onDelete(resume.id, resume.title); }}
                                     aria-label={`Delete ${resume.title}`}
                                 >
@@ -72,8 +72,8 @@ export function ResumeGrid({ resumes, isLoading, onCreateNew, onDownload, onDele
                         </div>
 
                         <div className="mt-auto">
-                            <h3 className="text-xl font-display font-medium text-foreground mb-2 line-clamp-1">{resume.title}</h3>
-                            <p className="text-sm text-muted-foreground mb-6">Edited {new Date(resume.updatedAt).toLocaleDateString()}</p>
+                            <h3 className="font-display text-xl font-medium tracking-tight text-foreground mb-2 line-clamp-1">{resume.title}</h3>
+                            <p className="micro-label mb-6">Edited {new Date(resume.updatedAt).toLocaleDateString()}</p>
 
                             <Link href={`/resume/${resume.id}`}>
                                 <Button className="w-full rounded-xl font-bold bg-foreground text-background hover:bg-foreground/90">

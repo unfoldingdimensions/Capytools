@@ -27,7 +27,7 @@ export function useResumeSaver(resumeId?: string) {
     const [isSaving, setIsSaving] = useState(false);
     const { error: toastError } = useToast();
 
-    async function saveResume(resumeData: ResumeData, title: string) {
+    async function saveResume(resumeData: ResumeData, title: string, targetRoles?: string[]) {
         setIsSaving(true);
         try {
             const url = resumeId ? `/api/resumes/${resumeId}` : '/api/resumes';
@@ -36,6 +36,7 @@ export function useResumeSaver(resumeId?: string) {
             const payload = {
                 title: title || 'Untitled Resume',
                 data: resumeData,
+                targetRoles: targetRoles || [],
             };
 
             const response = await fetch(url, {

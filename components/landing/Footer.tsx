@@ -22,7 +22,7 @@ export function Footer() {
                         </p>
                         <div className="flex gap-4">
                             <a
-                                href="https://github.com"
+                                href="https://github.com/unfoldingdimensions/Handcraftresume"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -45,12 +45,17 @@ export function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                                <Link href="/templates" className="text-muted-foreground hover:text-foreground transition-colors">
                                     Templates
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                                <Link href="/career-advice" className="text-muted-foreground hover:text-foreground transition-colors">
+                                    Career Advice
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
                                     Pricing
                                 </Link>
                             </li>

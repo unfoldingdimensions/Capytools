@@ -11,6 +11,7 @@ import { PreviewModal } from './PreviewModal';
 import { Sparkles, X } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { useResumeLoader } from '@/lib/hooks/useResumeLoader';
+import { resolveRoles } from '@/lib/ai/roleProfiles';
 import { useResumeSaver } from '@/lib/hooks/useResumeSaver';
 import { TailoringContext } from '@/store/TailoringProvider';
 import { ResumeProvider } from '@/context/ResumeContext';
@@ -59,13 +60,19 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         setIsTailoringMode,
     } = useContext(TailoringContext);
 
-    const { resumeData: loadedResumeData, isLoading, title: loadedTitle, templateId: loadedTemplateId } = useResumeLoader(resumeId);
+    const { resumeData: loadedResumeData, isLoading, title: loadedTitle, templateId: loadedTemplateId, targetRoles: loadedTargetRoles } = useResumeLoader(resumeId);
     const { saveResume, isSaving } = useResumeSaver(resumeId);
     const { error: toastError } = useToast();
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     const [lastSaved, setLastSaved] = useState<string | null>(null);
     const [selectedTemplate, setSelectedTemplate] = useState('modern-indigo');
+    const [includeHeadline, setIncludeHeadline] = useState(false);
+
+    // Headline line derived from the primary target role (off by default).
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
+    const activeTargetRoles = loadedTargetRoles?.length ? loadedTargetRoles : targetRoles;
+    const headline = resolveRoles(activeTargetRoles)[0]?.label ?? '';
 
     // Snapshot of the last state that was successfully saved. Used to avoid a
     // no-op save right after loading and to drive the beforeunload guard.
@@ -200,6 +207,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     resumeId,
                     format: 'PDF',
                     isAtsMode: options.isAtsMode,
+                    headline: includeHeadline ? headline : undefined,
                 }),
             });
 
@@ -341,11 +349,11 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                         completedSections={completedSections}
                     />
                 </div>
-                <div className="p-8 md:p-12 rounded-t-4xl bg-white dark:bg-gray-900 border border-black/[0.08] dark:border-white/[0.08] shadow-swiss min-h-[600px]">
+                <div className="p-8 md:p-12 rounded-t-4xl bg-white dark:bg-gray-900 border border-border/70 shadow-card min-h-[600px]">
                     {activeSection === 'personal' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-display font-bold text-foreground leading-none">
+                                <h2 className="text-display text-2xl font-semibold leading-tight text-foreground">
                                     Personal Information
                                 </h2>
                                 <Badge variant="brand" shape="pill">Section 1/6</Badge>
@@ -370,7 +378,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     {activeSection === 'experience' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-display font-bold text-foreground leading-none">
+                                <h2 className="text-display text-2xl font-semibold leading-tight text-foreground">
                                     Work Experience
                                 </h2>
                                 <Badge variant="brand" shape="pill">Section 2/6</Badge>
@@ -396,7 +404,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     {activeSection === 'education' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-display font-bold text-foreground leading-none">
+                                <h2 className="text-display text-2xl font-semibold leading-tight text-foreground">
                                     Education
                                 </h2>
                                 <Badge variant="brand" shape="pill">Section 3/6</Badge>
@@ -422,7 +430,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     {activeSection === 'projects' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-display font-bold text-foreground leading-none">
+                                <h2 className="text-display text-2xl font-semibold leading-tight text-foreground">
                                     Projects
                                 </h2>
                                 <Badge variant="brand" shape="pill">Section 4/6</Badge>
@@ -448,7 +456,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     {activeSection === 'skills' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-display font-bold text-foreground leading-none">
+                                <h2 className="text-display text-2xl font-semibold leading-tight text-foreground">
                                     Skills
                                 </h2>
                                 <Badge variant="brand" shape="pill">Section 5/6</Badge>
@@ -474,7 +482,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                     {activeSection === 'certifications' && (
                         <section className="space-y-6">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-display font-bold text-foreground leading-none">
+                                <h2 className="text-display text-2xl font-semibold leading-tight text-foreground">
                                     Certifications
                                 </h2>
                                 <Badge variant="brand" shape="pill">Section 6/6</Badge>
@@ -506,6 +514,9 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                 resumeTitle={title}
                 onDownload={handleDownload}
                 template={selectedTemplate}
+                headline={includeHeadline ? headline : undefined}
+                headlineEnabled={includeHeadline}
+                onHeadlineChange={setIncludeHeadline}
             />
         </ResumeProvider>
     );
