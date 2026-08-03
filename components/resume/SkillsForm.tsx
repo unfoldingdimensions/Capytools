@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';
 import { Plus, X, Star, Sparkles } from 'lucide-react';
 import SuggestionCard from './SuggestionCard';
+import { useRoleSectionOptimization } from '@/lib/hooks/useRoleSectionOptimization';
 import type { Skill } from '@/types/resume.types';
 import { useResumeContext } from '@/context/ResumeContext';
 import { TailoringContext } from '@/store/TailoringProvider';
@@ -45,6 +46,7 @@ export default function SkillsForm({
     // AI Tailoring state
     const [tailoringSuggestion, setTailoringSuggestion] = useState<{ suggestedSkills: string[]; tips: string[] } | null>(null);
     const [suggestionLoading, setSuggestionLoading] = useState(false);
+    const { optimizeForRole, isOptimizing, hasTargetRoles, primaryRoleLabel } = useRoleSectionOptimization(resumeId, 'skills');
 
     // Handle updates when debounced value changes
     useEffect(() => {
@@ -205,6 +207,22 @@ export default function SkillsForm({
         }
     };
 
+    const handleOptimizeForRole = async () => {
+        try {
+            const suggestions = await optimizeForRole(skills);
+            if (suggestions) {
+                setTailoringSuggestion(suggestions as { suggestedSkills: string[]; tips: string[] });
+            }
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to optimize: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        }
+    };
+
     return (
         <div className="space-y-8">
             {/* Category Input */}
@@ -324,6 +342,9 @@ export default function SkillsForm({
                         isLoading={suggestionLoading}
                         onGenerate={handleGenerateTailoringSuggestions}
                         onApply={handleApplyTailoringSuggestions}
+                        onGenerateRole={hasTargetRoles ? handleOptimizeForRole : undefined}
+                        roleLabel={hasTargetRoles ? primaryRoleLabel : undefined}
+                        isGeneratingRole={isOptimizing}
                     />
                 </div>
             )}

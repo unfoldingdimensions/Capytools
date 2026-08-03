@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, RefreshCw, CheckCircle, X, Loader2, Zap, Lightbulb } from 'lucide-react';
+import { Sparkles, RefreshCw, CheckCircle, X, Loader2, Zap, Lightbulb, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,10 @@ interface SuggestionCardProps {
     onGenerate: () => void;
     onApply: (suggestions: string[]) => void;
     onDismiss?: () => void;
+    /** Role-baseline optimization (no job description needed). Shown when provided. */
+    onGenerateRole?: () => void;
+    roleLabel?: string;
+    isGeneratingRole?: boolean;
 }
 
 export default function SuggestionCard({
@@ -24,6 +28,9 @@ export default function SuggestionCard({
     onGenerate,
     onApply,
     onDismiss,
+    onGenerateRole,
+    roleLabel,
+    isGeneratingRole = false,
 }: SuggestionCardProps) {
     const [isDismissed, setIsDismissed] = useState(false);
 
@@ -32,6 +39,7 @@ export default function SuggestionCard({
     }
 
     const hasSuggestions = suggestions.length > 0;
+    const isBusy = isLoading || isGeneratingRole;
 
     return (
         <Card
@@ -62,7 +70,7 @@ export default function SuggestionCard({
             </div>
 
             <div className="p-5">
-                {!hasSuggestions && !isLoading && (
+                {!hasSuggestions && !isBusy && (
                     <div className="text-center py-4">
                         <div className="h-12 w-12 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
                             <Zap className="h-6 w-6 text-zinc-900 dark:text-white" />
@@ -70,17 +78,34 @@ export default function SuggestionCard({
                         <p className="text-sm font-medium text-muted-foreground mb-6 max-w-[240px] mx-auto">
                             Let AI analyze the job description and suggest the best content for this section.
                         </p>
-                        <Button
-                            onClick={onGenerate}
-                            className="rounded-full px-8 bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                        >
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            Analyze & Suggest
-                        </Button>
+                        <div className="flex flex-col items-center gap-3">
+                            <Button
+                                onClick={onGenerate}
+                                className="rounded-full px-8 bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                            >
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                Analyze & Suggest
+                            </Button>
+                            {onGenerateRole && roleLabel && (
+                                <Button
+                                    onClick={onGenerateRole}
+                                    variant="outline"
+                                    disabled={isGeneratingRole}
+                                    className="rounded-full px-6 border-zinc-300 dark:border-zinc-700"
+                                >
+                                    {isGeneratingRole ? (
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    ) : (
+                                        <Target className="h-4 w-4 mr-2" />
+                                    )}
+                                    {isGeneratingRole ? 'Optimizing...' : `Optimize for ${roleLabel}`}
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 )}
 
-                {isLoading && (
+                {isBusy && (
                     <div className="flex flex-col items-center justify-center py-8">
                         <div className="relative mb-4">
                             <div className="absolute inset-0 bg-zinc-900/5 dark:bg-white/5 blur-xl rounded-full animate-pulse" />
@@ -90,7 +115,7 @@ export default function SuggestionCard({
                     </div>
                 )}
 
-                {hasSuggestions && !isLoading && (
+                {hasSuggestions && !isBusy && (
                     <div className="space-y-6">
                         <div className="space-y-3">
                             <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] px-1">AI Suggestions</label>

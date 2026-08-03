@@ -255,6 +255,7 @@ export default function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                         isSaving={isSaving}
                         onSave={handleSave}
                         onPreview={() => setIsPreviewOpen(true)}
+                        resumeId={resumeId}
                     />
                 }
                 leftSidebar={

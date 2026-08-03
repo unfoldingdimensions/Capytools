@@ -20,6 +20,7 @@ import {
 import type { Education } from '@/types/resume.types';
 import { BulletPointEditor } from './BulletPointEditor';
 import SuggestionCard from './SuggestionCard';
+import { useRoleSectionOptimization } from '@/lib/hooks/useRoleSectionOptimization';
 import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
 import { getAIHeaders } from '@/lib/ai-config-client';
@@ -57,6 +58,7 @@ export function EducationItem({
 }: EducationItemProps) {
     const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
     const [tailoringSuggestions, setTailoringSuggestions] = useState<{ relevantPoints: string[]; tips: string[] } | null>(null);
+    const { optimizeForRole, isOptimizing, hasTargetRoles, primaryRoleLabel } = useRoleSectionOptimization(resumeId, 'education');
 
     const [alertModal, setAlertModal] = useState<{
         show: boolean;
@@ -130,6 +132,22 @@ export function EducationItem({
             message: 'AI suggestions applied successfully!',
             type: 'success',
         });
+    };
+
+    const handleOptimizeForRole = async () => {
+        try {
+            const suggestions = await optimizeForRole(education);
+            if (suggestions) {
+                setTailoringSuggestions(suggestions as { relevantPoints: string[]; tips: string[] });
+            }
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to optimize: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        }
     };
 
     return (
@@ -297,6 +315,9 @@ export function EducationItem({
                                 isLoading={suggestionLoading}
                                 onGenerate={handleGenerateTailoringSuggestions}
                                 onApply={handleApplyTailoringSuggestions}
+                                onGenerateRole={hasTargetRoles ? handleOptimizeForRole : undefined}
+                                roleLabel={hasTargetRoles ? primaryRoleLabel : undefined}
+                                isGeneratingRole={isOptimizing}
                             />
                         </div>
                     )}

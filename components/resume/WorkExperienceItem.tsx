@@ -27,6 +27,7 @@ import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
 import { getAIHeaders } from '@/lib/ai-config-client';
 import { useAppSelector } from '@/store/hooks';
+import { useRoleSectionOptimization } from '@/lib/hooks/useRoleSectionOptimization';
 
 interface JobDescription {
     id: string;
@@ -60,6 +61,7 @@ export function WorkExperienceItem({
     resumeId,
 }: WorkExperienceItemProps) {
     const targetRoles = useAppSelector((state) => state.resume.targetRoles);
+    const { optimizeForRole, isOptimizing, hasTargetRoles, primaryRoleLabel } = useRoleSectionOptimization(resumeId, 'workExperience');
     const [aiLoading, setAiLoading] = useState<boolean>(false);
     const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
     const [tailoringSuggestions, setTailoringSuggestions] = useState<{ achievements: string[]; tips: string[] } | null>(null);
@@ -169,6 +171,31 @@ export function WorkExperienceItem({
             message: 'AI suggestions applied successfully!',
             type: 'success',
         });
+    };
+
+    const handleOptimizeForRole = async () => {
+        if (!experience.company || !experience.position) {
+            setAlertModal({
+                show: true,
+                title: 'Missing Information',
+                message: 'Please fill in company and position before optimizing',
+                type: 'info',
+            });
+            return;
+        }
+        try {
+            const suggestions = await optimizeForRole(experience);
+            if (suggestions) {
+                setTailoringSuggestions(suggestions as { achievements: string[]; tips: string[] });
+            }
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to optimize: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        }
     };
 
     return (
@@ -347,6 +374,9 @@ export function WorkExperienceItem({
                                 isLoading={suggestionLoading}
                                 onGenerate={handleGenerateTailoringSuggestions}
                                 onApply={handleApplyTailoringSuggestions}
+                                onGenerateRole={hasTargetRoles ? handleOptimizeForRole : undefined}
+                                roleLabel={hasTargetRoles ? primaryRoleLabel : undefined}
+                                isGeneratingRole={isOptimizing}
                             />
                         </div>
                     )}

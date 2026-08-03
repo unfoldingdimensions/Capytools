@@ -26,6 +26,7 @@ import { AlertDialog } from '@/components/ui/AlertDialog';
 import { cn } from '@/lib/utils';
 import { getAIHeaders } from '@/lib/ai-config-client';
 import { useAppSelector } from '@/store/hooks';
+import { useRoleSectionOptimization } from '@/lib/hooks/useRoleSectionOptimization';
 
 interface JobDescription {
     id: string;
@@ -59,6 +60,7 @@ export function ProjectItem({
     resumeId,
 }: ProjectItemProps) {
     const targetRoles = useAppSelector((state) => state.resume.targetRoles);
+    const { optimizeForRole, isOptimizing, hasTargetRoles, primaryRoleLabel } = useRoleSectionOptimization(resumeId, 'projects');
     const [aiLoading, setAiLoading] = useState<boolean>(false);
     const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
     const [tailoringSuggestions, setTailoringSuggestions] = useState<{ highlights: string[]; tips: string[] } | null>(null);
@@ -167,6 +169,22 @@ export function ProjectItem({
             message: 'AI suggestions applied successfully!',
             type: 'success',
         });
+    };
+
+    const handleOptimizeForRole = async () => {
+        try {
+            const suggestions = await optimizeForRole(project);
+            if (suggestions) {
+                setTailoringSuggestions(suggestions as { highlights: string[]; tips: string[] });
+            }
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to optimize: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        }
     };
 
     return (
@@ -327,6 +345,9 @@ export function ProjectItem({
                                 isLoading={suggestionLoading}
                                 onGenerate={handleGenerateTailoringSuggestions}
                                 onApply={handleApplyTailoringSuggestions}
+                                onGenerateRole={hasTargetRoles ? handleOptimizeForRole : undefined}
+                                roleLabel={hasTargetRoles ? primaryRoleLabel : undefined}
+                                isGeneratingRole={isOptimizing}
                             />
                         </div>
                     )}

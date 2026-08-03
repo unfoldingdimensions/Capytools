@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 interface Resume {
     id: string;
     title: string;
+    targetRoles?: string[];
 }
 
 interface JobDescription {
@@ -109,12 +110,7 @@ export function ATSScoreContent() {
     }, []);
 
 
-    const handleScoreResume = async (resumeId: string) => {
-        if (!selectedJobDescriptionId || !resumeId) {
-            setError('Please select both a job description and a resume');
-            return;
-        }
-
+    const runScore = async (resumeId: string, jdId: string | null) => {
         setSelectedResumeId(resumeId);
         setIsScoring(true);
         setError(null);
@@ -126,10 +122,7 @@ export function ATSScoreContent() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    resumeId,
-                    jobDescriptionId: selectedJobDescriptionId,
-                }),
+                body: JSON.stringify(jdId ? { resumeId, jobDescriptionId: jdId } : { resumeId }),
             });
 
             const responseData = await response.json();
@@ -150,7 +143,9 @@ export function ATSScoreContent() {
                 // Automatically route to the resume builder after a brief delay
                 // to allow the user to see the score result briefly
                 setTimeout(() => {
-                    router.push(`/resume/${resumeId}?jobDescriptionId=${selectedJobDescriptionId}&tailoring=true`);
+                    router.push(jdId
+                        ? `/resume/${resumeId}?jobDescriptionId=${jdId}&tailoring=true`
+                        : `/resume/${resumeId}`);
                 }, 2000);
             } else {
                 throw new Error('Invalid response from server');
@@ -161,6 +156,18 @@ export function ATSScoreContent() {
         } finally {
             setIsScoring(false);
         }
+    };
+
+    const handleScoreResume = (resumeId: string) => {
+        if (!selectedJobDescriptionId || !resumeId) {
+            setError('Please select both a job description and a resume');
+            return;
+        }
+        void runScore(resumeId, selectedJobDescriptionId);
+    };
+
+    const handleScoreForRoles = (resumeId: string) => {
+        void runScore(resumeId, null);
     };
 
     const handleViewSavedScore = (savedScore: SavedATSScore) => {
@@ -345,6 +352,20 @@ export function ATSScoreContent() {
                                     >
                                         Calculate Match
                                     </Button>
+
+                                    {/* Role baseline: score against the resume's target roles (no JD needed) */}
+                                    {selectedResumeId &&
+                                        resumes.find((r) => r.id === selectedResumeId)?.targetRoles?.length ? (
+                                        <Button
+                                            variant="outline"
+                                            className="w-full h-12 rounded-xl border-zinc-300 dark:border-zinc-700 font-semibold mt-3"
+                                            disabled={isScoring}
+                                            onClick={() => selectedResumeId && handleScoreForRoles(selectedResumeId)}
+                                        >
+                                            <Target className="h-4 w-4 mr-2" />
+                                            Score against target roles
+                                        </Button>
+                                    ) : null}
                                 </CardContent>
                             </Card>
 

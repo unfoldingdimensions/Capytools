@@ -15,6 +15,7 @@ import { FloatingLabelInput } from '@/components/ui/floating-label-input';
 import { Mail, Phone, MapPin, Globe, Linkedin, Github, User } from 'lucide-react';
 import { getAIHeaders } from '@/lib/ai-config-client';
 import { useAppSelector } from '@/store/hooks';
+import { useRoleSectionOptimization } from '@/lib/hooks/useRoleSectionOptimization';
 
 interface PersonalInfoFormProps {
     initialData?: PersonalInfoInput;
@@ -39,6 +40,7 @@ export default function PersonalInfoForm({
     const { resumeId } = useResumeContext();
     const { jobDescription, jobDescriptionId } = useContext(TailoringContext);
     const targetRoles = useAppSelector((state) => state.resume.targetRoles);
+    const { optimizeForRole, isOptimizing, hasTargetRoles, primaryRoleLabel } = useRoleSectionOptimization(resumeId, 'summary');
 
     const [isGeneratingSummary, setIsGeneratingSummary] = React.useState(false);
     const [alertModal, setAlertModal] = React.useState<{
@@ -177,6 +179,22 @@ export default function PersonalInfoForm({
         }
     };
 
+    const handleOptimizeForRole = async () => {
+        try {
+            const suggestions = await optimizeForRole(undefined);
+            if (typeof suggestions === 'string' && suggestions.length > 0) {
+                setTailoringSuggestion(suggestions);
+            }
+        } catch (error) {
+            setAlertModal({
+                show: true,
+                title: 'Error',
+                message: `Failed to optimize: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                type: 'error',
+            });
+        }
+    };
+
     // Expose form methods to parent
     React.useEffect(() => {
         if (onFormReady) {
@@ -280,6 +298,9 @@ export default function PersonalInfoForm({
                                 isLoading={suggestionLoading}
                                 onGenerate={handleGenerateTailoringSuggestion}
                                 onApply={handleApplyTailoringSuggestion}
+                                onGenerateRole={hasTargetRoles ? handleOptimizeForRole : undefined}
+                                roleLabel={hasTargetRoles ? primaryRoleLabel : undefined}
+                                isGeneratingRole={isOptimizing}
                             />
                         </div>
                     )}

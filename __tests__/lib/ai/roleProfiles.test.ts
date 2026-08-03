@@ -4,6 +4,7 @@ import {
     resolveRoles,
     buildRoleGuidance,
     getRoleBaselineKeywords,
+    buildRoleBaselineJobDescription,
 } from '@/lib/ai/roleProfiles';
 
 describe('ROLE_CATALOG', () => {
@@ -99,5 +100,35 @@ describe('getRoleBaselineKeywords', () => {
 
     it('should return no baseline keywords for custom-only roles', () => {
         expect(getRoleBaselineKeywords(['Prompt Engineer'])).toEqual([]);
+    });
+});
+
+describe('buildRoleBaselineJobDescription', () => {
+    it('should return null for no roles', () => {
+        expect(buildRoleBaselineJobDescription([])).toBeNull();
+        expect(buildRoleBaselineJobDescription(undefined as unknown as string[])).toBeNull();
+    });
+
+    it('should build a job description from the primary role', () => {
+        const jd = buildRoleBaselineJobDescription(['Data Analyst']);
+
+        expect(jd).not.toBeNull();
+        expect(jd?.title).toBe('Data Analyst');
+        expect(jd?.company).toBe('');
+        expect(jd?.experienceLevel).toBeUndefined();
+        expect(jd?.keywords).toContain('SQL');
+        expect(jd?.skills).toEqual(jd?.keywords);
+    });
+
+    it('should keep requirements non-empty (server scorer throws on empty)', () => {
+        const jd = buildRoleBaselineJobDescription(['Data Analyst']);
+        expect(jd?.requirements.length).toBeGreaterThan(0);
+        expect(jd?.requirements[0]).toContain('Proficiency in');
+    });
+
+    it('should fall back to a requirement from the label for custom-only roles', () => {
+        const jd = buildRoleBaselineJobDescription(['Prompt Engineer']);
+        expect(jd?.requirements).toEqual(['Experience in Prompt Engineer']);
+        expect(jd?.keywords).toEqual([]);
     });
 });

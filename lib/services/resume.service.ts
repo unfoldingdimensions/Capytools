@@ -64,6 +64,7 @@ export class ResumeService {
             select: {
                 id: true,
                 title: true,
+                targetRoles: true,
                 isPublic: true,
                 templateId: true,
                 createdAt: true,

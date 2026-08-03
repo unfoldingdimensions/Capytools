@@ -11,6 +11,8 @@
 
 export type RoleFamily = 'tech' | 'business' | 'creative' | 'people';
 
+import type { ParsedJobDescription } from '@/types/ai.types';
+
 export interface RoleProfile {
     id: string;
     label: string;
@@ -426,4 +428,38 @@ export function getRoleBaselineKeywords(targetRoles: string[]): string[] {
     }
 
     return keywords;
+}
+
+/**
+ * Builds a synthetic job description from target roles, used for role-baseline
+ * ATS scoring and section optimization when no real job description exists.
+ *
+ * - `requirements` is always non-empty (the server scorer throws on empty).
+ * - `experienceLevel` stays undefined: we cannot infer seniority from a role name,
+ *   so the experience category is scored neutrally rather than guessed.
+ *
+ * Returns null when there are no resolvable roles.
+ */
+export function buildRoleBaselineJobDescription(targetRoles: string[]): ParsedJobDescription | null {
+    const profiles = resolveRoles(targetRoles);
+    const primary = profiles[0];
+    if (!primary) return null;
+
+    const keywords = getRoleBaselineKeywords(targetRoles);
+    const requirements =
+        keywords.length > 0
+            ? keywords.map((keyword) => `Proficiency in ${keyword}`)
+            : [`Experience in ${primary.label}`];
+
+    return {
+        title: primary.label,
+        company: '',
+        description: `Target roles: ${profiles.map((p) => p.label).join(', ')}`,
+        requirements,
+        responsibilities: [],
+        skills: keywords,
+        keywords,
+        experienceLevel: undefined,
+        employmentType: undefined,
+    };
 }

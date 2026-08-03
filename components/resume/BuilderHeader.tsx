@@ -1,11 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Layout, Eye, Save } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronLeft, Layout, Eye, Save, Target, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAppDispatch } from '@/store/hooks';
-import { setTitle } from '@/store/slices/resumeSlice';
+import { Modal } from '@/components/ui/modal/Modal';
+import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
+import { ModalBody } from '@/components/ui/modal/ModalBody';
+import { ModalFooter } from '@/components/ui/modal/ModalFooter';
+import { RolePicker } from '@/components/resume/RolePicker';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setTitle, setTargetRoles } from '@/store/slices/resumeSlice';
+import { useToast } from '@/components/ui/toast';
 
 interface BuilderHeaderProps {
     title: string;
@@ -13,6 +20,7 @@ interface BuilderHeaderProps {
     isSaving: boolean;
     onSave: () => void;
     onPreview: () => void;
+    resumeId?: string;
 }
 
 export function BuilderHeader({
@@ -20,10 +28,54 @@ export function BuilderHeader({
     lastSaved,
     isSaving,
     onSave,
-    onPreview
+    onPreview,
+    resumeId,
 }: BuilderHeaderProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const { error: toastError, success: toastSuccess } = useToast();
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
+
+    const [isRolesOpen, setIsRolesOpen] = useState(false);
+    const [draftRoles, setDraftRoles] = useState<string[]>([]);
+    const [isSavingRoles, setIsSavingRoles] = useState(false);
+
+    const openRoles = () => {
+        setDraftRoles(targetRoles);
+        setIsRolesOpen(true);
+    };
+
+    const saveRoles = async () => {
+        if (!resumeId) return;
+        setIsSavingRoles(true);
+        try {
+            const response = await fetch(`/api/resumes/${resumeId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: resumeId, targetRoles: draftRoles }),
+            });
+            const result = (await response.json()) as {
+                success?: boolean;
+                message?: string;
+            };
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to save roles');
+            }
+            dispatch(setTargetRoles(draftRoles));
+            toastSuccess({
+                title: 'Target roles updated',
+                message: 'AI prompts and the role baseline will now target these roles.',
+            });
+            setIsRolesOpen(false);
+        } catch (error) {
+            toastError({
+                title: 'Failed to save roles',
+                message: error instanceof Error ? error.message : 'Unknown error',
+            });
+        } finally {
+            setIsSavingRoles(false);
+        }
+    };
 
     return (
         <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
@@ -54,6 +106,21 @@ export function BuilderHeader({
                 </div>
 
                 <div className="flex items-center gap-3">
+                    {resumeId && (
+                        <Button
+                            variant="ghost"
+                            className="hidden sm:flex rounded-full text-muted-foreground hover:text-foreground"
+                            onClick={openRoles}
+                        >
+                            <Target className="mr-2 h-4 w-4" />
+                            Roles
+                            {targetRoles.length > 0 && (
+                                <span className="ml-1 rounded-full bg-foreground text-background px-1.5 py-0 text-[10px] font-bold">
+                                    {targetRoles.length}
+                                </span>
+                            )}
+                        </Button>
+                    )}
                     <Button
                         variant="ghost"
                         className="hidden sm:flex rounded-full text-muted-foreground hover:text-foreground"
@@ -82,6 +149,28 @@ export function BuilderHeader({
                     </Button>
                 </div>
             </div>
+
+            {/* Roles editor */}
+            <Modal isOpen={isRolesOpen} onClose={() => setIsRolesOpen(false)} size="lg">
+                <ModalHeader>
+                    <ModalTitle>Target Roles</ModalTitle>
+                    <p className="text-sm text-muted-foreground">
+                        Every AI prompt in this builder targets these roles. The first role is the primary.
+                    </p>
+                </ModalHeader>
+                <ModalBody>
+                    <RolePicker selectedRoles={draftRoles} onChange={setDraftRoles} />
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="outline" onClick={() => setIsRolesOpen(false)} disabled={isSavingRoles}>
+                        Cancel
+                    </Button>
+                    <Button onClick={() => void saveRoles()} disabled={isSavingRoles || !resumeId}>
+                        {isSavingRoles ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Save Roles
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </header>
     );
 }

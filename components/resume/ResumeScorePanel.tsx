@@ -8,6 +8,8 @@ import { CategoryScoreCard } from './CategoryScoreCard';
 import { useResumeScore } from '@/hooks/useResumeScore';
 import type { ResumeData } from '@/types/resume.types';
 import { validateResumeForAts } from '@/lib/utils/atsValidation';
+import { getRoleBaselineKeywords, resolveRoles } from '@/lib/ai/roleProfiles';
+import { useAppSelector } from '@/store/hooks';
 import { AtsMetricsDialog } from './AtsMetricsDialog';
 import { Button } from '@/components/ui/button';
 import type { JobDescription } from '@/lib/utils/keywordMatching.utils';
@@ -40,10 +42,29 @@ export function ResumeScorePanel({
     const [showAtsInfo, setShowAtsInfo] = useState(false);
 
     const { score, isCalculating, color, label } = useResumeScore(resumeData);
+    const targetRoles = useAppSelector((state) => state.resume.targetRoles);
+
+    // When no job description is active, score against the resume's target roles
+    // (role baseline). Honest labeling: a real JD always gives the stronger signal.
+    const baselineJobDescription = useMemo<JobDescription | null>(() => {
+        if (jobDescription || targetRoles.length === 0) return null;
+        const primary = resolveRoles(targetRoles)[0]?.label ?? targetRoles[0] ?? '';
+        return {
+            id: 'role-baseline',
+            title: primary,
+            company: '',
+            description: `Target roles: ${targetRoles.join(', ')}`,
+            requirements: [],
+            responsibilities: [],
+            keywords: getRoleBaselineKeywords(targetRoles),
+        };
+    }, [jobDescription, targetRoles]);
+
+    const isRoleBaseline = !jobDescription && baselineJobDescription !== null;
 
     const atsResult = useMemo(() => {
-        return validateResumeForAts(resumeData, jobDescription);
-    }, [resumeData, jobDescription]);
+        return validateResumeForAts(resumeData, jobDescription ?? baselineJobDescription);
+    }, [resumeData, jobDescription, baselineJobDescription]);
 
     const atsColor: "green" | "yellow" | "red" = atsResult.score >= 80 ? 'green' : atsResult.score >= 50 ? 'yellow' : 'red';
     const atsLabel = atsResult.score >= 80 ? 'ATS Ready' : atsResult.score >= 50 ? 'Needs Work' : 'Critical Issues';
@@ -182,6 +203,17 @@ export function ResumeScorePanel({
                         </div>
                     ) : (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                            {/* Role baseline indicator */}
+                            {isRoleBaseline && (
+                                <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-3 text-xs text-muted-foreground leading-relaxed">
+                                    <span className="font-bold text-foreground uppercase tracking-wider">Role baseline</span>
+                                    <p className="mt-1">
+                                        Scored against your target roles ({targetRoles.join(', ')}). A real job
+                                        description always gives the stronger match.
+                                    </p>
+                                </div>
+                            )}
+
                             {/* ATS Score Ring */}
                             <div className="flex justify-center py-2 relative group">
                                 <ScoreProgressRing
