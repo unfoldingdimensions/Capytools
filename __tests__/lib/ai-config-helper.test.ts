@@ -7,7 +7,7 @@ describe('AI Config Helper', () => {
         it('should return undefined if x-ai-config header is missing', () => {
             const req = {
                 headers: {},
-            } as NextApiRequest;
+            } as unknown as NextApiRequest;
 
             const config = getAIConfigFromRequest(req);
             expect(config).toBeUndefined();
@@ -35,7 +35,7 @@ describe('AI Config Helper', () => {
                 headers: {
                     'x-ai-config': base64Config,
                 },
-            } as NextApiRequest;
+            } as unknown as NextApiRequest;
 
             const config = getAIConfigFromRequest(req);
             expect(config).toEqual(validConfig);
@@ -46,7 +46,7 @@ describe('AI Config Helper', () => {
                 headers: {
                     'x-ai-config': 'invalid-base64',
                 },
-            } as NextApiRequest;
+            } as unknown as NextApiRequest;
 
             const config = getAIConfigFromRequest(req);
              // JSON.parse might fail or return unexpected results, but the function should handle it or return undefined if validation fails
@@ -64,7 +64,7 @@ describe('AI Config Helper', () => {
                 headers: {
                     'x-ai-config': base64Config,
                 },
-            } as NextApiRequest;
+            } as unknown as NextApiRequest;
 
             const config = getAIConfigFromRequest(req);
             expect(config).toBeUndefined();
@@ -81,7 +81,7 @@ describe('AI Config Helper', () => {
                 headers: {
                     'x-ai-config': base64Config,
                 },
-            } as NextApiRequest;
+            } as unknown as NextApiRequest;
 
             const config = getAIConfigFromRequest(req);
             expect(config).toBeUndefined();

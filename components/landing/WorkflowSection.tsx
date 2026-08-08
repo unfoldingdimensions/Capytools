@@ -1,4 +1,5 @@
 import { UploadCloud, Save, Layout, Download } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export function WorkflowSection() {
@@ -65,8 +66,8 @@ export function WorkflowSection() {
                 </div>
 
                 <div className="mt-12 flex flex-col items-center gap-4">
-                    <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-card hover:shadow-pop">
-                        Try It Yourself
+                    <Button size="lg" className="rounded-full px-8 h-12 text-base shadow-card hover:shadow-pop" asChild>
+                        <Link href="/sign-up">Try It Yourself</Link>
                     </Button>
                     <p className="text-xs uppercase tracking-widest text-muted-foreground/70">
                         Free to start · No credit card required

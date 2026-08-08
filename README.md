@@ -1,6 +1,6 @@
 # Handcraft Resume - AI-Powered Resume Builder SaaS
 
-A modern, secure, and feature-rich resume builder application built with Next.js 15, React 19, TypeScript, and Prisma ORM. Handcraft leverages cutting-edge AI to help you build job-winning resumes in minutes.
+A modern, secure, and feature-rich resume builder application built with Next.js 16, React 19, TypeScript, and Prisma ORM. Handcraft leverages cutting-edge AI to help you build job-winning resumes in minutes.
 
 ## 🚀 Key Features
 
@@ -21,13 +21,13 @@ A modern, secure, and feature-rich resume builder application built with Next.js
 ### 🔐 Security & Infrastructure
 - ✅ **Authentication**: Secure user management with Clerk.
 - ✅ **Data Privacy**: AES-256 encryption for all sensitive user data at rest.
-- ✅ **Performance**: Lightning-fast Next.js 15 architecture with App Router and SSR.
+- ✅ **Performance**: Lightning-fast Next.js 16 architecture with App Router and SSR.
 - ✅ **Safety**: Rate limiting and strict Input validation with Zod.
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Next.js 15** - React framework with App Router
+- **Next.js 16** - React framework with App Router
 - **React 19** - UI library
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Modern styling

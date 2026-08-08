@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FloatingLabelInput } from '@/components/ui/floating-label-input';

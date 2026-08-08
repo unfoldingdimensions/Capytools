@@ -466,7 +466,7 @@ export default function DashboardClient() {
                 onClose={() => setShowNewResumeModal(false)}
             />
 
-            <main id="main-content" className="container mx-auto px-6 py-12 max-w-7xl">
+            <div className="container mx-auto px-6 py-12 max-w-7xl">
                 {/* Hero Typography */}
                 <div className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-display font-medium tracking-tight text-foreground mb-4">
@@ -555,7 +555,7 @@ export default function DashboardClient() {
                         />
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

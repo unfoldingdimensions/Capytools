@@ -1,5 +1,5 @@
 import { scoreResumeAgainstJob } from '@/lib/services/atsScoring.service';
-import { createCompletion, getDefaultModel } from '@/lib/services/openai.service';
+import { createCompletion } from '@/lib/services/openai.service';
 import { ResumeData } from '@/types/resume.types';
 import { ParsedJobDescription } from '@/types/ai.types';
 
@@ -86,7 +86,7 @@ describe('ATS Scoring Service', () => {
     });
 
     it('should throw error if resume is missing personal info', async () => {
-        const invalidResume = { ...mockResume, personalInfo: {} as any };
+        const invalidResume = { ...mockResume, personalInfo: {} } as ResumeData;
         await expect(scoreResumeAgainstJob(invalidResume, mockJobDescription)).rejects.toThrow('Resume missing personal information');
     });
 

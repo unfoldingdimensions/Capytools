@@ -66,7 +66,9 @@ export default function RootLayout({
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <Providers>{children}</Providers>
+                        <Providers>
+                            <main id="main-content">{children}</main>
+                        </Providers>
                     </ThemeProvider>
                 </body>
             </html>

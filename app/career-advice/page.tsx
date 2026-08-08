@@ -56,7 +56,7 @@ export default function CareerAdvicePage() {
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-4 py-12">
                 <div className="max-w-4xl mx-auto text-center mb-16">
                     <Badge variant="brand" shape="pill" className="mb-4 px-4 py-1.5 bg-brand-50 text-brand-700">Expert Insights</Badge>
                     <h2 className="text-4xl md:text-5xl font-display font-black text-gray-900 dark:text-white mb-6 tracking-tight">
@@ -105,7 +105,7 @@ export default function CareerAdvicePage() {
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

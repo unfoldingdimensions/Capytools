@@ -40,13 +40,15 @@ export function FeatureGrid() {
 
                 <div className="grid md:grid-cols-3 gap-5">
                     {/* Row 1: wide feature + single feature */}
-                    <FeatureCard
-                        icon={Key}
-                        title="Bring Your Own Key (BYOK)"
-                        description="Connect your own OpenAI, Gemini, or OpenRouter keys. Pay only for what you use, with zero markup on token costs. Full transparency."
-                        className="md:col-span-2"
-                        horizontal
-                    />
+                    <div id="byok" className="md:col-span-2 scroll-mt-24">
+                        <FeatureCard
+                            icon={Key}
+                            title="Bring Your Own Key (BYOK)"
+                            description="Connect your own OpenAI, Gemini, or OpenRouter keys. Pay only for what you use, with zero markup on token costs. Full transparency."
+                            className="h-full"
+                            horizontal
+                        />
+                    </div>
                     <FeatureCard
                         icon={Zap}
                         title="Lightning Fast"

@@ -27,20 +27,13 @@ export function AuthButtons({
         setMounted(true);
     }, []);
 
-    // Skeleton / Loading state to prevent hydration mismatch
-    if (!mounted || !isLoaded) {
-        return (
-            <Button
-                size={size}
-                className={cn("bg-foreground text-background opacity-50", className)}
-                disabled
-            >
-                {textSignedOut} <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-        );
-    }
+    // Signed-in users (once auth state resolves) go to the dashboard.
+    // Everyone else gets the sign-up CTA immediately — it does not depend
+    // on Clerk's auth state, so we render it enabled on first paint instead
+    // of a disabled skeleton that silently swallows clicks.
+    const showDashboard = mounted && isLoaded && isSignedIn;
 
-    if (isSignedIn) {
+    if (showDashboard) {
         return (
             <Link href="/dashboard">
                 <Button

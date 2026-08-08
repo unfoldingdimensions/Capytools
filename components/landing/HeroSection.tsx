@@ -33,7 +33,7 @@ export function HeroSection() {
                             className="h-14 px-8 rounded-full text-lg border-2 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                             asChild
                         >
-                            <a href="#features">How BYOK Works</a>
+                            <a href="#byok">How BYOK Works</a>
                         </Button>
                     </div>
 

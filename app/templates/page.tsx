@@ -99,7 +99,7 @@ export default function TemplatesPage() {
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-4 py-12">
                 <div className="max-w-4xl mx-auto text-center mb-16">
                     <Badge variant="brand" shape="pill" className="mb-4">Premium Gallery</Badge>
                     <h2 className="text-4xl md:text-5xl font-display font-black text-gray-900 dark:text-white mb-6 tracking-tight">
@@ -198,7 +198,7 @@ export default function TemplatesPage() {
                     <p className="text-gray-500 mb-8 max-w-sm mx-auto">Our design team is working on 20+ more templates. Stay tuned for the next drop!</p>
                     <Button variant="outline" className="rounded-full px-8">Join the Wishlist</Button>
                 </div>
-            </main>
+            </div>
 
             {/* Preview Modal */}
             <Modal

@@ -22,7 +22,7 @@ export function Footer() {
                         </p>
                         <div className="flex gap-4">
                             <a
-                                href="https://github.com/unfoldingdimensions/Handcraftresume"
+                                href="https://github.com/unfoldingdimensions"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-muted-foreground hover:text-foreground transition-colors"

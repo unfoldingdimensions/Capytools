@@ -13,7 +13,7 @@ export function BuilderLayout({ header, leftSidebar, rightSidebar, children }: B
     return (
         <div className="min-h-screen bg-background dark:bg-gray-950">
             {header}
-            <main className="max-w-[1600px] mx-auto px-4 lg:px-8 py-8">
+            <div className="max-w-[1600px] mx-auto px-4 lg:px-8 py-8">
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
                     {/* Left Sidebar - Navigation */}
                     {leftSidebar && (
@@ -34,7 +34,7 @@ export function BuilderLayout({ header, leftSidebar, rightSidebar, children }: B
                         </aside>
                     )}
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

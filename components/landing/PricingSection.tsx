@@ -55,7 +55,7 @@ const PLANS: Plan[] = [
         monthly: 29,
         yearly: 249,
         cta: 'Contact us',
-        href: '/sign-up',
+        href: 'mailto:legal@handcraftresume.com?subject=Business%20plan%20inquiry',
         features: [
             'Everything in Pro',
             'Team workspaces & seats',
@@ -98,7 +98,7 @@ export function PricingSection() {
                         >
                             {period}
                             {period === 'yearly' && (
-                                <span className="ml-1.5 text-xs font-semibold opacity-70">−17%</span>
+                                <span className="ml-1.5 text-xs font-semibold opacity-70">Save ~30%</span>
                             )}
                         </button>
                     ))}
@@ -108,6 +108,13 @@ export function PricingSection() {
                     {PLANS.map((plan) => {
                         const amount = billing === 'monthly' ? plan.monthly : plan.yearly;
                         const period = billing === 'monthly' ? 'month' : 'year';
+                        const yearlySavings =
+                            billing === 'yearly' &&
+                            plan.monthly !== null &&
+                            plan.monthly > 0 &&
+                            plan.yearly !== null
+                                ? Math.round((1 - plan.yearly / (plan.monthly * 12)) * 100)
+                                : null;
 
                         return (
                             <div
@@ -137,6 +144,11 @@ export function PricingSection() {
                                         ${amount}
                                     </span>
                                     <span className="text-sm text-muted-foreground">/ {period}</span>
+                                    {yearlySavings !== null && (
+                                        <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                                            Save {yearlySavings}%
+                                        </span>
+                                    )}
                                 </div>
 
                                 <Link
