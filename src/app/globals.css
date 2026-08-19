@@ -8,8 +8,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+  --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,83 +49,110 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Capytools — sage-forward warm-minimal palette.
+   Grounded in the chosen reference images (cream #F9F9F7, ink #1A1A1A,
+   sage #8E9B7E primary, charcoal #121212 dark). Sage does the heavy lifting;
+   --water (muted teal-sage) is reserved for the data signal (sparkline/links). */
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #f9f9f7;        /* cream canvas */
+  --foreground: #1a1a1a;        /* ink */
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #8e9b7e;           /* sage */
+  --primary-foreground: #ffffff;
+  --secondary: #f1efea;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f1efea;
+  --muted-foreground: #6b6963;  /* muted gray-sage */
+  --accent: #edebe3;
+  --accent-foreground: #1a1a1a;
+  --destructive: #b4432f;
+  --border: #e7e4dd;            /* whisper border, warm */
+  --input: #e4e1d9;
+  --ring: #8e9b7e;
+  --radius: 0.75rem;
+  --sidebar: #f3f2ee;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #8e9b7e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #edebe3;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #e7e4dd;
+  --sidebar-ring: #8e9b7e;
+
+  /* Capytools custom brand tokens */
+  --sage-deep: #4a6741;         /* language ramp, deepest */
+  --sage-mid: #7a8e6e;          /* language ramp, mid */
+  --sage-tan: #c2b2a3;          /* language ramp, tan/sand */
+  --water: #5f7a72;             /* data signal — sparkline, links */
+  --clay: #c07952;              /* celebration/peak accent, sparing */
+  --gold: #d9a441;              /* rare — the single yearly moment */
+
+  --chart-1: #8e9b7e;
+  --chart-2: #5f7a72;
+  --chart-3: #c2b2a3;
+  --chart-4: #c07952;
+  --chart-5: #d9a441;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #121212;        /* deep warm charcoal */
+  --foreground: #e8e6e2;
+  --card: #1e1e1e;
+  --card-foreground: #e8e6e2;
+  --popover: #1e1e1e;
+  --popover-foreground: #e8e6e2;
+  --primary: #9aab8d;           /* lifted sage for dark — dark text on it */
+  --primary-foreground: #141412;
+  --secondary: #262624;
+  --secondary-foreground: #e8e6e2;
+  --muted: #232322;
+  --muted-foreground: #a09e98;
+  --accent: #2a2926;
+  --accent-foreground: #e8e6e2;
+  --destructive: #c46a54;
+  --border: #2e2d2a;
+  --input: #33322f;
+  --ring: #9aab8d;
+  --sidebar: #191918;
+  --sidebar-foreground: #e8e6e2;
+  --sidebar-primary: #9aab8d;
+  --sidebar-primary-foreground: #141412;
+  --sidebar-accent: #2a2926;
+  --sidebar-accent-foreground: #e8e6e2;
+  --sidebar-border: #2e2d2a;
+  --sidebar-ring: #9aab8d;
+
+  --sage-deep: #7a8e6e;
+  --sage-mid: #9aab8d;
+  --sage-tan: #6b5f50;
+  --water: #7fa9a3;
+  --clay: #d68f66;
+  --gold: #e3b25e;
+
+  --chart-1: #9aab8d;
+  --chart-2: #7fa9a3;
+  --chart-3: #6b5f50;
+  --chart-4: #d68f66;
+  --chart-5: #e3b25e;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans antialiased;
+  }
   body {
     @apply bg-background text-foreground;
+    /* Plus Jakarta renders LIGHTER than Inter at the same weight — bump the base. */
+    font-weight: 500;
   }
-  html {
-    @apply font-sans;
+  h1, h2, h3, h4 {
+    font-weight: 700;
   }
 }
