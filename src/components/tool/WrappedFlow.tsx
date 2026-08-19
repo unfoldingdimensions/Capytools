@@ -94,7 +94,7 @@ export function WrappedFlow() {
         try: {PRESETS.join(" · ")}
       </p>
 
-      <div className="mt-10 w-full max-w-2xl">
+      <div className="mt-10 w-full max-w-4xl">
         {status === "idle" && (
           <div className="space-y-2">
             <CardScaled

@@ -22,6 +22,54 @@ export async function exportNodePng(
   a.click();
 }
 
+/** Render a node to an exact-size PNG Blob (used for the clipboard image copy). */
+export async function capturePngBlob(
+  node: HTMLElement,
+  width: number,
+  height: number,
+): Promise<Blob | null> {
+  await document.fonts.ready;
+  try {
+    const dataUrl = await toPng(node, { width, height, pixelRatio: 1, cacheBust: true });
+    return await (await fetch(dataUrl)).blob();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Copy the share line AND the PNG image as a single clipboard payload, so a
+ * paste into X/IG/LinkedIn carries the card image ready to post (with the
+ * caption as text). Falls back to copying just the text if the image/clipboard
+ * APIs aren't available.
+ */
+export async function copyPost(
+  node: HTMLElement | null,
+  stats: WrappedStats,
+  url: string,
+  size: { width: number; height: number },
+): Promise<{ ok: boolean; withImage: boolean }> {
+  const text = shareLine(stats, url);
+  try {
+    if (node && typeof ClipboardItem !== "undefined") {
+      const blob = await capturePngBlob(node, size.width, size.height);
+      if (blob) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "image/png": blob,
+            "text/plain": new Blob([text], { type: "text/plain" }),
+          }),
+        ]);
+        return { ok: true, withImage: true };
+      }
+    }
+    await copyText(text);
+    return { ok: true, withImage: false };
+  } catch {
+    return { ok: false, withImage: false };
+  }
+}
+
 export async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);

@@ -5,6 +5,7 @@ import type { RefObject } from "react";
 import type { WrappedStats } from "@/lib/github/types";
 import { CardArt, CARD_WIDE } from "@/components/card/CardArt";
 import type { CardFormat, CardVariant } from "@/components/card/CardArt";
+import { SparklineLive } from "@/components/card/SparklineLive";
 
 /**
  * The card rendered at its canonical pixel size (1200×630 / 1080×1080) then
@@ -54,7 +55,18 @@ export function CardScaled({
             transformOrigin: "top left",
           }}
         >
-          <CardArt stats={stats} variant={variant} format={format} />
+          <CardArt
+            stats={stats}
+            variant={variant}
+            format={format}
+            sparkline={
+              <SparklineLive
+                data={stats.activity.dailySeries}
+                variant={variant}
+                className="h-full w-full"
+              />
+            }
+          />
         </div>
       </div>
 

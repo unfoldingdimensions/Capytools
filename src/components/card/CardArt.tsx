@@ -1,5 +1,6 @@
 import { formatNumber } from "@/lib/capytools/demo";
-import { capyMarkDataUri, sparklineDataUri } from "@/lib/capytools/sparkline";
+import { activityMonthTicks, capyMarkDataUri, sparklineDataUri } from "@/lib/capytools/sparkline";
+import type { ReactNode } from "react";
 import type { LanguageShare, WrappedStats } from "@/lib/github/types";
 
 export type CardVariant = "light" | "dark";
@@ -36,6 +37,11 @@ export const CARD_WIDE: Record<CardFormat, { width: number; height: number }> = 
   wide: { width: 1200, height: 630 },
   square: { width: 1080, height: 1080 },
 };
+
+/** Public accessor so dependent components (e.g. the live sparkline) can read a variant's palette. */
+export function cardPalette(variant: CardVariant): Record<string, string> {
+  return PALETTE[variant];
+}
 
 const FONT_DISPLAY = "'Fraunces', Georgia, serif";
 const FONT_SANS = "'Plus Jakarta Sans', system-ui, sans-serif";
@@ -94,10 +100,12 @@ export function CardArt({
   stats,
   variant = "light",
   format = "wide",
+  sparkline,
 }: {
   stats: WrappedStats;
   variant?: CardVariant;
   format?: CardFormat;
+  sparkline?: ReactNode;
 }) {
   const c = PALETTE[variant];
   const { width, height } = CARD_WIDE[format];
@@ -106,6 +114,7 @@ export function CardArt({
 
   const spark = sparklineDataUri(stats.activity.dailySeries, c.water, c.clay);
   const mark = capyMarkDataUri(c.mark);
+  const ticks = activityMonthTicks();
 
   return (
     <div
@@ -165,17 +174,43 @@ export function CardArt({
         </div>
       </div>
 
-      {/* sparkline (data-URI <img>, identical in browser AND Satori) */}
-      {spark && (
-        <img
-          src={spark}
-          alt=""
+      {/* sparkline: live animated slot on-page, static data-URI <img> for export/OG */}
+      <div style={{ marginTop: square ? 60 : 24, height: square ? 190 : 64, width: "100%" }}>
+        {sparkline ? (
+          sparkline
+        ) : spark ? (
+          <img src={spark} alt="" style={{ width: "100%", height: "100%" }} />
+        ) : null}
+      </div>
+
+      {/* timeline months */}
+      {ticks.length > 0 && (
+        <div
           style={{
-            marginTop: square ? 60 : 24,
-            height: square ? 190 : 64,
+            marginTop: square ? 16 : 12,
+            position: "relative",
+            height: square ? 22 : 16,
             width: "100%",
           }}
-        />
+        >
+          {ticks.map((t) => (
+            <span
+              key={t.label}
+              style={{
+                position: "absolute",
+                left: `${t.x * 100}%`,
+                transform:
+                  t.x <= 0.02 ? "none" : t.x >= 0.98 ? "translateX(-100%)" : "translateX(-50%)",
+                fontFamily: FONT_MONO,
+                fontSize: square ? 15 : 12.5,
+                letterSpacing: "0.08em",
+                color: c.muted,
+              }}
+            >
+              {t.label}
+            </span>
+          ))}
+        </div>
       )}
 
       {/* stat grid */}
@@ -259,18 +294,19 @@ export function CardArt({
             src={mark}
             alt=""
             style={{
-              width: square ? 64 : 44,
-              height: square ? 48 : 33,
+              width: square ? 78 : 60,
+              height: square ? 58 : 45,
               objectFit: "contain",
             }}
           />
           <span
             style={{
               fontFamily: FONT_MONO,
-              fontSize: square ? 16 : 10.5,
-              letterSpacing: "0.12em",
+              fontWeight: 500,
+              fontSize: square ? 18 : 15,
+              letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: c.softMuted,
+              color: c.muted,
               whiteSpace: "nowrap",
             }}
           >
