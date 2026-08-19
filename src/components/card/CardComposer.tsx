@@ -1,99 +1,100 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useRef, useState } from "react";
 import type { WrappedStats } from "@/lib/github/types";
-import { formatNumber } from "@/lib/capytools/demo";
-import { ease, dur } from "@/lib/capytools/motion";
-import { Sparkline } from "@/components/card/Sparkline";
-import { LanguageBars } from "@/components/card/LanguageBars";
-import { CapyMark } from "@/components/mascot/CapyMark";
+import { CardScaled } from "@/components/card/CardScaled";
+import type { CardFormat, CardVariant } from "@/components/card/CardArt";
+import { exportNodePng, copyText, shareLine } from "@/lib/card/export";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-const staggerContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: dur.staggerGap / 1000 } },
-};
-
-const settle = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: ease.slowOut } },
-};
-
-function Stat({ label, value }: { label: string; value: string }) {
+function PillToggle({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <motion.div variants={settle} className="min-w-0">
-      <div className="font-display text-2xl font-medium leading-none tabular-nums text-foreground">
-        {value}
-      </div>
-      <div className="mt-1.5 truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
-      </div>
-    </motion.div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "px-3 py-1.5 text-xs font-semibold transition-colors",
+        active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
 /**
- * The Cappy Wrapped share card — the heart of Capytools. Masthead / numeral /
- * sparkline / stat grid / language bars / watermark. On-page responsive
- * preview (the fixed 1200×630 + 1:1 export canvas lands in Phase 4).
+ * The live share surface: the card plus the format / theme pickers and the
+ * download / copy-post actions. Captures the canonical full-size CardArt.
  */
 export function CardComposer({ stats }: { stats: WrappedStats }) {
-  const year = new Date().getFullYear();
+  const [format, setFormat] = useState<CardFormat>("wide");
+  const [variant, setVariant] = useState<CardVariant>("light");
+  const [copied, setCopied] = useState(false);
+  const captureRef = useRef<HTMLDivElement | null>(null);
+
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="show"
-      className="relative w-full overflow-hidden rounded-[20px] border border-border bg-card px-6 py-7 text-card-foreground shadow-[0_1px_2px_rgba(26,26,26,0.04),0_18px_50px_-24px_rgba(26,26,26,0.35)] sm:px-8 sm:py-8"
-    >
-      {/* masthead */}
-      <motion.div
-        variants={settle}
-        className="flex items-baseline justify-between font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
-      >
-        <span>Cappy Wrapped · {year}</span>
-        <span>@{stats.username}</span>
-      </motion.div>
-      <motion.div variants={settle} className="mt-3 h-px w-full bg-border" />
+    <div className="w-full">
+      <CardScaled stats={stats} format={format} variant={variant} captureRef={captureRef} />
 
-      {/* numeral */}
-      <motion.div variants={settle} className="mt-7">
-        <div className="font-display text-6xl font-light leading-none tracking-tight text-foreground sm:text-[84px]">
-          {formatNumber(stats.totalStars)}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        {/* format */}
+        <div className="flex overflow-hidden rounded-full border border-border">
+          <PillToggle active={format === "wide"} onClick={() => setFormat("wide")}>
+            wide
+          </PillToggle>
+          <PillToggle active={format === "square"} onClick={() => setFormat("square")}>
+            square
+          </PillToggle>
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          stars earned across {formatNumber(stats.totalRepos)} repos, all time
-        </p>
-      </motion.div>
-
-      {/* sparkline */}
-      <motion.div variants={settle} className="mt-7 h-16">
-        <Sparkline data={stats.activity.dailySeries} className="h-full w-full" />
-      </motion.div>
-
-      {/* stat grid */}
-      <motion.div
-        variants={settle}
-        className="mt-7 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border pt-5 sm:grid-cols-4"
-      >
-        <Stat label="Stars" value={formatNumber(stats.totalStars)} />
-        <Stat label="Repos" value={formatNumber(stats.totalRepos)} />
-        <Stat label="Years" value={String(stats.yearsActive)} />
-        <Stat label="Activity · 90d" value={formatNumber(stats.activity.count)} />
-      </motion.div>
-
-      {/* language bars + watermark */}
-      <motion.div
-        variants={settle}
-        className="mt-7 flex items-end justify-between gap-6 border-t border-border pt-5"
-      >
-        <LanguageBars languages={stats.topLanguages} className="flex-1" />
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <CapyMark className="w-8 text-foreground/45" />
-          <span className="whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
-            made with Capytools · @Ubendev
-          </span>
+        {/* theme */}
+        <div className="flex overflow-hidden rounded-full border border-border">
+          <PillToggle active={variant === "light"} onClick={() => setVariant("light")}>
+            light
+          </PillToggle>
+          <PillToggle active={variant === "dark"} onClick={() => setVariant("dark")}>
+            dark
+          </PillToggle>
         </div>
-      </motion.div>
-    </motion.div>
+
+        <Button
+          variant="outline"
+          className="h-8 rounded-full px-4 text-xs"
+          onClick={() => {
+            if (captureRef.current)
+              void exportNodePng(captureRef.current, {
+                width: format === "wide" ? 1200 : 1080,
+                height: format === "wide" ? 630 : 1080,
+                filename: `wrapped-${stats.username}.png`,
+              });
+          }}
+        >
+          download png
+        </Button>
+        <Button
+          variant="outline"
+          className="h-8 rounded-full px-4 text-xs"
+          onClick={() => {
+            void (async () => {
+              const ok = await copyText(shareLine(stats, `/u/${stats.username}`));
+              if (ok) {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }
+            })();
+          }}
+        >
+          {copied ? "copied!" : "copy post"}
+        </Button>
+      </div>
+    </div>
   );
 }

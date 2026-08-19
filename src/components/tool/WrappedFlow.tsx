@@ -7,6 +7,7 @@ import { GithubError } from "@/lib/github/types";
 import type { WrappedStats } from "@/lib/github/types";
 import { DEMO_STATS } from "@/lib/capytools/demo";
 import { CardComposer } from "@/components/card/CardComposer";
+import { CardScaled } from "@/components/card/CardScaled";
 import { UsernameForm } from "@/components/tool/UsernameForm";
 import { ErrorCard } from "@/components/tool/ErrorCard";
 import { CardSkeleton } from "@/components/tool/CardSkeleton";
@@ -94,7 +95,7 @@ export function WrappedFlow() {
       <div className="mt-10 w-full max-w-2xl">
         {status === "idle" && (
           <div className="space-y-2">
-            <CardComposer stats={DEMO_STATS} />
+            <CardScaled stats={DEMO_STATS} format="wide" variant="light" />
             <p className="text-center font-mono text-[10px] text-muted-foreground">
               a calm example — paste a real username above to wrap your own
             </p>
