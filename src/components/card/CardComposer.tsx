@@ -2,9 +2,10 @@
 
 import { useRef, useState } from "react";
 import type { WrappedStats } from "@/lib/github/types";
+import { useIsDark } from "@/lib/capytools/use-is-dark";
 import { CardScaled } from "@/components/card/CardScaled";
 import type { CardFormat, CardVariant } from "@/components/card/CardArt";
-import { exportNodePng, copyText, shareLine } from "@/lib/card/export";
+import { exportNodePng, copyText, shareIntents, shareLine } from "@/lib/card/export";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -32,21 +33,33 @@ function PillToggle({
 }
 
 /**
- * The live share surface: the card plus the format / theme pickers and the
- * download / copy-post actions. Captures the canonical full-size CardArt.
+ * The live share surface: the card plus the format picker and the download /
+ * copy-post / X / LinkedIn actions. The card variant follows the app theme, so
+ * the header theme toggle switches the preview too. Captures the canonical
+ * full-size CardArt (bare, no elevation) for exact-size PNGs.
  */
 export function CardComposer({ stats }: { stats: WrappedStats }) {
   const [format, setFormat] = useState<CardFormat>("wide");
-  const [variant, setVariant] = useState<CardVariant>("light");
   const [copied, setCopied] = useState(false);
   const captureRef = useRef<HTMLDivElement | null>(null);
+
+  const variant: CardVariant = useIsDark() ? "dark" : "light";
+  const intents = shareIntents(stats.username);
+
+  const download = () => {
+    if (captureRef.current)
+      void exportNodePng(captureRef.current, {
+        width: format === "wide" ? 1200 : 1080,
+        height: format === "wide" ? 630 : 1080,
+        filename: `wrapped-${stats.username}.png`,
+      });
+  };
 
   return (
     <div className="w-full">
       <CardScaled stats={stats} format={format} variant={variant} captureRef={captureRef} />
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-        {/* format */}
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <div className="flex overflow-hidden rounded-full border border-border">
           <PillToggle active={format === "wide"} onClick={() => setFormat("wide")}>
             wide
@@ -55,36 +68,34 @@ export function CardComposer({ stats }: { stats: WrappedStats }) {
             square
           </PillToggle>
         </div>
-        {/* theme */}
-        <div className="flex overflow-hidden rounded-full border border-border">
-          <PillToggle active={variant === "light"} onClick={() => setVariant("light")}>
-            light
-          </PillToggle>
-          <PillToggle active={variant === "dark"} onClick={() => setVariant("dark")}>
-            dark
-          </PillToggle>
-        </div>
+
+        <Button variant="outline" className="h-8 rounded-full px-4 text-xs" onClick={download}>
+          download png
+        </Button>
+
+        <a
+          href={intents.x}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-8 items-center rounded-full border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          share · x
+        </a>
+        <a
+          href={intents.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-8 items-center rounded-full border border-border px-4 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          share · linkedin
+        </a>
 
         <Button
           variant="outline"
           className="h-8 rounded-full px-4 text-xs"
           onClick={() => {
-            if (captureRef.current)
-              void exportNodePng(captureRef.current, {
-                width: format === "wide" ? 1200 : 1080,
-                height: format === "wide" ? 630 : 1080,
-                filename: `wrapped-${stats.username}.png`,
-              });
-          }}
-        >
-          download png
-        </Button>
-        <Button
-          variant="outline"
-          className="h-8 rounded-full px-4 text-xs"
-          onClick={() => {
             void (async () => {
-              const ok = await copyText(shareLine(stats, `/u/${stats.username}`));
+              const ok = await copyText(shareLine(stats, intents.url));
               if (ok) {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);

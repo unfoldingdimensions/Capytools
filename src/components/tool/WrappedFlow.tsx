@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useIsDark } from "@/lib/capytools/use-is-dark";
 import { getUser, getRepos, getEvents } from "@/lib/github/user";
 import { computeWrapped } from "@/lib/github/stats";
 import { GithubError } from "@/lib/github/types";
@@ -40,6 +41,7 @@ function writeCache(username: string, stats: WrappedStats) {
 const PRESETS = ["unfoldingdimensions", "torvalds", "mojombo"];
 
 export function WrappedFlow() {
+  const dark = useIsDark();
   const [username, setUsername] = useState<string | null>(null);
   const [stats, setStats] = useState<WrappedStats | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -95,7 +97,11 @@ export function WrappedFlow() {
       <div className="mt-10 w-full max-w-2xl">
         {status === "idle" && (
           <div className="space-y-2">
-            <CardScaled stats={DEMO_STATS} format="wide" variant="light" />
+            <CardScaled
+              stats={DEMO_STATS}
+              format="wide"
+              variant={dark ? "dark" : "light"}
+            />
             <p className="text-center font-mono text-[10px] text-muted-foreground">
               a calm example — paste a real username above to wrap your own
             </p>

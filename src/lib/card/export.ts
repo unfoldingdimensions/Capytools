@@ -37,3 +37,23 @@ export function shareLine(stats: WrappedStats, url: string): string {
     stats.totalRepos,
   )} repos — busiest ${stats.activity.busiestWeekday}. Make yours free, no tracking: ${url}`;
 }
+
+/**
+ * Share intent URLs for the card's shareable page. X + LinkedIn support clean
+ * web intents. Instagram has no web share intent (only the native app), so it
+ * is intentionally not represented here.
+ */
+export function shareIntents(username: string): {
+  url: string;
+  x: string;
+  linkedin: string;
+} {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const url = `${origin}/u/${username}`;
+  const text = `My GitHub year, wrapped in a calm little card — no signup, no tracking, nothing stored.`;
+  return {
+    url,
+    x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+  };
+}

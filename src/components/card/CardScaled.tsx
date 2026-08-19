@@ -7,10 +7,11 @@ import { CardArt, CARD_WIDE } from "@/components/card/CardArt";
 import type { CardFormat, CardVariant } from "@/components/card/CardArt";
 
 /**
- * The card rendered at a fixed canonical size (1200×630 / 1080×1080) and scaled
- * down to fit its container — so the on-page preview is the SAME pixels as the
- * export/OG artifact. Also renders an offscreen full-size instance (captureRef)
- * used by html-to-image for exact-size PNG downloads.
+ * The card rendered at its canonical pixel size (1200×630 / 1080×1080) then
+ * scaled to fit the container — so the on-page preview is the SAME pixels as
+ * the export/OG artifact. The visible preview gets elevation (shadow + rounded
+ * corners + ring) so it floats off the page; the offscreen full-size instance
+ * (captureRef) stays bare for exact-size html-to-image PNG downloads.
  */
 export function CardScaled({
   stats,
@@ -39,8 +40,12 @@ export function CardScaled({
 
   return (
     <>
-      <div style={{ width: "100%" }} ref={wrapRef} />
-      <div style={{ width: "100%", height: artH * scale, overflow: "hidden" }}>
+      {/* elevated on-page preview */}
+      <div
+        ref={wrapRef}
+        className="relative w-full overflow-hidden rounded-[20px] shadow-[0_1px_2px_rgba(26,26,26,0.05),0_24px_70px_-28px_rgba(26,26,26,0.45)] ring-1 ring-black/[0.04] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_24px_70px_-24px_rgba(0,0,0,0.6)] dark:ring-white/[0.06]"
+        style={{ height: artH * scale }}
+      >
         <div
           style={{
             width: artW,
@@ -53,7 +58,7 @@ export function CardScaled({
         </div>
       </div>
 
-      {/* offscreen full-size instance for exact-size capture */}
+      {/* offscreen full-size instance for exact-size capture (no elevation) */}
       <div
         style={{
           position: "fixed",

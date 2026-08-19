@@ -1,12 +1,13 @@
 /** Build an SVG sparkline path (line + area) and the peak-node coords. */
-export function buildSparkline(data: number[], width = 100, height = 30) {
+export function buildSparkline(data: number[], width = 300, height = 80) {
   if (data.length === 0) {
     return { linePath: "", areaPath: "", endX: width, endY: height, zero: true };
   }
   const max = Math.max(1, ...data);
+  const pad = Math.max(6, height * 0.12); // keep the line + peak dot off the top/bottom edges
   const pts = data.map((v, i) => {
     const x = data.length === 1 ? 0 : (i / (data.length - 1)) * width;
-    const y = height - (v / max) * (height - 3) - 1.5;
+    const y = height - pad - (v / max) * (height - pad * 2);
     return [x, y] as const;
   });
   const line = pts
@@ -18,22 +19,24 @@ export function buildSparkline(data: number[], width = 100, height = 30) {
 }
 
 /**
- * Data-URI SVG sparkline, usable as a CSS `background-image`. This is the ONLY
- * form that renders identically in the browser (for the PNG export) AND inside
- * Satori (for the dynamic OG image), since Satori cannot parse <svg><path>.
+ * Data-URI SVG sparkline, usable as both `<img src>` and a Satori `<img>`, so
+ * the on-page preview, the PNG export and the OG image show identical pixels.
+ * Rendered high-res (300×80) with a thick stroke and a soft peak halo so it
+ * survives being downscaled without turning into a thin squashed line.
  */
 export function sparklineDataUri(data: number[], water: string, clay: string): string | null {
-  const { linePath, areaPath, endX, endY, zero } = buildSparkline(data, 100, 30);
+  const { linePath, areaPath, endX, endY, zero } = buildSparkline(data, 300, 80);
   if (zero) return null;
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30" viewBox="0 0 100 30" preserveAspectRatio="none">` +
-    `<path d="${areaPath}" fill="${water}" fill-opacity="0.08"/>` +
-    `<path d="${linePath}" fill="none" stroke="${water}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<circle cx="${endX}" cy="${endY}" r="2.4" fill="${clay}"/></svg>`;
+    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="80" viewBox="0 0 300 80" preserveAspectRatio="none">` +
+    `<path d="${areaPath}" fill="${water}" fill-opacity="0.10"/>` +
+    `<path d="${linePath}" fill="none" stroke="${water}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<circle cx="${endX}" cy="${endY}" r="12" fill="${clay}" fill-opacity="0.15"/>` +
+    `<circle cx="${endX}" cy="${endY}" r="6.5" fill="${clay}"/></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-/** Data-URI line-art capybara mark, usable as a CSS background-image (Satori-safe). */
+/** Data-URI line-art capybara mark, usable as a CSS background / <img> (Satori-safe). */
 export function capyMarkDataUri(stroke: string): string {
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 48" fill="none">` +

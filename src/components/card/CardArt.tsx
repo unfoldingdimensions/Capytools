@@ -45,18 +45,22 @@ function StatCell({
   c,
   label,
   value,
+  square,
 }: {
   c: Record<string, string>;
   label: string;
   value: string;
+  square: boolean;
 }) {
   return (
-    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+    <div
+      style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }} // Satori: element child
+    >
       <div
         style={{
           fontFamily: FONT_DISPLAY,
           fontWeight: 500,
-          fontSize: 40,
+          fontSize: square ? 42 : 34,
           lineHeight: 1,
           color: c.ink,
           fontVariantNumeric: "tabular-nums",
@@ -66,8 +70,8 @@ function StatCell({
       </div>
       <div
         style={{
-          marginTop: 8,
-          fontSize: 13,
+          marginTop: square ? 10 : 6,
+          fontSize: square ? 14 : 12,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: c.muted,
@@ -81,9 +85,10 @@ function StatCell({
 
 /**
  * The Cappy Wrapped card — canonical, runtime-agnostic source of truth.
- * Uses ONLY inline styles + data-URI SVG backgrounds so the on-page preview,
- * the PNG export (html-to-image) and the dynamic OG image (Satori) all render
- * pixel-identically. Never add Tailwind classes or raw <svg> here.
+ * Uses ONLY inline styles + data-URI <img> SVGs so the on-page preview, the
+ * PNG export (html-to-image) and the dynamic OG image (Satori) all render
+ * pixel-identically. Layout is tuned so the wide 1200×630 canvas fully
+ * contains every section (no bottom clipping).
  */
 export function CardArt({
   stats,
@@ -102,8 +107,6 @@ export function CardArt({
   const spark = sparklineDataUri(stats.activity.dailySeries, c.water, c.clay);
   const mark = capyMarkDataUri(c.mark);
 
-  const basePad = square ? 72 : 56;
-
   return (
     <div
       style={{
@@ -114,11 +117,9 @@ export function CardArt({
         color: c.ink,
         fontFamily: FONT_SANS,
         fontWeight: 500,
-        padding: basePad,
+        padding: square ? 72 : 46,
         display: "flex",
         flexDirection: "column",
-        position: "relative",
-        overflow: "hidden",
       }}
     >
       {/* masthead */}
@@ -128,7 +129,7 @@ export function CardArt({
           justifyContent: "space-between",
           alignItems: "baseline",
           fontFamily: FONT_MONO,
-          fontSize: square ? 18 : 15,
+          fontSize: square ? 18 : 14,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: c.muted,
@@ -137,15 +138,21 @@ export function CardArt({
         <span>{`Cappy Wrapped · ${year}`}</span>
         <span>{`@${stats.username}`}</span>
       </div>
-      <div style={{ height: 1, background: c.border, marginTop: square ? 22 : 16 }} />
+      <div style={{ height: 1, background: c.border, marginTop: square ? 22 : 14 }} />
 
       {/* numeral */}
-      <div style={{ marginTop: square ? 56 : 30, display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          marginTop: square ? 56 : 22,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div
           style={{
             fontFamily: FONT_DISPLAY,
             fontWeight: 300,
-            fontSize: square ? 216 : 148,
+            fontSize: square ? 216 : 126,
             lineHeight: 0.95,
             letterSpacing: "-0.02em",
             color: c.ink,
@@ -153,7 +160,7 @@ export function CardArt({
         >
           {formatNumber(stats.totalStars)}
         </div>
-        <div style={{ marginTop: square ? 14 : 10, fontSize: square ? 24 : 18, color: c.muted }}>
+        <div style={{ marginTop: square ? 14 : 8, fontSize: square ? 24 : 17, color: c.muted }}>
           {`stars earned across ${formatNumber(stats.totalRepos)} repos, all time`}
         </div>
       </div>
@@ -163,45 +170,49 @@ export function CardArt({
         <img
           src={spark}
           alt=""
-          style={{ marginTop: square ? 60 : 28, height: square ? 190 : 64, width: "100%" }}
+          style={{
+            marginTop: square ? 60 : 24,
+            height: square ? 190 : 64,
+            width: "100%",
+          }}
         />
       )}
 
       {/* stat grid */}
       <div
         style={{
-          marginTop: square ? 56 : 26,
+          marginTop: square ? 56 : 20,
           borderTop: `1px solid ${c.border}`,
-          paddingTop: square ? 34 : 24,
+          paddingTop: square ? 34 : 18,
           display: "flex",
-          gap: 24,
+          gap: square ? 24 : 20,
         }}
       >
-        <StatCell c={c} label="Stars" value={formatNumber(stats.totalStars)} />
-        <StatCell c={c} label="Repos" value={formatNumber(stats.totalRepos)} />
-        <StatCell c={c} label="Years" value={String(stats.yearsActive)} />
-        <StatCell c={c} label="Activity · 90d" value={formatNumber(stats.activity.count)} />
+        <StatCell square={square} c={c} label="Stars" value={formatNumber(stats.totalStars)} />
+        <StatCell square={square} c={c} label="Repos" value={formatNumber(stats.totalRepos)} />
+        <StatCell square={square} c={c} label="Years" value={String(stats.yearsActive)} />
+        <StatCell square={square} c={c} label="Activity · 90d" value={formatNumber(stats.activity.count)} />
       </div>
 
       {/* language bars + watermark */}
       <div
         style={{
-          marginTop: "auto",
+          marginTop: square ? 56 : "auto",
           display: "flex",
           alignItems: "flex-end",
           justifyContent: "space-between",
-          gap: 48,
+          gap: 24,
           borderTop: `1px solid ${c.border}`,
-          paddingTop: square ? 40 : 26,
+          paddingTop: square ? 40 : 20,
         }}
       >
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: square ? 22 : 14 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: square ? 22 : 12 }}>
           {(stats.topLanguages as LanguageShare[]).map((lang) => (
-            <div key={lang.name} style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div key={lang.name} style={{ display: "flex", alignItems: "center", gap: square ? 16 : 12 }}>
               <span
                 style={{
-                  width: square ? 130 : 96,
-                  fontSize: square ? 22 : 17,
+                  width: square ? 130 : 88,
+                  fontSize: square ? 22 : 16,
                   color: c.muted,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -213,7 +224,7 @@ export function CardArt({
               <div
                 style={{
                   flex: 1,
-                  height: square ? 16 : 11,
+                  height: square ? 16 : 10,
                   background: c.track,
                   overflow: "hidden",
                   display: "flex", // Satori: any div with an element child needs display
@@ -229,7 +240,7 @@ export function CardArt({
               </div>
               <span
                 style={{
-                  width: square ? 70 : 54,
+                  width: square ? 70 : 52,
                   textAlign: "right",
                   fontFamily: FONT_MONO,
                   fontSize: square ? 20 : 15,
@@ -243,20 +254,20 @@ export function CardArt({
           ))}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
           <img
             src={mark}
             alt=""
             style={{
-              width: square ? 64 : 46,
-              height: (square ? 64 : 46) * 0.75,
+              width: square ? 64 : 44,
+              height: square ? 48 : 33,
               objectFit: "contain",
             }}
           />
           <span
             style={{
               fontFamily: FONT_MONO,
-              fontSize: square ? 16 : 11,
+              fontSize: square ? 16 : 10.5,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
               color: c.softMuted,
