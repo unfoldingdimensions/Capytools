@@ -36,7 +36,7 @@ export function ErrorCard({ error, onRetry }: { error: GithubError; onRetry?: ()
       <CapyMark className="w-10 text-foreground/50" />
       <h3 className="font-display text-xl text-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground">{body}</p>
-      {onRetry && error.kind === "rate_limited" ? (
+      {onRetry && (error.kind === "rate_limited" || error.kind === "network") ? (
         <Button variant="outline" onClick={onRetry} className="mt-1 rounded-full">
           try again
         </Button>

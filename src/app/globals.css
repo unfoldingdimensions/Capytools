@@ -144,6 +144,86 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Tailwind v4's Preflight dropped the `cursor: pointer` that v3 put on
+     buttons, so every button in the app fell back to the UA arrow and nothing
+     read as clickable. Restore it in one place rather than adding
+     `cursor-pointer` to each button. Anchors already get it from the UA sheet
+     when they have an href. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  a[href],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+  /* Theme change: every colour interpolates instead of snapping, which is what
+     makes the light/dark flip read as a single motion rather than a hard cut.
+     Colour properties ONLY — transitioning `all` would animate layout on every
+     hover. Requires next-themes' `disableTransitionOnChange` to stay off.
+     Specificity 0 here, so any `transition-*` utility on a component wins. */
+  :root:not([data-vt]) *,
+  :root:not([data-vt]) *::before,
+  :root:not([data-vt]) *::after {
+    transition-property: color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+  /* View transitions. `data-vt` on <html> (set in lib/capytools/reveal.ts) picks
+     which effect runs, so the theme spread and the page wipe never apply each
+     other's keyframes. Both stack the incoming snapshot on top of the outgoing
+     one rather than cross-fading them. */
+  :root[data-vt]::view-transition-old(root),
+  :root[data-vt]::view-transition-new(root) {
+    mix-blend-mode: normal;
+  }
+  :root[data-vt]::view-transition-old(root) {
+    z-index: 1;
+  }
+  :root[data-vt]::view-transition-new(root) {
+    z-index: 9999;
+  }
+
+  /* Theme spread: no CSS animation at all — theme-toggle.tsx drives the
+     clip-path circle imperatively. The browser's own fade would muddy it. */
+  :root[data-vt="theme"]::view-transition-old(root),
+  :root[data-vt="theme"]::view-transition-new(root) {
+    animation: none;
+  }
+
+  /* Page wipe: the new page slides up over the old one behind a colour band. */
+  :root[data-vt="wipe"]::view-transition-old(root) {
+    animation: vt-wipe-out 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  :root[data-vt="wipe"]::view-transition-new(root) {
+    animation: vt-wipe-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes vt-wipe-out {
+    to {
+      transform: translateY(-2%);
+      opacity: 0.6;
+    }
+  }
+  @keyframes vt-wipe-in {
+    from {
+      clip-path: inset(100% 0 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
   html {
     @apply font-sans antialiased;
   }
@@ -156,3 +236,46 @@
     font-weight: 700;
   }
 }
+
+/* A backdrop-filter has to re-sample whatever is behind it on every frame, so
+   while a theme spread / page wipe sweeps past the sticky header, its blurred
+   text and logo pulsed. Flatten it to an opaque bar for the duration — over the
+   page background the two read near-identically, and it removes the per-frame
+   resample entirely.
+
+   Deliberately UNLAYERED: `backdrop-blur-md` is a utility, and @layer utilities
+   outranks @layer base whatever the specificity, so this cannot live in base. */
+:root[data-vt] header {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: var(--background);
+}
+
+/* The card preview drifts so it sits in space rather than on the page.
+   Deliberately a CSS transform animation and not a JS/rAF one: the card's
+   content lives inside a `transform: scale()`, and moving that subtree from
+   JavaScript re-rasterised the scaled text on every frame — which read as the
+   text lagging a beat behind the frame. A composited transform plus an upfront
+   `will-change` promotion moves the layer without repainting it.
+   The reduced-motion guard in @layer base zeroes this out. */
+@keyframes card-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+.card-drift {
+  animation: card-drift 9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── Mascot micro-motion ────────────────────────────────────────────────────
+   Continuous loops that run underneath the pose changes, so the scene never
+   looks frozen between them. All transform/opacity, so they stay composited;
+   the reduced-motion guard in @layer base zeroes every duration. */
+

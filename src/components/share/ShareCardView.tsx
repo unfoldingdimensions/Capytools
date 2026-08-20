@@ -1,44 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getUser, getRepos, getEvents } from "@/lib/github/user";
-import { computeWrapped } from "@/lib/github/stats";
+import { AnimatedLink } from "@/components/ui/animated-link";
+import { fetchWrapped, WRAP_STEPS } from "@/lib/github/wrap";
 import { GithubError } from "@/lib/github/types";
 import type { WrappedStats } from "@/lib/github/types";
 import { CardComposer } from "@/components/card/CardComposer";
 import { ErrorCard } from "@/components/tool/ErrorCard";
-import { CardSkeleton } from "@/components/tool/CardSkeleton";
-
-const CACHE_PREFIX = "capytools:wrapped:";
-const CACHE_TTL_MS = 10 * 60 * 1000;
+import { TerminalLoader } from "@/components/tool/TerminalLoader";
+import type { LoadStep } from "@/components/tool/TerminalLoader";
+import { readWrappedCache, writeWrappedCache } from "@/lib/capytools/cache";
 
 /** Client view for a shared /u/[username] card — same data layer + cache as the tool. */
 export function ShareCardView({ username }: { username: string }) {
-  const [stats, setStats] = useState<WrappedStats | null>(null);
+  const [stats, setStats] = useState<WrappedStats | null>(() => readWrappedCache(username));
   const [error, setError] = useState<GithubError | null>(null);
+  const [steps, setSteps] = useState<LoadStep[]>(() =>
+    WRAP_STEPS.map((label) => ({ label, state: "pending" as const })),
+  );
 
-  const load = useCallback(() => {
-    const key = CACHE_PREFIX + username;
-    try {
-      const raw = sessionStorage.getItem(key);
-      if (raw) {
-        const entry = JSON.parse(raw) as { stats: WrappedStats; at: number };
-        if (Date.now() - entry.at < CACHE_TTL_MS) {
-          return Promise.resolve().then(() => setStats(entry.stats));
-        }
-      }
-    } catch {
-      /* ignore malformed cache */
-    }
-    return Promise.all([getUser(username), getRepos(username), getEvents(username)])
-      .then(([user, repos, events]) => {
-        const next = computeWrapped(user, repos, events);
-        try {
-          sessionStorage.setItem(key, JSON.stringify({ stats: next, at: Date.now() }));
-        } catch {
-          /* ignore */
-        }
+  const fetchRemote = useCallback(() => {
+    const mark = (i: number, state: "done" | "failed", detail?: string) =>
+      setSteps((prev) => prev.map((s, j) => (j === i ? { ...s, state, detail } : s)));
+
+    void fetchWrapped(username, mark)
+      .then((next) => {
+        writeWrappedCache(username, next);
         setStats(next);
+        setError(null);
       })
       .catch((err: unknown) => {
         setError(
@@ -48,22 +37,21 @@ export function ShareCardView({ username }: { username: string }) {
   }, [username]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (!stats) {
+      fetchRemote();
+    }
+  }, [fetchRemote, stats]);
 
-  if (error) return <ErrorCard error={error} onRetry={() => void load()} />;
-  if (!stats) return <CardSkeleton />;
+  if (error) return <ErrorCard error={error} onRetry={fetchRemote} />;
+  if (!stats) return <TerminalLoader username={username} steps={steps} />;
 
   return (
     <div className="w-full">
       <CardComposer stats={stats} />
       <div className="mt-10 text-center">
-        <a
-          href="/"
-          className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-        >
-          make your own card →
-        </a>
+        <AnimatedLink href="/" className="text-sm text-primary" arrow wipe>
+          make your own card
+        </AnimatedLink>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { sanitizeUsername } from "@/lib/utils";
 
 export function UsernameForm({
   onSubmit,
@@ -16,7 +17,7 @@ export function UsernameForm({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const username = value.trim();
+    const username = sanitizeUsername(value);
     if (username) onSubmit(username);
   };
 
