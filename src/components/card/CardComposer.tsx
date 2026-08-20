@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import type { WrappedStats } from "@/lib/github/types";
 import { useIsDark } from "@/lib/capytools/use-is-dark";
+import { useIsNarrow } from "@/lib/capytools/use-is-narrow";
 import { CardScaled } from "@/components/card/CardScaled";
 import { CARD_WIDE } from "@/components/card/CardArt";
 import type { CardFormat, CardVariant } from "@/components/card/CardArt";
@@ -53,7 +54,13 @@ function PillToggle({
  * so a paste is ready to post.
  */
 export function CardComposer({ stats }: { stats: WrappedStats }) {
-  const [format, setFormat] = useState<CardFormat>("wide");
+  // A 1:1 card is far more readable on a phone: at 375px the wide card scales
+  // to ~172px tall and its type lands near 3px. `chosen` stays null until the
+  // reader picks a format, so the viewport only supplies the DEFAULT — resizing
+  // must never stomp an explicit choice.
+  const narrow = useIsNarrow();
+  const [chosen, setChosen] = useState<CardFormat | null>(null);
+  const format: CardFormat = chosen ?? (narrow ? "square" : "wide");
   const [copied, setCopied] = useState<"idle" | "text" | "post">("idle");
   const [posted, setPosted] = useState<PostResult | "idle">("idle");
   const captureRef = useRef<HTMLDivElement | null>(null);
@@ -102,10 +109,10 @@ export function CardComposer({ stats }: { stats: WrappedStats }) {
       {/* mt-10 clears the card's 70px drop shadow — at mt-5 the buttons sat inside it. */}
       <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
         <div className="flex overflow-hidden rounded-full border border-border">
-          <PillToggle active={format === "wide"} onClick={() => setFormat("wide")}>
+          <PillToggle active={format === "wide"} onClick={() => setChosen("wide")}>
             Wide
           </PillToggle>
-          <PillToggle active={format === "square"} onClick={() => setFormat("square")}>
+          <PillToggle active={format === "square"} onClick={() => setChosen("square")}>
             Square
           </PillToggle>
         </div>

@@ -1,32 +1,18 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useRef } from "react";
 import { flushSync } from "react-dom";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { spreadFrom, startTaggedTransition } from "@/lib/capytools/reveal";
-import { cn } from "@/lib/utils";
-
-const emptySubscribe = () => () => {};
 
 /** Reveal duration for the theme spread, ms. */
 const SPREAD_MS = 650;
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const ref = useRef<HTMLButtonElement>(null);
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-
-  // Avoid the hydration mismatch (server renders a size placeholder).
-  if (!mounted) return <div className="h-9 w-9" aria-hidden />;
-
-  // Use the RESOLVED theme (system → actual), not the raw theme which can be "system".
-  const dark = resolvedTheme === "dark";
 
   /**
    * Spread the new palette out from the toggle in one motion, via the View
@@ -37,7 +23,10 @@ export function ThemeToggle() {
    * or the reader asked for reduced motion.
    */
   const toggle = async () => {
-    const next = dark ? "light" : "dark";
+    // Read the theme at click time from the class next-themes maintains, rather
+    // than from render state — see the note on the icons below.
+    const isDark = document.documentElement.classList.contains("dark");
+    const next = isDark ? "light" : "dark";
     const box = ref.current?.getBoundingClientRect();
 
     // flushSync: startViewTransition snapshots as soon as the callback returns,
@@ -64,25 +53,23 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => void toggle()}
-      aria-label="Toggle theme"
-      aria-pressed={dark}
+      aria-label="Toggle light and dark theme"
       className="size-10 rounded-full sm:size-9"
     >
-      {/* Both glyphs stay mounted and cross-rotate, so the icon turns with the
-          spread instead of popping. */}
+      {/*
+        Which glyph shows is decided purely by the `dark` class through CSS, not
+        by React state. next-themes sets that class in a blocking script before
+        paint, so the icon is already correct on first paint — and crucially the
+        server and client render byte-identical markup.
+
+        This used to gate on a mounted flag and render a placeholder <div> on the
+        server against a <button> on the client. That is an element-type
+        mismatch: a hard hydration failure, which makes React discard the server
+        HTML and re-render the whole page on the client.
+      */}
       <span className="relative block h-4 w-4">
-        <Sun
-          className={cn(
-            "absolute inset-0 h-4 w-4 transition-all duration-300 ease-out",
-            dark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-50 opacity-0",
-          )}
-        />
-        <Moon
-          className={cn(
-            "absolute inset-0 h-4 w-4 transition-all duration-300 ease-out",
-            dark ? "rotate-90 scale-50 opacity-0" : "rotate-0 scale-100 opacity-100",
-          )}
-        />
+        <Sun className="absolute inset-0 h-4 w-4 -rotate-90 scale-50 opacity-0 transition-all duration-300 ease-out dark:rotate-0 dark:scale-100 dark:opacity-100" />
+        <Moon className="absolute inset-0 h-4 w-4 rotate-0 scale-100 opacity-100 transition-all duration-300 ease-out dark:rotate-90 dark:scale-50 dark:opacity-0" />
       </span>
     </Button>
   );

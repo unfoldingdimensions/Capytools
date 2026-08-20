@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useIsDark } from "@/lib/capytools/use-is-dark";
+import { useIsNarrow } from "@/lib/capytools/use-is-narrow";
 import { fetchWrapped, WRAP_STEPS } from "@/lib/github/wrap";
 import { GithubError } from "@/lib/github/types";
 import type { WrappedStats } from "@/lib/github/types";
@@ -23,6 +24,7 @@ const freshSteps = (): LoadStep[] =>
 
 export function WrappedFlow() {
   const dark = useIsDark();
+  const narrow = useIsNarrow();
   const [username, setUsername] = useState<string | null>(null);
   const [stats, setStats] = useState<WrappedStats | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -90,7 +92,7 @@ export function WrappedFlow() {
           <div className="space-y-2">
             <CardScaled
               stats={DEMO_STATS}
-              format="wide"
+              format={narrow ? "square" : "wide"}
               variant={dark ? "dark" : "light"}
             />
             <p className="text-center font-mono text-[10px] text-muted-foreground">
