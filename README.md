@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capytools
 
-## Getting Started
+A home for small, quiet tools. One so far.
 
-First, run the development server:
+## Cappy Wrapped
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Your GitHub year, wrapped in a calm little card. Named after the capybara.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**[capytools.vercel.app](https://capytools.vercel.app)**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Paste a GitHub username and you get a card showing:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Total public contributions** for the year
+- **A trendline** of the year, month by month, with your busiest month marked
+- **Stars** earned across your repositories
+- **Your top languages**, and your most-starred repo
 
-## Learn More
+Download it as a PNG, or post it straight to X. Wide and square formats, light
+and dark. No signup, no tracking, nothing stored.
 
-To learn more about Next.js, take a look at the following resources:
+Only *public* contributions are visible to an anonymous visitor, so the number
+is lower than the one on your own profile page, which counts private work too.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+![The wrapped card, light theme](docs/card-light.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+![The wrapped card, dark theme](docs/card-dark.png)
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](LICENSE).
