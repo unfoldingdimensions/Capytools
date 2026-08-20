@@ -23,9 +23,17 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/65">
       <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2.5">
-          <CapyMark className="h-7 w-9 text-foreground/85" />
-          <span className="text-base font-bold tracking-tight text-foreground">Capytools</span>
-          <span className="hidden text-sm text-muted-foreground sm:inline">· calm tools</span>
+          <CapyMark className="h-7 w-9 shrink-0 text-foreground/85" />
+          {/*
+            items-baseline, not items-center: the wordmark is 16px and the tool
+            name 14px, so centring their BOXES left the smaller text sitting
+            1.2px above the wordmark's baseline. The mark stays centred on the
+            text block via the outer items-center.
+          */}
+          <span className="flex items-baseline gap-1.5">
+            <span className="text-base font-bold tracking-tight text-foreground">Capytools</span>
+            <span className="hidden text-sm text-muted-foreground sm:inline">· Cappy Wrapped</span>
+          </span>
         </div>
 
         <div className="flex items-center gap-1">
