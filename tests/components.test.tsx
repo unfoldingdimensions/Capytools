@@ -8,6 +8,10 @@ import { WRAP_STEPS } from "../src/lib/github/wrap";
 const steps = (states: LoadStep["state"][]): LoadStep[] =>
   WRAP_STEPS.map((label, i) => ({ label, state: states[i] ?? "pending" }));
 
+/** Derived, so adding a request to the wrap does not break these assertions. */
+const TOTAL = WRAP_STEPS.length;
+const pct = (done: number) => `${(done / TOTAL) * 100}%`;
+
 describe("TerminalLoader", () => {
   it("announces real progress, not a fake percentage", () => {
     const html = renderToStaticMarkup(
@@ -15,10 +19,10 @@ describe("TerminalLoader", () => {
     );
     expect(html).toContain('role="status"');
     expect(html).toContain('aria-live="polite"');
-    expect(html).toContain("Wrapping torvalds: 2 of 4 steps complete");
+    expect(html).toContain(`Wrapping torvalds: 2 of ${TOTAL} steps complete`);
     // Bar width is the completed fraction, so it can never claim progress that
     // hasn't happened.
-    expect(html).toContain("50%");
+    expect(html).toContain(pct(2));
   });
 
   it("shows every request as a line, with details once known", () => {
@@ -33,14 +37,14 @@ describe("TerminalLoader", () => {
     const html = renderToStaticMarkup(
       <TerminalLoader username="x" steps={steps(["done", "failed", "pending", "pending"])} />,
     );
-    expect(html).toContain("1 of 4 steps complete"); // the failure is not counted
+    expect(html).toContain(`1 of ${TOTAL} steps complete`); // the failure is not counted
     expect(html).toContain("text-destructive");
   });
 
   it("reports 0/4 before anything resolves", () => {
     const html = renderToStaticMarkup(<TerminalLoader username="x" steps={steps([])} />);
-    expect(html).toContain("0 of 4 steps complete");
-    expect(html).toContain("0%");
+    expect(html).toContain(`0 of ${TOTAL} steps complete`);
+    expect(html).toContain(pct(0));
   });
 });
 

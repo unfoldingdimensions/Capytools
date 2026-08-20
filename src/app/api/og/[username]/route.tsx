@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getUser, getRepos, getEvents } from "@/lib/github/user";
 import { fetchContributions } from "@/lib/github/contributions";
+import { fetchLanguageShares } from "@/lib/github/languages";
 import { GithubError } from "@/lib/github/types";
 import { computeWrapped } from "@/lib/github/stats";
 import { CardArt } from "@/components/card/CardArt";
@@ -40,14 +41,16 @@ export async function GET(
   const { username } = await params;
 
   try {
-    const [user, repos, events, contributions] = await Promise.all([
+    const [user, repos, events, contributions, languages] = await Promise.all([
       getUser(username),
       getRepos(username),
       getEvents(username),
-      // Same chart source as the page, so the social preview matches it.
+      // Same chart and language sources as the page, so the social preview
+      // matches what the visitor saw.
       fetchContributions(username).catch(() => []),
+      fetchLanguageShares(username).catch(() => []),
     ]);
-    const stats = computeWrapped(user, repos, events, new Date(), contributions);
+    const stats = computeWrapped(user, repos, events, new Date(), contributions, languages);
 
     const [fraunces300, fraunces500, sans500, plex400] = await Promise.all([
       googleFont("Fraunces", 300),

@@ -1,5 +1,6 @@
 import { getUser, getRepos, getEvents } from "./user";
 import { getContributions } from "./contributions";
+import { getLanguages } from "./languages";
 import { computeWrapped } from "./stats";
 import type { WrappedStats } from "./types";
 
@@ -9,6 +10,7 @@ export const WRAP_STEPS = [
   "repositories",
   "recent events",
   "contribution calendar",
+  "language bytes",
 ] as const;
 
 export type StepReporter = (
@@ -41,12 +43,14 @@ export async function fetchWrapped(
       },
     );
 
-  const [user, repos, events, contributions] = await Promise.all([
+  const [user, repos, events, contributions, languages] = await Promise.all([
     track(0, getUser(username), (u) => `@${u.login}`),
     track(1, getRepos(username), (r) => `${r.length} repos`),
     track(2, getEvents(username), (e) => `${e.length} events`),
     track(3, getContributions(username), (d) => `${d.length} days`).catch(() => []),
+    // Also best-effort: without it the card falls back to repo counts.
+    track(4, getLanguages(username), (l) => `${l.length} languages`).catch(() => []),
   ]);
 
-  return computeWrapped(user, repos, events, new Date(), contributions);
+  return computeWrapped(user, repos, events, new Date(), contributions, languages);
 }

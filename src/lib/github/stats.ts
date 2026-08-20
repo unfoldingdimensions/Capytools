@@ -211,6 +211,7 @@ export function computeWrapped(
   events: GitHubEvent[],
   now: Date = new Date(),
   contributions?: ContributionDay[],
+  languages?: LanguageShare[],
 ): WrappedStats {
   const fromEvents = activityStats(events, now);
   return {
@@ -222,7 +223,10 @@ export function computeWrapped(
     topRepo: topRepo(repos),
     totalRepos: repos.length,
     yearsActive: yearsActive(user, now),
-    topLanguages: languageBreakdown(repos),
+    // Byte shares when we could get them (what GitHub itself shows); the
+    // primary-language repo count is the fallback, which over-weights small
+    // repos and hides every secondary language.
+    topLanguages: languages && languages.length > 0 ? languages : languageBreakdown(repos),
     oldestRepo: oldestRepo(repos),
     mostRecentlyUpdated: mostRecentlyUpdated(repos),
     topTopics: topTopics(repos),

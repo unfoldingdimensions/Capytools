@@ -5,6 +5,7 @@ export interface GitHubUser {
 export interface GitHubRepo {
   name: string; full_name: string; html_url: string; description: string | null;
   language: string | null; stargazers_count: number; fork: boolean;
+  size?: number;                                            // KB of code; used to rank repos for language bytes
   topics: string[]; created_at: string; updated_at: string; pushed_at: string;
 }
 export interface GitHubEvent {

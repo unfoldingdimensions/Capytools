@@ -7,6 +7,7 @@ import {
 } from "../src/lib/github/contributions";
 
 import type { ContributionDay } from "../src/lib/github/contributions";
+import { sharesFromBytes } from "../src/lib/github/languages";
 
 const NOW = new Date("2026-08-20T00:00:00Z");
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -161,5 +162,30 @@ describe("activityWindow peak", () => {
 
   it("has no peak when there is nothing to plot", () => {
     expect(activityWindow(calendar(369, () => 0)).peak).toBeNull();
+  });
+});
+
+describe("sharesFromBytes", () => {
+  it("ranks by bytes, the way GitHub's own bar does", () => {
+    // The old repo-count method would have called these equal at 33.3% each.
+    const shares = sharesFromBytes({ TypeScript: 4_398_102, Python: 623_397, Dart: 147_253 });
+    expect(shares.map((s) => s.name)).toEqual(["TypeScript", "Python", "Dart"]);
+    expect(shares[0].percent).toBeCloseTo(85.1, 0);
+    expect(shares[2].percent).toBeCloseTo(2.8, 0);
+  });
+
+  it("keeps the top five and rounds to one decimal", () => {
+    const bytes = Object.fromEntries(
+      ["a", "b", "c", "d", "e", "f", "g"].map((n, i) => [n, (7 - i) * 1000]),
+    );
+    const shares = sharesFromBytes(bytes);
+    expect(shares).toHaveLength(5);
+    expect(shares.every((s) => Number.isFinite(s.percent))).toBe(true);
+    for (const s of shares) expect(s.percent).toBe(Math.round(s.percent * 10) / 10);
+  });
+
+  it("returns nothing rather than dividing by zero", () => {
+    expect(sharesFromBytes({})).toEqual([]);
+    expect(sharesFromBytes({ Rust: 0 })).toEqual([]);
   });
 });
