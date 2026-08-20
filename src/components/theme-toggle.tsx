@@ -66,7 +66,7 @@ export function ThemeToggle() {
       onClick={() => void toggle()}
       aria-label="Toggle theme"
       aria-pressed={dark}
-      className="rounded-full"
+      className="size-10 rounded-full sm:size-9"
     >
       {/* Both glyphs stay mounted and cross-rotate, so the icon turns with the
           spread instead of popping. */}

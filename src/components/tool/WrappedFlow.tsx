@@ -78,7 +78,7 @@ export function WrappedFlow() {
             type="button"
             onClick={() => handleGenerate(preset)}
             disabled={status === "loading"}
-            className="rounded-full px-2 py-0.5 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-ring/50 disabled:pointer-events-none"
+            className="rounded-full px-3 py-2 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-ring/50 disabled:pointer-events-none sm:px-2 sm:py-0.5"
           >
             {preset}
           </button>

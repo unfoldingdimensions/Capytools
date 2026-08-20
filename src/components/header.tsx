@@ -29,7 +29,7 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-1">
-          <Button asChild variant="ghost" size="icon" className="rounded-full">
+          <Button asChild variant="ghost" size="icon" className="size-10 rounded-full sm:size-9">
             <a
               href={AUTHOR_GITHUB}
               target="_blank"

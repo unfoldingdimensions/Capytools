@@ -37,7 +37,7 @@ function PillToggle({
       type="button"
       onClick={onClick}
       className={cn(
-        "px-3 py-1.5 text-xs font-semibold transition-colors",
+        "px-4 py-3 text-xs font-semibold transition-colors sm:px-3 sm:py-1.5",
         active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
       )}
     >
@@ -110,7 +110,7 @@ export function CardComposer({ stats }: { stats: WrappedStats }) {
           </PillToggle>
         </div>
 
-        <Button variant="outline" className="h-8 rounded-full px-4 text-xs" onClick={download}>
+        <Button variant="outline" className="h-10 rounded-full sm:h-8 px-4 text-xs" onClick={download}>
           Download PNG
         </Button>
 
@@ -118,13 +118,13 @@ export function CardComposer({ stats }: { stats: WrappedStats }) {
           variant="outline"
           onClick={doPost}
           aria-label="Post to X with the card image"
-          className="h-8 gap-1.5 rounded-full px-3 text-xs"
+          className="h-10 gap-1.5 rounded-full sm:h-8 px-3 text-xs"
         >
           <XLogo className="h-3.5 w-3.5" />
           <span>Post</span>
         </Button>
 
-        <Button variant="outline" className="h-8 rounded-full px-4 text-xs" onClick={doCopy}>
+        <Button variant="outline" className="h-10 rounded-full sm:h-8 px-4 text-xs" onClick={doCopy}>
           {copied === "post" ? "Card copied!" : copied === "text" ? "Text copied" : "Copy post"}
         </Button>
       </div>

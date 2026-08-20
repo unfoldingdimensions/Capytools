@@ -5,7 +5,7 @@ import { TextReveal } from "@/components/TextReveal";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <Header />
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20">

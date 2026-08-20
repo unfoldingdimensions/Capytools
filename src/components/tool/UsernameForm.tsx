@@ -30,7 +30,7 @@ export function UsernameForm({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="paste a github username…"
-        className="h-12 flex-1 rounded-full border-border bg-card px-5 text-sm shadow-sm"
+        className="h-12 rounded-full border-border bg-card px-5 shadow-sm sm:flex-1"
         aria-label="GitHub username"
         autoCorrect="off"
         autoCapitalize="none"
@@ -39,7 +39,7 @@ export function UsernameForm({
       <Button
         type="submit"
         disabled={busy}
-        className="h-12 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+        className="h-12 rounded-full bg-primary px-6 text-base font-semibold text-primary-foreground hover:bg-primary/90 sm:text-sm"
       >
         {busy ? "wrapping…" : "wrap it"}
       </Button>
