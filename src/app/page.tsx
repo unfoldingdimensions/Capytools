@@ -12,7 +12,7 @@ export default function Home() {
         <section className="flex w-full flex-col items-center pt-5 text-center sm:pt-8">
           <Reveal>
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              Cappy Wrapped · tool no. 1
+              GitHub Wrapped · tool no. 1
             </p>
           </Reveal>
 

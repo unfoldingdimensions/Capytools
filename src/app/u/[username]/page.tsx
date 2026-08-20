@@ -9,7 +9,7 @@ export async function generateMetadata({
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
   const { username } = await params;
-  const title = `@${username} · Cappy Wrapped`;
+  const title = `@${username} · GitHub Wrapped`;
   const description = `${username}'s GitHub year, wrapped in a calm little card. No signup. No tracking. Nothing stored.`;
   const image = `${SITE_URL}/api/og/${username}`;
   return {
@@ -42,7 +42,7 @@ export default async function SharePage({
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-5">
         <div className="mb-6 text-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            Cappy Wrapped · @{username}
+            GitHub Wrapped · @{username}
           </p>
         </div>
         <ShareCardView username={username} />

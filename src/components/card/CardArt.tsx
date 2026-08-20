@@ -105,7 +105,7 @@ function StatCell({
 }
 
 /**
- * The Cappy Wrapped card — canonical, runtime-agnostic source of truth.
+ * The GitHub Wrapped card — canonical, runtime-agnostic source of truth.
  * Uses ONLY inline styles + data-URI <img> SVGs so the on-page preview, the
  * PNG export (html-to-image) and the dynamic OG image (Satori) all render
  * pixel-identically. Layout is tuned so the wide 1200×630 canvas fully
@@ -185,7 +185,7 @@ export function CardArt({
           color: c.muted,
         }}
       >
-        <span>{`Cappy Wrapped · ${year}`}</span>
+        <span>{`GitHub Wrapped · ${year}`}</span>
         <span>{`@${stats.username}`}</span>
       </div>
       <div style={{ height: 1, background: c.border, marginTop: square ? 18 : 12 }} />
