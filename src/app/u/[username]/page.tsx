@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { Header } from "@/components/header";
 import { ShareCardView } from "@/components/share/ShareCardView";
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capytools.vercel.app";
+import { SITE_URL } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -11,7 +11,7 @@ export async function generateMetadata({
   const { username } = await params;
   const title = `@${username} · Cappy Wrapped`;
   const description = `${username}'s GitHub year, wrapped in a calm little card. No signup. No tracking. Nothing stored.`;
-  const image = `${SITE}/api/og/${username}`;
+  const image = `${SITE_URL}/api/og/${username}`;
   return {
     title,
     description,
@@ -36,13 +36,26 @@ export default async function SharePage({
 }) {
   const { username } = await params;
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-12">
-      <div className="mb-8 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-          Cappy Wrapped · @{username}
-        </p>
-      </div>
-      <ShareCardView username={username} />
-    </main>
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <Header />
+
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-5">
+        <div className="mb-6 text-center">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            Cappy Wrapped · @{username}
+          </p>
+        </div>
+        <ShareCardView username={username} />
+      </main>
+
+      <footer className="border-t border-border">
+        <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-2 px-6 py-6 sm:flex-row">
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+            capytools — no analytics. no cookies. nothing stored.
+          </p>
+          <p className="text-xs text-muted-foreground">more calm tools, coming soon</p>
+        </div>
+      </footer>
+    </div>
   );
 }
