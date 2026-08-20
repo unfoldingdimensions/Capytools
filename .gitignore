@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local agent/tooling state (not part of the app)
+.mimosa/
+.zdiag/
