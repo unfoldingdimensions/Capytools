@@ -4,6 +4,7 @@ import { sanitizeUsername } from "@/lib/utils";
 
 const REPOS_PER_PAGE = 100;
 const MAX_REPO_PAGES = 10; // hard cap: 1000 repos
+const PAGE_CONCURRENCY = 5; // parallel page fetches; modest, to stay clear of abuse limits
 const EVENTS_PER_PAGE = 100;
 const MAX_EVENT_PAGES = 5;
 const EVENT_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
@@ -15,16 +16,33 @@ export async function getUser(username: string): Promise<GitHubUser> {
   );
 }
 
+/**
+ * All of a user's repos.
+ *
+ * Page 1 is fetched first to learn the page count from the Link header, then
+ * the remainder go out in parallel batches. Walking `next` sequentially cost
+ * one round-trip per 100 repos, so an account with a thousand of them spent ten
+ * serial requests before anything else could start — which is what made the
+ * language and OG routes slow enough to risk a crawler timing out.
+ */
 export async function getRepos(username: string): Promise<GitHubRepo[]> {
   const clean = sanitizeUsername(username);
-  const repos: GitHubRepo[] = [];
-  for (let page = 1; page <= MAX_REPO_PAGES; page++) {
-    const url =
-      `${GITHUB_API_BASE}/users/${encodeURIComponent(clean)}/repos` +
-      `?per_page=${REPOS_PER_PAGE}&page=${page}`;
-    const { data, next } = await fetchPage<GitHubRepo[]>(url);
-    repos.push(...data);
-    if (next === null) break;
+  const pageUrl = (page: number) =>
+    `${GITHUB_API_BASE}/users/${encodeURIComponent(clean)}/repos` +
+    `?per_page=${REPOS_PER_PAGE}&page=${page}`;
+
+  const first = await fetchPage<GitHubRepo[]>(pageUrl(1));
+  const repos: GitHubRepo[] = [...first.data];
+  const lastPage = Math.min(first.lastPage ?? 1, MAX_REPO_PAGES);
+
+  for (let page = 2; page <= lastPage; page += PAGE_CONCURRENCY) {
+    const batch = [];
+    for (let i = page; i < Math.min(page + PAGE_CONCURRENCY, lastPage + 1); i++) {
+      batch.push(fetchPage<GitHubRepo[]>(pageUrl(i)).catch(() => null));
+    }
+    for (const result of await Promise.all(batch)) {
+      if (result) repos.push(...result.data);
+    }
   }
   repos.sort(
     (a, b) => b.stargazers_count - a.stargazers_count || a.name.localeCompare(b.name),

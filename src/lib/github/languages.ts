@@ -10,9 +10,13 @@ import { sanitizeUsername } from "@/lib/utils";
  * the numbers honest while bounding the API cost for accounts with hundreds of
  * repos. Every repo is included for anyone below this many.
  */
-const MAX_REPOS = 60;
-/** Concurrent /languages requests. Enough to be quick, not enough to look abusive. */
-const BATCH = 8;
+const MAX_REPOS = 40;
+/**
+ * Concurrent /languages requests. Raised from 8 because the round count, not
+ * the request count, is what a social crawler waits on: 40 repos is now 2
+ * rounds instead of 5.
+ */
+const BATCH = 20;
 
 /**
  * Byte totals per language → top-5 shares.

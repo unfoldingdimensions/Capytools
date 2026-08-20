@@ -4,6 +4,7 @@ import { GithubError } from "@/lib/github/types";
 import { sanitizeUsername } from "@/lib/utils";
 
 export const runtime = "nodejs";
+export const maxDuration = 60; // fans out to GitHub; do not inherit the short default
 export const revalidate = 1800; // 30 min: language mix barely moves
 
 /**

@@ -6,7 +6,8 @@ import { GithubError } from "@/lib/github/types";
 import { computeWrapped } from "@/lib/github/stats";
 import { CardArt } from "@/components/card/CardArt";
 
-export const runtime = "nodejs"; // Next 16 deprecates edge — ImageResponse works on node too.
+export const runtime = "nodejs";
+export const maxDuration = 60; // fans out to GitHub; do not inherit the short default // Next 16 deprecates edge — ImageResponse works on node too.
 
 // Lazy, module-level font cache — each family/weight fetched from Google Fonts
 // once per cold start, then reused by every OG image.

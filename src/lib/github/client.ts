@@ -20,7 +20,7 @@ const API_HEADERS = {
 export async function fetchPage<T>(
   url: string,
   init?: RequestInit,
-): Promise<{ data: T; next: string | null }> {
+): Promise<{ data: T; next: string | null; lastPage: number | null }> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
@@ -55,7 +55,8 @@ export async function fetchPage<T>(
 
   try {
     const data = (await response.json()) as T;
-    return { data, next: extractNextPage(response.headers.get("link")) };
+    const link = response.headers.get("link");
+    return { data, next: extractNextPage(link), lastPage: extractLastPage(link) };
   } catch {
     throw new GithubError("network", `Failed to parse response body from ${url}`);
   }
@@ -64,6 +65,29 @@ export async function fetchPage<T>(
 export async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const { data } = await fetchPage<T>(url, init);
   return data;
+}
+
+/**
+ * Total page count from `rel="last"`, so a caller can fetch the remaining pages
+ * in parallel instead of walking `next` one round-trip at a time. Null when the
+ * response is the only page.
+ */
+export function extractLastPage(linkHeader: string | null): number | null {
+  if (!linkHeader) return null;
+  for (const part of linkHeader.split(",")) {
+    const segments = part.split(";").map((s) => s.trim());
+    const url = /^<(.+)>$/.exec(segments.shift() ?? "")?.[1];
+    if (!url) continue;
+    const isLast = segments.some((segment) => {
+      const rel = /^rel=(?:"([^"]+)"|(\S+))$/.exec(segment);
+      return rel !== null && (rel[1] ?? rel[2]) === "last";
+    });
+    if (isLast) {
+      const page = Number(new URL(url).searchParams.get("page"));
+      return Number.isFinite(page) && page > 0 ? page : null;
+    }
+  }
+  return null;
 }
 
 /**

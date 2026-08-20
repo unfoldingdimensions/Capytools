@@ -8,6 +8,7 @@ import {
 
 import type { ContributionDay } from "../src/lib/github/contributions";
 import { sharesFromBytes } from "../src/lib/github/languages";
+import { extractLastPage } from "../src/lib/github/client";
 
 const NOW = new Date("2026-08-20T00:00:00Z");
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -187,5 +188,20 @@ describe("sharesFromBytes", () => {
   it("returns nothing rather than dividing by zero", () => {
     expect(sharesFromBytes({})).toEqual([]);
     expect(sharesFromBytes({ Rust: 0 })).toEqual([]);
+  });
+});
+
+describe("extractLastPage", () => {
+  const header =
+    '<https://api.github.com/user/1/repos?per_page=100&page=2>; rel="next", ' +
+    '<https://api.github.com/user/1/repos?per_page=100&page=11>; rel="last"';
+
+  it("reads the page count so pages can be fetched in parallel", () => {
+    expect(extractLastPage(header)).toBe(11);
+  });
+
+  it("returns null for a single-page response", () => {
+    expect(extractLastPage(null)).toBeNull();
+    expect(extractLastPage('<https://api.github.com/x?page=2>; rel="next"')).toBeNull();
   });
 });
