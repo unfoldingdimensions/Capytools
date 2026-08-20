@@ -298,3 +298,30 @@ export const fixtureZeroRepoUser: GitHubUser = {
 };
 
 export const fixtureEmptyEvents: GitHubEvent[] = [];
+
+/**
+ * A deterministic 12-month contribution calendar for the demo card, so the
+ * landing page exercises the same month-scale chart real users get instead of
+ * the sparse 90-day events fallback. Shaped by a fixed formula — no RNG — so
+ * the server and client renders agree (see CardArt's hydration note).
+ */
+export const fixtureContributions: { date: string; count: number }[] = (() => {
+  const days: { date: string; count: number }[] = [];
+  const DAY = 24 * 60 * 60 * 1000;
+  // Integer-only shaping: Math.sin is implementation-defined in ECMAScript, and
+  // a float that differs by one ULP between the server and browser engines
+  // would surface as a hydration mismatch in the chart's coordinates.
+  const SWELL = [4, 5, 7, 9, 11, 12, 10, 8, 6, 5, 7, 9, 11];
+  for (let i = 368; i >= 0; i--) {
+    const d = new Date(FIXTURE_NOW.getTime() - i * DAY);
+    const dow = d.getUTCDay();
+    const weekend = dow === 0 || dow === 6;
+    const base = SWELL[Math.floor(((368 - i) / 369) * SWELL.length)];
+    const jitter = ((i * 7919) % 5) - 2; // deterministic ±2
+    days.push({
+      date: d.toISOString().slice(0, 10),
+      count: Math.max(0, (weekend ? 1 : base) + jitter),
+    });
+  }
+  return days;
+})();

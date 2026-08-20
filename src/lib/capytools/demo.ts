@@ -1,4 +1,4 @@
-import { FIXTURE_NOW, fixtureOwnerLike } from "@/lib/github/fixtures";
+import { FIXTURE_NOW, fixtureContributions, fixtureOwnerLike } from "@/lib/github/fixtures";
 import { computeWrapped } from "@/lib/github/stats";
 import type { WrappedStats } from "@/lib/github/types";
 
@@ -8,6 +8,7 @@ export const DEMO_STATS: WrappedStats = computeWrapped(
   fixtureOwnerLike.repos,
   fixtureOwnerLike.events,
   FIXTURE_NOW,
+  fixtureContributions,
 );
 
 /** "1234" → "1,234" */

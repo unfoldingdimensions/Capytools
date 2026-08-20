@@ -1,3 +1,6 @@
+import { activityMonthTicks, trimLeadingZeros } from "@/lib/capytools/sparkline";
+import { activityWindow, busiestWeekday as busiestFromDays } from "./contributions";
+import type { ContributionDay } from "./contributions";
 import type {
   GitHubEvent,
   GitHubRepo,
@@ -128,8 +131,9 @@ export function activityStats(
   for (const event of inWindow) {
     const time = new Date(event.created_at).getTime();
     // Window-anchored buckets: index 0 covers [now - 90d, now - 90d + 1d).
-    const dayIndex = Math.floor((time - cutoffMs) / DAY_MS);
-    if (dayIndex >= 0 && dayIndex < WINDOW_DAYS) dailySeries[dayIndex] += 1;
+    const rawIndex = Math.floor((time - cutoffMs) / DAY_MS);
+    const dayIndex = Math.min(WINDOW_DAYS - 1, Math.max(0, rawIndex));
+    dailySeries[dayIndex] += 1;
     weekdayCounts[new Date(event.created_at).getUTCDay()] += 1;
     typeCounts.set(event.type, (typeCounts.get(event.type) ?? 0) + 1);
   }
@@ -144,16 +148,60 @@ export function activityStats(
     }
   }
 
+  const trimmed = trimLeadingZeros(dailySeries);
   const dominantType = [...typeCounts.entries()].sort(
     (a, b) => b[1] - a[1] || prettyEventType(a[0]).localeCompare(prettyEventType(b[0])),
   )[0]?.[0];
 
   return {
-    windowLabel: "last 90 days",
+    windowLabel: `${WINDOW_DAYS} days`,
     count: inWindow.length,
     busiestWeekday: busiestWeekdayIndex >= 0 ? WEEKDAYS[busiestWeekdayIndex] : "—",
     dominantEventType: dominantType === undefined ? "—" : prettyEventType(dominantType),
     dailySeries,
+    // The feed rarely covers a full 90 days, so the chart drops the dead
+    // lead-in; ticks are computed over that same trimmed span.
+    chartSeries: trimmed.data,
+    monthTicks: activityMonthTicks(now, trimmed.days),
+    empty: inWindow.length === 0,
+    peak: null, // the guide line annotates a month total, which this path lacks
+  };
+}
+
+/**
+ * Activity from the contribution calendar — the preferred source, since the
+ * events feed only reaches back ~90 days. Keeps the dominant event type from
+ * events (the calendar doesn't carry one) and windows per `activityWindow`.
+ */
+export function contributionActivity(
+  contributions: ContributionDay[],
+  fromEvents: WrappedStats["activity"],
+): WrappedStats["activity"] {
+  const w = activityWindow(contributions);
+  if (w.empty) {
+    return {
+      windowLabel: "12 months",
+      count: 0,
+      busiestWeekday: "—",
+      dominantEventType: fromEvents.dominantEventType,
+      dailySeries: [],
+      chartSeries: [],
+      monthTicks: [],
+      empty: true,
+      peak: null,
+    };
+  }
+  const windowed = contributions.slice(contributions.length - w.days);
+  return {
+    windowLabel: w.label,
+    count: w.count,
+    busiestWeekday: busiestFromDays(windowed),
+    dominantEventType: fromEvents.dominantEventType,
+    dailySeries: w.series,
+    chartSeries: w.series,
+    monthTicks: w.ticks,
+    empty: false,
+    peak: w.peak,
   };
 }
 
@@ -162,7 +210,9 @@ export function computeWrapped(
   repos: GitHubRepo[],
   events: GitHubEvent[],
   now: Date = new Date(),
+  contributions?: ContributionDay[],
 ): WrappedStats {
+  const fromEvents = activityStats(events, now);
   return {
     username: user.login,
     displayName: user.name,
@@ -176,6 +226,9 @@ export function computeWrapped(
     oldestRepo: oldestRepo(repos),
     mostRecentlyUpdated: mostRecentlyUpdated(repos),
     topTopics: topTopics(repos),
-    activity: activityStats(events, now),
+    activity:
+      contributions && contributions.length > 0
+        ? contributionActivity(contributions, fromEvents)
+        : fromEvents,
   };
 }

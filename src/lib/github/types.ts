@@ -20,11 +20,15 @@ export interface WrappedStats {
   mostRecentlyUpdated: { name: string; updated_at: string } | null;
   topTopics: string[];                                      // max 6, most common first
   activity: {
-    windowLabel: "last 90 days";
-    count: number;                                          // events in window
+    windowLabel: string;                                    // "12 months" | "5 months" | "23 days"
+    count: number;                                          // contributions/events in window
     busiestWeekday: string;                                 // "Monday".."Sunday" (UTC), null-ish → "—" if no events
     dominantEventType: string;                              // e.g. "PushEvent" → pretty "pushes"
-    dailySeries: number[];                                  // length 90, index 0 = oldest day
+    dailySeries: number[];                                  // events path: length 90, index 0 = oldest day
+    chartSeries: number[];                                  // exactly what the sparkline draws
+    monthTicks: { label: string; x: number }[];             // month labels, x = 0..1 across chartSeries
+    empty: boolean;                                         // no activity in the last 12 months
+    peak: { value: number; label: string } | null;          // busiest plotted point, for the guide line
   };
 }
 export class GithubError extends Error {

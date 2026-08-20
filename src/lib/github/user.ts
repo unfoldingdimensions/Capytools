@@ -1,5 +1,6 @@
 import { fetchJSON, fetchPage, GITHUB_API_BASE } from "./client";
 import type { GitHubEvent, GitHubRepo, GitHubUser } from "./types";
+import { sanitizeUsername } from "@/lib/utils";
 
 const REPOS_PER_PAGE = 100;
 const MAX_REPO_PAGES = 10; // hard cap: 1000 repos
@@ -8,16 +9,18 @@ const MAX_EVENT_PAGES = 5;
 const EVENT_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
 
 export async function getUser(username: string): Promise<GitHubUser> {
+  const clean = sanitizeUsername(username);
   return fetchJSON<GitHubUser>(
-    `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}`,
+    `${GITHUB_API_BASE}/users/${encodeURIComponent(clean)}`,
   );
 }
 
 export async function getRepos(username: string): Promise<GitHubRepo[]> {
+  const clean = sanitizeUsername(username);
   const repos: GitHubRepo[] = [];
   for (let page = 1; page <= MAX_REPO_PAGES; page++) {
     const url =
-      `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/repos` +
+      `${GITHUB_API_BASE}/users/${encodeURIComponent(clean)}/repos` +
       `?per_page=${REPOS_PER_PAGE}&page=${page}`;
     const { data, next } = await fetchPage<GitHubRepo[]>(url);
     repos.push(...data);
@@ -39,12 +42,13 @@ export async function getEvents(
   username: string,
   now: Date = new Date(),
 ): Promise<GitHubEvent[]> {
+  const clean = sanitizeUsername(username);
   const cutoffMs = now.getTime() - EVENT_WINDOW_MS;
   const events: GitHubEvent[] = [];
 
   for (let page = 1; page <= MAX_EVENT_PAGES; page++) {
     const url =
-      `${GITHUB_API_BASE}/users/${encodeURIComponent(username)}/events/public` +
+      `${GITHUB_API_BASE}/users/${encodeURIComponent(clean)}/events/public` +
       `?per_page=${EVENTS_PER_PAGE}&page=${page}`;
     const { data, next } = await fetchPage<GitHubEvent[]>(url);
     if (data.length === 0) break;

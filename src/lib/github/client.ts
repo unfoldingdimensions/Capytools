@@ -29,6 +29,10 @@ export async function fetchPage<T>(
     const headers = new Headers(init?.headers);
     headers.set("Accept", API_HEADERS.Accept);
     headers.set("X-GitHub-Api-Version", API_HEADERS["X-GitHub-Api-Version"]);
+    const token = typeof process !== "undefined" ? process.env?.GITHUB_TOKEN : undefined;
+    if (token && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
     response = await fetch(url, { ...init, headers, signal: controller.signal });
   } catch {
     throw new GithubError("network", `Request to ${url} failed (network error or timeout)`);
