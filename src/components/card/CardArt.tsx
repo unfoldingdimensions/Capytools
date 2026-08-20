@@ -1,5 +1,10 @@
 import { formatNumber } from "@/lib/capytools/demo";
-import { activityMonthTicks, capyMarkDataUri, sparklineDataUri } from "@/lib/capytools/sparkline";
+import {
+  buildSparkline,
+  capyMarkDataUri,
+  SPARK,
+  sparklineDataUri,
+} from "@/lib/capytools/sparkline";
 import type { ReactNode } from "react";
 import type { LanguageShare, WrappedStats } from "@/lib/github/types";
 
@@ -60,27 +65,37 @@ function StatCell({
 }) {
   return (
     <div
-      style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }} // Satori: element child
+      style={{
+        flex: 1,
+        minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }} // Satori: element child
     >
       <div
         style={{
           fontFamily: FONT_DISPLAY,
           fontWeight: 500,
-          fontSize: square ? 42 : 34,
-          lineHeight: 1,
+          fontSize: square ? 36 : 28,
+          lineHeight: 1.15,
           color: c.ink,
           fontVariantNumeric: "tabular-nums",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
       >
         {value}
       </div>
       <div
         style={{
-          marginTop: square ? 10 : 6,
-          fontSize: square ? 14 : 12,
+          marginTop: square ? 8 : 5,
+          fontSize: square ? 13 : 11,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: c.muted,
+          whiteSpace: "nowrap",
         }}
       >
         {label}
@@ -105,16 +120,41 @@ export function CardArt({
   stats: WrappedStats;
   variant?: CardVariant;
   format?: CardFormat;
-  sparkline?: ReactNode;
+  sparkline?: (series: number[], width: number, height: number) => ReactNode;
 }) {
   const c = PALETTE[variant];
   const { width, height } = CARD_WIDE[format];
   const square = format === "square";
   const year = new Date().getFullYear();
 
-  const spark = sparklineDataUri(stats.activity.dailySeries, c.water, c.clay);
+  const pad = square ? 64 : 54;
+  const sparkW = width - pad * 2;
+  const sparkH = square ? 296 : 130;
+  // Series and ticks are both computed at fetch time and arrive pre-aligned.
+  // Deriving either here would read the clock during render, which desyncs the
+  // server and client and fails hydration.
+  const series = stats.activity.chartSeries;
+  const ticks = stats.activity.monthTicks;
+
+  // The guide only makes sense where the peak names a month total.
+  const peak = stats.activity.peak;
+  const spark = sparklineDataUri(series, c.water, c.clay, sparkW, sparkH, peak !== null);
+  // The peak sits at the top of the plot band by definition, so the label goes
+  // just below its dotted line. Same geometry as the SVG, which is drawn 1:1.
+  const peakY = buildSparkline(series, sparkW, sparkH).peakY;
   const mark = capyMarkDataUri(c.mark);
-  const ticks = activityMonthTicks();
+
+  // Tick labels are positioned in absolute px, not with a percentage transform:
+  // Satori (the OG renderer) rejects `transform: none` outright and only accepts
+  // absolute lengths in translate, so any transform here breaks the OG image.
+  // All labels are 3-char mono, so one measured width centres them all.
+  const tickFont = square ? 14 : 11.5;
+  const tickW = 3 * tickFont * (0.6 + 0.08); // mono advance + letter-spacing
+  // Match the sparkline's horizontal inset so labels sit under their own point.
+  const tickLeft = (x: number) =>
+    Math.round(
+      Math.max(0, Math.min(sparkW - tickW, SPARK.halo + x * (sparkW - 2 * SPARK.halo) - tickW / 2)),
+    );
 
   return (
     <div
@@ -126,7 +166,8 @@ export function CardArt({
         color: c.ink,
         fontFamily: FONT_SANS,
         fontWeight: 500,
-        padding: square ? 72 : 46,
+        textAlign: "center",
+        padding: square ? pad : `40px ${pad}px ${pad}px`,
         display: "flex",
         flexDirection: "column",
       }}
@@ -138,7 +179,7 @@ export function CardArt({
           justifyContent: "space-between",
           alignItems: "baseline",
           fontFamily: FONT_MONO,
-          fontSize: square ? 18 : 14,
+          fontSize: square ? 17 : 13.5,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: c.muted,
@@ -147,21 +188,22 @@ export function CardArt({
         <span>{`Cappy Wrapped · ${year}`}</span>
         <span>{`@${stats.username}`}</span>
       </div>
-      <div style={{ height: 1, background: c.border, marginTop: square ? 22 : 14 }} />
+      <div style={{ height: 1, background: c.border, marginTop: square ? 18 : 12 }} />
 
       {/* numeral */}
       <div
         style={{
-          marginTop: square ? 56 : 22,
+          marginTop: square ? 64 : 14,
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <div
           style={{
             fontFamily: FONT_DISPLAY,
             fontWeight: 300,
-            fontSize: square ? 216 : 126,
+            fontSize: square ? 140 : 72,
             lineHeight: 0.95,
             letterSpacing: "-0.02em",
             color: c.ink,
@@ -169,85 +211,132 @@ export function CardArt({
         >
           {formatNumber(stats.totalStars)}
         </div>
-        <div style={{ marginTop: square ? 14 : 8, fontSize: square ? 24 : 17, color: c.muted }}>
-          {`stars earned across ${formatNumber(stats.totalRepos)} repos, all time`}
+        <div style={{ marginTop: square ? 8 : 4, fontSize: square ? 19 : 14.5, color: c.muted }}>
+          {`stars earned across ${formatNumber(stats.totalRepos)} repos`}
         </div>
       </div>
 
       {/* sparkline: live animated slot on-page, static data-URI <img> for export/OG */}
-      <div style={{ marginTop: square ? 60 : 24, height: square ? 190 : 64, width: "100%" }}>
-        {sparkline ? (
-          sparkline
+      <div
+        style={{
+          marginTop: square ? 36 : 18,
+          height: sparkH,
+          width: sparkW,
+          display: "flex",
+          position: "relative",
+        }}
+      >
+        {stats.activity.empty ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              fontSize: square ? 19 : 15,
+              color: c.softMuted,
+            }}
+          >
+            no activity in the last 12 months
+          </div>
+        ) : sparkline ? (
+          sparkline(series, sparkW, sparkH)
         ) : spark ? (
-          <img src={spark} alt="" style={{ width: "100%", height: "100%" }} />
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={spark} alt="" width={sparkW} height={sparkH} />
         ) : null}
+
+        {/* The peak's value as real text, not SVG <text>: Satori rasterises the
+            sparkline as an image, where the card's fonts are unavailable. */}
+        {peak && !stats.activity.empty && (
+          <span
+            style={{
+              position: "absolute",
+              left: 0,
+              top: Math.round(peakY) + 7,
+              fontFamily: FONT_MONO,
+              fontSize: square ? 14 : 11.5,
+              letterSpacing: "0.04em",
+              color: c.clay,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {`${formatNumber(peak.value)} ${
+              peak.value === 1 ? "contribution" : "contributions"
+            } in ${peak.label}`}
+          </span>
+        )}
       </div>
 
       {/* timeline months */}
-      {ticks.length > 0 && (
-        <div
-          style={{
-            marginTop: square ? 16 : 12,
-            position: "relative",
-            height: square ? 22 : 16,
-            width: "100%",
-          }}
-        >
-          {ticks.map((t) => (
-            <span
-              key={t.label}
-              style={{
-                position: "absolute",
-                left: `${t.x * 100}%`,
-                transform:
-                  t.x <= 0.02 ? "none" : t.x >= 0.98 ? "translateX(-100%)" : "translateX(-50%)",
-                fontFamily: FONT_MONO,
-                fontSize: square ? 15 : 12.5,
-                letterSpacing: "0.08em",
-                color: c.muted,
-              }}
-            >
-              {t.label}
-            </span>
-          ))}
-        </div>
-      )}
+      <div
+        style={{
+          marginTop: square ? 12 : 6,
+          position: "relative",
+          display: "flex", // Satori requires explicit display on multi-child divs
+          height: square ? 20 : 15,
+          width: "100%",
+        }}
+      >
+        {ticks.map((t) => (
+          /* A 12-month window legitimately repeats a month name, so key on both. */
+          <span
+            key={`${t.label}-${t.x}`}
+            style={{
+              position: "absolute",
+              left: tickLeft(t.x),
+              fontFamily: FONT_MONO,
+              fontSize: tickFont,
+              letterSpacing: "0.08em",
+              color: c.muted,
+            }}
+          >
+            {t.label}
+          </span>
+        ))}
+      </div>
 
       {/* stat grid */}
       <div
         style={{
-          marginTop: square ? 56 : 20,
+          marginTop: square ? 48 : 20,
           borderTop: `1px solid ${c.border}`,
-          paddingTop: square ? 34 : 18,
+          paddingTop: square ? 22 : 22,
           display: "flex",
-          gap: square ? 24 : 20,
+          gap: square ? 20 : 16,
         }}
       >
         <StatCell square={square} c={c} label="Stars" value={formatNumber(stats.totalStars)} />
         <StatCell square={square} c={c} label="Repos" value={formatNumber(stats.totalRepos)} />
-        <StatCell square={square} c={c} label="Years" value={String(stats.yearsActive)} />
-        <StatCell square={square} c={c} label="Activity · 90d" value={formatNumber(stats.activity.count)} />
+        <StatCell
+          square={square}
+          c={c}
+          label="Busiest Day"
+          value={stats.activity.busiestWeekday}
+        />
+        <StatCell square={square} c={c} label="Contributions · Public" value={formatNumber(stats.activity.count)} />
       </div>
 
-      {/* language bars + watermark */}
+      {/* bottom section: top 3 languages + top repo + watermark */}
       <div
         style={{
-          marginTop: square ? 56 : "auto",
+          marginTop: square ? 48 : 30,
           display: "flex",
-          alignItems: "flex-end",
+          alignItems: "stretch",
           justifyContent: "space-between",
-          gap: 24,
+          gap: square ? 28 : 20,
           borderTop: `1px solid ${c.border}`,
-          paddingTop: square ? 40 : 20,
+          paddingTop: square ? 24 : 20,
         }}
       >
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: square ? 22 : 12 }}>
-          {(stats.topLanguages as LanguageShare[]).map((lang) => (
-            <div key={lang.name} style={{ display: "flex", alignItems: "center", gap: square ? 16 : 12 }}>
+        {/* Top 3 Languages */}
+        <div style={{ flex: 1.4, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: square ? 9 : 10 }}>
+          {(stats.topLanguages.slice(0, 3) as LanguageShare[]).map((lang) => (
+            <div key={lang.name} style={{ display: "flex", alignItems: "center", gap: square ? 12 : 8 }}>
               <span
                 style={{
-                  width: square ? 130 : 88,
-                  fontSize: square ? 22 : 16,
+                  width: square ? 100 : 88,
+                  textAlign: "right",
+                  fontSize: square ? 16 : 13,
                   color: c.muted,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -259,10 +348,11 @@ export function CardArt({
               <div
                 style={{
                   flex: 1,
-                  height: square ? 16 : 10,
+                  height: square ? 8 : 6,
                   background: c.track,
                   overflow: "hidden",
-                  display: "flex", // Satori: any div with an element child needs display
+                  display: "flex",
+                  borderRadius: 3,
                 }}
               >
                 <div
@@ -270,15 +360,16 @@ export function CardArt({
                     height: "100%",
                     width: `${Math.min(100, lang.percent)}%`,
                     background: c.bar,
+                    borderRadius: 3,
                   }}
                 />
               </div>
               <span
                 style={{
-                  width: square ? 70 : 52,
+                  width: square ? 54 : 40,
                   textAlign: "right",
                   fontFamily: FONT_MONO,
-                  fontSize: square ? 20 : 15,
+                  fontSize: square ? 14 : 11.5,
                   fontVariantNumeric: "tabular-nums",
                   color: c.muted,
                 }}
@@ -289,13 +380,84 @@ export function CardArt({
           ))}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+        {/* Top Repo - Featured Card Box */}
+        {stats.topRepo && (
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: square ? "10px 16px" : "12px 16px",
+              background: c.track,
+              borderRadius: 8,
+              border: `1px solid ${c.border}`,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: FONT_MONO,
+                fontSize: square ? 11 : 9.5,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: c.softMuted,
+              }}
+            >
+              Top Repo
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 500,
+                fontSize: square ? 19 : 15,
+                lineHeight: 1.2,
+                color: c.ink,
+                marginTop: 2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {stats.topRepo.name}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_MONO,
+                fontSize: square ? 13 : 11,
+                color: c.clay,
+                marginTop: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span>★</span>
+              <span>{`${formatNumber(stats.topRepo.stars)} stars`}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Watermark + CapyMark */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            gap: 4,
+            flexShrink: 0,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={mark}
             alt=""
             style={{
-              width: square ? 78 : 60,
-              height: square ? 58 : 45,
+              width: square ? 46 : 36,
+              height: square ? 34 : 26,
               objectFit: "contain",
             }}
           />
@@ -303,10 +465,10 @@ export function CardArt({
             style={{
               fontFamily: FONT_MONO,
               fontWeight: 500,
-              fontSize: square ? 18 : 15,
-              letterSpacing: "0.1em",
+              fontSize: square ? 12.5 : 10,
+              letterSpacing: "0.06em",
               textTransform: "uppercase",
-              color: c.muted,
+              color: c.softMuted,
               whiteSpace: "nowrap",
             }}
           >

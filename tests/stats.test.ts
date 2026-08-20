@@ -20,6 +20,13 @@ import {
   yearsActive,
 } from "../src/lib/github/stats";
 import { extractNextPage } from "../src/lib/github/client";
+import { sanitizeUsername } from "../src/lib/utils";
+import {
+  activityMonthTicks,
+  buildSparkline,
+  SPARK,
+  trimLeadingZeros,
+} from "../src/lib/capytools/sparkline";
 
 describe("totalStars", () => {
   it("excludes fork repos and sums stargazers across the rest", () => {
@@ -185,7 +192,7 @@ describe("topTopics", () => {
 describe("activityStats", () => {
   it("returns zeros and a dash weekday for empty events", () => {
     const result = activityStats(fixtureEmptyEvents, FIXTURE_NOW);
-    expect(result.windowLabel).toBe("last 90 days");
+    expect(result.windowLabel).toBe("90 days");
     expect(result.count).toBe(0);
     expect(result.busiestWeekday).toBe("—");
     expect(result.dominantEventType).toBe("—");
@@ -263,7 +270,7 @@ describe("computeWrapped", () => {
     expect(result.oldestRepo).not.toBeNull();
     expect(result.mostRecentlyUpdated).not.toBeNull();
     expect(result.topTopics.length).toBeLessThanOrEqual(6);
-    expect(result.activity.windowLabel).toBe("last 90 days");
+    expect(result.activity.windowLabel).toBe("90 days");
     expect(result.activity.count).toBeGreaterThan(0);
     expect(result.activity.busiestWeekday).not.toBe("—");
     expect(result.activity.dominantEventType).not.toBe("—");
@@ -298,6 +305,105 @@ describe("extractNextPage", () => {
   it("returns null for a null or header without next", () => {
     expect(extractNextPage(null)).toBeNull();
     expect(extractNextPage('<https://api.github.com/user/repos?page=1&per_page=100>; rel="first"')).toBeNull();
+  });
+});
+
+describe("sanitizeUsername", () => {
+  it("trims whitespace and strips leading @", () => {
+    expect(sanitizeUsername("  @torvalds  ")).toBe("torvalds");
+    expect(sanitizeUsername("@@octocat")).toBe("octocat");
+  });
+
+  it("extracts username from full github URLs", () => {
+    expect(sanitizeUsername("https://github.com/torvalds")).toBe("torvalds");
+    expect(sanitizeUsername("http://github.com/unfoldingdimensions/")).toBe("unfoldingdimensions");
+    expect(sanitizeUsername("github.com/mojombo?tab=repositories")).toBe("mojombo");
+  });
+
+  it("handles plain usernames untouched", () => {
+    expect(sanitizeUsername("cappydev")).toBe("cappydev");
+  });
+});
+
+describe("activityStats edge boundaries", () => {
+  it("retains events occurring at the exact current timestamp (now) in the last dailySeries bucket", () => {
+    const eventAtNow = {
+      id: "now-evt",
+      type: "PushEvent",
+      created_at: FIXTURE_NOW.toISOString(),
+      repo: { name: "x/r" },
+    };
+    const result = activityStats([eventAtNow], FIXTURE_NOW);
+    expect(result.count).toBe(1);
+    expect(result.dailySeries[89]).toBe(1);
+    expect(result.dailySeries.reduce((s, n) => s + n, 0)).toBe(1);
+  });
+});
+
+describe("buildSparkline", () => {
+  it("positions the peak node at the peak day coordinates", () => {
+    const data = [0, 2, 10, 4, 1];
+    const result = buildSparkline(data, 100, 50);
+    // Peak is at index 2 (value 10).
+    // x at index 2 should be (2/4)*100 = 50.
+    expect(result.peakX).toBe(50);
+    expect(result.zero).toBe(false);
+  });
+
+  it("insets the ends so a first/last peak marker is not clipped", () => {
+    // The exported <img> clips, unlike the preview SVG, so an end-of-series
+    // peak must sit at least a halo radius inside the box.
+    const last = buildSparkline([1, 1, 9], 100, 50);
+    expect(last.peakX).toBeLessThanOrEqual(100 - SPARK.halo);
+    const first = buildSparkline([9, 1, 1], 100, 50);
+    expect(first.peakX).toBeGreaterThanOrEqual(SPARK.halo);
+  });
+
+  it("keeps the curve inside the plot band even after a flat run", () => {
+    const { linePath } = buildSparkline([0, 0, 0, 0, 0, 40, 0, 0], 100, 50);
+    // Every odd-indexed number in the path data is a y coordinate.
+    const nums = linePath.match(/-?\d+(\.\d+)?/g)!.map(Number);
+    const ys = nums.filter((_, i) => i % 2 === 1);
+    // padTop = 7, baseline = 45: no control point may overshoot either edge.
+    expect(Math.min(...ys)).toBeGreaterThanOrEqual(7);
+    expect(Math.max(...ys)).toBeLessThanOrEqual(45);
+  });
+});
+
+describe("activityMonthTicks", () => {
+  const now = new Date("2026-08-20T00:00:00Z");
+
+  it("labels the month the window opens in, not just the boundaries inside it", () => {
+    // 32-day window opens Jul 19: without the opening label this reads as "AUG" only.
+    const ticks = activityMonthTicks(now, 32);
+    expect(ticks.map((t) => t.label)).toEqual(["JUL", "AUG"]);
+    expect(ticks[0].x).toBe(0);
+    expect(ticks[1].x).toBeCloseTo(13 / 32, 3);
+  });
+
+  it("emits a single label for a window that never crosses a month", () => {
+    expect(activityMonthTicks(now, 10).map((t) => t.label)).toEqual(["AUG"]);
+  });
+
+  it("does not double-label when the window opens on the 1st", () => {
+    const ticks = activityMonthTicks(new Date("2026-08-31T00:00:00Z"), 30);
+    expect(ticks.map((t) => t.label)).toEqual(["AUG"]);
+    expect(ticks[0].x).toBe(0);
+  });
+});
+
+describe("trimLeadingZeros", () => {
+  it("leaves an all-zero series untouched", () => {
+    const data = new Array(90).fill(0);
+    expect(trimLeadingZeros(data)).toEqual({ data, days: 90 });
+  });
+
+  it("drops the dead lead-in but keeps one zero as a baseline anchor", () => {
+    expect(trimLeadingZeros([0, 0, 0, 5, 0, 2])).toEqual({ data: [0, 5, 0, 2], days: 4 });
+  });
+
+  it("is a no-op when the series starts hot", () => {
+    expect(trimLeadingZeros([3, 0, 1])).toEqual({ data: [3, 0, 1], days: 3 });
   });
 });
 

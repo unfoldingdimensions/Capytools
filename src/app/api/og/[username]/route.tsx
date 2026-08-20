@@ -1,5 +1,7 @@
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "next/og";
 import { getUser, getRepos, getEvents } from "@/lib/github/user";
+import { fetchContributions } from "@/lib/github/contributions";
+import { GithubError } from "@/lib/github/types";
 import { computeWrapped } from "@/lib/github/stats";
 import { CardArt } from "@/components/card/CardArt";
 
@@ -38,12 +40,14 @@ export async function GET(
   const { username } = await params;
 
   try {
-    const [user, repos, events] = await Promise.all([
+    const [user, repos, events, contributions] = await Promise.all([
       getUser(username),
       getRepos(username),
       getEvents(username),
+      // Same chart source as the page, so the social preview matches it.
+      fetchContributions(username).catch(() => []),
     ]);
-    const stats = computeWrapped(user, repos, events);
+    const stats = computeWrapped(user, repos, events, new Date(), contributions);
 
     const [fraunces300, fraunces500, sans500, plex400] = await Promise.all([
       googleFont("Fraunces", 300),
@@ -68,7 +72,11 @@ export async function GET(
         },
       },
     );
-  } catch {
-    return new Response("Not found", { status: 404 });
+  } catch (err) {
+    const notFound = err instanceof GithubError && err.kind === "not_found";
+    console.error(`og: ${username} failed`, err);
+    return new Response(notFound ? "Not found" : "OG render failed", {
+      status: notFound ? 404 : 500,
+    });
   }
 }

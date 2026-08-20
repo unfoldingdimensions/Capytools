@@ -1,56 +1,82 @@
 "use client";
 
 import { motion } from "motion/react";
-import { buildSparkline } from "@/lib/capytools/sparkline";
+import { buildSparkline, SPARK } from "@/lib/capytools/sparkline";
 import { cardPalette } from "@/components/card/CardArt";
 import type { CardVariant } from "@/components/card/CardArt";
 
 /**
  * Live, animated sparkline for the on-page preview only: smooth curve with a
  * pulsing clay dot that "pings" off the peak. The export/OG card uses the
- * static data-URI sparkline instead (a pulsing dot can't exist in a flat PNG).
+ * static data-URI sparkline instead (a pulsing dot can't exist in a flat PNG),
+ * so both draw from the same geometry + SPARK ink to stay identical.
+ *
+ * `width`/`height` are the slot's true pixel size — the viewBox matches 1:1 so
+ * the stroke stays even and the dot stays round.
  */
 export function SparklineLive({
   data,
+  width,
+  height,
   variant = "light",
   className,
+  guide = false,
 }: {
   data: number[];
+  width: number;
+  height: number;
   variant?: CardVariant;
   className?: string;
+  /** Draw the dotted level line through the peak. */
+  guide?: boolean;
 }) {
   const c = cardPalette(variant);
-  const { linePath, areaPath, endX, endY, zero } = buildSparkline(data, 300, 80);
-  if (zero) return <div className={className} aria-label="no activity in the last 90 days" />;
+  const { linePath, peakX, peakY, zero } = buildSparkline(data, width, height);
+  if (zero) return <div className={className} aria-label="no recent activity" />;
 
   return (
-    <svg viewBox="0 0 300 80" preserveAspectRatio="none" className={className} aria-hidden>
-      <path d={areaPath} fill={c.water} fillOpacity="0.10" />
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className={className}
+      style={{ overflow: "visible" }}
+      aria-hidden
+    >
+      {/* Guide first, so the curve and dot sit on top of it. */}
+      {guide && (
+        <path
+          d={`M0,${peakY} H${width}`}
+          stroke={c.clay}
+          strokeWidth={SPARK.guideWidth}
+          strokeDasharray={SPARK.guideDash}
+          strokeLinecap="round"
+          opacity={SPARK.guideOpacity}
+        />
+      )}
       <path
         d={linePath}
         fill="none"
         stroke={c.water}
-        strokeWidth="2.5"
+        strokeWidth={SPARK.stroke}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       {/* soft halo */}
-      <circle cx={endX} cy={endY} r="8" fill={c.clay} fillOpacity="0.16" />
+      <circle cx={peakX} cy={peakY} r={SPARK.halo} fill={c.clay} fillOpacity={SPARK.haloOpacity} />
       {/* pulsing ping */}
       <motion.circle
-        cx={endX}
-        cy={endY}
-        r={6}
+        cx={peakX}
+        cy={peakY}
+        r={SPARK.core}
         fill="none"
         stroke={c.clay}
-        strokeWidth={2}
-        initial={{ opacity: 0.75, scale: 1 }}
-        animate={{ opacity: 0, scale: 2.6 }}
-        transition={{ duration: 1.7, repeat: Infinity, ease: "easeOut" }}
+        strokeWidth={1.8}
+        initial={{ opacity: 0.8, scale: 1 }}
+        animate={{ opacity: 0, scale: 3 }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
         style={{ transformBox: "fill-box", transformOrigin: "center" }}
       />
       {/* solid core */}
-      <circle cx={endX} cy={endY} r="4.5" fill={c.clay} />
+      <circle cx={peakX} cy={peakY} r={SPARK.core} fill={c.clay} />
     </svg>
   );
 }
