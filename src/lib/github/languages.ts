@@ -1,15 +1,22 @@
 import { fetchJSON, GITHUB_API_BASE } from "./client";
-import { getRepos } from "./user";
+import { getRecentRepos } from "./user";
 import { GithubError } from "./types";
 import type { LanguageShare } from "./types";
 import { sanitizeUsername } from "@/lib/utils";
 
 /**
- * Repos to sample, largest first. GitHub's own language bar is bytes of code,
- * so the biggest repositories dominate the result — sampling the largest keeps
- * the numbers honest while bounding the API cost for accounts with hundreds of
- * repos. Every repo is included for anyone below this many.
+ * Sampling. GitHub's language bar is bytes of code, so the biggest repos
+ * dominate — but finding the biggest across an entire account meant downloading
+ * every page of repos first, which cost a 1,000-repo user about six seconds
+ * before any measuring began. Long enough that a social crawler would abandon
+ * the card preview.
+ *
+ * So: take the most recently pushed page, then measure the largest of those.
+ * Anyone with RECENT_REPOS or fewer repos is fully covered either way; beyond
+ * that, a large repo untouched for a year stops counting, which suits a card
+ * about someone's year.
  */
+const RECENT_REPOS = 100;
 const MAX_REPOS = 40;
 /**
  * Concurrent /languages requests. Raised from 8 because the round count, not
@@ -36,7 +43,7 @@ export function sharesFromBytes(bytes: Record<string, number>): LanguageShare[] 
 }
 
 /**
- * Sum `/repos/{owner}/{repo}/languages` across a user's own repositories.
+ * Sum `/repos/{owner}/{repo}/languages` across a sample of a user's own repos.
  *
  * Server-side only: this costs one request per repo, which would eat a
  * visitor's whole unauthenticated hourly allowance. A repo whose lookup fails
@@ -45,7 +52,7 @@ export function sharesFromBytes(bytes: Record<string, number>): LanguageShare[] 
  */
 export async function fetchLanguageShares(username: string): Promise<LanguageShare[]> {
   const clean = sanitizeUsername(username);
-  const repos = (await getRepos(clean))
+  const repos = (await getRecentRepos(clean, RECENT_REPOS))
     .filter((repo) => !repo.fork)
     .sort((a, b) => (b.size ?? 0) - (a.size ?? 0))
     .slice(0, MAX_REPOS);

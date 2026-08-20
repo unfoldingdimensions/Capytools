@@ -51,6 +51,26 @@ export async function getRepos(username: string): Promise<GitHubRepo[]> {
 }
 
 /**
+ * One page of a user's repos, most recently pushed first.
+ *
+ * For the language mix we only need a representative sample, and asking GitHub
+ * to sort saves walking every page: an account with a thousand repos spent ~6s
+ * downloading the full list just to rank it locally. "Recently pushed" is also
+ * the more fitting sample for a card about someone's year.
+ */
+export async function getRecentRepos(
+  username: string,
+  perPage = REPOS_PER_PAGE,
+): Promise<GitHubRepo[]> {
+  const clean = sanitizeUsername(username);
+  const { data } = await fetchPage<GitHubRepo[]>(
+    `${GITHUB_API_BASE}/users/${encodeURIComponent(clean)}/repos` +
+      `?per_page=${perPage}&page=1&sort=pushed&direction=desc`,
+  );
+  return data;
+}
+
+/**
  * Fetch public events, newest-first. Pages are pulled until the oldest event on
  * a page falls outside the 90-day window (or 5 pages are collected), then the
  * result is filtered to the window. An empty array is returned when even the
