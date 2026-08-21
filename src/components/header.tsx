@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { CapyMark } from "@/components/mascot/CapyMark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -18,11 +20,12 @@ function GithubLogo({ className }: { className?: string }) {
   );
 }
 
-export function Header() {
+/** `tool` names the current tool beside the wordmark; omit it on the landing page. */
+export function Header({ tool }: { tool?: string }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/65">
       <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5">
           <CapyMark className="h-7 w-9 shrink-0 text-foreground/85" />
           {/*
             items-baseline, not items-center: the wordmark is 16px and the tool
@@ -32,9 +35,11 @@ export function Header() {
           */}
           <span className="flex items-baseline gap-1.5">
             <span className="text-base font-bold tracking-tight text-foreground">Capytools</span>
-            <span className="hidden text-sm text-muted-foreground sm:inline">· Cappy Wrapped</span>
+            {tool && (
+              <span className="hidden text-sm text-muted-foreground sm:inline">· {tool}</span>
+            )}
           </span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-1">
           <Button asChild variant="ghost" size="icon" className="size-10 rounded-full sm:size-9">
