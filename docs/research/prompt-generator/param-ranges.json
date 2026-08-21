@@ -1,0 +1,51 @@
+{
+  "midjourney": {
+    "stylize": {
+      "min": 0,
+      "max": 1000,
+      "default": 100,
+      "note": "Official Midjourney docs: 'The default value for stylize is 100, and you can adjust it anywhere between 0 and 1000 with the latest Midjourney versions.' Uses --stylize / --s.",
+      "source": "https://docs.midjourney.com/hc/en-us/articles/32196176868109-Stylize"
+    },
+    "chaos": {
+      "min": 0,
+      "max": 100,
+      "default": 0,
+      "note": "Official Midjourney docs: 'By default chaos is set to 0... You can set the chaos value anywhere between 0 and 100'. Uses --chaos / --c (called 'Variety' on midjourney.com).",
+      "source": "https://docs.midjourney.com/hc/en-us/articles/32099348346765-Chaos-Variety"
+    }
+  },
+  "flux": {
+    "guidance": {
+      "min": 1.5,
+      "max": 5.0,
+      "default": 3.0,
+      "recommended": [2, 3.5, 5],
+      "note": "Official BFL API (FLUX.1 [dev] endpoint /v1/flux-dev, FluxDevInputs schema) clamps guidance_scale to minimum 1.5, maximum 5.0, default 3.0 ('High guidance scales improve prompt adherence at the cost of reduced realism'). The project's prior set [2,3.5,5,7] includes 7, which EXCEEDS the official API max of 5.0 and should be dropped. Open-weight FLUX.1 [dev] (HuggingFace diffusers) example code uses guidance_scale=3.5; in practice the open-weight build accepts higher values (controlnet/experimental use up to 30), but for base text-to-image the sane range is ~2-5. The previously assumed 0-10 range is wider than the official API allows.",
+      "source": "https://api.bfl.ai/openapi.json"
+    }
+  },
+  "video": {
+    "seedance": {
+      "durations": ["5s", "10s"],
+      "aspectRatios": ["16:9", "4:3", "1:1", "3:4", "9:16", "21:9", "adaptive"],
+      "maxDuration": "10s",
+      "source": "https://docs.byteplus.com/en/docs/ModelArk/1520757",
+      "note": "Official BytePlus/Volcengine 'Create a video generation task' API doc (ModelArk, Seedance family). The ratio set (16:9, 4:3, 1:1, 3:4, 9:16, 21:9, and 'adaptive') is stated verbatim in the docs. The duration parameter is 'Generated video duration in seconds' (specify either duration or frames; frames takes precedence). Exact allowed values (5 or 10 seconds) are enumerated by ByteDance Seedance API wrappers (apiframe.ai, kie.ai) and match the Seedance 1.0 paper's 5-second generation example. The project's prior [4s,8s,12s] set is NOT supported by Seedance. 'adaptive' auto-selects ratio from task type/input.",
+      "unverified": true,
+      "unverifiedReason": "The official BytePlus page confirms duration is in seconds and lists the full ratio set, but does not explicitly enumerate the allowed numeric duration values inline in the fetched content; the 5s/10s enumeration is corroborated by multiple ByteDance Seedance API-wrapper docs (apiframe.ai/docs/videos/seedance/seedance-1-pro, kie.ai/bytedance/seedance-v1) rather than the top-level official page."
+    },
+    "runway": {
+      "durations": ["5s", "10s"],
+      "aspectRatios": ["16:9", "9:16", "1:1"],
+      "source": "https://help.runwayml.com/hc/en-us/articles/37327109429011-Creating-with-Gen-4-Video",
+      "note": "Official Runway help center, 'Creating with Gen-4 Video': 'Gen-4 currently offers outputs in 5 and 10 second durations.' Resolutions/aspect ratios: Horizontal 16:9 (1280x720), Vertical 9:16 (720x1280), Square 1:1 (960x960). Gen-4 Turbo uses the same 5s/10s durations. (Newer Gen-4.5 / third-party docs reference 5/8/10s and additional ratios like 4:3/3:4/21:9, but the official Runway Gen-4 doc confirms 5s/10s and 16:9/9:16/1:1.)"
+    },
+    "kling": {
+      "durations": ["5s", "10s"],
+      "aspectRatios": ["16:9", "1:1", "9:16"],
+      "source": "https://kling.ai/quickstart/klingai-video-26-audio-user-guide",
+      "note": "Official Kling AI user guide (Kling Video 2.6 Audio User Guide): 'Video Duration: 5s, 10s' and 'Aspect Ratio: 16:9, 1:1, 9:16'. Corroborated by Kling-Text2Video-V2.1-Master API docs (GMI Cloud): duration options '5'/'10', aspect_ratio options '16:9'/'9:16'/'1:1', default 16:9. The project's prior assumption of 10s max is correct; Kling V3 (via some API partners) extends up to 15s but the official Kling consumer guide lists 5s/10s."
+    }
+  }
+}

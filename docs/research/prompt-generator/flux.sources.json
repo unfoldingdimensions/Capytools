@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "url": "https://blackforestlabs.ai/announcing-black-forest-labs/",
+    "title": "Announcing Black Forest Labs (FLUX.1 suite: pro/dev/schnell variants, architecture, benchmarks)"
+  },
+  {
+    "id": 2,
+    "url": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+    "title": "FLUX.1 [dev] Model Card — Hugging Face"
+  },
+  {
+    "id": 3,
+    "url": "https://github.com/black-forest-labs/flux/blob/main/model_cards/FLUX.1-dev.md",
+    "title": "FLUX.1 [dev] Model Card — black-forest-labs/flux (GitHub)"
+  },
+  {
+    "id": 4,
+    "url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+    "title": "FLUX.1 [schnell] Model Card — Hugging Face"
+  },
+  {
+    "id": 5,
+    "url": "https://docs.bfl.ml/guides/prompting_summary",
+    "title": "FLUX Prompting Guide — Black Forest Labs (docs.bfl.ml)"
+  },
+  {
+    "id": 6,
+    "url": "https://docs.bfl.ml/guides/prompting_unified_basics",
+    "title": "Prompting Basics — Black Forest Labs (docs.bfl.ml): natural language, formula template, text-in-image quotes"
+  },
+  {
+    "id": 7,
+    "url": "https://fal.ai/models/fal-ai/flux/dev/api",
+    "title": "FLUX.1 [dev] Text-to-Image API Docs — fal.ai (image_size, steps, guidance_scale, seed)"
+  },
+  {
+    "id": 8,
+    "url": "https://docs.bfl.ml/api_integration/integration_guidelines",
+    "title": "FLUX API Integration Guide — Black Forest Labs (endpoints, polling, expiration, error handling)"
+  },
+  {
+    "id": 9,
+    "url": "https://replicate.com/blog/fine-tune-flux",
+    "title": "Replicate: Fine-tune FLUX.1 with your own images (LoRA, trigger words)"
+  },
+  {
+    "id": 10,
+    "url": "https://bennycheung.github.io/personal-fine-tuning-with-flux",
+    "title": "Personal Embedding and Fine-Tuning with the FLUX Model on Replicate (trigger-word prompts, LoRA params)"
+  },
+  {
+    "id": 11,
+    "url": "https://huggingface.co/spaces/multimodalart/flux-lora-the-explorer",
+    "title": "FLUX LoRA the Explorer — Hugging Face Space (LoRA style gallery)"
+  },
+  {
+    "id": 12,
+    "url": "https://huggingface.co/docs/diffusers/main/en/api/pipelines/flux",
+    "title": "Diffusers — Flux Pipeline documentation (T5 tokenizer_2, prompt_2, parameters, IP-Adapter, LoRA)"
+  }
+]

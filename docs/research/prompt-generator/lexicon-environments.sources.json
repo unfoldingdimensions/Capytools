@@ -1,0 +1,52 @@
+[
+  {
+    "id": "prompthero",
+    "url": "https://prompthero.com/",
+    "title": "PromptHero - AI Prompt Search & Community (Midjourney/SD/FLUX environment tags)"
+  },
+  {
+    "id": "lexica",
+    "url": "https://lexica.art/",
+    "title": "Lexica - AI Art Search Engine & Prompt Library (environment/setting keywords)"
+  },
+  {
+    "id": "conceptstart-env",
+    "url": "https://www.conceptstart.net/art-prompts-list/environment-design-art-prompt-idea-generator",
+    "title": "Environment Design Art Prompt Idea Generator (fantasy/sci-fi/apocalyptic/horror settings)"
+  },
+  {
+    "id": "worldanvil-biomes",
+    "url": "https://academy.worldanvil.com/blog/fantasy-biomes-guide",
+    "title": "Guide to Biomes in Fantasy Worldbuilding - World Anvil Academy"
+  },
+  {
+    "id": "worldbuilding-biomes",
+    "url": "https://michaeltedin.com/worldbuilding-101-how-to-map-your-fictional-world-biomes/",
+    "title": "Worldbuilding 101 - How to Map Your Fictional World Biomes"
+  },
+  {
+    "id": "midjourney-cyberpunk",
+    "url": "https://magica.com/blog/midjourney-prompts-for-cyberpunk",
+    "title": "20 Midjourney Prompts for Cyberpunk (neon rooftop, marketplace, train station settings)"
+  },
+  {
+    "id": "openart-scifi",
+    "url": "https://openart.ai/blog/post/stable-diffusion-prompts-for-sci-fi",
+    "title": "The Best 25 Stable Diffusion Prompts for Sci-Fi (underwater city, Mars colony, alien marketplace)"
+  },
+  {
+    "id": "mimicpc-sciencefantasy",
+    "url": "https://www.mimicpc.com/learn/science-fantasy-stable-diffusion-prompt-examples",
+    "title": "42+ Science Fantasy Stable Diffusion Prompt Examples (floating castle, crystal palace, asteroid)"
+  },
+  {
+    "id": "yourdictionary-eras",
+    "url": "https://www.yourdictionary.com/articles/historical-eras-list",
+    "title": "Historical Eras: List of Major Time Periods in History (prehistoric, classical, medieval, modern)"
+  },
+  {
+    "id": "lustintime-eras",
+    "url": "http://lustintime.blogspot.com/2009/04/timeline-of-historical-eras.html",
+    "title": "Timeline of Historical Eras (Victorian, Edwardian, Belle Epoque, Renaissance)"
+  }
+]

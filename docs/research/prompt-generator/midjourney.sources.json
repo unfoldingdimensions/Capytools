@@ -1,0 +1,14 @@
+[
+  { "id": 1, "url": "https://docs.midjourney.com/hc/en-us/articles/32859204029709-Parameter-List", "title": "Parameter List — Midjourney (official)" },
+  { "id": 2, "url": "https://docs.midjourney.com/hc/en-us/articles/32023408776205-Prompt-Basics", "title": "Prompt Basics — Midjourney (official)" },
+  { "id": 3, "url": "https://docs.midjourney.com/hc/en-us/articles/32196176868109-Stylize", "title": "Stylize — Midjourney (official)" },
+  { "id": 4, "url": "https://docs.midjourney.com/hc/en-us/articles/32658968492557-Multi-Prompts-Weights", "title": "Multi-Prompts & Weights — Midjourney (official)" },
+  { "id": 5, "url": "https://docs.midjourney.com/hc/en-us/articles/32173351982093-No", "title": "No parameter — Midjourney (official)" },
+  { "id": 6, "url": "https://docs.midjourney.com/hc/en-us/articles/32099348346765-Chaos-Variety", "title": "Chaos / Variety — Midjourney (official)" },
+  { "id": 7, "url": "https://docs.midjourney.com/hc/en-us/articles/32604356340877-Seeds", "title": "Seeds — Midjourney (official)" },
+  { "id": 8, "url": "https://docs.midjourney.com/hc/en-us/articles/32176522101773-Quality", "title": "Quality — Midjourney (official)" },
+  { "id": 9, "url": "https://docs.midjourney.com/hc/en-us/articles/32197978340109-Tile", "title": "Tile — Midjourney (official)" },
+  { "id": 10, "url": "https://docs.midjourney.com/hc/en-us/articles/32199405667853-Version", "title": "Version — Midjourney (official)" },
+  { "id": 11, "url": "https://docs.midjourney.com/hc/en-us/articles/32180011136653-Style-Reference", "title": "Style Reference — Midjourney (official)" },
+  { "id": 12, "url": "https://promptmake.net/blog/text-to-image-prompt-weighting-midjourney-flux", "title": "PromptMake 2026 — Midjourney/Flux weighting (secondary; v7 :: claim unverified)" }
+]

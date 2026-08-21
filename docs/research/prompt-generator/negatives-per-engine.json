@@ -1,0 +1,46 @@
+{
+  "engines": [
+    {
+      "id": "Gemini",
+      "honorsNegative": false,
+      "bestForm": "Avoid X, Y (inline clause) OR positive rephrasing (e.g. 'empty street' not 'no cars')",
+      "notes": "Gemini/Nano Banana image generation has NO dedicated negative-prompt field. The image_config schema only accepts aspectRatio and imageSize; sending a negativePrompt field returns a 400 'Unknown name' error. Google's official guidance is to use positive framing: describe what you want, not what you don't want. If you must exclude something, embed a short explicit 'Avoid X' clause inside the main prompt. Long negative lists do not work — keep any exclusion short and specific. Multi-turn edits can reintroduce excluded elements, so re-state exclusions per turn.",
+      "source": "https://ai.google.dev/gemini-api/docs/image-generation"
+    },
+    {
+      "id": "Midjourney",
+      "honorsNegative": true,
+      "bestForm": "--no short, atomic, comma-separated list (e.g. --no fruit, apple, pear)",
+      "notes": "--no is a native parameter that tells the model what to leave out (functionally equivalent to weighing part of a multi-prompt to -0.5). The moderation system reads EVERY word in --no independently, so multi-word phrases backfire: '--no modern clothing' is parsed as 'no modern' AND 'no clothing'. Therefore a SHORT list of single atomic words works better than long or compound phrases. Sane default: 3-8 discrete terms, no multi-word combinations. Compound concepts belong in the positive prompt, not --no.",
+      "source": "https://docs.midjourney.com/hc/en-us/articles/32173351982093-No"
+    },
+    {
+      "id": "Flux",
+      "honorsNegative": false,
+      "bestForm": "No negatives supported — invert to positive (e.g. 'sharp focus throughout' not 'no blur'; 'empty scene' not 'no people')",
+      "notes": "FLUX.2 (pro/max) and FLUX.1 dev do NOT support negative prompts at all — there is no negative field in the API or prompting framework. Official guidance: focus on describing what you want. Instead of 'no blur' say 'sharp focus throughout'; instead of 'no people' describe an 'empty scene'. Recommendation: DROP negatives entirely for Flux. A tiny list is pointless because it is ignored; rephrase any exclusion as a positive descriptor in the main prompt. FLUX.2 pays most attention to words at the start of the prompt, so put critical positive descriptors first.",
+      "source": "https://docs.bfl.ml/guides/prompting_guide_flux2"
+    },
+    {
+      "id": "SDXL",
+      "honorsNegative": true,
+      "bestForm": "Dedicated negative-prompt field (the '### NEGATIVE' / negative_prompt box), comma-separated terms with optional (term:weight) weighting",
+      "notes": "Stable Diffusion / SDXL via Automatic1111 (and ComfyUI) has a true dedicated negative-prompt field. It works by replacing the unconditional conditioning string during sampling, steering the result away from the listed concepts without consuming your 75-token positive allowance. Best practice is a focused quality/anatomy list; a sane typical length is 10-20 concise terms. Overly long negative prompts dilute weight and can hurt adherence. Weighted syntax (low quality:1.4) is supported for emphasis. Quality terms (lowres, jpeg artifacts, watermark) plus anatomy terms (extra fingers, deformed hands) are the standard baseline.",
+      "source": "https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Negative-prompt"
+    },
+    {
+      "id": "Video",
+      "honorsNegative": false,
+      "bestForm": "For Kling: dedicated 'Avoid:' / negative_prompt field (comma-separated). For Runway Gen-4 / Seedance / Veo: NO field — invert to positives or embed a short inline 'Avoid X' clause; never rely on a negatives field.",
+      "notes": "Video-model negative support is SPLIT by vendor (verified via cross-vendor official-doc synthesis). Kling 2.x exposes a dedicated negative_prompt field (up to 2500 chars) and honors it. Runway Gen-4 explicitly does NOT support negative prompting — its official guide warns that negative phrasing 'may result in the opposite happening' and recommends positive rephrasing (e.g. 'bald man' not 'a man with no hair'). Seedance 2.0 and Google Veo (Gemini API surface) also lack a reliable negatives field — Veo only supports negatives on the Vertex API and requires inverting to positives on the Gemini API; Seedance guidance favors in-prompt positive, outcome-focused language. Net: treat Video as NOT honoring a generic negatives field; use Kling's field when that model is selected, otherwise embed a short inline 'Avoid X' clause or rephrase positively. Keep inline exclusions short and specific to recurring artifacts.",
+      "source": "https://mstudio.ai/blog/ai-filmmaking/how-to-prompt-ai-video-models"
+    }
+  ],
+  "recommendedNegatives": {
+    "Gemini": ["extra fingers", "watermark", "distorted face", "blurry", "text artifacts"],
+    "Midjourney": ["extra fingers", "watermark", "blurry", "distorted face", "low quality", "text artifacts"],
+    "Flux": [],
+    "SDXL": ["low quality", "worst quality", "lowres", "jpeg artifacts", "watermark", "blurry", "extra fingers", "deformed hands", "bad anatomy", "distorted face", "text", "signature"],
+    "Video": ["camera shake", "warped face", "flicker", "extra limbs", "watermark", "text overlay", "motion blur", "morphing"]
+  }
+}

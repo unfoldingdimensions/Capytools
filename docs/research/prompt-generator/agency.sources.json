@@ -1,0 +1,19 @@
+[
+  { "id": 1, "url": "https://docs.midjourney.com/hc/en-us/articles/32023408776205-Prompt-Basics", "title": "Prompt Basics - Midjourney (official docs)" },
+  { "id": 2, "url": "https://liora.io/en/all-about-midjourney-prompt-engineering", "title": "Prompt engineering on Midjourney: How to do it right? - Liora" },
+  { "id": 3, "url": "https://10b.ai/blog/midjourney-prompt-engineering", "title": "Midjourney Prompt Engineering Guide (Patterns + Templates) - 10b.ai" },
+  { "id": 4, "url": "https://promptchief.tech/artikel/prompt-engineering-midjourney.html", "title": "Prompt Engineering for Midjourney: Full Guide - PromptChief" },
+  { "id": 5, "url": "https://academy.runwayml.com/guides/prompting-guide", "title": "Prompting Guide - Runway Academy" },
+  { "id": 6, "url": "https://help.runwayml.com/hc/en-us/articles/39789879462419-Gen-4-Video-Prompting-Guide", "title": "Gen-4 Video Prompting Guide - Runway" },
+  { "id": 7, "url": "https://intercom.help/leonardo-ai/en/articles/8067671-prompting-tips-tricks", "title": "Prompting Tips & Tricks - Leonardo.Ai Help Center" },
+  { "id": 8, "url": "https://leonardo.ai/wiki/formatting-a-basic-prompt/", "title": "Formatting a basic prompt - Leonardo.Ai Wiki" },
+  { "id": 9, "url": "https://help.nightcafe.studio/portal/en/kb/articles/what-are-prompts", "title": "What are prompts and how to use them? - NightCafe Studio" },
+  { "id": 10, "url": "https://nightcafe.studio/blogs/blog/turn-stories-into-ai-art-prompt-guide", "title": "Turn Book Ideas into AI Art (Prompt Guide) - NightCafe Studio" },
+  { "id": 11, "url": "https://prompthero.com/stable-diffusion-cinematic-prompts", "title": "Stable Diffusion Cinematic Prompts - PromptHero" },
+  { "id": 12, "url": "https://prompthero.teachable.com/", "title": "Mastering Prompt Engineering - PromptHero Academy" },
+  { "id": 13, "url": "https://lablab.ai/ai-tutorials/stable-diffusion-lexica", "title": "Stable Diffusion tutorial: How to use Lexica - LabLab" },
+  { "id": 14, "url": "https://www.aitooldiscovery.com/guides/prompt-engineering", "title": "Prompt Engineering Guide 2026: Techniques, Templates & Examples - AI Tool Discovery" },
+  { "id": 15, "url": "https://insights.vanikya.ai/prompt-engineering-ai-image-generation-2026", "title": "Prompt Engineering for AI Image Generation: The Complete 2026 Guide - Vanikya Insights" },
+  { "id": 16, "url": "https://www.packtpub.com/en-us/newsletters/how-to-tutorials/text-to-image-prompt-engineering-tips-stable-diffusion", "title": "Text-to-Image Prompt Engineering Tips: Stable Diffusion - Packt" },
+  { "id": 17, "url": "https://www.bestprompt.art/ai-art-prompts-2026", "title": "AI Art Prompts 2026 - bestprompt.art" }
+]

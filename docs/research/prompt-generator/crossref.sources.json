@@ -1,0 +1,13 @@
+[
+  {"id": 1, "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0", "title": "SD-XL 1.0-base Model Card (Stability AI / Hugging Face)"},
+  {"id": 2, "url": "https://cdn.openai.com/papers/DALL_E_3_System_Card.pdf", "title": "OpenAI DALL-E 3 System Card"},
+  {"id": 3, "url": "https://openai.com/index/dall-e-3/", "title": "DALL-E 3 announcement (OpenAI)"},
+  {"id": 4, "url": "https://docs.api.nvidia.com/nim/reference/stabilityai-stable-diffusion-xl", "title": "NVIDIA NIM reference: stabilityai/stable-diffusion-xl (+ SDXL model overview)"},
+  {"id": 5, "url": "https://huggingface.co/docs/diffusers/v0.26.3/en/api/pipelines/stable_diffusion/stable_diffusion_xl", "title": "Hugging Face Diffusers: Stable Diffusion XL pipeline docs"},
+  {"id": 6, "url": "https://cdn.openai.com/papers/dall-e-3.pdf", "title": "Improving Image Generation with Better Captions (DALL-E 3 paper)"},
+  {"id": 7, "url": "https://docs.ideogram.ai/using-ideogram/generation-settings/magic-prompt", "title": "Ideogram Docs: Magic Prompt"},
+  {"id": 8, "url": "https://docs.ideogram.ai/using-ideogram/getting-started/prompting-guide/4.-json-prompting-ideogram-4.0.md", "title": "Ideogram Docs: 4. JSON Prompting (Ideogram 4.0)"},
+  {"id": 9, "url": "https://ideogram.ai/blog/claude-mcp", "title": "Ideogram Blog: The Ideogram 4.0 prompt guide"},
+  {"id": 10, "url": "https://github.com/ideogram-oss/ideogram4/blob/main/docs/prompting.md", "title": "ideogram-oss/ideogram4: docs/prompting.md"},
+  {"id": 11, "url": "https://artificial-intelligence-wiki.com/prompt-engineering/image-generation-prompts/ideogram-best-practices", "title": "Ideogram Best Practices (AI Wiki, third-party)"}
+]

@@ -1,0 +1,44 @@
+{
+  "engines": [
+    {
+      "id": "Gemini",
+      "blocksLivingArtists": true,
+      "blocksNamedPeople": true,
+      "note": "Google's Vertex AI image generation ships a 'Celebrity' safety category ('Detects a photorealistic representation of a celebrity in the request') and a 'People/Face' category. The Feb 2026 'Nano Banana 2' safety upgrade tightened public-figure/celebrity, face-swap, and outfit-swap restrictions (server-side Layer-2 filter that cannot be disabled via BLOCK_NONE). Living artists are public figures, so photorealistic style-of-a-living-artist prompts are blocked; historical/deceased artists are not singled out but photorealistic people are restricted generally. Verified via official Google Cloud doc.",
+      "source": "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/gemini-image-responsible-ai"
+    },
+    {
+      "id": "Midjourney",
+      "blocksLivingArtists": false,
+      "blocksNamedPeople": false,
+      "unverified": true,
+      "note": "No official Midjourney ToS/Community Guidelines rule bans 'in the style of <living artist>' prompts. The policy prohibits OFFENSIVE images of celebrities/public figures (PG-13), gore, adult content, and intellectual-property violations — but does NOT implement an automated name/artist filter. Midjourney is widely documented as imposing few restrictions on artist-style prompts (unlike ChatGPT, which blocks recent artists). The premise that 'V7 added living-artist protections' is NOT confirmed in any official doc we fetched. Treat as: no verified automated block, but keep an eye on IP/public-figure-offense moderation. Recommend runtime verification before relying on a hard filter.",
+      "source": "https://docs.midjourney.com/docs/terms-of-service"
+    },
+    {
+      "id": "Flux",
+      "blocksLivingArtists": false,
+      "blocksNamedPeople": false,
+      "note": "OPEN-WEIGHT vs HOSTED distinction: The open-weight FLUX models (FLUX.1-dev/schnell, FLUX.2) have NO built-in name/artist filter — the weights themselves do not block prompts. The hosted BFL API (bfl.ai) Usage Policy prohibits 'unlawful impersonation, including unlawful use of a real person's name, image, voice and/or likeness' and deceptive/realistic content of real people, but this is policy-level (enforced via content filter classifiers), NOT a hard prompt-name block on artist styles. So self-hosted/open-weight Flux: no filter at all; BFL-hosted: only deceptive real-person impersonation is restricted, artist style names are allowed. Verified via BFL usage policy and official inference repo content_filters.py.",
+      "source": "https://bfl.ai/legal/usage-policy",
+      "sourceSecondary": "https://github.com/black-forest-labs/flux/blob/main/src/flux/content_filters.py"
+    },
+    {
+      "id": "SDXL",
+      "blocksLivingArtists": false,
+      "blocksNamedPeople": false,
+      "note": "Open-weight, no built-in filter. SDXL 1.0 (Stability AI, July 2023, CreativeML OpenRAIL++-M) ships weights with no prompt-level name/artist moderation; any restriction depends on the deployment (e.g. DreamStudio or a third-party host may add filters). The RAIL license has use restrictions but no artist-name block. Self-hosted: fully permissive on artist styles.",
+      "source": "https://stability.ai/news-updates/stable-diffusion-sdxl-1-announcement",
+      "sourceSecondary": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+    },
+    {
+      "id": "Video",
+      "blocksLivingArtists": true,
+      "blocksNamedPeople": true,
+      "note": "Video engines vary but the dominant ones restrict named/real people: (1) RUNWAY explicitly prohibits 'Attempts to create content in the style of a known, living artist' and 'Use of an image, video, or audio of another person without their permission' / impersonation. (2) SEEDANCE (ByteDance) blocks real-person face uploads at the model layer and restricts real-person references (acceptable-use policy forbids depicting 'a person (living or dead)'s voice or likeness without appropriate consent'). (3) KLING prohibits 'realistic depictions of real individuals without authorization' and impersonation/deception. Net: living-artist style AND named-real-person prompts are restricted across the major video providers. Runway is the most explicit living-artist block.",
+      "source": "https://runwayml.com/safety/usage-policy",
+      "sourceSecondary": "https://kling.ai/docs/user-policy"
+    }
+  ],
+  "recommendation": "Tag each artist_reference entry with a 'living' boolean flag (true if the referenced artist is alive). Filter out living-artist entries when the target engine is Gemini (blocks public-figure/celebrity + photorealistic people) or any Video engine (Runway explicitly bans living-artist style; Seedance/Kling ban real-person depiction). For SDXL and open-weight/hosted Flux, keep all entries — neither applies an artist-name filter (Flux hosted only restricts deceptive real-person impersonation, not style names). For Midjourney, our research found NO verified automated living-artist block in official policy (only offensive public-figure images + IP infringement are prohibited), so keep entries but flag IP/celebrity-offense caution and verify at runtime. Deceased/historical artists are safe on every engine."
+}

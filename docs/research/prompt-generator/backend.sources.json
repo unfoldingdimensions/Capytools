@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "url": "https://arxiv.org/abs/2006.11239",
+    "title": "Denoising Diffusion Probabilistic Models (Ho, Jain, Abbeel; arXiv:2006.11239)"
+  },
+  {
+    "id": 2,
+    "url": "https://arxiv.org/abs/2112.10752",
+    "title": "High-Resolution Image Synthesis with Latent Diffusion Models (Rombach et al.; arXiv:2112.10752)"
+  },
+  {
+    "id": 3,
+    "url": "https://arxiv.org/abs/2403.03206",
+    "title": "Scaling Rectified Flow Transformers for High-Resolution Image Synthesis / SD3 (Esser et al.; arXiv:2403.03206)"
+  },
+  {
+    "id": 4,
+    "url": "https://arxiv.org/abs/2103.00020",
+    "title": "Learning Transferable Visual Models From Natural Language Supervision / CLIP (Radford et al.; arXiv:2103.00020)"
+  },
+  {
+    "id": 5,
+    "url": "https://arxiv.org/abs/1910.10683",
+    "title": "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer / T5 (Raffel et al.; arXiv:1910.10683)"
+  },
+  {
+    "id": 6,
+    "url": "https://arxiv.org/abs/2207.12598",
+    "title": "Classifier-Free Diffusion Guidance (Ho & Salimans; arXiv:2207.12598)"
+  },
+  {
+    "id": 7,
+    "url": "https://arxiv.org/abs/2307.01952",
+    "title": "SDXL: Improving Latent Diffusion Models for High-Resolution Image Synthesis (Podell et al.; arXiv:2307.01952)"
+  },
+  {
+    "id": 8,
+    "url": "https://arxiv.org/abs/2208.01618",
+    "title": "An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion (Gal et al.; arXiv:2208.01618)"
+  },
+  {
+    "id": 9,
+    "url": "https://arxiv.org/abs/2106.09685",
+    "title": "LoRA: Low-Rank Adaptation of Large Language Models (Hu et al.; arXiv:2106.09685)"
+  },
+  {
+    "id": 10,
+    "url": "https://arxiv.org/abs/2010.02502",
+    "title": "Denoising Diffusion Implicit Models / DDIM (Song, Meng, Ermon; arXiv:2010.02502)"
+  },
+  {
+    "id": 11,
+    "url": "https://arxiv.org/abs/2311.15127",
+    "title": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets (Blattmann et al.; arXiv:2311.15127)"
+  },
+  {
+    "id": 12,
+    "url": "https://arxiv.org/abs/2312.11805",
+    "title": "Gemini: A Family of Highly Capable Multimodal Models (Team Google; arXiv:2312.11805)"
+  },
+  {
+    "id": 13,
+    "url": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+    "title": "FLUX.1 [dev] model card (Black Forest Labs)"
+  },
+  {
+    "id": 14,
+    "url": "https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/svd",
+    "title": "Diffusers docs — Stable Video Diffusion pipeline (micro-conditioning: fps, motion_bucket_id, noise_aug_strength)"
+  }
+]

@@ -1,0 +1,216 @@
+{
+  "_note": "Platform aspect-ratio presets for Cappytool No.2, live-verified from official help-center docs on 2026-08-22. Each entry cites a primary official source URL that was actually fetched. Where the official doc gives an exact pixel size it is used verbatim; otherwise the ratio is taken from the official doc and the pixel size is the well-known standard for that ratio, noted as 'px from standard'. Ratios are restricted to the preset set: 1:1, 4:5, 9:16, 16:9, 2:3, 1.91:1, 21:9. Only Reddit (feed post) could not be confirmed from an official number and is flagged unverified.",
+  "platforms": [
+    {
+      "id": "twitter",
+      "label": "Twitter / X",
+      "source": "https://help.twitter.com/en/using-x/media-studio-faqs",
+      "image": {
+        "ratio": "16:9",
+        "px": "1200x675",
+        "note": "X keeps single images uncropped between 2:1 and 1:1, so 16:9 is the safe default; X help center publishes no exact in-stream image px, so 1200x675 is the standard size (px from standard, ratio from official crop behavior)."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "1280x720",
+        "note": "X Media Studio recommends 1280x720 for landscape video (square 720x720 also supported); 16:9 is the standard upload."
+      }
+    },
+    {
+      "id": "instagram-feed",
+      "label": "Instagram (Feed)",
+      "source": "https://help.instagram.com/1631821640426723/",
+      "image": {
+        "ratio": "4:5",
+        "px": "1080x1350",
+        "note": "Instagram keeps photos at original resolution when the aspect ratio is 1.91:1 to 3:4 (width up to 1080px); 4:5 portrait (1080x1350) is the recommended feed default. px from standard, ratio from official doc."
+      },
+      "video": {
+        "ratio": "4:5",
+        "px": "1080x1350",
+        "note": "Feed video supports the same 1.91:1 to 3:4 window; 4:5 portrait (1080x1350) is the recommended default. px from standard, ratio from official doc."
+      }
+    },
+    {
+      "id": "instagram-story",
+      "label": "Instagram (Story / Reel)",
+      "source": "https://www.facebook.com/help/1038071743007909",
+      "image": {
+        "ratio": "9:16",
+        "px": "1080x1920",
+        "note": "Reels support 1.91:1 to 9:16 at minimum 720p; Stories/Reels are full-screen 9:16 (1080x1920 standard, px from standard, ratio from official doc)."
+      },
+      "video": {
+        "ratio": "9:16",
+        "px": "1080x1920",
+        "note": "Reels support 1.91:1 to 9:16; 9:16 vertical (1080x1920) is the standard full-screen format. px from standard, ratio from official doc."
+      }
+    },
+    {
+      "id": "pinterest",
+      "label": "Pinterest (Pin)",
+      "source": "https://business.pinterest.com/en/Pinterest-product-specs",
+      "image": {
+        "ratio": "2:3",
+        "px": "1000x1500",
+        "note": "Pinterest recommends a 2:3 aspect ratio, or 1000 x 1500 pixels; Pins taller than 2:3 may be cut off in feeds (exact px from official doc)."
+      },
+      "video": {
+        "ratio": "2:3",
+        "px": "1000x1500",
+        "note": "Pin videos follow the same 2:3 vertical guidance; Pinterest recommends square (1:1) or vertical (2:3, 4:5, 9:16). px 1000x1500 from standard, ratio from official doc."
+      }
+    },
+    {
+      "id": "youtube-thumbnail",
+      "label": "YouTube (Thumbnail)",
+      "source": "https://support.google.com/youtube/answer/72431",
+      "image": {
+        "ratio": "16:9",
+        "px": "1280x720",
+        "note": "YouTube recommends 16:9 custom thumbnails; 1280x720 is the minimum HD size (thumbnails below 720p are downscaled). px from standard, ratio from official doc."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "1920x1080",
+        "note": "YouTube video frame is 16:9; 1920x1080 is the standard full-HD upload."
+      }
+    },
+    {
+      "id": "youtube-channel-art",
+      "label": "YouTube (Channel Art)",
+      "source": "https://support.google.com/youtube/answer/12950272",
+      "image": {
+        "ratio": "16:9",
+        "px": "2560x1440",
+        "note": "YouTube recommends the banner image be at least 2560x1440 px (16:9); safe area is 1546x423 centered. Exact px from official doc."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "2560x1440",
+        "note": "Same channel-art asset as the banner (2560x1440, 16:9). Exact px from official doc."
+      }
+    },
+    {
+      "id": "facebook-post",
+      "label": "Facebook (Post)",
+      "source": "https://facebook.com/help/2072491112815612",
+      "image": {
+        "ratio": "4:5",
+        "px": "1080x1350",
+        "note": "Facebook's aspect-ratio help confirms 1080x1350 = 4:5; feed posts also accept 1:1 and 1.91:1 link previews (1200x630). px from standard, ratio from official doc."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "1280x720",
+        "note": "Feed video is 16:9; 1280x720 is the standard upload size."
+      }
+    },
+    {
+      "id": "facebook-cover",
+      "label": "Facebook (Cover)",
+      "source": "https://www.facebook.com/help/125379114252045",
+      "image": {
+        "ratio": "16:9",
+        "px": "851x315",
+        "note": "Facebook recommends 851x315 for the fastest-loading Page cover (desktop is 16:9 full bleed; mobile is 2.4:1). Exact px from official doc."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "851x315",
+        "note": "Cover video uses the same 851x315 (16:9 desktop) area as the cover photo. Exact px from official doc."
+      }
+    },
+    {
+      "id": "linkedin-post",
+      "label": "LinkedIn (Post)",
+      "source": "https://linkedin.com/help/linkedin/answer/a525301",
+      "image": {
+        "ratio": "1.91:1",
+        "px": "1200x627",
+        "note": "LinkedIn recommends a 1.91:1 ratio (1200x627) for shared link/article previews; uploaded photos support 4:5 portrait too. Exact px from official doc."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "1280x720",
+        "note": "Feed video is 16:9; 1280x720 is the standard upload size."
+      }
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok",
+      "source": "https://support.tiktok.com/en/using-tiktok/creating-videos/creator-tools-on-tiktok",
+      "image": {
+        "ratio": "9:16",
+        "px": "1080x1920",
+        "note": "TikTok requires uploaded videos be 720x1280 or higher (9:16); in-feed video/image is vertical 9:16 (1080x1920 standard)."
+      },
+      "video": {
+        "ratio": "9:16",
+        "px": "1080x1920",
+        "note": "TikTok requires uploaded videos be 720x1280 resolution or higher (9:16); 1080x1920 is the standard full-screen upload. Ratio/px floor from official doc."
+      }
+    },
+    {
+      "id": "reddit",
+      "label": "Reddit (Post)",
+      "unverified": true,
+      "source": "https://support.reddithelp.com/hc/en-us/articles/360060422572-How-do-I-post-and-comment-on-Reddit",
+      "image": {
+        "ratio": "1:1",
+        "px": "1080x1080",
+        "note": "Reddit help center publishes no exact feed-post image dimensions. 1:1 (1080x1080) displays cleanly in-card; landscape 4:3 (1200x900) and 16:9 also accepted. px from standard — official number not published."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "1280x720",
+        "note": "Reddit help center publishes no exact feed-video dimensions (only comment-video min 50x50). 16:9 (1280x720) is the standard horizontal upload. px from standard — official number not published."
+      }
+    },
+    {
+      "id": "discord-icon",
+      "label": "Discord (Server Icon)",
+      "source": "https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server",
+      "image": {
+        "ratio": "1:1",
+        "px": "512x512",
+        "note": "Discord states the minimum icon size is 128x128; 512x512 is the recommended upload (px from standard), displayed masked to a circle. ratio 1:1 confirmed by official doc."
+      },
+      "video": {
+        "ratio": "1:1",
+        "px": "512x512",
+        "note": "Server icon (still or animated) is 1:1; 512x512 recommended. px from standard, ratio from official doc."
+      }
+    },
+    {
+      "id": "discord-banner",
+      "label": "Discord (Server Banner)",
+      "source": "https://support.discord.com/hc/en-us/articles/360028716472-Server-Banners",
+      "image": {
+        "ratio": "16:9",
+        "px": "960x540",
+        "note": "Discord recommends server banners be at least 960x540 px in a 16:9 aspect ratio (1920x1080 also accepted and auto-resized). Exact px from official doc."
+      },
+      "video": {
+        "ratio": "16:9",
+        "px": "960x540",
+        "note": "Animated server banners use the same 960x540 (16:9) recommendation. Exact px from official doc."
+      }
+    },
+    {
+      "id": "threads",
+      "label": "Threads",
+      "source": "https://help.instagram.com/1631821640426723/",
+      "image": {
+        "ratio": "4:5",
+        "px": "1080x1350",
+        "note": "Threads reuses Instagram/Meta's upload pipeline (1.91:1 to 3:4 window, 1080px width); 4:5 portrait (1080x1350) is the recommended post format. px from standard, ratio from official Meta doc."
+      },
+      "video": {
+        "ratio": "9:16",
+        "px": "1080x1920",
+        "note": "Threads video is 9:16 vertical (1080x1920 standard), consistent with Meta's Reels 1.91:1 to 9:16 guidance. px from standard, ratio from official Meta doc."
+      }
+    }
+  ]
+}

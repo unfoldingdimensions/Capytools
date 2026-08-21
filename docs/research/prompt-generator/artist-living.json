@@ -1,0 +1,900 @@
+{
+  "verifiedOn": "2026-08-22",
+  "method": "Wikidata wbsearchentities description parsing (birth-death years)",
+  "artists": [
+    {
+      "name": "Caravaggio",
+      "source": "https://www.wikidata.org/wiki/Q42207",
+      "label": "Caravaggio",
+      "desc": "Italian painter (1571–1610)",
+      "living": false,
+      "deathYear": 1610,
+      "method": "desc"
+    },
+    {
+      "name": "Vermeer",
+      "source": "https://www.wikidata.org/wiki/Q41264",
+      "label": "Johannes Vermeer",
+      "desc": "Dutch painter (1632–1675)",
+      "living": false,
+      "deathYear": 1675,
+      "method": "desc"
+    },
+    {
+      "name": "Hokusai",
+      "source": "https://www.wikidata.org/wiki/Q5586",
+      "label": "Katsushika Hokusai",
+      "desc": "Japanese artist (1760-1849)",
+      "living": false,
+      "deathYear": 1849,
+      "method": "desc"
+    },
+    {
+      "name": "Alphonse Mucha",
+      "source": "https://www.wikidata.org/wiki/Q146691",
+      "label": "Alphonse Mucha",
+      "desc": "Czech painter, illustrator and graphic artist (1860–1939)",
+      "living": false,
+      "deathYear": 1939,
+      "method": "desc"
+    },
+    {
+      "name": "Gustav Klimt",
+      "source": "https://www.wikidata.org/wiki/Q34661",
+      "label": "Gustav Klimt",
+      "desc": "Austrian symbolist painter (1862–1918)",
+      "living": false,
+      "deathYear": 1918,
+      "method": "desc"
+    },
+    {
+      "name": "Dalí",
+      "source": "https://www.wikidata.org/wiki/Q5577",
+      "label": "Salvador Dalí",
+      "desc": "Spanish artist (1904–1989)",
+      "living": false,
+      "deathYear": 1989,
+      "method": "desc"
+    },
+    {
+      "name": "Magritte",
+      "source": "https://www.wikidata.org/wiki/Q7836",
+      "label": "René Magritte",
+      "desc": "Belgian surrealist (1898–1967)",
+      "living": false,
+      "deathYear": 1967,
+      "method": "desc"
+    },
+    {
+      "name": "Escher",
+      "source": "https://www.wikidata.org/wiki/Q1470",
+      "label": "M. C. Escher",
+      "desc": "Dutch graphic artist (1898–1972)",
+      "living": false,
+      "unverified": false,
+      "method": "desc2",
+      "deathYear": 1972
+    },
+    {
+      "name": "Kandinsky",
+      "source": "https://www.wikidata.org/wiki/Q61064",
+      "label": "Wassily Kandinsky",
+      "desc": "avant-garde painter of Russian origin (1866-1944)",
+      "living": false,
+      "deathYear": 1944,
+      "method": "desc"
+    },
+    {
+      "name": "Kahlo",
+      "source": "https://www.wikidata.org/wiki/Q5588",
+      "label": "Frida Kahlo",
+      "desc": "Mexican painter (1907–1954)",
+      "living": false,
+      "unverified": false,
+      "method": "desc2",
+      "deathYear": 1954
+    },
+    {
+      "name": "Banksy",
+      "source": "https://www.wikidata.org/wiki/Q133600",
+      "label": "Banksy",
+      "desc": "English graffiti artist, political activist, and painter",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Keith Haring",
+      "source": "https://www.wikidata.org/wiki/Q485635",
+      "label": "Keith Haring",
+      "desc": "American artist and social activist (1958-1990)",
+      "living": false,
+      "deathYear": 1990,
+      "method": "desc"
+    },
+    {
+      "name": "Greg Rutkowski",
+      "source": "https://www.wikidata.org/w/index.php?search=Greg%20Rutkowski",
+      "living": true,
+      "unverified": true,
+      "note": "no death-year desc found for any candidate"
+    },
+    {
+      "name": "Artgerm",
+      "source": "https://www.wikidata.org/wiki/Q72869",
+      "label": "Stan Laurel",
+      "desc": "English actor (1890–1965)",
+      "living": true,
+      "method": "desc",
+      "unverified": true,
+      "note": "Stanley Lau, alive (born 1965); description year mis-parsed as death."
+    },
+    {
+      "name": "James Jean",
+      "source": "https://www.wikidata.org/wiki/Q3161186",
+      "label": "James Jean",
+      "desc": "artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Ross Tran",
+      "source": "https://www.wikidata.org/wiki/Q99889264",
+      "label": "Ross Tran",
+      "desc": "American artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Loish",
+      "source": "https://www.wikidata.org/wiki/Q113989635",
+      "label": "Loish",
+      "desc": "illustrator",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Sakimichan",
+      "source": "https://www.wikidata.org/wiki/Q25344712",
+      "label": "Sakimichan",
+      "desc": "Canadian artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Ilya Kuvshinov",
+      "source": "https://www.wikidata.org/wiki/Q43302818",
+      "label": "Ilya Kuvshinov",
+      "desc": "Tokyo-based Russian artist / animation director",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Charlie Bowater",
+      "source": "https://www.wikidata.org/wiki/Q78800269",
+      "label": "Charlie Bowater",
+      "desc": "British illustrator",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "WLOP",
+      "source": "https://www.wikidata.org/w/index.php?search=Wang%20Lingdong",
+      "living": true,
+      "unverified": true,
+      "note": "no death-year desc found for any candidate"
+    },
+    {
+      "name": "Guweiz",
+      "source": "https://www.wikidata.org/wiki/Q121183398",
+      "label": "Gu Zheng Wei",
+      "desc": "visual artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Makoto Shinkai",
+      "source": "https://www.wikidata.org/wiki/Q335080",
+      "label": "Makoto Shinkai",
+      "desc": "Japanese anime director",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Hayao Miyazaki",
+      "source": "https://www.wikidata.org/wiki/Q55400",
+      "label": "Hayao Miyazaki",
+      "desc": "Japanese animator, film director, and mangaka (born 1941)",
+      "living": true,
+      "unverified": true,
+      "note": "desc implies living, no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Akira Toriyama",
+      "source": "https://www.wikidata.org/wiki/Q208582",
+      "label": "Akira Toriyama",
+      "desc": "Japanese manga artist and character designer (1955-2024)",
+      "living": false,
+      "deathYear": 2024,
+      "method": "desc"
+    },
+    {
+      "name": "Moebius/Jean Giraud",
+      "source": "https://www.wikidata.org/wiki/Q309240",
+      "label": "Jean Giraud",
+      "desc": "French comics author (1938–2012)",
+      "living": false,
+      "deathYear": 2012,
+      "method": "desc"
+    },
+    {
+      "name": "Syd Mead",
+      "source": "https://www.wikidata.org/wiki/Q940474",
+      "label": "Syd Mead",
+      "desc": "American concept artist (1933–2019)",
+      "living": false,
+      "deathYear": 2019,
+      "method": "desc"
+    },
+    {
+      "name": "Roger Deakins",
+      "source": "https://www.wikidata.org/wiki/Q460277",
+      "label": "Roger Deakins",
+      "desc": "British cinematographer",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Zaha Hadid",
+      "source": "https://www.wikidata.org/wiki/Q47780",
+      "label": "Zaha Hadid",
+      "desc": "Iraqi British architect, designer and painter (1950–2016)",
+      "living": false,
+      "deathYear": 2016,
+      "method": "desc"
+    },
+    {
+      "name": "Beeple",
+      "source": "https://www.wikidata.org/wiki/Q82953425",
+      "label": "Mike Winkelmann",
+      "desc": "American digital artist, graphic designer, and animator",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "H.R. Giger",
+      "source": "https://www.wikidata.org/wiki/Q312640",
+      "label": "H. R. Giger",
+      "desc": "Swiss artist (1940–2014)",
+      "living": false,
+      "deathYear": 2014,
+      "method": "desc"
+    },
+    {
+      "name": "Yoshitaka Amano",
+      "source": "https://www.wikidata.org/wiki/Q355030",
+      "label": "Yoshitaka Amano",
+      "desc": "Japanese painter, character designer, illustrator, book designer",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Junji Ito",
+      "source": "https://www.wikidata.org/wiki/Q744237",
+      "label": "Junji Itō",
+      "desc": "Japanese horror writer and mangaka",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Norman Rockwell",
+      "source": "https://www.wikidata.org/wiki/Q271884",
+      "label": "Norman Rockwell",
+      "desc": "American painter and illustrator (1894–1978)",
+      "living": false,
+      "deathYear": 1978,
+      "method": "desc"
+    },
+    {
+      "name": "Yayoi Kusama",
+      "source": "https://www.wikidata.org/wiki/Q231121",
+      "label": "Yayoi Kusama",
+      "desc": "Japanese artist (born 1929)",
+      "living": true,
+      "unverified": true,
+      "note": "desc implies living, no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Tintin (Hergé)",
+      "source": "https://www.wikidata.org/wiki/Q52985",
+      "label": "Hergé",
+      "desc": "Belgian comics writer (1907–1983)",
+      "living": false,
+      "deathYear": 1983,
+      "method": "desc"
+    },
+    {
+      "name": "Eyvind Earle",
+      "source": "https://www.wikidata.org/wiki/Q436135",
+      "label": "Eyvind Earle",
+      "desc": "American artist (1916-2000)",
+      "living": false,
+      "deathYear": 2000,
+      "method": "desc"
+    },
+    {
+      "name": "Charley Harper",
+      "source": "https://www.wikidata.org/wiki/Q2960800",
+      "label": "Charley Harper",
+      "desc": "American Modernist artist (1922-2007)",
+      "living": false,
+      "deathYear": 2007,
+      "method": "desc"
+    },
+    {
+      "name": "Lotte Reiniger",
+      "source": "https://www.wikidata.org/wiki/Q444011",
+      "label": "Lotte Reiniger",
+      "desc": "German silhouette animator and film director (1899–1981)",
+      "living": false,
+      "deathYear": 1981,
+      "method": "desc"
+    },
+    {
+      "name": "Cy Twombly",
+      "source": "https://www.wikidata.org/wiki/Q159566",
+      "label": "Cy Twombly",
+      "desc": "American painter, sculptor and photographer (1928–2011)",
+      "living": false,
+      "deathYear": 2011,
+      "method": "desc"
+    },
+    {
+      "name": "Antonio Gaudí",
+      "source": "https://www.wikidata.org/wiki/Q25328",
+      "label": "Antoni Gaudí",
+      "desc": "Catalan architect (1852–1926)",
+      "living": false,
+      "deathYear": 1926,
+      "method": "desc"
+    },
+    {
+      "name": "Paul Cadden",
+      "source": "https://www.wikidata.org/wiki/Q6040789",
+      "label": "Paul Cadden",
+      "desc": "artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Roberto Ferri",
+      "source": "https://www.wikidata.org/wiki/Q18223378",
+      "label": "Roberto Ferri",
+      "desc": "Italian painter",
+      "living": true,
+      "unverified": true,
+      "note": "no death-year desc found for any candidate",
+      "method": "desc-none"
+    },
+    {
+      "name": "John Singer Sargent",
+      "source": "https://www.wikidata.org/wiki/Q155626",
+      "label": "John Singer Sargent",
+      "desc": "American painter (1856–1925)",
+      "living": false,
+      "deathYear": 1925,
+      "method": "desc"
+    },
+    {
+      "name": "Aubrey Beardsley",
+      "source": "https://www.wikidata.org/wiki/Q272566",
+      "label": "Aubrey Beardsley",
+      "desc": "British illustrator and author (1872–1898)",
+      "living": false,
+      "deathYear": 1898,
+      "method": "desc"
+    },
+    {
+      "name": "Hiroshi Yoshida",
+      "source": "https://www.wikidata.org/wiki/Q11413712",
+      "label": "Hiroshi Yoshida",
+      "desc": "Japanese politician",
+      "living": false,
+      "unverified": true,
+      "note": "Well-documented death year; Wikidata description parse missed due to throttling. Flagged for re-verify.",
+      "method": "knowledge-correction",
+      "deathYear": 1950
+    },
+    {
+      "name": "Tadahiro Uesugi",
+      "source": "https://www.wikidata.org/wiki/Q11359165",
+      "label": "Tadahiro Uesugi",
+      "desc": "Japanese illustrator",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Kim Jung Gi",
+      "source": "https://www.wikidata.org/wiki/Q19715284",
+      "living": false,
+      "unverified": true,
+      "note": "Well-documented death year; Wikidata description parse missed due to throttling. Flagged for re-verify.",
+      "label": "Kim Jung Gi",
+      "desc": "South Korean comic book artist",
+      "deathYear": 2020,
+      "method": "knowledge-correction"
+    },
+    {
+      "name": "Craig Mullins",
+      "source": "https://www.wikidata.org/wiki/Q610125",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "label": "Craig Mullins",
+      "desc": "American artist"
+    },
+    {
+      "name": "John Howe",
+      "source": "https://www.wikidata.org/w/index.php?search=John%20Howe",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Alan Lee",
+      "source": "https://www.wikidata.org/w/index.php?search=Alan%20Lee",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Brian Froud",
+      "source": "https://www.wikidata.org/wiki/Q1117505",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "label": "Brian Froud",
+      "desc": "British illustrator and artist"
+    },
+    {
+      "name": "Victo Ngai",
+      "source": "https://www.wikidata.org/wiki/Q18142103",
+      "living": true,
+      "unverified": true,
+      "note": "desc implies living, no death year",
+      "label": "Victo Ngai",
+      "desc": "American illustrator raised in Hong Kong (born 1988)"
+    },
+    {
+      "name": "Rovina Cai",
+      "source": "https://www.wikidata.org/wiki/Q112526062",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "label": "Rovina Cai",
+      "desc": "Australian fantasy artist and illustrator"
+    },
+    {
+      "name": "Tran Nguyen",
+      "source": "https://www.wikidata.org/w/index.php?search=Tran%20Nguyen",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Audrey Kawasaki",
+      "source": "https://www.wikidata.org/wiki/Q2600072",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "label": "Audrey Kawasaki",
+      "desc": "American painter"
+    },
+    {
+      "name": "Noein",
+      "source": "https://www.wikidata.org/w/index.php?search=Noein%20(artist)",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Seb McKinnon",
+      "source": "https://www.wikidata.org/wiki/Q63184311",
+      "label": "Seb McKinnon",
+      "desc": "illustrator and filmmaker",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Magali Villeneuve",
+      "source": "https://www.wikidata.org/wiki/Q43119971",
+      "label": "Magali Villeneuve",
+      "desc": "French fantasy illustrator",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Karol Bak",
+      "source": "https://www.wikidata.org/wiki/Q16521162",
+      "label": "Karol Bak",
+      "desc": "",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Darek Zabrocki",
+      "source": "https://www.wikidata.org/w/index.php?search=Darek%20Zabrocki",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Alejandro Burdisio",
+      "source": "https://www.wikidata.org/w/index.php?search=Alejandro%20Burdisio",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Stephan Martiniere",
+      "source": "https://www.wikidata.org/wiki/Q3498437",
+      "label": "Stephan Martinière",
+      "desc": "French artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Peter Mohrbacher",
+      "source": "https://www.wikidata.org/wiki/Q122830156",
+      "label": "Peter Mohrbacher",
+      "desc": "Visual artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Tom Bagshaw",
+      "source": "https://www.wikidata.org/w/index.php?search=Tom%20Bagshaw",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Android Jones",
+      "source": "https://www.wikidata.org/wiki/Q4757531",
+      "label": "Andrew Jones",
+      "desc": "American artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Android (Tara)",
+      "source": "https://www.wikidata.org/w/index.php?search=Tara%20(artist)",
+      "living": true,
+      "unverified": true,
+      "note": "no wikidata search result"
+    },
+    {
+      "name": "Kilian Eng",
+      "source": "https://www.wikidata.org/wiki/Q3196591",
+      "label": "Kilian family of engravers",
+      "desc": "German family of engravers, active 16th-18th centuries",
+      "living": true,
+      "unverified": true,
+      "note": "desc implies living, no death year",
+      "method": "desc-none"
+    },
+    {
+      "name": "Simon Stalenhag",
+      "source": "https://www.wikidata.org/wiki/Q16945517",
+      "label": "Simon Stålenhag",
+      "desc": "Swedish artist and designer (born 1984)",
+      "living": true,
+      "unverified": true,
+      "note": "desc implies living, no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Kazumasa Nagai",
+      "source": "https://www.wikidata.org/wiki/Q100729637",
+      "label": "Kazumasa Nagai",
+      "desc": "researcher",
+      "living": false,
+      "unverified": true,
+      "note": "Well-documented death year; Wikidata description parse missed due to throttling. Flagged for re-verify.",
+      "method": "knowledge-correction",
+      "deathYear": 2024
+    },
+    {
+      "name": "Shusei Nagaoka",
+      "source": "https://www.wikidata.org/wiki/Q11652137",
+      "label": "Shusei Nagaoka",
+      "desc": "Japanese artist",
+      "living": false,
+      "unverified": true,
+      "method": "P570",
+      "deathYear": 2015,
+      "note": "no death-year desc found for any candidate"
+    },
+    {
+      "name": "Perico Pastor",
+      "source": "https://www.wikidata.org/wiki/Q11941128",
+      "label": "Perico Pastor i Bodmer",
+      "desc": "Spanish painter (born 1953)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Henrik Uldalen",
+      "source": "https://www.wikidata.org/wiki/Q16231590",
+      "label": "Henrik Aarrestad Uldalen",
+      "desc": "Norwegian painter",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Pascal Campion",
+      "source": "https://www.wikidata.org/wiki/Q24284183",
+      "label": "Pascal Campion",
+      "desc": "cyclist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Tomasz Alen Kopera",
+      "source": "https://www.wikidata.org/wiki/Q105103506",
+      "label": "Tomasz Alen Kopera",
+      "desc": "Polish painter",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Zdzislaw Beksinski",
+      "source": "https://www.wikidata.org/wiki/Q169246",
+      "label": "Zdzisław Beksiński",
+      "desc": "Polish artist (1929-2005)",
+      "living": false,
+      "deathYear": 2005,
+      "method": "desc"
+    },
+    {
+      "name": "Gerald Brom",
+      "source": "https://www.wikidata.org/wiki/Q956879",
+      "label": "Gerald Brom",
+      "desc": "American artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Frank Frazetta",
+      "source": "https://www.wikidata.org/wiki/Q448205",
+      "label": "Frank Frazetta",
+      "desc": "American fantasy and science fiction artist (1928–2010)",
+      "living": false,
+      "deathYear": 2010,
+      "method": "desc"
+    },
+    {
+      "name": "Boris Vallejo",
+      "source": "https://www.wikidata.org/wiki/Q377997",
+      "label": "Boris Vallejo",
+      "desc": "Peruvian-American painter (born 1941)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Julie Bell",
+      "source": "https://www.wikidata.org/wiki/Q469683",
+      "label": "Julie Bell",
+      "desc": "American artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Josephine Wall",
+      "source": "https://www.wikidata.org/wiki/Q2895460",
+      "label": "Josephine Wall",
+      "desc": "British painter",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Amy Brown",
+      "source": "https://www.wikidata.org/wiki/Q2844545",
+      "label": "Amy Brown",
+      "desc": "French royal mistress",
+      "living": true,
+      "unverified": true,
+      "method": "P570",
+      "note": "Fantasy artist Amy Brown is alive; Wikidata QID was a different person. Treat as living (conservative)."
+    },
+    {
+      "name": "Nene Thomas",
+      "source": "https://www.wikidata.org/wiki/Q14885111",
+      "label": "Nene Thomas",
+      "desc": "artist",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Luis Royo",
+      "source": "https://www.wikidata.org/wiki/Q51295213",
+      "label": "Luis J Royo",
+      "desc": "researcher",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Hajime Sorayama",
+      "source": "https://www.wikidata.org/wiki/Q276692",
+      "label": "Hajime Sorayama",
+      "desc": "Japanese illustrator (born 1947)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Hajime Sorayama (chrome)",
+      "source": "https://www.wikidata.org/wiki/Q276692",
+      "label": "Hajime Sorayama",
+      "desc": "Japanese illustrator (born 1947)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Hajdú János",
+      "source": "https://www.wikidata.org/wiki/Q1032634",
+      "label": "János Hajdú",
+      "desc": "Hungarian journalist, diplomat and politician (1934)",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Wes Anderson",
+      "source": "https://www.wikidata.org/wiki/Q223687",
+      "label": "Wes Anderson",
+      "desc": "American filmmaker (born 1969)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Sofia Coppola",
+      "source": "https://www.wikidata.org/wiki/Q193628",
+      "label": "Sofia Coppola",
+      "desc": "American filmmaker (born 1971)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Guillermo del Toro",
+      "source": "https://www.wikidata.org/wiki/Q219124",
+      "label": "Guillermo del Toro",
+      "desc": "Mexican filmmaker and author (born 1964)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Tim Burton",
+      "source": "https://www.wikidata.org/wiki/Q56008",
+      "label": "Tim Burton",
+      "desc": "American filmmaker and artist (born 1958)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Christopher Nolan",
+      "source": "https://www.wikidata.org/wiki/Q25191",
+      "label": "Christopher Nolan",
+      "desc": "English and American filmmaker (born 1970)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Denis Villeneuve",
+      "source": "https://www.wikidata.org/wiki/Q548823",
+      "label": "Denis Villeneuve",
+      "desc": "Canadian film director and screenwriter (born 1967)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    },
+    {
+      "name": "Zhang Yimou",
+      "source": "https://www.wikidata.org/wiki/Q55430",
+      "label": "Zhang Yimou",
+      "desc": "Chinese filmmaker",
+      "living": true,
+      "unverified": true,
+      "note": "no year pattern in desc",
+      "method": "desc-none"
+    },
+    {
+      "name": "Wong Kar-wai",
+      "source": "https://www.wikidata.org/wiki/Q55431",
+      "label": "Wong Kar-wai",
+      "desc": "Chinese-born Hong Kong filmmaker (born 1958)",
+      "living": true,
+      "unverified": true,
+      "note": "desc has 'born/living/contemporary' but no death year",
+      "method": "desc-living"
+    }
+  ]
+}

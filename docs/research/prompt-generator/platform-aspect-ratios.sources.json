@@ -1,0 +1,15 @@
+[
+  { "id": 1, "url": "https://help.twitter.com/en/using-x/media-studio-faqs", "title": "Media Studio Library - X Help" },
+  { "id": 2, "url": "https://help.instagram.com/1631821640426723/", "title": "Image resolution of photos you share on Instagram - Instagram Help Center" },
+  { "id": 3, "url": "https://www.facebook.com/help/1038071743007909", "title": "Reel size & aspect ratios on Instagram - Facebook Help Center" },
+  { "id": 4, "url": "https://business.pinterest.com/en/Pinterest-product-specs", "title": "Review ad specs - Pinterest Business Help" },
+  { "id": 5, "url": "https://support.google.com/youtube/answer/72431", "title": "Add custom thumbnails on YouTube - YouTube Help" },
+  { "id": 6, "url": "https://support.google.com/youtube/answer/12950272", "title": "Channel banner & profile picture tips - YouTube Help" },
+  { "id": 7, "url": "https://www.facebook.com/help/125379114252045", "title": "Facebook Page profile picture and cover photo dimensions - Facebook Help Center" },
+  { "id": 8, "url": "https://facebook.com/help/2072491112815612", "title": "Find the Aspect Ratio of Your Image - Facebook Help Center" },
+  { "id": 9, "url": "https://linkedin.com/help/linkedin/answer/a525301", "title": "Share articles or links - LinkedIn Help" },
+  { "id": 10, "url": "https://support.tiktok.com/en/using-tiktok/creating-videos/creator-tools-on-tiktok", "title": "Creator tools on TikTok - TikTok Support" },
+  { "id": 11, "url": "https://support.reddithelp.com/hc/en-us/articles/360060422572-How-do-I-post-and-comment-on-Reddit", "title": "How do I post and comment on Reddit? - Reddit Help" },
+  { "id": 12, "url": "https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server", "title": "How do I create a server? - Discord Help Center" },
+  { "id": 13, "url": "https://support.discord.com/hc/en-us/articles/360028716472-Server-Banners", "title": "Server Banners - Discord Help Center" }
+]

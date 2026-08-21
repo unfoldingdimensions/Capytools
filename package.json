@@ -35,7 +35,11 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5",
     "vitest": "^4.1.11"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }

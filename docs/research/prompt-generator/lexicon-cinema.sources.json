@@ -1,0 +1,62 @@
+[
+  {
+    "id": "s1",
+    "url": "https://www.arri.com/en/cine-lenses/arri-zeiss-fujinon-lenses/master-anamorphics",
+    "title": "ARRI Master Anamorphic Lenses"
+  },
+  {
+    "id": "s2",
+    "url": "https://www.zeiss.com/photonics-and-optics/us/cinematography/lenses/master-anamorphic-lenses.html",
+    "title": "ZEISS Master Anamorphic Lenses"
+  },
+  {
+    "id": "s3",
+    "url": "https://www.zeiss.com/photonics-and-optics/en/cinematography/lenses/arrizeiss.html",
+    "title": "ARRI/ZEISS Lenses (Master Prime, Ultra Prime, Master Anamorphic)"
+  },
+  {
+    "id": "s4",
+    "url": "https://www.arri.com/en/cine-lenses",
+    "title": "ARRI Cine Lenses Catalog (Signature, Ensō, Ultra Wide Zooms)"
+  },
+  {
+    "id": "s5",
+    "url": "https://shotonwhat.com/lenses/red-digital-cinema-lenses",
+    "title": "RED Digital Cinema Lenses (ShotOnWhat)"
+  },
+  {
+    "id": "s6",
+    "url": "https://www.cinelensmanual.com/",
+    "title": "The Cine Lens Manual (Holben & Probst, ASC)"
+  },
+  {
+    "id": "s7",
+    "url": "https://blaremedia.net/camera-movement-techniques-explained/",
+    "title": "Camera Movement Techniques Explained (Dolly, Pan, Crane, Steadicam)"
+  },
+  {
+    "id": "s8",
+    "url": "https://aeliavision.com/camera-movement-guide/",
+    "title": "Camera Movement Guide (push-in, orbit, whip pan, dolly zoom, locked-off)"
+  },
+  {
+    "id": "s9",
+    "url": "https://education.staging.blender.org/blender_tutorials/lighting-camera-rendering/task-level-1-render-engines/",
+    "title": "Blender Render Engines (EEVEE and Cycles)"
+  },
+  {
+    "id": "s10",
+    "url": "https://docs.blender.org/manual/en/latest/render/cycles/index.html",
+    "title": "Cycles — Blender Manual (physically-based path tracer)"
+  },
+  {
+    "id": "s11",
+    "url": "https://business.kodakmoments.com/sites/default/files/files/products/e4050_portra_400.pdf",
+    "title": "KODAK PROFESSIONAL PORTRA 400 Film (spec sheet)"
+  },
+  {
+    "id": "s12",
+    "url": "http://www.cinestillfilm.com/",
+    "title": "CineStill Film Catalog (800T, 50D, 400D)"
+  }
+]

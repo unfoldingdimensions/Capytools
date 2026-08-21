@@ -1,0 +1,52 @@
+[
+  {
+    "id": "khan-color-theory",
+    "url": "https://www.khanacademy.org/humanities/art-101/color/a/color-theory",
+    "title": "Color theory — Khan Academy"
+  },
+  {
+    "id": "khan-color-terms",
+    "url": "https://www.khanacademy.org/humanities/art-history/tutorials/applied-color-theory/a/color-theory-terms-and-principles",
+    "title": "Color theory terms and principles — Khan Academy"
+  },
+  {
+    "id": "adobe-color-palette",
+    "url": "https://www.adobe.com/uk/creativecloud/design/discover/color-palette.html",
+    "title": "Colour Palette Guide — Adobe"
+  },
+  {
+    "id": "adobe-color-wheel",
+    "url": "https://color.adobe.com/create/color-wheel",
+    "title": "Color Palette Generator — Color Wheel Tool — Adobe Express"
+  },
+  {
+    "id": "design-seeds",
+    "url": "https://www.design-seeds.com/",
+    "title": "Design Seeds — curated color palette collections"
+  },
+  {
+    "id": "dps-rule-of-thirds",
+    "url": "https://digital-photography-school.com/rule-of-thirds/",
+    "title": "Rule of Thirds in Photography: The Essential Guide — Digital Photography School"
+  },
+  {
+    "id": "photographyicon-composition",
+    "url": "https://photographyicon.com/photography-composition/",
+    "title": "15 Photography Composition Techniques — PhotographyIcon"
+  },
+  {
+    "id": "aaapresets-cinematic",
+    "url": "https://aaapresets.com/blogs/davinci-resolve-color-grading-gradient-tutorials/unlocking-cinematic-magic-teal-orange-bleach-bypass-and-cross-processing-explained",
+    "title": "Teal & Orange, Bleach Bypass, and Cross-Processing Explained — AAA Presets"
+  },
+  {
+    "id": "videolens-cinematic-grades",
+    "url": "https://videolens.cc/en/blog/cinematic-color-grading-guide",
+    "title": "14 Cinematic Color Grades (with AI Prompts) — VideoLens"
+  },
+  {
+    "id": "hitpaw-resolve-grading",
+    "url": "https://online.hitpaw.com/learn/davinci-resolve-color-grading.html",
+    "title": "A Guide to Davinci Resolve Color Grading — HitPaw"
+  }
+]

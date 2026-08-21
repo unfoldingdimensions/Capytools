@@ -1,0 +1,14 @@
+[
+  {"id": 1, "url": "https://seed.bytedance.com/en/blog/tech-report-of-seedance-1-0-is-now-publicly-available", "title": "Seed News: Tech Report of Seedance 1.0 Is Now Publicly Available (ByteDance Seed, official)"},
+  {"id": 2, "url": "https://huggingface.co/papers/2506.09113", "title": "Seedance 1.0: Exploring the Boundaries of Video Generation Models (HuggingFace paper page)"},
+  {"id": 3, "url": "https://arxiv.org/html/2506.09113v2", "title": "Seedance 1.0: Exploring the Boundaries of Video Generation Models (arXiv full paper)"},
+  {"id": 4, "url": "https://seed.bytedance.com/en/seedance2_0", "title": "Seedance 2.0 (ByteDance Seed, official)"},
+  {"id": 5, "url": "https://www.volcengine.com/docs/82379/1587797", "title": "Doubao Seedance 2.0 Series Prompt Guide (Volcano Engine, official)"},
+  {"id": 6, "url": "https://invideo.io/blog/seedance-2-0-prompt-guide/", "title": "Seedance 2.0 Prompt Guide (With Examples) — invideo.io"},
+  {"id": 7, "url": "https://github.com/mercallureAI/seedance", "title": "Seedance 2.0 API SKILL.md (mercallureAI, third-party param reference)"},
+  {"id": 8, "url": "https://github.com/Anil-matcha/awesome-seedance-2.5-api-prompts", "title": "Awesome Seedance 2.5 - API, Prompts & Complete Guide (third-party)"},
+  {"id": 9, "url": "https://we0.ai/articles/seedance-2-5-api-is-live", "title": "Seedance 2.5 API Is Live on Volcano Engine (we0.ai, third-party)"},
+  {"id": 10, "url": "https://www.volcengine.com/docs/82379/1520757", "title": "Seedance 2.0 API Reference (Volcano Engine, official)"},
+  {"id": 11, "url": "https://linghuiai.net/en/guide/doubao-seedance-2-0-prompt-guide", "title": "Doubao Seedance 2.0 Prompt Guide - LinghuiAI (third-party)"},
+  {"id": 12, "url": "https://research.doubao.com/en/seedance", "title": "Seedance 1.0 (ByteDance research.doubao.com, official mirror)"}
+]

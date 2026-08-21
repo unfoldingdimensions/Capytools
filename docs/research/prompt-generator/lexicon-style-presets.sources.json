@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "url": "https://prompthero.com",
+    "title": "PromptHero — AI art prompt search engine (unverified: live retrieval blocked by HTTP 429 rate limit)"
+  },
+  {
+    "id": 1,
+    "url": "https://civitai.com",
+    "title": "Civitai — community AI model & prompt-sharing hub (unverified: live retrieval blocked by HTTP 429 rate limit)"
+  },
+  {
+    "id": 2,
+    "url": "https://lexica.art",
+    "title": "Lexica — Stable Diffusion prompt & image search (unverified: live retrieval blocked by HTTP 429 rate limit)"
+  },
+  {
+    "id": 3,
+    "url": "https://docs.midjourney.com",
+    "title": "Midjourney Docs — style & --sref reference guide (unverified: live retrieval blocked by HTTP 429 rate limit)"
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "url": "https://developers.googleblog.com/en/how-to-prompt-gemini-2-5-flash-image-generation-for-the-best-results/",
+    "title": "How to prompt Gemini 2.5 Flash Image Generation for the best results (Google Developers Blog)"
+  },
+  {
+    "id": 2,
+    "url": "https://deepmind.google/models/gemini-image/prompt-guide",
+    "title": "How to create effective image prompts with Gemini Image (Google DeepMind)"
+  },
+  {
+    "id": 3,
+    "url": "https://blog.google/products-and-platforms/products/gemini/image-generation-prompting-tips",
+    "title": "Gemini image generation: How to write an effective prompt (Google / The Keyword)"
+  },
+  {
+    "id": 4,
+    "url": "https://ai.google.dev/gemini-api/docs/image-generation",
+    "title": "Nano Banana image generation: Prompting guide and strategies (Gemini API, Google AI for Developers)"
+  },
+  {
+    "id": 5,
+    "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
+    "title": "Prompt design strategies (Gemini API, Google AI for Developers)"
+  },
+  {
+    "id": 6,
+    "url": "https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-3-Pro-Image-Model-Card.pdf",
+    "title": "Gemini 3 Pro Image External Model Card (Google DeepMind, Nov 2025)"
+  },
+  {
+    "id": 7,
+    "url": "https://deepmind.google/blog/introducing-nano-banana-pro/",
+    "title": "Nano Banana Pro: Gemini 3 Pro Image model from Google DeepMind"
+  },
+  {
+    "id": 8,
+    "url": "https://blog.google/products/gemini/prompting-tips-nano-banana-pro",
+    "title": "7 tips to get the most out of Nano Banana Pro (Google / The Keyword)"
+  },
+  {
+    "id": 9,
+    "url": "https://deepmind.google/models/gemini-image/pro",
+    "title": "Gemini 3 Pro Image – Nano Banana Pro (Google DeepMind model page)"
+  },
+  {
+    "id": 10,
+    "url": "https://storage.googleapis.com/deepmind-media/Model-Cards/Gemini-2-0-Flash-Model-Card.pdf",
+    "title": "Gemini 2.0 Flash Model Card (Google DeepMind)"
+  }
+]

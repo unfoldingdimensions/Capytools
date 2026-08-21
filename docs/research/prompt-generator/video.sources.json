@@ -1,0 +1,18 @@
+[
+  {"id": 1, "url": "https://help.runwayml.com/hc/en-us/articles/39789879462419-Gen-4-Video-Prompting-Guide", "title": "Runway Gen-4 Video Prompting Guide"},
+  {"id": 2, "url": "https://help.runwayml.com/hc/en-us/articles/37327109429011-Creating-with-Gen-4-Video", "title": "Runway Creating with Gen-4 Video"},
+  {"id": 3, "url": "https://www.ambienceai.com/tutorials/kling-prompting-guide", "title": "Kling AI Prompt Guide (2026) - Camera & Negative Prompts"},
+  {"id": 4, "url": "https://kling.ai/blog/kling-ai-camera-control-video-guide", "title": "Kling AI Camera Control Guide: Push, Pull, Pan & Tilt"},
+  {"id": 5, "url": "https://kling.ai/blog/kling-ai-prompt-guide", "title": "Kling AI Prompt Guide: The Secret to Cinematic Video Prompts"},
+  {"id": 6, "url": "https://kling.ai/quickstart/ai-camera-control-guide", "title": "Kling AI Camera Control Guide (6 camera movements + Master Shots)"},
+  {"id": 7, "url": "https://help.runwayml.com/hc/en-us/articles/30586818553107-Gen-3-Alpha-Prompting-Guide", "title": "Runway Gen-3 Alpha Prompting Guide (retirement notice)"},
+  {"id": 8, "url": "https://artlist.io/blog/negative-prompts-ai-video", "title": "Negative prompts for Kling, Veo, and Wan"},
+  {"id": 9, "url": "https://help.runwayml.com/hc/en-us/articles/34926468947347-Creating-with-Camera-Control-on-Gen-3-Alpha-Turbo", "title": "Runway Creating with Camera Control on Gen-3 Alpha Turbo"},
+  {"id": 10, "url": "https://filmart.ai/runway-camera-control-runway-gen-3-camera-prompts", "title": "Master Runway Camera Control in Gen-3 (values -10 to 10)"},
+  {"id": 11, "url": "https://the-decoder.com/runway-releases-gen-4-video-model-with-focus-on-consistency", "title": "Runway releases Gen-4 video model with focus on consistency"},
+  {"id": 12, "url": "https://arstechnica.com/ai/2025/03/with-new-gen-4-model-runway-claims-to-have-finally-achieved-consistency-in-ai-videos", "title": "With new Gen-4 model, Runway claims to have achieved consistency in AI videos"},
+  {"id": 13, "url": "https://aimodels.in/ai-models/runway-gen-4/", "title": "Runway Gen-4: Architecture, 4K video, camera guide"},
+  {"id": 14, "url": "https://kling.ai/document-api/api/video/3-0-omni/video-omni", "title": "Kling 3.0 Omni Video Generation API Documentation"},
+  {"id": 15, "url": "https://www.veed.io/learn/kling-3-0-prompts", "title": "Kling 3.0 Prompting Guide (motion intensity, multi-shot, negatives)"},
+  {"id": 16, "url": "https://www.ambienceai.com/tutorials/kling-prompting-guide", "title": "Kling AI Prompt Guide (native audio limitation note)"}
+]

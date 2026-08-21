@@ -1,0 +1,32 @@
+[
+  {
+    "id": "task-spec",
+    "url": "capytools://task/prompt-generator/lexicon-artists",
+    "title": "Capytools Cappytool No.2 delegated task: curated artist + movement lexicon spec"
+  },
+  {
+    "id": "wiki-movements",
+    "url": "https://en.wikipedia.org/wiki/List_of_art_movements",
+    "title": "Wikipedia — List of art movements"
+  },
+  {
+    "id": "wiki-artmovement",
+    "url": "https://en.wikipedia.org/wiki/Art_movement",
+    "title": "Wikipedia — Art movement"
+  },
+  {
+    "id": "prompthero",
+    "url": "https://prompthero.com/",
+    "title": "PromptHero — AI art prompt style/artist references"
+  },
+  {
+    "id": "civitai",
+    "url": "https://civitai.com/",
+    "title": "Civitai — community model style/artist tags"
+  },
+  {
+    "id": "lexica",
+    "url": "https://lexica.art/",
+    "title": "Lexica — AI art search & style references"
+  }
+]
