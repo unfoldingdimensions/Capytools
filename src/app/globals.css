@@ -279,3 +279,75 @@
    looks frozen between them. All transform/opacity, so they stay composited;
    the reduced-motion guard in @layer base zeroes every duration. */
 
+
+/* ── Ambient background washes ───────────────────────────────────────────────
+   The drifting colour fields behind the landing page (AmbientBackground.tsx).
+   Transform-only so they stay composited, `alternate` so the loop has no seam,
+   and 44-68s durations because anything faster reads as weather rather than
+   atmosphere. Travel is ≤12vmax — far under the third-of-screen ceiling where
+   a long move would need an intermediate keyframe.
+   The reduced-motion guard in @layer base zeroes every duration below. */
+.ambient-wash {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  opacity: 0.12;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* next-themes is class-based (`attribute="class"`), so `.dark` is the only
+   signal — a prefers-color-scheme query here would wrongly darken the washes
+   for a reader who explicitly picked light on a dark OS. */
+.dark .ambient-wash {
+  opacity: 0.18;
+}
+
+.ambient-wash-a {
+  top: -18vmax;
+  left: -14vmax;
+  animation: ambient-a 52s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+}
+
+.ambient-wash-b {
+  right: -20vmax;
+  bottom: -22vmax;
+  width: 70vmax;
+  height: 70vmax;
+  animation: ambient-b 68s cubic-bezier(0.45, 0, 0.55, 1) -14s infinite alternate;
+}
+
+.ambient-wash-c {
+  top: 24vmax;
+  right: -26vmax;
+  width: 54vmax;
+  height: 54vmax;
+  animation: ambient-c 44s cubic-bezier(0.45, 0, 0.55, 1) -31s infinite alternate;
+}
+
+@keyframes ambient-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(9vmax, 7vmax, 0) scale(1.12);
+  }
+}
+
+@keyframes ambient-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+  to {
+    transform: translate3d(-11vmax, -6vmax, 0) scale(1);
+  }
+}
+
+@keyframes ambient-c {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-7vmax, 10vmax, 0) scale(1.15);
+  }
+}

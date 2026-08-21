@@ -49,7 +49,7 @@ export function ShareCardView({ username }: { username: string }) {
     <div className="w-full">
       <CardComposer stats={stats} />
       <div className="mt-10 text-center">
-        <AnimatedLink href="/" className="text-sm text-primary" arrow wipe>
+        <AnimatedLink href="/capywrapped" className="text-sm text-primary" arrow wipe>
           make your own card
         </AnimatedLink>
       </div>

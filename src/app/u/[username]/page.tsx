@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/header";
+import { SiteFooter } from "@/components/site-footer";
 import { ShareCardView } from "@/components/share/ShareCardView";
 import { SITE_URL } from "@/lib/utils";
 
@@ -9,7 +10,7 @@ export async function generateMetadata({
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
   const { username } = await params;
-  const title = `@${username} · GitHub Wrapped`;
+  const title = `@${username} · CapyWrapped`;
   const description = `${username}'s GitHub year, wrapped in a calm little card. No signup. No cookies. Nothing stored.`;
   const image = `${SITE_URL}/api/og/${username}`;
   return {
@@ -37,25 +38,18 @@ export default async function SharePage({
   const { username } = await params;
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <Header />
+      <Header tool="CapyWrapped" />
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-5">
         <div className="mb-6 text-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            GitHub Wrapped · @{username}
+            CapyWrapped · @{username}
           </p>
         </div>
         <ShareCardView username={username} />
       </main>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-2 px-6 py-6 sm:flex-row">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-            capytools — no signup. no cookies. nothing stored.
-          </p>
-          <p className="text-xs text-muted-foreground">more calm tools, coming soon</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -23,9 +23,9 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Capytools — calm tools",
+  title: "Capytools — calm little tools",
   description:
-    "Your GitHub year, wrapped in a calm little card. No signup. No cookies. Nothing stored.",
+    "Small tools that run in your browser and keep nothing. No signup. No cookies. Nothing stored.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
