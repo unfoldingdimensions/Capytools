@@ -16,7 +16,7 @@ Paste a GitHub username and you get a card showing:
 - **Your top languages**, and your most-starred repo
 
 Download it as a PNG, or post it straight to X. Wide and square formats, light
-and dark. No signup, no tracking, nothing stored.
+and dark. No signup, no cookies, nothing stored.
 
 Only *public* contributions are visible to an anonymous visitor, so the number
 is lower than the one on your own profile page, which counts private work too.

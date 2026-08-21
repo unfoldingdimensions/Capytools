@@ -10,7 +10,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { username } = await params;
   const title = `@${username} · GitHub Wrapped`;
-  const description = `${username}'s GitHub year, wrapped in a calm little card. No signup. No tracking. Nothing stored.`;
+  const description = `${username}'s GitHub year, wrapped in a calm little card. No signup. No cookies. Nothing stored.`;
   const image = `${SITE_URL}/api/og/${username}`;
   return {
     title,
@@ -51,7 +51,7 @@ export default async function SharePage({
       <footer className="border-t border-border">
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-2 px-6 py-6 sm:flex-row">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-            capytools — no analytics. no cookies. nothing stored.
+            capytools — no signup. no cookies. nothing stored.
           </p>
           <p className="text-xs text-muted-foreground">more calm tools, coming soon</p>
         </div>

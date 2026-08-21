@@ -26,7 +26,7 @@ export default function Home() {
 
           <Reveal delay={0.2}>
             <p className="mt-5 text-base text-muted-foreground">
-              no signup. no tracking. nothing stored.
+              no signup. no cookies. nothing stored.
             </p>
           </Reveal>
 
@@ -39,7 +39,7 @@ export default function Home() {
       <footer className="border-t border-border">
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-2 px-6 py-6 sm:flex-row">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-            capytools — no analytics. no cookies. nothing stored.
+            capytools — no signup. no cookies. nothing stored.
           </p>
           <p className="text-xs text-muted-foreground">more calm tools, coming soon</p>
         </div>
