@@ -10,6 +10,7 @@ import {
   defaultNegatives,
   honorsNegative,
   filterArtistForEngine,
+  NEGATIVE_COUNT,
 } from "./criteria";
 
 /** A resolved pick: one option value per category id. */
@@ -20,8 +21,14 @@ export interface AssembleOptions {
   engine: Engine;
   /** When true, also assemble the video variant. */
   video?: boolean;
-  /** Number of negative prompts to append (SDXL/MJ). */
+  /** Override the per-engine negative count (see NEGATIVE_COUNT). */
   negativeCount?: number;
+  /**
+   * Recommended pixel size for the chosen destination, e.g. "1080x1350".
+   * SDXL takes width/height rather than a ratio, so this is the useful number
+   * there; PickSet has no slot for pixels, hence an option.
+   */
+  px?: string;
   /** Locked seed for reproducibility; if omitted a fresh one is generated. */
   seed?: number;
   /**
@@ -81,11 +88,12 @@ function art(v: string): string {
  * - Otherwise use the per-engine default list (see NEGATIVES_BY_ENGINE),
  *   capped at `count` items.
  */
-function resolveNegatives(set: PickSet, engine: Engine, count: number): string {
+function resolveNegatives(set: PickSet, engine: Engine, count?: number): string {
   if (!honorsNegative(engine)) return "";
+  const limit = count ?? NEGATIVE_COUNT[engine];
   const override = set.negative_prompt?.split(",").map((s) => s.trim()).filter(Boolean);
   const source = override && override.length ? override : defaultNegatives(engine);
-  return source.slice(0, count).join(", ");
+  return source.slice(0, limit).join(", ");
 }
 
 export interface Assembled {
@@ -108,20 +116,20 @@ export function assemble(set: PickSet, opts: AssembleOptions): Assembled {
 
   switch (opts.engine) {
     case "Gemini":
-      return { engine: "Gemini", seed, isVideo, prompt: withPrefix(toGemini(effSet), opts) };
+      return { engine: "Gemini", seed, isVideo, prompt: withPrefix(toGemini(effSet, opts.engine), opts) };
     case "Midjourney":
-      return { engine: "Midjourney", seed, isVideo, prompt: withPrefix(toMidjourney(effSet, opts.negativeCount ?? 3, opts.engine), opts) };
+      return { engine: "Midjourney", seed, isVideo, prompt: withPrefix(toMidjourney(effSet, opts.negativeCount, opts.engine), opts) };
     case "Flux":
       return { engine: "Flux", seed, isVideo, prompt: withPrefix(toFlux(effSet), opts) };
     case "SDXL":
-      return { engine: "SDXL", seed, isVideo, prompt: withPrefix(toSDXL(effSet, opts.negativeCount ?? 4, opts.engine), opts) };
+      return { engine: "SDXL", seed, isVideo, prompt: withPrefix(toSDXL(effSet, opts.negativeCount, opts.engine, opts.px), opts) };
     case "Video":
-      return { engine: "Video", seed, isVideo: true, prompt: withPrefix(toVideo(effSet, opts.negativeCount ?? 3, opts.engine), opts) };
+      return { engine: "Video", seed, isVideo: true, prompt: withPrefix(toVideo(effSet, opts.negativeCount, opts.engine), opts) };
   }
 }
 
 /** Gemini: LLM prose + semantic (positive) negatives. Narrative sentence(s). */
-function toGemini(set: PickSet): string {
+function toGemini(set: PickSet, engine: Engine): string {
   const subject = set.subject ?? "a solitary figure";
   const action = set.action ? `, ${set.action}` : "";
   const setting = set.setting ? `in ${set.setting}` : "";
@@ -150,22 +158,18 @@ function toGemini(set: PickSet): string {
     `${medium}${artist}${movement}${lighting}${camera}${composition}${color}${weather}${texture}${render}${stock}${grade}${boos}.`,
   ]);
 
-  // Semantic (positive) negative: rephrase exclusions as what to avoid, not a tag list.
-  const negs = set.negative_prompt
-    ? ` Avoid ${set.negative_prompt
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .slice(0, 3)
-        .join(", ")}.`
-    : "";
+  // Gemini has no negatives field, so exclusions ride inline as a short clause.
+  // Goes through resolveNegatives like every other dialect, which is what makes
+  // the researched per-engine default list apply when there is no override.
+  const list = resolveNegatives(set, engine);
+  const negs = list ? ` Avoid ${list}.` : "";
 
   const ar = set.aspect_ratio ? ` Aspect ratio ${set.aspect_ratio}.` : "";
   return (scene + negs + ar).replace(/\s+/g, " ").trim();
 }
 
 /** Midjourney: short keyword phrases + suffix params. */
-function toMidjourney(set: PickSet, negCount: number, engine: Engine): string {
+function toMidjourney(set: PickSet, negCount: number | undefined, engine: Engine): string {
   const phrase = join([
     set.subject,
     set.action,
@@ -185,14 +189,20 @@ function toMidjourney(set: PickSet, negCount: number, engine: Engine): string {
     set.mood,
     set.weather,
     set.texture_detail,
+    set.negative_space,
     set.quality_booster,
   ]);
+  // ONE --no: Midjourney honours a single flag, and it reads every word in it
+  // independently, so multi-word phrases backfire ("--no modern clothing" is
+  // parsed as no-modern AND no-clothing). negative_space values are phrases
+  // ("lots of empty sky"), so they stay in the positive text above rather than
+  // being fed to --no.
+  const negs = resolveNegatives(set, engine, negCount);
   const params = join([
     set.aspect_ratio ? `--ar ${set.aspect_ratio}` : "",
     set.stylize_mj ? `--s ${set.stylize_mj}` : "--s 100",
     set.chaos_mj ? `--c ${set.chaos_mj}` : "",
-    set.negative_space ? `--no ${set.negative_space}` : "",
-    resolveNegatives(set, engine, negCount) ? `--no ${resolveNegatives(set, engine, negCount)}` : "",
+    negs ? `--no ${negs}` : "",
   ]);
   return join([phrase, params]);
 }
@@ -218,13 +228,15 @@ function toFlux(set: PickSet): string {
   const grade = set.color_grade ? `. ${set.color_grade} grade` : "";
   const boos = set.quality_booster ? `. ${set.quality_booster}` : "";
   const guidance = set.guidance_flux ? ` [guidance ${set.guidance_flux}]` : "";
+  // Flux takes the frame as an API param, same bracket convention as guidance.
+  const aspect = set.aspect_ratio ? ` [aspect ${set.aspect_ratio}]` : "";
   return join([
-    `${subject}${action}.${setting}${lighting}${medium}${movement}${artist}${camera}${composition}${color}${mood}${weather}${texture}${timeOfDay}${render}${stock}${grade}${boos}${guidance}`,
+    `${subject}${action}.${setting}${lighting}${medium}${movement}${artist}${camera}${composition}${color}${mood}${weather}${texture}${timeOfDay}${render}${stock}${grade}${boos}${guidance}${aspect}`,
   ]);
 }
 
 /** SDXL: weighted-keyword + separate negative field. */
-function toSDXL(set: PickSet, negCount: number, engine: Engine): string {
+function toSDXL(set: PickSet, negCount: number | undefined, engine: Engine, px?: string): string {
   const pos = join([
     set.subject,
     set.action,
@@ -246,11 +258,13 @@ function toSDXL(set: PickSet, negCount: number, engine: Engine): string {
     set.quality_booster,
   ]);
   const negs = resolveNegatives(set, engine, negCount);
-  return join([pos, negs ? `### NEGATIVE: ${negs}` : ""]);
+  // SDXL is driven by width/height, not a ratio string, so the destination's
+  // pixel figure is the useful number to hand over.
+  return join([pos, px ? `### SIZE: ${px}` : "", negs ? `### NEGATIVE: ${negs}` : ""]);
 }
 
 /** Video (Seedance/Runway/Kling): director's formula; first words weighted. */
-function toVideo(set: PickSet, negCount: number, engine: Engine): string {
+function toVideo(set: PickSet, negCount: number | undefined, engine: Engine): string {
   const camera = set.video_camera ? `${set.video_camera} shot of` : "shot of";
   const subject = set.subject ?? "a solitary figure";
   const action = set.action ? ` ${set.action}` : "";
