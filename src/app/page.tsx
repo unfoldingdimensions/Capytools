@@ -24,6 +24,12 @@ const TOOLS = [
     name: "CapyCreator",
     line: "Model-aware prompt engineering, scaled for flash and frontier models.",
   },
+  {
+    href: "/capystrip",
+    eyebrow: "tool no. 4",
+    name: "CapyStrip",
+    line: "See the GPS and AI fingerprints hiding in your photos, then download a clean copy.",
+  },
 ];
 
 export default function Home() {
@@ -52,7 +58,7 @@ export default function Home() {
 
           <Reveal delay={0.2}>
             <p className="mt-5 max-w-md text-base text-muted-foreground">
-              Three of them so far. All run in your browser and keep nothing.
+              Four of them so far. All run in your browser and keep nothing.
             </p>
           </Reveal>
 
