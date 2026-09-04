@@ -56,11 +56,4 @@ export interface Intent {
   non_negotiables: string;
 }
 
-export type PolishProvider = "opencode" | "openrouter" | "nous" | "command" | "custom";
-
-export interface PolishSettings {
-  provider: PolishProvider;
-  apiKey: string;
-  baseUrl: string;
-  model: string;
-}
+export type { LlmProvider as PolishProvider, LlmSettings as PolishSettings } from "@/lib/capytools/llm";
