@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { ComponentProps, MouseEvent } from "react";
-import { startTaggedTransition } from "@/lib/capytools/reveal";
+import type { ComponentProps } from "react";
 
 /**
  * Link that wipes the incoming page up over the outgoing one, using the same
@@ -19,19 +17,5 @@ export function TransitionLink({
   onClick,
   ...props
 }: ComponentProps<typeof Link>) {
-  const router = useRouter();
-
-  const handle = (event: MouseEvent<HTMLAnchorElement>) => {
-    onClick?.(event);
-    const modified =
-      event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-    if (event.defaultPrevented || modified) return;
-
-    event.preventDefault();
-    void startTaggedTransition("wipe", () => {
-      router.push(String(href));
-    });
-  };
-
-  return <Link href={href} onClick={handle} {...props} />;
+  return <Link href={href} onClick={onClick} {...props} />;
 }

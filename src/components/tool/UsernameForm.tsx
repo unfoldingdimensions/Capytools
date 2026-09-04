@@ -27,6 +27,9 @@ export function UsernameForm({
       className="flex w-full max-w-md flex-col gap-2 sm:flex-row sm:items-center"
     >
       <Input
+        id="github-username"
+        name="username"
+        autoComplete="username"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="paste a github username…"

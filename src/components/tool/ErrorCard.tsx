@@ -1,7 +1,7 @@
 "use client";
 
 import { GithubError } from "@/lib/github/types";
-import { CapyMark } from "@/components/mascot/CapyMark";
+import { CapyScene } from "@/components/mascot/CapyScene";
 import { Button } from "@/components/ui/button";
 
 function copy(kind: GithubError["kind"]): { title: string; body: string } {
@@ -33,7 +33,7 @@ export function ErrorCard({ error, onRetry }: { error: GithubError; onRetry?: ()
   const { title, body } = copy(error.kind);
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 rounded-[20px] border border-border bg-card px-8 py-10 text-center">
-      <CapyMark className="w-10 text-foreground/50" />
+      <CapyScene pose="nap" className="w-20 text-foreground/70" title="Napping capybara" />
       <h3 className="font-display text-xl text-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground">{body}</p>
       {onRetry && (error.kind === "rate_limited" || error.kind === "network") ? (

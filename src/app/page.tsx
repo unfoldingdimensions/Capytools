@@ -18,6 +18,12 @@ const TOOLS = [
     name: "CapyImagine",
     line: "Random image and video prompts, written in your engine's dialect.",
   },
+  {
+    href: "/capycreator",
+    eyebrow: "tool no. 3",
+    name: "CapyCreator",
+    line: "Model-aware prompt engineering, scaled for flash and frontier models.",
+  },
 ];
 
 export default function Home() {
@@ -28,7 +34,7 @@ export default function Home() {
       <AmbientBackground />
       <Header />
 
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center px-6 pb-20">
         <section className="flex w-full flex-col items-center pt-10 text-center sm:pt-16">
           <Reveal>
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
@@ -46,12 +52,12 @@ export default function Home() {
 
           <Reveal delay={0.2}>
             <p className="mt-5 max-w-md text-base text-muted-foreground">
-              Two of them so far. Both run in your browser and keep nothing.
+              Three of them so far. All run in your browser and keep nothing.
             </p>
           </Reveal>
 
           {/* 100ms apart — the standard stagger, and well inside the 500ms budget. */}
-          <div className="mt-12 grid w-full gap-4 text-left sm:grid-cols-2">
+          <div className="mt-12 grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
             {TOOLS.map((tool, i) => (
               <Reveal key={tool.href} delay={0.3 + i * 0.1}>
                 <TransitionLink
@@ -67,7 +73,7 @@ export default function Home() {
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                     {tool.line}
                   </p>
-                  <p className="mt-6 flex items-center gap-1.5 text-sm font-medium text-primary">
+                  <p className="mt-6 flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                     open
                     <span
                       aria-hidden

@@ -183,7 +183,7 @@ export function PromptGen() {
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Engine">
             <Select value={engine} onValueChange={(v) => setEngine(v as Engine)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" aria-label="Engine">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -201,7 +201,7 @@ export function PromptGen() {
               value={styleId ?? NONE}
               onValueChange={(v) => setStyleId(v === NONE ? null : v)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" aria-label="Style">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -220,7 +220,7 @@ export function PromptGen() {
               value={artist ?? NONE}
               onValueChange={(v) => setArtist(v === NONE ? null : v)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" aria-label="Artist">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -239,7 +239,7 @@ export function PromptGen() {
               value={platformId ?? NONE}
               onValueChange={(v) => setPlatformId(v === NONE ? null : v)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" aria-label="Destination">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -259,23 +259,31 @@ export function PromptGen() {
         </div>
 
         <div className="mt-5 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <label className="flex items-center gap-3 text-sm">
-            <Switch checked={chatPrefix} onCheckedChange={setChatPrefix} />
-            <span className="text-muted-foreground">
+          <div className="flex items-center gap-3 text-sm">
+            <Switch
+              id="switch-chat-prefix"
+              checked={chatPrefix}
+              onCheckedChange={setChatPrefix}
+            />
+            <label htmlFor="switch-chat-prefix" className="cursor-pointer text-muted-foreground">
               Force generate in chat{" "}
               <span className="font-mono text-xs text-foreground/70">
                 “{isVideo ? "Create a video of:" : "Create an image of:"}”
               </span>
-            </span>
-          </label>
+            </label>
+          </div>
 
-          <label className="flex items-center gap-3 text-sm">
-            <Switch checked={locked} onCheckedChange={setLocked} />
-            <span className="flex items-center gap-1.5 text-muted-foreground">
+          <div className="flex items-center gap-3 text-sm">
+            <Switch
+              id="switch-lock-draw"
+              checked={locked}
+              onCheckedChange={setLocked}
+            />
+            <label htmlFor="switch-lock-draw" className="flex cursor-pointer items-center gap-1.5 text-muted-foreground">
               <Lock className="size-3.5" aria-hidden />
               Lock this draw
-            </span>
-          </label>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -288,7 +296,7 @@ export function PromptGen() {
           <Button
             variant="ghost"
             size="sm"
-            className="rounded-full"
+            className="min-w-[84px] rounded-full"
             onClick={copy}
             disabled={!prompt}
           >

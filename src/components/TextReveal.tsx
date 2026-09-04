@@ -28,7 +28,11 @@ export function TextReveal({
   const words = text.split(/(\s+)/); // keep separators so spacing survives
 
   return (
-    <Tag className={className} aria-label={text}>
+    <Tag
+      className={className}
+      role={Tag === "span" ? "text" : undefined}
+      aria-label={text}
+    >
       <span aria-hidden>
         {words.map((word, i) => {
           if (/^\s+$/.test(word)) return <Fragment key={i}>{word}</Fragment>;

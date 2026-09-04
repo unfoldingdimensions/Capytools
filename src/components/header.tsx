@@ -3,9 +3,16 @@ import Link from "next/link";
 import { CapyMark } from "@/components/mascot/CapyMark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /** Where the "made by" GitHub link in the header points. */
 const AUTHOR_GITHUB = "https://github.com/unfoldingdimensions";
+
+const TOOLS = [
+  { href: "/capywrapped", label: "Wrapped" },
+  { href: "/capyimagine", label: "Imagine" },
+  { href: "/capycreator", label: "Creator" },
+] as const;
 
 /**
  * GitHub mark. Inline rather than from lucide-react, which dropped its brand
@@ -40,6 +47,26 @@ export function Header({ tool }: { tool?: string }) {
             )}
           </span>
         </Link>
+
+        <nav className="hidden items-center gap-1 sm:flex" aria-label="Tools navigation">
+          {TOOLS.map((t) => {
+            const active = tool?.toLowerCase().includes(t.label.toLowerCase());
+            return (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                  active
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                )}
+              >
+                {t.label}
+              </Link>
+            );
+          })}
+        </nav>
 
         <div className="flex items-center gap-1">
           <Button asChild variant="ghost" size="icon" className="size-10 rounded-full sm:size-9">

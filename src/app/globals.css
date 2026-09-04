@@ -62,7 +62,7 @@
   --popover: #ffffff;
   --popover-foreground: #1a1a1a;
   --primary: #8e9b7e;           /* sage */
-  --primary-foreground: #ffffff;
+  --primary-foreground: #141412;/* dark ink for WCAG AA 4.5:1+ contrast */
   --secondary: #f1efea;
   --secondary-foreground: #1a1a1a;
   --muted: #f1efea;
@@ -77,7 +77,7 @@
   --sidebar: #f3f2ee;
   --sidebar-foreground: #1a1a1a;
   --sidebar-primary: #8e9b7e;
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: #141412;
   --sidebar-accent: #edebe3;
   --sidebar-accent-foreground: #1a1a1a;
   --sidebar-border: #e7e4dd;
@@ -278,7 +278,76 @@
    Continuous loops that run underneath the pose changes, so the scene never
    looks frozen between them. All transform/opacity, so they stay composited;
    the reduced-motion guard in @layer base zeroes every duration. */
+@keyframes capy-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(1.5px, 0.5px, 0);
+  }
+}
+.capy-drift {
+  animation: capy-drift 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+  transform-origin: center;
+}
 
+@keyframes capy-steam {
+  0% {
+    transform: translate3d(0, 2px, 0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate3d(0.8px, -2px, 0);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(-0.8px, -5px, 0);
+    opacity: 0;
+  }
+}
+.capy-steam {
+  animation: capy-steam 4s ease-in-out infinite;
+  will-change: transform, opacity;
+  transform-origin: center bottom;
+}
+
+@keyframes capy-breathe {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  50% {
+    transform: translate3d(0, -0.8px, 0) scaleY(1.015);
+  }
+}
+.capy-breathe {
+  animation: capy-breathe 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+  transform-origin: bottom center;
+}
+
+@keyframes capy-blink-open {
+  0%, 96%, 100% {
+    opacity: 1;
+  }
+  97.5%, 98.5% {
+    opacity: 0;
+  }
+}
+@keyframes capy-blink-closed {
+  0%, 96%, 100% {
+    opacity: 0;
+  }
+  97.5%, 98.5% {
+    opacity: 1;
+  }
+}
+.capy-blink-open {
+  animation: capy-blink-open 7s ease-in-out infinite;
+}
+.capy-blink-closed {
+  animation: capy-blink-closed 7s ease-in-out infinite;
+}
 
 /* ── Ambient background washes ───────────────────────────────────────────────
    The drifting colour fields behind the landing page (AmbientBackground.tsx).

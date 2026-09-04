@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { AnimatedLink } from "@/components/ui/animated-link";
 import { fetchWrapped, WRAP_STEPS } from "@/lib/github/wrap";
 import { GithubError } from "@/lib/github/types";
@@ -11,13 +11,23 @@ import { TerminalLoader } from "@/components/tool/TerminalLoader";
 import type { LoadStep } from "@/components/tool/TerminalLoader";
 import { readWrappedCache, writeWrappedCache } from "@/lib/capytools/cache";
 
+const noopSubscribe = () => () => {};
+const serverSnapshot = () => null;
+
 /** Client view for a shared /u/[username] card — same data layer + cache as the tool. */
 export function ShareCardView({ username }: { username: string }) {
-  const [stats, setStats] = useState<WrappedStats | null>(() => readWrappedCache(username));
+  const cached = useSyncExternalStore(
+    noopSubscribe,
+    () => readWrappedCache(username),
+    serverSnapshot,
+  );
+  const [remoteStats, setRemoteStats] = useState<WrappedStats | null>(null);
   const [error, setError] = useState<GithubError | null>(null);
   const [steps, setSteps] = useState<LoadStep[]>(() =>
     WRAP_STEPS.map((label) => ({ label, state: "pending" as const })),
   );
+
+  const stats = cached ?? remoteStats;
 
   const fetchRemote = useCallback(() => {
     const mark = (i: number, state: "done" | "failed", detail?: string) =>
@@ -26,7 +36,7 @@ export function ShareCardView({ username }: { username: string }) {
     void fetchWrapped(username, mark)
       .then((next) => {
         writeWrappedCache(username, next);
-        setStats(next);
+        setRemoteStats(next);
         setError(null);
       })
       .catch((err: unknown) => {
@@ -37,10 +47,10 @@ export function ShareCardView({ username }: { username: string }) {
   }, [username]);
 
   useEffect(() => {
-    if (!stats) {
+    if (!cached && !remoteStats) {
       fetchRemote();
     }
-  }, [fetchRemote, stats]);
+  }, [cached, remoteStats, fetchRemote]);
 
   if (error) return <ErrorCard error={error} onRetry={fetchRemote} />;
   if (!stats) return <TerminalLoader username={username} steps={steps} />;
@@ -49,7 +59,7 @@ export function ShareCardView({ username }: { username: string }) {
     <div className="w-full">
       <CardComposer stats={stats} />
       <div className="mt-10 text-center">
-        <AnimatedLink href="/capywrapped" className="text-sm text-primary" arrow wipe>
+        <AnimatedLink href="/capywrapped" className="text-sm text-foreground hover:text-primary transition-colors" arrow wipe>
           make your own card
         </AnimatedLink>
       </div>

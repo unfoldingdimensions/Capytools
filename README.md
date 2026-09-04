@@ -1,29 +1,35 @@
 # Capytools
 
-A home for small, quiet tools. One so far.
-
-## Cappy Wrapped
-
-Your GitHub year, wrapped in a calm little card. Named after the capybara.
+A home for small, quiet tools. Three so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
-Paste a GitHub username and you get a card showing:
+## 1. CapyWrapped
 
+Your GitHub year, wrapped in a calm little card. Named after the capybara.
+
+Paste a GitHub username and you get a card showing:
 - **Total public contributions** for the year
 - **A trendline** of the year, month by month, with your busiest month marked
 - **Stars** earned across your repositories
 - **Your top languages**, and your most-starred repo
 
-Download it as a PNG, or post it straight to X. Wide and square formats, light
-and dark. No signup, no cookies, nothing stored.
+Download it as a PNG, or post it straight to X. Wide and square formats, light and dark. No signup, no cookies, nothing stored.
 
-Only *public* contributions are visible to an anonymous visitor, so the number
-is lower than the one on your own profile page, which counts private work too.
+## 2. CapyImagine
 
-![The wrapped card, light theme](docs/card-light.png)
+Random image and video prompts, tuned in your engine's dialect (Gemini, Midjourney, Flux, SDXL, Kling, Runway, Seedance).
 
-![The wrapped card, dark theme](docs/card-dark.png)
+- Tuned aspect ratios, platform destination frames, living-artist filters, and engine-specific negative clauses.
+- Completely client-side generation.
+
+## 3. CapyCreator
+
+Model-aware prompt engineering, scaled for flash and frontier models (Claude, DeepSeek, Gemini, GLM, GPT, Hunyuan, Qwen).
+
+- **Intent Elucidation**: Interrogates vague asks with a task-type-aware questionnaire whose required depth scales with model capability tier (flash models require rigid constraints; frontier models skip them).
+- **Capability-Scaled Assembly**: Injects role, numbered steps, negative constraints, and output schema for small models; stays intent-first for reasoning/frontier models.
+- **Multi-Provider LLM Polish**: Optional polishing pass supporting OpenCode-Go, OpenRouter, Nous Portal, Command Code, and custom OpenAI-compatible endpoints with API keys saved locally in your browser.
 
 ## License
 
