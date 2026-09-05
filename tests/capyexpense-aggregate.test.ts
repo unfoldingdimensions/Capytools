@@ -289,12 +289,32 @@ describe("buildDashboard", () => {
     expect(m.spendDelta.direction).toBe("up");
   });
 
-  it("marks future days in the heatmap rather than calling them quiet", () => {
+  it("widens the heatmap past a short range so it has a rhythm to show", () => {
+    // A month is five columns and a week is one; neither is a heatmap. The
+    // window rolls back half a year and the component draws the surrounding
+    // weeks back rather than hiding them.
     const m = buildDashboard([], range("month", "2026-09-05"), OPTS);
-    expect(m.daily).toHaveLength(30);
-    expect(m.daily.filter((d) => !d.future)).toHaveLength(5);
-    expect(m.daily[29].future).toBe(true);
+    expect(m.daily.length).toBeGreaterThan(150);
+    expect(m.daily.filter((d) => d.inRange)).toHaveLength(5);
+    expect(m.daily.every((d) => d.date <= "2026-09-05")).toBe(true);
+    // The widening must not leak into the period's own numbers.
     expect(m.noSpend.outOf).toBe(5);
+  });
+
+  it("leaves a long range exactly as selected", () => {
+    const m = buildDashboard([], range("year", "2026-09-05"), OPTS);
+    expect(m.daily[0].date).toBe("2026-01-01");
+    expect(m.daily.every((d) => d.inRange)).toBe(true);
+    // Days after today are marked, not counted as quiet ones.
+    expect(m.daily.some((d) => d.future)).toBe(true);
+    expect(m.noSpend.outOf).toBe(248);
+  });
+
+  it("rolls the heatmap back from a past range's own end, not from today", () => {
+    const m = buildDashboard([], range("month", "2026-03-15"), OPTS);
+    expect(m.daily[m.daily.length - 1].date).toBe("2026-03-31");
+    expect(m.daily.filter((d) => d.inRange)).toHaveLength(31);
+    expect(m.daily.some((d) => d.future)).toBe(false);
   });
 
   it("caps the ghost line at the current period's length instead of stretching it", () => {

@@ -30,6 +30,12 @@ const TOOLS = [
     name: "CapyStrip",
     line: "See the GPS and AI fingerprints hiding in your photos, then download a clean copy.",
   },
+  {
+    href: "/capyexpense",
+    eyebrow: "tool no. 5",
+    name: "CapyExpense",
+    line: "A local-first expense dashboard that reads a spreadsheet you type into yourself.",
+  },
 ];
 
 export default function Home() {
@@ -58,7 +64,7 @@ export default function Home() {
 
           <Reveal delay={0.2}>
             <p className="mt-5 max-w-md text-base text-muted-foreground">
-              Four of them so far. All run in your browser and keep nothing.
+              Five of them so far. Nothing you touch leaves your machine.
             </p>
           </Reveal>
 

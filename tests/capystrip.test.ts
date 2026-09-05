@@ -412,7 +412,8 @@ describe("capystrip registration", () => {
     const home = read("../src/app/page.tsx");
     expect(home).toContain('href: "/capystrip"');
     expect(home).toContain('eyebrow: "tool no. 4"');
-    expect(home).toContain("Four of them so far.");
+    // Bumped by each new tool; CapyExpense (no. 5) is the current tail.
+    expect(home).toContain("Five of them so far.");
   });
 
   it("is registered in the header navigation", () => {

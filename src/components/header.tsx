@@ -13,6 +13,7 @@ const TOOLS = [
   { href: "/capyimagine", label: "Imagine" },
   { href: "/capycreator", label: "Creator" },
   { href: "/capystrip", label: "Strip" },
+  { href: "/capyexpense", label: "Expense" },
 ] as const;
 
 /**

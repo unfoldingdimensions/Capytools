@@ -2,7 +2,7 @@ import type { Bucket, DateRange } from "./bucket";
 import { bucketKey, bucketsIn, filterRange } from "./bucket";
 import type { ComparisonWindows, Delta } from "./compare";
 import { comparisonWindows, delta, periodDays } from "./compare";
-import { addDays, daysBetween, daysInclusive, minDate } from "./dates";
+import { addDays, daysBetween, daysInclusive, minDate, startOfWeek } from "./dates";
 import type { Interval, IsoDate, Transaction } from "./types";
 
 /**
@@ -210,6 +210,13 @@ export function noSpendStats(
   };
 }
 
+/**
+ * A range shorter than this widens the heatmap to a rolling window. Rhythm is
+ * the thing the chart shows, and rhythm is not visible across five columns.
+ */
+export const HEATMAP_MIN_WEEKS = 8;
+export const HEATMAP_ROLLING_WEEKS = 26;
+
 /** Charges per year, by cadence. */
 export const ANNUAL_FACTOR: Record<Interval, number> = {
   weekly: 52,
@@ -359,8 +366,13 @@ export interface DashboardModel {
   subs: SubscriptionSummary;
   noSpend: NoSpendStats;
 
-  /** Heatmap cells: the whole range, dense, with future days marked. */
-  daily: { date: IsoDate; value: number; future: boolean }[];
+  /**
+   * Heatmap cells. Dense, with future days marked and days outside the selected
+   * range flagged so they can be drawn back.
+   *
+   * This is deliberately NOT clipped to the range: see `HEATMAP_MIN_WEEKS`.
+   */
+  daily: { date: IsoDate; value: number; future: boolean; inRange: boolean }[];
 
   /** Burn chart. Both series are indexed by elapsed-day offset from day one. */
   burn: {
@@ -412,9 +424,19 @@ export function buildDashboard(
     ? dailyTotals(prevFullRows, prevFullRange.start, prevDays)
     : [];
 
+  // The heatmap window. A month of squares is five columns and a week is one —
+  // neither is a heatmap, and the whole point of the chart is rhythm, which
+  // needs months to be visible at all. So a short range widens to a rolling
+  // half-year ending where the range does, and the component draws the
+  // out-of-range weeks back so the selection still reads.
   const heatEnd = minDate(range.end, now);
-  const heatDays = Math.max(0, daysInclusive(range.start, range.end));
-  const dailyAll = dailyTotals(filterRange(all, range), range.start, heatDays);
+  const wide = daysInclusive(range.start, range.end) < HEATMAP_MIN_WEEKS * 7;
+  const heatStart = wide
+    ? addDays(startOfWeek(heatEnd, weekStart), -(HEATMAP_ROLLING_WEEKS - 1) * 7)
+    : range.start;
+  const heatDays = Math.max(0, daysInclusive(heatStart, wide ? heatEnd : range.end));
+  const heatRange: DateRange = { ...range, start: heatStart, end: wide ? heatEnd : range.end };
+  const dailyAll = dailyTotals(filterRange(all, heatRange), heatStart, heatDays);
 
   return {
     range,
@@ -440,8 +462,13 @@ export function buildDashboard(
     noSpend: noSpendStats(current, range.start, elapsed),
 
     daily: dailyAll.map((value, i) => {
-      const date = addDays(range.start, i);
-      return { date, value, future: date > heatEnd };
+      const date = addDays(heatStart, i);
+      return {
+        date,
+        value,
+        future: date > heatEnd,
+        inRange: date >= range.start && date <= range.end,
+      };
     }),
 
     burn: {

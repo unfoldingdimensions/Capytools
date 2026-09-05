@@ -13,8 +13,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Capytools Architecture & Design Guidelines
 
 ### 1. Brand Ethos & Execution Model
-- **"Calm little tools"**: No signup, no cookies, nothing stored.
-- All tools must execute **100% in-browser** (client-side TypeScript / Web APIs).
+- **"Calm little tools"**: No signup, no cookies, nothing leaves the user's machine.
+- **Browser tools** (the default) must execute **100% in-browser** (client-side TypeScript / Web APIs) and store nothing.
+- **Desktop tools** are a documented exception, introduced by CapyExpense (tool no. 5). They ship as a Tauri app and *do* write files — but only the user's own files, on the user's own disk, with no network code in the binary. A desktop tool must state its own promise ("stored on your machine, never ours") rather than inheriting "nothing stored", which would be false. It must still have no telemetry, no account, and no server.
+- Shared UI for a desktop tool lives in `src/components/capyexpense/`-style directories and must import no `next/*`, no `motion`, and no storage: it renders in both the Next site and the app's separate Vite bundle. `tests/capyexpense-boundaries.test.ts` enforces this.
 - Sensitive configs (API keys, preferences) reside solely in browser `localStorage`.
 - Tool naming: `Capy<Name>` (e.g., `CapyWrapped`, `CapyImagine`, `CapyCreator`).
 - Tool eyebrow: `font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground` (`Capy<Name> · tool no. X`).
