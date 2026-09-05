@@ -44,8 +44,14 @@ export function decideOutputMime(
     case "avif":
       // No browser ships a canvas AVIF encoder.
       return { mimeType: "image/png", note: "AVIF export isn't available in browsers — saved as PNG." };
+    case "heic":
+      // Safari decodes HEIC; nothing encodes it. Let the decode attempt decide —
+      // cleanImage throws HEIC_UNSUPPORTED_MESSAGE where the decode fails.
+      return { mimeType: "image/jpeg", note: "HEIC export isn't available in browsers — saved as JPEG." };
+    case "tiff":
+      throw new CleanUnsupportedError(TIFF_UNSUPPORTED_MESSAGE);
     default:
-      throw new CleanUnsupportedError(kind === "heic" ? HEIC_UNSUPPORTED_MESSAGE : TIFF_UNSUPPORTED_MESSAGE);
+      throw new CleanUnsupportedError("This browser can't redraw that format. The report above is the whole story.");
   }
 }
 
@@ -59,6 +65,29 @@ export function webpEncodeSupported(): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * img.decode() is the right call — it guarantees the bitmap is paintable, and
+ * browsers bake EXIF orientation into it — but it can stay pending forever in a
+ * throttled or unpainted tab, which strands cleanImage with nothing to show.
+ * Race it against the load event and a ceiling so a stall becomes a message.
+ */
+function decoded(img: HTMLImageElement): Promise<void> {
+  if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+  const loaded = new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("load failed"));
+  });
+  // ponytail: fixed ceiling. Raise it if slow devices start losing big photos.
+  let timer: ReturnType<typeof setTimeout>;
+  const ceiling = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("decode timed out")), DECODE_TIMEOUT_MS);
+  });
+  return Promise.race([img.decode(), loaded, ceiling]).then(
+    () => { clearTimeout(timer); },
+    (err) => { clearTimeout(timer); throw err; },
+  );
 }
 
 function toBlob(canvas: HTMLCanvasElement, mimeType: string, quality?: number): Promise<Blob | null> {
@@ -130,6 +159,8 @@ function isEmptyRecord(record?: Record<string, unknown>): boolean {
 }
 
 const DIMENSION_GUARD = 8192;
+const MAX_CANVAS_AREA = 16_777_216;
+const DECODE_TIMEOUT_MS = 15_000;
 
 export async function cleanImage(
   file: Blob,
@@ -146,7 +177,7 @@ export async function cleanImage(
     const img = new Image();
     img.src = url;
     try {
-      await img.decode();
+      await decoded(img);
     } catch {
       throw new CleanUnsupportedError(
         raw.kind === "heic"
@@ -159,6 +190,17 @@ export async function cleanImage(
     const height = img.naturalHeight;
     if (!width || !height) {
       throw new CleanUnsupportedError("The image decoded to an empty size — nothing to redraw.");
+    }
+
+    // ponytail: fixed area cap, matched to the tightest mainstream limit
+    // (Safari/iOS ~16.7 Mpx). Over it, toBlob returns a VALID blob of a blank
+    // image, so the null-check below never fires and the re-scan of a blank
+    // bitmap comes back "verified". Feature-detect per browser if this ever
+    // turns real photos away.
+    if (width * height > MAX_CANVAS_AREA) {
+      throw new CleanUnsupportedError(
+        "This photo is unusually large and this browser can't re-encode it safely. The report is still complete.",
+      );
     }
 
     const canvas = document.createElement("canvas");

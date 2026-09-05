@@ -21,7 +21,7 @@ import {
   readPngText,
   walkPngChunks,
 } from "../src/lib/capystrip/png";
-import { scanMarkers } from "../src/lib/capystrip/parse";
+import { normalizeGps, scanMarkers } from "../src/lib/capystrip/parse";
 import { VERDICT_COPY, buildReport } from "../src/lib/capystrip/report";
 import { DEMO_REPORT } from "../src/lib/capystrip/demo";
 import type { RawMetadata } from "../src/lib/capystrip/types";
@@ -351,10 +351,17 @@ describe("decideOutputMime", () => {
     expect(out.note).toMatch(/AVIF export isn't available/);
   });
 
-  it("refuses report-only formats with a typed error", () => {
+  it("refuses TIFF, and doesn't tell other formats they are one", () => {
     expect(() => decideOutputMime("tiff", true)).toThrow(/TIFF/);
-    expect(() => decideOutputMime("heic", true)).toThrow(/Safari can redraw HEIC/);
-    expect(() => decideOutputMime("unknown", true)).toThrow();
+    expect(() => decideOutputMime("unknown", true)).toThrow(/can't redraw that format/);
+  });
+
+  it("gives HEIC a JPEG target so the decode attempt decides, not the matrix", () => {
+    // Safari can decode HEIC. Throwing up front made that branch dead code and
+    // told Safari users their browser couldn't do the thing it was doing.
+    const out = decideOutputMime("heic", true);
+    expect(out.mimeType).toBe("image/jpeg");
+    expect(out.note).toMatch(/saved as JPEG/);
   });
 
   it("verification ignores container headers but not real metadata", () => {
@@ -411,5 +418,25 @@ describe("capystrip registration", () => {
   it("is registered in the header navigation", () => {
     const header = read("../src/components/header.tsx");
     expect(header).toContain('{ href: "/capystrip", label: "Strip" }');
+  });
+});
+
+describe("CapyStrip GPS normalisation", () => {
+  it("keeps a complete coordinate pair", () => {
+    expect(normalizeGps({ latitude: -33.8688, longitude: 151.2093 })).toEqual({
+      latitude: -33.8688,
+      longitude: 151.2093,
+    });
+    expect(normalizeGps({ latitude: 0, longitude: 0 })).toEqual({ latitude: 0, longitude: 0 });
+  });
+
+  it("rejects the partial object exifr returns for a half-written GPS block", () => {
+    // exifr resolves truthy whenever the GPS block is non-empty, so a file with
+    // only GPSLatitudeRef used to reach report.ts and throw on .toFixed().
+    expect(normalizeGps({ latitude: undefined, longitude: undefined })).toBeNull();
+    expect(normalizeGps({ latitude: -33.8688 })).toBeNull();
+    expect(normalizeGps({ latitude: NaN, longitude: 151.2093 })).toBeNull();
+    expect(normalizeGps(undefined)).toBeNull();
+    expect(normalizeGps(null)).toBeNull();
   });
 });

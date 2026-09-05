@@ -158,6 +158,20 @@ function iccPresentIn(bytes: Uint8Array, text: string, kind: ImageKind, merged?:
   return false;
 }
 
+/**
+ * exifr resolves a truthy object whenever the GPS block is non-empty, but only
+ * sets latitude/longitude when BOTH coordinate tags exist. A file carrying just
+ * GPSLatitudeRef therefore yields {latitude: undefined, longitude: undefined},
+ * which every reader downstream calls .toFixed() on.
+ */
+export function normalizeGps(
+  gps: { latitude?: number; longitude?: number } | undefined | null,
+): { latitude: number; longitude: number } | null {
+  const { latitude, longitude } = gps ?? {};
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  return { latitude: latitude as number, longitude: longitude as number };
+}
+
 export async function readRawMetadata(file: Blob): Promise<RawMetadata> {
   const kind = await sniffImageKind(file);
   const raw: RawMetadata = {
@@ -200,7 +214,7 @@ export async function readRawMetadata(file: Blob): Promise<RawMetadata> {
 
   // Decimal GPS for the location card — no DMS array reverse-engineering.
   try {
-    raw.gps = await exifr.gps(file);
+    raw.gps = normalizeGps(await exifr.gps(file));
   } catch {
     raw.gps = null;
   }

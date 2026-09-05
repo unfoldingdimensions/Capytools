@@ -5,6 +5,7 @@ import { Check, ClipboardPaste, Copy, Download } from "lucide-react";
 
 import {
   CleanUnsupportedError,
+  TIFF_UNSUPPORTED_MESSAGE,
   cleanImage,
 } from "@/lib/capystrip/clean";
 import { DEMO_REPORT } from "@/lib/capystrip/demo";
@@ -194,6 +195,9 @@ export function CapyStrip() {
 
       if (CLEANABLE_KINDS.has(kind)) {
         void runClean(file, raw, run);
+      } else {
+        // Report-only formats still owe the reader a reason for the missing download.
+        setUnsupportedMessage(TIFF_UNSUPPORTED_MESSAGE);
       }
 
       setTimeout(() => {

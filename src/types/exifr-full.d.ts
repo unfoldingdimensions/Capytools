@@ -13,7 +13,8 @@ declare module "exifr/dist/full.esm.mjs" {
       file: Blob,
       options?: Record<string, unknown>,
     ): Promise<Record<string, unknown> | undefined>;
-    gps(file: Blob): Promise<ExifrGps>;
+    /** Resolves to an object whose coords are undefined unless BOTH lat and lon tags exist. */
+    gps(file: Blob): Promise<Partial<ExifrGps> | undefined>;
     thumbnail(file: Blob): Promise<Uint8Array | undefined>;
   };
 
