@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0253938",
+    "title": "Davydenko, Kolbuszewska & Peetz (2021), 'A meta-analysis of financial self-control strategies', PLOS ONE 16(7):e0253938, DOI 10.1371/journal.pone.0253938 — VERIFIED 2026-09-05 by full fetch. Key facts: 29 studies / 12 self-control strategies; overall d = 0.57 (95% CI 0.43–0.71, Z = 8.38, p < .001); sensitivity check without largest study (n=8,940) d = 0.59; proactive d = 0.56 [0.30–0.83] vs reactive d = 0.58 [0.43–0.72], strategy type not a significant moderator (p = .930). Tracking-related studies in the evidence base include 'tracking weekly saving deposits' (Akbas et al. 2016) and 'tracking expenses via text messages' (Hernández Escuer et al. 2014)."
+  },
+  {
+    "id": 2,
+    "url": "https://academic.oup.com/jcr/article-abstract/27/4/460/1810425",
+    "title": "Soman (2001), 'Effects of Payment Mechanism on Spending Behavior: The Role of Rehearsal and Immediacy of Payments', Journal of Consumer Research 27(4):460–474 — VERIFIED 2026-09-05 via search-result citation records (PsycNet 2001-00910-005; RePEc oup:jconrs v27 y2001 i4 p460-74). Key fact: payment mechanisms requiring greater REHEARSAL (e.g. writing down the amount paid) and greater immediacy make past payments more accessible in memory and reduce subsequent spending; less transparent mechanisms (credit card) lead to overspending. This is the peer-reviewed mechanism for why manually recording an expense increases its psychological weight."
+  },
+  {
+    "id": 3,
+    "url": "https://link.springer.com/article/10.1023/A:1027444717586",
+    "title": "Soman (2003), 'The Effect of Payment Transparency on Consumption: Quasi-Experiments from the Field', Marketing Letters 14(3):173–183, DOI 10.1023/A:1027444717586 — VERIFIED 2026-09-05 via search records (~459 citations). NOTE: this is Marketing Letters, NOT JCR (common misattribution). Key fact: the lower the payment 'transparency' (vividness of the act of payment), the greater subsequent consumption; effect weaker for third-party charges (hotel accounts) — the mechanism behind automated/decoupled charges such as recurring subscriptions."
+  },
+  {
+    "id": 4,
+    "url": "https://www.sciencedirect.com/science/article/pii/S0167811698000054",
+    "title": "Prelec & Loewenstein (1998), 'The Red and the Black: Mental Accounting of Savings and Debt', Marketing Science 17(1):4–28 — VERIFIED 2026-09-05 via citation records. Key fact: origin of 'pain of paying' and the coupling/decoupling model; decoupling payment from consumption (credit, prepaid, subscriptions) reduces the felt hedonic cost of purchases. Cited via Marketing Science 17:4–28 (widely misattributed to JCR)."
+  },
+  {
+    "id": 5,
+    "url": "https://web.mit.edu/simester/Public/Papers/Alwaysleavehome.pdf",
+    "title": "Prelec & Simester (2001), 'Always Leave Home Without It: A Further Investigation of the Credit-Card Effect on Willingness to Pay', Marketing Letters 12(1):5–12 — VERIFIED 2026-09-05 via MIT Simester paper listing. Key fact: field auctions showed willingness to pay substantially higher (up to roughly 50–100% in some conditions, e.g. Celtics tickets) when paying by credit card vs cash."
+  },
+  {
+    "id": 6,
+    "url": "https://www.nber.org/papers/w35430",
+    "title": "Augenblick, Jack, Kaur, Masiye & Swanson (2026), 'Retrieval Failures and Consumption Smoothing', NBER Working Paper 35430, DOI 10.3386/w35430 (AEA RCT registry AEARCTR-0004409) — VERIFIED 2026-09-05 by abstract fetch. Key facts: individuals underestimate upcoming spending by ~50%; a randomized 'think through future expenses associatively in categories' intervention (no new information) raised remembered expenses by 36–60%, lowered immediate spending, raised savings 15% six weeks later, and funded 9% higher next-year crop revenue; replicated among low-income Americans."
+  },
+  {
+    "id": 7,
+    "url": "https://pages.stern.nyu.edu/~aalter/publication.html",
+    "title": "Sussman & Alter (2012), 'The Exception Is the Rule: Underestimating and Overspending on Exceptional Expenses', Journal of Consumer Research 39(4):800–814 — VERIFIED 2026-09-05 via Adam Alter's NYU Stern publication listing (OUP page 403s anonymous fetches). Key fact: consumers underestimate exceptional (irregular/discretionary) expenses relative to ordinary ones and consequently overspend when they occur. DIRECTION of underestimation: exceptional/discretionary spending is the systematically under-estimated part."
+  },
+  {
+    "id": 8,
+    "url": "https://plaid.com/legal/",
+    "title": "Plaid 'Privacy and security policies' legal hub — VERIFIED 2026-09-05 by full fetch. Key facts: data collected includes 'Account data, including financial institution name, account name, account type, account ownership, branch number, IBAN, BIC, account number...' plus balances, credit/loan/investment data, transaction data; shared 'With the developer of the app you are using and as directed by that developer'; general retention: data kept as long as needed with automatic deletion when the developer removes your connection (subject to legal exceptions). FOLKLORE CORRECTION: the often-quoted 'data stored no longer than three years' sentence appears ONLY in the Illinois/Texas biometric-data special notice, not the general retention policy."
+  },
+  {
+    "id": 9,
+    "url": "https://www.reuters.com/legal/litigation/fintech-firm-plaid-agrees-58-mln-deal-end-privacy-case-2021-08-06/",
+    "title": "Reuters (2021-08-06): 'Fintech firm Plaid agrees to $58 mln deal to end privacy case' — VERIFIED 2026-09-05; final approval July 2022 (Lieff Cabraser; plaidsettlement.com). FOLKLORE CORRECTION: the $58M Plaid settlement is a PRIVATE CLASS ACTION (allegations: harvesting bank login credentials via Plaid Link from ~5,000 apps; monetizing more data than apps needed; injunctive relief required data deletion and reduced retention), NOT an FTC action — no FTC enforcement action against Plaid exists; the DOJ/FTC-adjacent involvement was the antitrust suit that blocked Visa's $5.3B acquisition (2020–2021)."
+  },
+  {
+    "id": 10,
+    "url": "https://www.investmentnews.com/fintech/lawmakers-demand-ftc-investigate-envestnet-yodlee-for-selling-consumer-financial-data/176551",
+    "title": "InvestmentNews (2020-01-17): 'Lawmakers demand FTC investigate Envestnet Yodlee for selling consumer financial data' — VERIFIED 2026-09-05 by full fetch. Key facts: Sens. Wyden & Brown + Rep. Eshoo asked the FTC to examine Yodlee's sale of consumers' personal financial data to third parties including institutional investors/research firms; Yodlee aggregates data for 25 million people, partners with 1,200+ companies incl. 15 of the top 20 US banks; acquired by Envestnet 2015 for $590M; lawmakers: 'Envestnet does not inform consumers that it is collecting and selling their personal financial data.' Yodlee response: 'never sells data that identifies consumers.'"
+  },
+  {
+    "id": 11,
+    "url": "https://www.ynab.com/privacy-policy",
+    "title": "YNAB privacy policy — VERIFIED 2026-09-05 by full fetch. Key facts: data 'transferred, processed, and stored in the United States'; shares data with service providers, ad partners, analytics partners, and 'Financial Data Aggregation Services, but only with your consent' (MX and Plaid named); 'We do not sell your Financial Data' BUT acknowledges online advertising 'may be considered to be a \"sale\"' under broad state-law definitions; uses session recordings/heatmaps and may share device identifiers ('such as an IP address or device ID') and 'a hashed email address' with ad platforms."
+  },
+  {
+    "id": 12,
+    "url": "https://www.monarch.com/privacy",
+    "title": "Monarch Money privacy policy — VERIFIED 2026-09-05 by full fetch. Key facts: receives 'transaction and balance information from such accounts such as via Plaid, Finicity, Mx, or Spinwheel' (login credentials never stored by Monarch itself); 'We will never sell your financial data' BUT sharing Device/IP/Web Analytics/Profile/Demographic data with Advertising Partners 'may constitute \"selling\", \"sharing\", or \"targeted advertising\"' under state laws (opt-out form + GPC supported); service providers include AI platforms (OpenAI) and payment processors (Stripe, Apple, Google); uses Google Analytics, retargeting/ad cookies and session replay; Household Members 'will have access to your account and your Personal Data, regardless of any privacy or similar settings'."
+  },
+  {
+    "id": 13,
+    "url": "https://www.copilot.money/privacy-and-security",
+    "title": "Copilot Money 'Privacy and Security' — VERIFIED 2026-09-05 via search result quoting the page. Key fact: 'Copilot Money itself does not see or store your bank login credentials because we partner with trusted data aggregators, like Plaid and Mastercard Data Connect'; full policy at copilot.money/privacy-policy; California notice states Copilot does not 'sell' Financial Information from the money-tracking platform."
+  },
+  {
+    "id": 14,
+    "url": "https://epic.org/documents/epic-cfpb-complaint-rocket-money/",
+    "title": "EPIC CFPB complaint against Rocket Money — VERIFIED 2026-09-05 via search records. Key facts: Rocket Money markets 'we never sell your data' (rocketmoney.com/security); EPIC's complaint quotes the policy that 'Rocket has shared personal information with third parties or Affiliates, in exchange for valuable consideration'; Rocket Money uses Plaid to gather financial data (per its own site and Plaid's customer story). Privacy policy SPA at rocketaccount.com/#/privacy-policy blocked anonymous fetch (403) — quote sourced via EPIC document."
+  },
+  {
+    "id": 15,
+    "url": "https://www.bleepingcomputer.com/news/security/dave-data-breach-affects-75-million-users-leaked-on-hacker-forum/",
+    "title": "BleepingComputer (2020-07): 'Dave data breach affects 7.5 million users, leaked on hacker forum' — VERIFIED 2026-09-05 via search records. Key facts: 7,516,691 user records (incl. ~3M unique emails, names, birth dates, addresses, phone numbers, hashed passwords) leaked by ShinyHunters; root cause was credentials exposed in a third-party analytics partner's (Waydev) GitHub repos; leaked database contained Galileo payment-processor API tokens; bank account/SSN numbers not accessed. Demonstrates breach exposure of mainstream budgeting/fintech apps' central data stores."
+  },
+  {
+    "id": 16,
+    "url": "https://www.ftc.gov/news-events/news/press-releases/2023/01/ftc-finalizes-order-requiring-credit-karma-pay-3-million-halt-deceptive-pre-approved-claims",
+    "title": "FTC press release: 'FTC Finalizes Order Requiring Credit Karma to Pay $3 Million to Halt Deceptive Pre-Approved Claims' — VERIFIED 2026-09-05 via FTC URL + search records; consent order Sept 2022, finalized Jan 2023 (FTC case 2023138). Key facts: 'dark patterns' to misrepresent 'pre-approved' credit offers; harmed credit scores via hard inquiries; ~51,000 consumers received redress in 2024."
+  },
+  {
+    "id": 17,
+    "url": "https://www.pcmag.com/news/intuit-to-scrap-mint-and-move-its-users-to-credit-karma",
+    "title": "PCMag (Nov 2023): 'Intuit to Scrap Mint and Move Its Users To Credit Karma' — VERIFIED 2026-09-05 via search records. Key facts: Mint shut down Jan 1, 2024 with migration deadline Mar 23, 2024; users funneled into Credit Karma (credit-score/recommendation product, weaker budgeting/categorization), triggering the 2024 migration wave to Rocket Money, YNAB, Monarch and Copilot. Context: Mint's successor monetizes via product recommendations (same data-monetization model the FTC dinged in [16])."
+  },
+  {
+    "id": 18,
+    "url": "https://registry.npmjs.org/exceljs",
+    "title": "npm registry: exceljs 4.4.0 package metadata — VERIFIED 2026-09-05 by registry API fetch. Key facts: \"main\": \"./excel.js\" (Node build), \"browser\": \"./dist/exceljs.min.js\" (pre-bundled browser build; Vite resolves the browser field by default); dependencies: tmp, uuid ^8.3.0, dayjs, jszip ^3.10.1, saxes, archiver, fast-csv, unzipper, readable-stream (Node-only deps are tree-shaken/aliased out in the dist bundle); no \"module\" or \"exports\" field."
+  },
+  {
+    "id": 19,
+    "url": "https://raw.githubusercontent.com/exceljs/exceljs/master/README.md",
+    "title": "exceljs README (master) — VERIFIED 2026-09-05 by raw fetch. Key facts: §Browser: 'A portion of this library has been isolated and tested for use within a browser environment. Due to the streaming nature of the workbook reader and workbook writer, these have not been included. Only the document based workbook may be used' (use Workbook.xlsx.load/read/writeBuffer — no workbook.xlsx.readFile/streaming in browser); dist/ ships exceljs.js (expects core-js polyfills) and exceljs.min.js (no implicit polyfill deps); the ES5 build needs core-js + regenerator-runtime only for legacy targets — modern Chromium/WebView2 needs none; §Data Validations documents cell.dataValidation with type 'list' ('Excel will offer these in a dropdown for easy entry') among whole/decimal/textLength/custom."
+  },
+  {
+    "id": 20,
+    "url": "https://github.com/exceljs/exceljs/issues/2093",
+    "title": "exceljs issue #2093 '[BUG] VueE3 and Vite' (OPEN since 2022) — VERIFIED 2026-09-05 via API fetch of issue + comments. Key fact: `vite build` fails with rollup commonjs 'SyntaxError: Unexpected token (11:63288) in node_modules/exceljs/dist/exceljs.min.js' — Rollup cannot parse the minified pre-bundled UMD bundle; reported across Vite 2/3/4. What breaks: production builds bundling the browser-field target; dev server usually works."
+  },
+  {
+    "id": 21,
+    "url": "https://github.com/exceljs/exceljs/discussions/2496",
+    "title": "exceljs discussion #2496 'How to use ExcelJs in the ClientSide' — VERIFIED 2026-09-05 via search records. Key fact (the polyfill/bundle fix): import the un-minified browser build directly — `import ExcelJS from 'exceljs/dist/es5/exceljs.browser.js'` (or alias 'exceljs' to it in vite.config resolve.alias) — bypasses the Rollup minified-parse failure of [20] without adding Node polyfill plugins; alternative CDN loading also documented. Which polyfill fixes what: none needed on modern WebView2/Chromium for es5.browser build; core-js/regenerator-runtime only if targeting IE/legacy ES5 (README [19])."
+  },
+  {
+    "id": 22,
+    "url": "https://bugs.documentfoundation.org/show_bug.cgi?id=94393",
+    "title": "LibreOffice bug tdf#94393 (CONFIRMED) 'dropdowns in cells from XLSX files may not appear' — VERIFIED 2026-09-05 via search records, corroborated by Ask LibreOffice threads (/t/13611 'validation is lost', /t/21060 'Validity rules are missing when a Calc file is re-opened'). Key fact: xlsx list validation from INLINE literal lists (formula1 '\"A,B,C\"') is the fragile path in LibreOffice; range/cell-range-based validation imports and round-trips reliably. Design implication for CapyExpense: write the category dropdown as a cell range (e.g. a hidden 'Lists' sheet) rather than an inline literal list. exceljs writes worksheet-level dataValidation ranges (PR #1480 fixed undefined ref bug; PR #1229 keeps formulae when type missing)."
+  },
+  {
+    "id": 23,
+    "url": "https://superuser.com/questions/1388679/how-do-i-copy-dropdown-lists-from-excel-to-google-sheets",
+    "title": "Superuser: 'How do I copy dropdown lists from Excel to Google Sheets?' (+ Google support thread 143553939) — VERIFIED 2026-09-05 via search records. Key fact: Google Sheets IMPORTING an xlsx preserves list data-validation dropdowns (even large lists; import is reliable where paste is not); reverse direction (Sheets → xlsx export) can DROP validations, especially alongside protected ranges. So: ExcelJS → Sheets import OK; do not promise round-trip preservation from other producers."
+  },
+  {
+    "id": 24,
+    "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/",
+    "title": "Microsoft Learn: 'Introduction to Microsoft Edge WebView2' — VERIFIED 2026-09-05 by full fetch. Key facts: WebView2 'uses Microsoft Edge as the rendering engine'; Evergreen distribution relies on 'an up-to-date version of Chromium with regular platform updates and security patches'. Consequence: any exceljs browser bundle that works in current Chrome works in WebView2 — Blob/URL.createObjectURL/TextEncoder/TextDecoder all native; no Node polyfills required."
+  },
+  {
+    "id": 25,
+    "url": "https://v2.tauri.app/plugin/file-system/",
+    "title": "Tauri v2 docs: fs plugin (Scope section) — VERIFIED 2026-09-05 by full fetch. Key facts: 'Permissions alone do not grant a scope'; 'Most fs commands also require a scope that explicitly lists which paths the command may access'; deny scopes always win ('deny take precedence over allow'); runtime grants via Rust FsExt: `scope.allow_directory(\"/path/to/directory\", false)` (second arg = recursive); per-command scopes like { identifier: 'fs:allow-rename', allow: [...] } and the global fs:scope permission."
+  },
+  {
+    "id": 26,
+    "url": "https://raw.githubusercontent.com/tauri-apps/plugins-workspace/v2/plugins/dialog/src/commands.rs",
+    "title": "tauri-plugin-dialog v2 source, src/commands.rs — VERIFIED 2026-09-05 by raw fetch. KEY ANSWER: plugin-dialog AUTOMATICALLY grants fs scope at runtime after every pick: for directory selection it calls `s.allow_directory(&path, options.recursive)` on the window fs scope (and `tauri_scope.allow_directory`); for file open/save it calls `s.allow_file(&path)`. CRITICAL NUANCE: subdirectory (recursive) access only when the open options ALSO pass `recursive: true` — OpenDialogOptions.recursive: 'If directory is true, indicates that it will be read recursively later. Defines whether subdirectories will be allowed on the scope or not' — default false. So open({directory:true, recursive:true}) is required for a watch-recursive-capable grant; FsExt::allow_directory in Rust is only needed for scopes the user didn't pick."
+  },
+  {
+    "id": 27,
+    "url": "https://v2.tauri.app/plugin/persisted-scope/",
+    "title": "Tauri v2 docs: persisted-scope plugin — VERIFIED 2026-09-05 by full fetch. KEY ANSWER on persistence: dialog-granted runtime scopes are session-scoped by default; the persisted-scope plugin will 'Save filesystem and asset scopes and restore them when the app is reopened' — 'After setup the plugin will automatically save and restore filesystem and asset scopes'. Setup: `npm run tauri add persisted-scope` + `tauri_plugin_persisted_scope::init()`; MUST be registered/initialized AFTER the fs plugin (docs warn explicitly); no feature flag."
+  },
+  {
+    "id": 28,
+    "url": "https://raw.githubusercontent.com/tauri-apps/plugins-workspace/v2/plugins/fs/src/watcher.rs",
+    "title": "tauri-plugin-fs v2 source, src/watcher.rs — VERIFIED 2026-09-05 by raw fetch. Key facts: watch/watchImmediate use the `notify` crate RecommendedWatcher, optionally wrapped in `notify_debouncer_full::new_debouncer` when options.delayMs is passed (Duration::from_millis(delayMs); no debounce when omitted); options.recursive maps to RecursiveMode::Recursive; events forwarded to the frontend channel include raw notify EventKinds (no rename-specific filtering server-side)."
+  },
+  {
+    "id": 29,
+    "url": "https://superuser.com/questions/1834574/filesystemwatcher-does-not-react-to-changes-in-excel-file",
+    "title": "Superuser 'FileSystemWatcher does not react to changes in excel file' + StackOverflow 43080981 + notify-rs/notify issues #129 (temp-file Create/Rename ordering on Windows) and #261 (coarse ModifyKind on Windows) — VERIFIED 2026-09-05 via search records. KEY ANSWER: Excel saves are NOT Modify(Data) events — Excel writes a temp file then renames it over the original (ReadDirectoryChangesW reports it as Rename; .NET FileSystemWatcher users see 'Renamed' events, and notify on Windows has the same backend). Practical rules for CapyExpense's Tauri watch: treat ANY event touching the watched path (EventKind::Modify(ModifyKind::Name(RenameMode::Both/To)), Create, Modify) as a save signal and re-read content; pass a delayMs debounce (e.g. 300–500ms) to collapse the event burst; ignore Excel's '~$' lock files and '.tmp' siblings; WSL caveat (notify #254) irrelevant inside Tauri on native Windows."
+  },
+  {
+    "id": 30,
+    "url": "https://www.bls.gov/news.release/cesan.nr0.htm",
+    "title": "BLS Consumer Expenditure Survey annual expenditure news release (Table A row labels) — VERIFIED 2026-09-05 by full fetch. Exact major category names: Food; Alcoholic beverages; Housing; Apparel and services; Transportation; Healthcare; Entertainment; Personal care products and services; Reading; Education; Tobacco products and smoking supplies; Miscellaneous; Cash contributions; Personal insurance and pensions (housing and transportation = >50% of total annual spend per latest release)."
+  },
+  {
+    "id": 31,
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/expenditure/bulletins/familyspendingintheuk/latest",
+    "title": "ONS 'Family spending in the UK' (latest edition) — VERIFIED 2026-09-05 by full fetch. Key facts: ONS reports on COICOP divisions including 'food and non-alcoholic drinks', 'alcoholic drinks', 'clothing and footwear', 'housing (net), fuel and power', 'transport', 'recreation and culture', 'restaurant and hotels', 'education', 'health', 'miscellaneous goods and services', plus division 13 'Other expenditure items' (mortgage interest, Council Tax/NI rates). Full numbered 01–13 division titles live in the COICOP classification files linked from unstats.un.org; the ONS publication names are the UK-official labels to mirror."
+  },
+  {
+    "id": 32,
+    "url": "https://help.monarch.com/hc/en-us/articles/360048883851-Default-Categories",
+    "title": "Monarch Money Help Center 'Default Categories' (Zendesk article 360048883851; fetched via help_center JSON API) — VERIFIED 2026-09-05 by full fetch. Default groups + categories: Income (Paychecks, Interest, Business Income, Other Income); Gifts & Donations (Charity, Gifts); Auto & Transport (Auto Payment, Public Transit, Gas, Auto Maintenance, Parking & Tolls, Taxi & Ride Shares); Housing (Mortgage, Rent, Home Improvement); Bills & Utilities (Garbage, Water, Gas & Electric, Internet & Cable, Phone); Food & Dining (Groceries, Restaurants & Bars, Coffee Shops); Travel & Lifestyle (Travel & Vacation, Entertainment & Recreation, Personal, Pets, Fun Money); Shopping (Shopping, Clothing, Furniture & Housewares, Electronics); Children (Child Care, Child Activities); Education (Student Loans, Education); Health & Wellness (Medical, Dentist, Fitness); Financial (Loan Repayment, Financial & Legal Services, Financial Fees, Cash & ATM, Insurance, Taxes); Other (Uncategorized — cannot be disabled)."
+  },
+  {
+    "id": 33,
+    "url": "https://www.ynab.com/blog/how-many-ynab-categories",
+    "title": "YNAB blog 'How Many YNAB Categories Should I Have?' — VERIFIED 2026-09-05 via search records, corroborated by 3+ independent YNAB-community writeups (eatsleepbreathefi, hellosensible, freshstartmoneycoaching). Default starter category groups: Immediate Obligations; True Expenses (non-monthly/irregular: car repairs, holidays); Debt Payments; Quality of Life Goals; Just for Fun. YNAB is group-first with ~30 starter categories; communities routinely replicate this shape."
+  },
+  {
+    "id": 34,
+    "url": "https://www.crresearch.com/blog/subscription-service-statistics-and-costs/",
+    "title": "C+R Research (2022) 'Subscription Service Statistics and Costs' — VERIFIED 2026-09-05 by full fetch. KEY NUMBERS: consumers ESTIMATE $86/month on subscription services; itemized ACTUAL average $219/month ('more than 2.5 times the amount they thought'); average gap $133/month (~$1,600/year); n=1,000 US consumers surveyed April 22–May 2, 2022, even split across Gen Z/Millennial/Gen X/Boomer; 74% say it's easy to forget recurring charges; 42% admit paying for a subscription they no longer use; 72% have all subscriptions on auto-pay; 30% underestimated by $100–$199; 22% feel overwhelmed; 10% use a subscription tracker (Mint most popular). Corroborated by CNBC (2022-06-02) and Business Insider."
+  },
+  {
+    "id": 35,
+    "url": "https://journals.sagepub.com/doi/10.1509/jmkr.43.2.212",
+    "title": "Lambrecht & Skiera (2006), 'Paying Too Much and Being Happy About It: Existence, Causes, and Consequences of Tariff-Choice Biases', Journal of Marketing Research 43(2):212–223 — VERIFIED 2026-09-05 via SAGE/PsycNet/SSRN records (~612 citations). Key fact: 'flat-rate bias' — consumers systematically pick flat-rate plans over cheaper metered ones (causes: insurance effect, taxi-meter effect, usage overestimation) and flat-rate-biased customers churn LESS — recurring flat charges are psychologically comfortable and avoid re-evaluation. Underwrites why small recurring charges escape scrutiny."
+  },
+  {
+    "id": 36,
+    "url": "https://academic.oup.com/qje/article-abstract/121/2/505/1884013",
+    "title": "Gabaix & Laibson (2006), 'Shrouded Attributes, Consumer Myopia, and Information Suppression in Competitive Markets', Quarterly Journal of Economics 121(2):505–540 — VERIFIED 2026-09-05 via QJE/NBER w11755 records (~2,395 citations). Key fact: small add-on/hidden charges are systematically under-anticipated because firms profit from myopia and suppress price information; the canonical behavioral-economics account of why minor recurring/hidden charges escape re-evaluation."
+  }
+]
