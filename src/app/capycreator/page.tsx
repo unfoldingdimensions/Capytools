@@ -1,3 +1,4 @@
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { CapyCreator } from "@/components/tool/CapyCreator";
@@ -12,7 +13,10 @@ export const metadata = {
 
 export default function CapyCreatorPage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+    // No `bg-background` here on purpose: body already paints it, and an opaque
+    // wrapper would cover the fixed ambient layer sitting at -z-10.
+    <div className="flex min-h-dvh flex-col text-foreground">
+      <AmbientBackground />
       <Header tool="CapyCreator" />
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20">

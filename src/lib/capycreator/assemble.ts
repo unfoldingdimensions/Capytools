@@ -92,6 +92,11 @@ export function assemble(
 
   // 2. Restated task
   lines.push(`Task: ${intent.task_type.replace(/_/g, " ")}`);
+  // The ask itself is the payload — without it a tier 4-5 prompt (where no
+  // questionnaire answer is required) carries only the task type.
+  if (has(intent.raw_ask)) {
+    lines.push(`Ask: ${intent.raw_ask}`);
+  }
   if (has(intent.current_state)) {
     lines.push(`Context / what's wrong or the starting point: ${intent.current_state}`);
   }

@@ -140,6 +140,21 @@ describe("CapyCreator Prompt Assembly", () => {
     expect(prompt).not.toContain("Do NOT:");
     expect(prompt).toContain("Proceed directly and use your judgment to satisfy the intent above.");
   });
+  it("carries the raw ask through even when nothing is required and nothing is answered", () => {
+    // Tier 4-5 requires no answers, so the ask is the only thing describing the work.
+    const ask = "do a design review of the login page";
+    const intent = buildIntent(ask, "claude", {}, 5);
+    const prompt = assemble(intent, MODEL_PROFILES.claude, 5);
+
+    expect(prompt).toContain("of the login page");
+    expect(prompt).toContain(`Ask: ${ask}`);
+  });
+
+  it("omits the Ask line when the ask is blank", () => {
+    const intent = buildIntent("   ", "claude", {}, 5);
+    const prompt = assemble(intent, MODEL_PROFILES.claude, 5);
+    expect(prompt).not.toContain("Ask:");
+  });
 });
 
 describe("CapyCreator Polish & Multi-Provider Support", () => {

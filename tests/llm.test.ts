@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   PROVIDER_PRESETS,
   getDefaultSettings,
@@ -57,4 +57,26 @@ describe("Capytools shared LLM layer", () => {
     });
     expect(custom.note).toBe("No API key configured in Polish Settings.");
   });
+
+  it("treats a reasoning-only response as a failure and keeps the original", async () => {
+    // A truncated <think> block strips to "" — returning that as a success
+    // would hand callers an empty string and wipe whatever they render.
+    vi.stubGlobal("fetch", async () =>
+      new Response(JSON.stringify({ choices: [{ message: { content: "<think>still thinking" } }] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const settings = { ...getDefaultSettings(), apiKey: "test-key" };
+    const res = await polishText("draft prompt", { settings, systemInstruction: "be terse" });
+
+    expect(res.ok).toBe(false);
+    expect(res.text).toBe("draft prompt");
+    expect(res.note).toBe("Provider returned only reasoning — kept the original.");
+  });
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });

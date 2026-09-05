@@ -46,8 +46,8 @@ export const PROVIDER_PRESETS: Record<LlmProvider, ProviderPreset> = {
   command: {
     id: "command",
     name: "Command Code (Cohere)",
-    defaultBaseUrl: "https://api.cohere.com/v2",
-    defaultModel: "command-r-plus",
+    defaultBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    defaultModel: "command-a-plus-05-2026",
     placeholderKey: "cohere API key...",
     description: "Cohere Command Code / Command R models",
   },
@@ -306,9 +306,14 @@ export async function polishText(
     return { ok: false, text: prompt, note: res.note };
   }
 
+  const cleaned = stripThinkingTags(res.text);
+  if (!cleaned) {
+    return { ok: false, text: prompt, note: "Provider returned only reasoning — kept the original." };
+  }
+
   return {
     ok: true,
-    text: stripThinkingTags(res.text),
+    text: cleaned,
     note: `Polished via ${options.settings.model} (${options.settings.provider})`,
   };
 }
