@@ -71,6 +71,26 @@ describe("shared dashboard components stay framework-agnostic", () => {
   });
 });
 
+describe("shared modules survive a bundler that is not Next", () => {
+  /**
+   * Regression: `src/lib/utils.ts` exports `cn`, which every shared component
+   * uses, and also evaluated `process.env` at module load. In the desktop app's
+   * plain Vite bundle `process` does not exist, so importing `cn` threw before
+   * the first paint. Next inlines `process.env.NEXT_PUBLIC_*` textually, so the
+   * fix has to guard the read without rewriting the expression.
+   */
+  const shared = [join(ROOT, "src", "lib", "utils.ts")];
+
+  it.each(shared.map((f) => [rel(f), f]))("%s guards every process access", (_label, file) => {
+    const source = read(file);
+    for (const [, line] of source.split("\n").entries()) {
+      if (!/\bprocess\.env\b/.test(line)) continue;
+      if (line.trim().startsWith("*") || line.trim().startsWith("//")) continue;
+      expect(source).toContain('typeof process !== "undefined"');
+    }
+  });
+});
+
 describe("the pure analysis core stays pure", () => {
   const files = walk(join(ROOT, "src", "lib", "capyexpense")).filter(
     (f) => !/workbook-(read|write)\.ts$/.test(f),

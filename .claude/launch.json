@@ -4,8 +4,22 @@
     {
       "name": "dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3024
+    },
+    {
+      "name": "capyexpense-desktop",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "desktop"
+      ],
+      "port": 3025
     }
   ]
 }

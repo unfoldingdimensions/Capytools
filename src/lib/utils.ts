@@ -35,5 +35,14 @@ export function sanitizeUsername(input: string): string {
  * NEXT_PUBLIC_SITE_URL.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://capytools.vercel.app"
+  // The `typeof` guard is load-bearing, not defensive noise. `cn` lives in this
+  // module, and the CapyExpense desktop app imports it into a plain Vite bundle
+  // where `process` does not exist — an unguarded read here throws at module
+  // load and takes the whole app's first paint with it.
+  //
+  // The `process.env.NEXT_PUBLIC_SITE_URL` expression is left verbatim on
+  // purpose: Next inlines it by textual match, and rewriting it (optional
+  // chaining, destructuring) would silently stop that working.
+  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL) ||
+  "https://capytools.vercel.app"
 ).replace(/\/+$/, "");
