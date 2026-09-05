@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CapyExpenseDemo } from "./CapyExpenseDemo";
-import { CapyExpenseHeroChart } from "./CapyExpenseHeroChart";
+import { CapyExpenseHeroChart, HERO_CHART_TOTAL } from "./CapyExpenseHeroChart";
 
 /**
  * The landing page's centrepiece.
@@ -17,29 +17,46 @@ export function CapyExpenseShowcase() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="capyexpense-demo"
-          className="rounded-full bg-primary px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
-        >
-          {open ? "Hide the dashboard" : "Show the dashboard"}
-        </button>
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-          {open ? "Live, on made-up numbers" : "The real thing, running on made-up numbers"}
-        </p>
-      </div>
-
-      <div id="capyexpense-demo">
-        {open ? (
-          <CapyExpenseDemo />
-        ) : (
-          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
-            <CapyExpenseHeroChart />
+      <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.10)]">
+        {!open ? (
+          <div className="px-6 pt-8 sm:px-10 sm:pt-10">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">A year on one screen</p>
+                <p className="mt-1 font-display text-[2rem] font-light leading-none tracking-tight text-foreground">
+                  {HERO_CHART_TOTAL}
+                </p>
+              </div>
+              <p className="max-w-[34ch] text-sm leading-relaxed text-muted-foreground">
+                Made-up numbers, real charts. This is the app&rsquo;s own code, running in the page.
+              </p>
+            </div>
+            <div className="mt-6">
+              <CapyExpenseHeroChart />
+            </div>
           </div>
-        )}
+        ) : null}
+
+        <div id="capyexpense-demo" className={open ? "px-6 pt-8 sm:px-10 sm:pt-10" : undefined}>
+          {open ? <CapyExpenseDemo /> : null}
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-border bg-muted/30 px-6 py-5 sm:px-10">
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="capyexpense-demo"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.98]"
+          >
+            {open ? "Hide the dashboard" : "Show the whole dashboard"}
+          </button>
+          <p className="text-sm text-muted-foreground">
+            {open
+              ? "Every control works. Change the range and the numbers follow."
+              : "Five charts, four numbers, and a range picker that actually works."}
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,11 @@ import { AmbientBackground } from "@/components/AmbientBackground";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { CapyExpenseShowcase } from "@/components/tool/CapyExpenseShowcase";
+import {
+  PRIVACY_EVIDENCE,
+  TRACKING_EVIDENCE,
+  type Evidence,
+} from "@/components/tool/capyexpense-evidence";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 
@@ -11,7 +16,6 @@ export const metadata = {
     "A desktop expense dashboard that reads a spreadsheet you type into yourself. No account, no bank login, no cloud, no AI. Your file never leaves your machine.",
 };
 
-/** Claims resolve to docs/research/capyexpense/sources.json. */
 const FAQ = [
   {
     q: "Does it read my bank?",
@@ -49,92 +53,115 @@ export default function CapyExpensePage() {
       <AmbientBackground />
       <Header tool="CapyExpense" />
 
-      <main className="flex w-full flex-1 flex-col items-center px-6 pb-20">
-        <section className="mx-auto flex w-full max-w-4xl flex-col items-center pt-5 text-center sm:pt-8">
-          <Reveal>
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              CapyExpense · tool no. 5
-            </p>
-          </Reveal>
-          <h1 className="mt-5 font-display text-5xl font-light leading-[1.04] tracking-tight text-foreground sm:text-6xl">
-            <TextReveal text="You already have the data." delay={0.1} />
-            <br />
-            <em className="italic">
+      <main className="flex w-full flex-1 flex-col items-center px-6 pb-24">
+        {/* Hero. The only entrance animation on the page: the chart draws itself. */}
+        <section className="mx-auto flex w-full max-w-4xl flex-col items-center pt-8 text-center sm:pt-14">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            CapyExpense · tool no. 5
+          </p>
+          {/*
+            The two sentences are a call and a response, so they get a line
+            each. Run together they wrap mid-thought — "data. It just never
+            talks" lands on one line and the punchline breaks across two.
+          */}
+          <h1 className="mt-6 font-display text-[2.6rem] font-light leading-[1.06] tracking-[-0.02em] text-balance text-foreground sm:text-[3.75rem]">
+            <span className="block">
+              <TextReveal text="You already have the data." delay={0.1} />
+            </span>
+            <em className="mt-1 block italic text-muted-foreground">
               <TextReveal text="It just never talks back." delay={0.32} />
             </em>
           </h1>
           <Reveal delay={0.2}>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
-              A local expense dashboard that reads a spreadsheet you type into yourself. Windows and
-              Linux. No account, no bank login, no cloud, no AI, nothing uploaded.
+            <p className="mx-auto mt-6 max-w-[52ch] text-lg leading-relaxed text-muted-foreground">
+              A desktop expense dashboard that reads a spreadsheet you type into yourself. No
+              account, no bank login, no cloud, nothing uploaded.
             </p>
           </Reveal>
         </section>
 
-        <section className="mx-auto mt-12 w-full max-w-5xl text-left">
-          <Reveal delay={0.3}>
-            <CapyExpenseShowcase />
-          </Reveal>
+        <section className="mx-auto mt-14 w-full max-w-5xl">
+          <CapyExpenseShowcase />
         </section>
 
-        <div className="mx-auto w-full max-w-4xl text-left">
-          <Section index="01" title="How it works">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Step index="01" title="The workbook">
-                CapyExpense creates one .xlsx a year and then never writes over your rows. You type;
-                it reads.
-              </Step>
-              <Step index="02" title="The refresh">
-                Save in Excel, then click refresh. It is a file read — there is nothing to wait for.
-              </Step>
-              <Step index="03" title="The read">
-                Five charts and four numbers, every one of them drawn from the rows you typed.
-              </Step>
-            </div>
-          </Section>
+        <div className="mx-auto w-full max-w-4xl">
+          <Band
+            title="How it works"
+            lede="Three steps, and then the same three forever."
+          >
+            <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-3">
+              {[
+                [
+                  "Type",
+                  "CapyExpense creates one .xlsx a year and then never writes over your rows. You add a line when you spend something.",
+                ],
+                [
+                  "Save",
+                  "Nothing to sync and nothing to wait for. The app watches the file and notices the moment Excel puts it down.",
+                ],
+                [
+                  "Read",
+                  "Five charts and four numbers, every one of them drawn from the rows you typed and nothing else.",
+                ],
+              ].map(([title, body], i) => (
+                <li key={title} className="border-t border-border pt-4">
+                  <span className="font-mono text-[11px] tabular-nums text-[var(--sage-deep)]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-2 font-display text-xl font-light text-foreground">{title}</h3>
+                  <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{body}</p>
+                </li>
+              ))}
+            </ol>
+          </Band>
 
-          <Section index="02" title="Why bother tracking at all">
-            <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
+          <Band
+            title="Why bother tracking at all"
+            lede="Because the gap between what people think they spend and what they spend is not small."
+          >
+            <div className="mt-8 max-w-[68ch] space-y-5 text-[17px] leading-[1.7] text-muted-foreground">
               <p>
                 People who record their expenses spend measurably less. Financial self-control
                 strategies — expense self-monitoring among them — carry a medium effect across
-                twenty-nine studies <Cite n={1} />. Writing an amount down makes it real in a way an
-                automatic bank feed does not: the act of rehearsing a payment is what makes it stick{" "}
-                <Cite n={2} />.
+                twenty-nine studies. Writing an amount down makes it real in a way an automatic bank
+                feed does not: the act of rehearsing a payment is what makes it stick.
               </p>
               <p>
-                And the gap is large. People underestimate their upcoming spending by about half, and
-                the expenses they miss are precisely the discretionary ones <Cite n={6} />
-                <Cite n={7} />. Simply unpacking spending category by category raised remembered
-                expenses by 36–60% <Cite n={6} />, which is why the category column is not
-                decoration. It is the intervention.
-              </p>
-              <p>
-                Subscriptions are the sharpest version of the same blind spot. Asked to estimate,
-                people say $86 a month; itemised, the real figure is $219 — a gap of $133 a month, or
-                roughly $1,600 a year <Cite n={34} />. Small recurring charges escape re-evaluation
-                by design <Cite n={35} />, which is why this dashboard annualises them and puts the
-                number in front of you.
-              </p>
-            </div>
-          </Section>
-
-          <Section index="03" title="Why it stays on your machine">
-            <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
-              <p>
-                Every mainstream expense app routes your transactions through a data aggregator
-                first. YNAB stores in the US and shares with MX and Plaid <Cite n={11} />; Monarch
-                shares via Plaid, Finicity, MX and Spinwheel <Cite n={12} />; Rocket Money markets
-                “never sell your data” while its own policy admits sharing “in exchange for valuable
-                consideration” <Cite n={14} />.
-              </p>
-              <p>
-                The aggregators have a record. Plaid paid $58m to settle a class action over
-                harvesting bank credentials <Cite n={9} />; lawmakers asked the FTC to investigate
-                Yodlee for selling transaction data to institutional investors <Cite n={10} />; the
-                budgeting app Dave leaked 7.5 million user records <Cite n={15} />.
+                And the gap is large. People underestimate their upcoming spending by about half,
+                and the expenses they miss are precisely the discretionary ones. Simply unpacking
+                spending category by category raised remembered expenses by 36–60%, which is why the
+                category column is not decoration. It is the intervention.
               </p>
               <p className="text-foreground">
+                Subscriptions are the sharpest version of the same blind spot. Asked to estimate,
+                people say $86 a month. Itemised, the real figure is $219 — a gap of $133 a month,
+                or roughly $1,600 a year.
+              </p>
+              <p>
+                Small recurring charges escape re-evaluation by design, which is why this dashboard
+                annualises them and puts the number in front of you.
+              </p>
+            </div>
+            <EvidenceCards sources={TRACKING_EVIDENCE} />
+          </Band>
+
+          <Band
+            title="Why it stays on your machine"
+            lede="Every other expense app has to send your transactions somewhere first."
+          >
+            <div className="mt-8 max-w-[68ch] space-y-5 text-[17px] leading-[1.7] text-muted-foreground">
+              <p>
+                YNAB stores in the US and shares with MX and Plaid. Monarch shares via Plaid,
+                Finicity, MX and Spinwheel. Rocket Money markets “never sell your data” while its
+                own policy admits sharing “in exchange for valuable consideration”.
+              </p>
+              <p>
+                The aggregators behind them have a record. Plaid paid $58m to settle a class action
+                over harvesting bank credentials; lawmakers asked the FTC to investigate Yodlee for
+                selling transaction data to institutional investors; the budgeting app Dave leaked
+                7.5 million user records.
+              </p>
+              <p className="border-l-2 border-[var(--water)] pl-5 text-foreground">
                 CapyExpense has no network code in it. Not “we don’t upload” — there is no upload
                 path to audit. Your year is one .xlsx on your disk, in a format you will still be
                 able to open in 2040 whether or not this project exists.
@@ -144,53 +171,50 @@ export default function CapyExpensePage() {
                 this page phones home either.
               </p>
             </div>
-          </Section>
+            <EvidenceCards sources={PRIVACY_EVIDENCE} />
+          </Band>
 
-          <Section index="04" title="Get it">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-              <div className="flex flex-wrap gap-3">
-                <span className="rounded-full bg-primary px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--primary-foreground)] opacity-60">
-                  Windows · coming soon
-                </span>
-                <span className="rounded-full border border-border px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground opacity-60">
-                  Linux · coming soon
-                </span>
-              </div>
-
-              <div className="mt-5 rounded-2xl border border-border/70 bg-muted/40 p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                  About the Windows warning
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Windows will say it does not recognise this app. It is right: the installer is not
-                  signed, because a certificate costs more per year than this tool earns, which is
-                  nothing. Click <span className="text-foreground">More info</span>, then{" "}
-                  <span className="text-foreground">Run anyway</span>. Every release ships with a
-                  SHA-256 you can check first.
-                </p>
-              </div>
+          <Band title="Get it" lede="Free, unsigned, and honest about what that means.">
+            <div className="mt-8 flex flex-wrap gap-3">
+              <span className="rounded-full bg-primary/50 px-6 py-3 text-sm font-medium text-[var(--primary-foreground)]/70">
+                Windows — coming soon
+              </span>
+              <span className="rounded-full border border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+                Linux — coming soon
+              </span>
             </div>
-          </Section>
 
-          <Section index="05" title="Questions">
-            <div className="divide-y divide-border/70">
+            <div className="mt-6 max-w-[68ch] rounded-2xl border border-[var(--clay)]/25 bg-[var(--clay)]/[0.07] p-5">
+              <h3 className="text-[15px] font-medium text-foreground">
+                Windows will warn you about this app
+              </h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+                And it is right to. The installer is not signed, because a certificate costs more
+                per year than this tool earns, which is nothing. Click{" "}
+                <span className="text-foreground">More info</span>, then{" "}
+                <span className="text-foreground">Run anyway</span>. Every release ships with a
+                SHA-256 you can check first.
+              </p>
+            </div>
+          </Band>
+
+          <Band title="Questions">
+            <div className="mt-8 max-w-[68ch]">
               {FAQ.map((item) => (
-                <details key={item.q} className="group py-3.5">
-                  <summary className="cursor-pointer list-none text-[15px] text-foreground transition-colors hover:text-primary">
+                <details key={item.q} className="group border-b border-border py-4">
+                  <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 text-[17px] text-foreground transition-colors hover:text-primary">
                     {item.q}
-                    <span className="ml-1.5 inline-block text-muted-foreground transition-transform group-open:rotate-90">
-                      ›
+                    <span className="shrink-0 text-lg leading-none text-muted-foreground transition-transform duration-300 group-open:rotate-45">
+                      +
                     </span>
                   </summary>
-                  <p className="mt-2 pr-6 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                  <p className="mt-3 pr-8 text-[15px] leading-relaxed text-muted-foreground">
+                    {item.a}
+                  </p>
                 </details>
               ))}
             </div>
-          </Section>
-
-          <p className="mt-12 text-center text-xs text-muted-foreground">
-            Numbered claims resolve to a ledger of 36 verified sources, kept alongside the code.
-          </p>
+          </Band>
         </div>
       </main>
 
@@ -199,51 +223,69 @@ export default function CapyExpensePage() {
   );
 }
 
-function Section({
-  index,
+/**
+ * A page section.
+ *
+ * The heading carries its own weight — no eyebrow label above it, and no
+ * section number, because the order of these sections is not information the
+ * reader needs. The old `02 · WHY BOTHER TRACKING AT ALL` was a wide-tracked
+ * mono label doing the job of a heading at a third of the size.
+ */
+function Band({
   title,
+  lede,
   children,
 }: {
-  index: string;
   title: string;
+  lede?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-16">
-      <Reveal>
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-          {index} · {title}
-        </p>
-      </Reveal>
-      <div className="mt-5">{children}</div>
+    <section className="mt-24 sm:mt-32">
+      <h2 className="max-w-[20ch] font-display text-3xl font-light leading-[1.1] tracking-[-0.015em] text-foreground sm:text-[2.5rem]">
+        {title}
+      </h2>
+      {lede ? (
+        <p className="mt-3 max-w-[56ch] text-lg leading-relaxed text-muted-foreground">{lede}</p>
+      ) : null}
+      {children}
     </section>
   );
 }
 
-function Step({
-  index,
-  title,
-  children,
-}: {
-  index: string;
-  title: string;
-  children: React.ReactNode;
-}) {
+/**
+ * Sources, on request rather than in the way.
+ *
+ * Native `<details>` rather than a modal: nothing here needs to interrupt the
+ * reader or take focus, and a dialog for optional background reading is the
+ * wrong instrument.
+ */
+function EvidenceCards({ sources }: { sources: Evidence[] }) {
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-        {index}
-      </span>
-      <p className="mt-2 font-display text-lg font-light text-foreground">{title}</p>
-      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{children}</p>
-    </div>
-  );
-}
-
-function Cite({ n }: { n: number }) {
-  return (
-    <sup className="ml-0.5 font-mono text-[10px] text-[var(--water)]" aria-label={`source ${n}`}>
-      [{n}]
-    </sup>
+    <details className="group mt-8 max-w-[68ch]">
+      <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-[var(--water)] hover:text-foreground">
+        <span className="transition-transform duration-300 group-open:rotate-45">+</span>
+        Where this comes from
+        <span className="tabular-nums text-muted-foreground/70">{sources.length} sources</span>
+      </summary>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+        {sources.map((s) => (
+          <li key={s.url}>
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex h-full flex-col rounded-2xl border border-border bg-card/60 p-4 transition-colors hover:border-[var(--water)]"
+            >
+              <p className="text-[13px] leading-snug text-foreground">{s.claim}</p>
+              <p className="mt-3 text-[13px] leading-snug text-muted-foreground">{s.title}</p>
+              <p className="mt-auto pt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--sage-deep)]">
+                {s.publisher} · {s.year}
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }

@@ -177,12 +177,24 @@ describe("heatmap", () => {
 describe("burn", () => {
   const opts = { periodDays: 30, elapsed: 5, partial: true };
 
-  it("steps rather than sloping", () => {
+  it("draws a smooth curve", () => {
     const g = buildBurn([10, 10, 10, 25, 25], [], opts, 700, 200);
     expect(g.currentPath.startsWith("M")).toBe(true);
-    // A step is two line segments per point: across, then up.
-    expect((g.currentPath.match(/L/g) ?? []).length).toBe(8);
-    expect(g.currentPath).not.toContain("C");
+    expect(g.currentPath).toContain("C");
+  });
+
+  it("never curves below a level the running total already reached", () => {
+    // A cumulative series only rises, so on screen y only ever decreases.
+    // Unclamped Catmull-Rom overshoots into a spike and draws a dip that the
+    // data never contained; the control points are clamped per segment to
+    // make that impossible.
+    const spiky = [5, 5, 5, 5, 400, 405, 410];
+    const g = buildBurn(spiky, [], { periodDays: 7, elapsed: 7, partial: false }, 700, 200);
+    const ys = [...g.currentPath.matchAll(/[-\d.]+,([-\d.]+)/g)].map((m) => Number(m[1]));
+    expect(ys.length).toBeGreaterThan(6);
+    for (let i = 1; i < ys.length; i++) {
+      expect(ys[i], `y went back up at index ${i}`).toBeLessThanOrEqual(ys[i - 1] + 1e-6);
+    }
   });
 
   it("puts both series on one scale", () => {
