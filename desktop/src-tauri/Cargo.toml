@@ -1,0 +1,33 @@
+[package]
+name = "capyexpense"
+version = "0.1.0"
+description = "A local-first expense tracker"
+authors = ["Capytools"]
+edition = "2021"
+
+[lib]
+name = "capyexpense_lib"
+# Tauri's template ships ["staticlib", "cdylib", "rlib"]; the first two exist
+# only to support mobile targets (iOS static lib, Android shared lib). This app
+# targets Windows and Linux desktop, and building the cdylib on the
+# x86_64-pc-windows-gnu host fails to link outright:
+#
+#   ld.exe: error: export ordinal too large: 95740
+#
+# The mingw linker cannot export the number of symbols a Tauri DLL produces.
+# Dropping to rlib sidesteps it entirely and costs nothing we use.
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+# Runtime fs scope grants from a folder picker are session-scoped; this restores
+# them on the next launch so the user does not re-pick their folder every time.
+tauri-plugin-persisted-scope = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

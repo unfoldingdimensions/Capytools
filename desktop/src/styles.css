@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/*
+  The shared components live outside this package, so Tailwind has to be told
+  where to look for classes. Without these, the dashboard renders unstyled in
+  the app and perfectly on the website, which is a confusing way to find out.
+*/
+@source "../../src/components/capyexpense";
+@source "./";
+
+/* One palette, two builds: the tokens come from the Next app's globals. */
+@import "../../src/app/tokens.css";
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nothing in a local app should be selectable-draggable like a web page. */
+* {
+  -webkit-user-drag: none;
+}

@@ -45,3 +45,9 @@ next-env.d.ts
 .zdiag/
 .hermes/
 .zcode/
+
+# capyexpense desktop app (Tauri) build output
+desktop/node_modules/
+desktop/dist/
+desktop/src-tauri/target/
+desktop/src-tauri/gen/
