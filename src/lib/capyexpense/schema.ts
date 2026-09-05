@@ -44,7 +44,17 @@ export interface ColumnSpec {
   required: boolean;
   kind: ColumnKind;
   width: number;
-  /** Fixed dropdown values. Mutually exclusive with `listKey`. */
+  /**
+   * Fixed dropdown values. Mutually exclusive with `listKey`.
+   *
+   * WRITER RULE: every dropdown — these included — must be emitted as a RANGE
+   * reference into the Lists sheet, never as an inline `'"a,b,c"'` formula.
+   * LibreOffice is reliable with range-backed validations and lossy with inline
+   * literal ones (tdf#94393), so an inline list silently loses its dropdown for
+   * anyone not on Excel. That means the Lists sheet carries a column for the
+   * closed vocabularies too, not just the user-extendable ones.
+   * See `docs/research/capyexpense/research-brief.md` §3, source [22].
+   */
   options?: readonly string[];
   /** Dropdown sourced from the Lists sheet, so the user can extend it. */
   listKey?: keyof Lists;
@@ -200,27 +210,39 @@ export const SHEET = {
 } as const;
 
 /**
- * Provisional starter taxonomy. Deliberately short — a 40-item dropdown is a
- * dropdown nobody scrolls, and the Lists sheet is user-editable anyway.
- * TODO: reground against YNAB / Monarch / BLS Consumer Expenditure Survey once
- * research prompt 5 lands.
+ * Default taxonomy, mapped onto real classifications rather than invented: the
+ * US Bureau of Labor Statistics Consumer Expenditure Survey's major groups and
+ * the ONS Family Spending COICOP divisions, flattened to Monarch-style leaves.
+ * See `docs/research/capyexpense/research-brief.md` §5 and sources [30]-[33].
+ *
+ * Kept to ~22 leaves on purpose. The list is not decoration: prompting someone
+ * to unpack spending category by category is itself the intervention that
+ * changes behaviour [6], and a forty-item dropdown is one nobody reads. "other"
+ * is the required fallback, distinct from the "uncategorised" the reader assigns
+ * to a row whose category cell was left empty.
  */
 export const DEFAULT_LISTS: Lists = {
   categories: [
     "groceries",
     "eating out",
-    "transport",
-    "rent",
+    "alcohol",
+    "rent or mortgage",
     "utilities",
+    "home & maintenance",
     "phone & internet",
-    "health",
-    "fitness",
-    "shopping",
+    "clothing",
+    "transport",
+    "fuel & parking",
+    "healthcare",
+    "personal care",
     "entertainment",
     "subscriptions",
     "travel",
-    "gifts",
+    "books & reading",
     "education",
+    "gifts & donations",
+    "insurance",
+    "savings & investments",
     "fees & charges",
     "other",
   ],
