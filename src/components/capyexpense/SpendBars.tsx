@@ -27,14 +27,14 @@ export function SpendBars({
   const g = buildBars(points, w, height);
 
   if (points.length === 0) {
-    return <EmptyBody title="nothing in this window." />;
+    return <EmptyBody title="Nothing in this window." />;
   }
 
   const total = points.reduce((s, p) => s + p.value, 0);
   const described =
     g.peak && g.max > 0
-      ? `spend by bucket, ${label}. peak ${formatDay(g.peak.start)}, ${formatMoney(g.peak.value, currency, locale)}. total ${formatMoney(total, currency, locale)}.`
-      : `spend by bucket, ${label}. nothing spent.`;
+      ? `Spend by bucket, ${label}. Peak ${formatDay(g.peak.start)}, ${formatMoney(g.peak.value, currency, locale)}. Total ${formatMoney(total, currency, locale)}.`
+      : `Spend by bucket, ${label}. Nothing spent.`;
 
   return (
     <div ref={width ? undefined : ref}>
@@ -105,7 +105,7 @@ export function SpendBars({
 
       {g.max === 0 ? (
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          nothing spent in this window.
+          Nothing spent in this window.
         </p>
       ) : null}
     </div>

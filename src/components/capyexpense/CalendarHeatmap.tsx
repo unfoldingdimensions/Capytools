@@ -26,8 +26,8 @@ export function CalendarHeatmap({
   if (g.cells.length === 0) {
     return (
       <EmptyBody
-        title="no days to show yet."
-        body="this fills in one square per day — the pale ones are days you spent nothing."
+        title="No days to show yet."
+        body="This fills in one square per day — the pale ones are days you spent nothing."
       />
     );
   }
@@ -38,7 +38,7 @@ export function CalendarHeatmap({
   const summary =
     `${noSpend.days} no-spend ${noSpend.days === 1 ? "day" : "days"} out of ${noSpend.outOf}` +
     (noSpend.longestRun > 1 && noSpend.longestRunStart && noSpend.longestRunEnd
-      ? `. longest quiet stretch ${pluralDays(noSpend.longestRun)}, ${formatDay(noSpend.longestRunStart)} to ${formatDay(noSpend.longestRunEnd)}`
+      ? `. Longest quiet stretch ${pluralDays(noSpend.longestRun)}, ${formatDay(noSpend.longestRunStart)} to ${formatDay(noSpend.longestRunEnd)}`
       : "");
 
   return (
@@ -54,7 +54,7 @@ export function CalendarHeatmap({
           width={g.width}
           height={g.height}
           role="img"
-          aria-label={`daily spend. ${summary}.`}
+          aria-label={`Daily spend. ${summary}.`}
           className="block"
           style={{ minWidth: g.width }}
         >
@@ -114,7 +114,7 @@ export function CalendarHeatmap({
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <p className="text-sm text-muted-foreground">{summary}.</p>
         <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
-          <span>no spend</span>
+          <span>No spend</span>
           <span className="size-2.5 rounded-[2px] border border-border bg-[var(--muted)]" />
           {[1, 2, 3, 4].map((level) => (
             <span
@@ -123,7 +123,7 @@ export function CalendarHeatmap({
               style={{ opacity: rampOpacity(level, 4) }}
             />
           ))}
-          <span>more</span>
+          <span>More</span>
         </div>
       </div>
     </div>

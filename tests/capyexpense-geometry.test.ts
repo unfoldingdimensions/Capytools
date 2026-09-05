@@ -257,19 +257,35 @@ describe("format", () => {
         1,
       );
     expect(previousPeriodLabel(w("year"))).toBe("2025");
-    expect(previousPeriodLabel(w("month"))).toBe("august");
+    expect(previousPeriodLabel(w("month"))).toBe("August");
     expect(previousPeriodLabel(w("week"))).toBe("last week");
-    expect(previousPeriodLabel(w("day"))).toBe("4 sep");
+    expect(previousPeriodLabel(w("day"))).toBe("4 Sep");
     expect(previousPeriodLabel(w("custom"))).toBe("the previous period");
   });
 
   it("names a range the way a person would", () => {
     const r = (preset: "day" | "week" | "month" | "year") =>
       formatRange(resolveRange({ preset, anchor: "2026-09-05" }, { weekStart: 1 }));
-    expect(r("day")).toBe("5 september 2026");
-    expect(r("month")).toBe("september 2026");
+    expect(r("day")).toBe("5 September 2026");
+    expect(r("month")).toBe("September 2026");
     expect(r("year")).toBe("2026");
-    expect(r("week")).toBe("31 aug – 6 sep");
+    expect(r("week")).toBe("31 Aug – 6 Sep");
+  });
+
+  it("shows the year on a span that crosses one", () => {
+    // Regression: a range from 1 Sep 2025 to 5 Sep 2026 rendered as
+    // "1 Sep – 5 Sep", reading as four days beside a whole year's total.
+    const crossing = resolveRange(
+      { preset: "custom", anchor: "2026-09-05", custom: { start: "2025-09-01", end: "2026-09-05" } },
+      { weekStart: 1 },
+    );
+    expect(formatRange(crossing)).toBe("1 Sep 2025 – 5 Sep 2026");
+
+    const within = resolveRange(
+      { preset: "custom", anchor: "2026-09-05", custom: { start: "2026-03-01", end: "2026-03-10" } },
+      { weekStart: 1 },
+    );
+    expect(formatRange(within)).toBe("1 Mar – 10 Mar");
   });
 });
 

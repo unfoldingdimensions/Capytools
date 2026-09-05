@@ -33,8 +33,8 @@ export function SubscriptionPanel({
   if (live.length === 0) {
     return (
       <EmptyBody
-        title="nothing marked as a subscription yet."
-        body='put "subscription" in the Type column and a cadence in Repeats — this fills in.'
+        title="Nothing marked as a subscription yet."
+        body="Put “subscription” in the Type column and a cadence in Repeats, and this fills in."
       />
     );
   }
@@ -58,7 +58,7 @@ export function SubscriptionPanel({
         {/* An analyst will interrogate this number. Hand them the arithmetic
             before they have to ask for it. */}
         <p className="mt-2 text-[11px] text-muted-foreground">
-          weekly ×52 · monthly ×12 · quarterly ×4. run-rate, not what you have actually paid.
+          Weekly ×52 · monthly ×12 · quarterly ×4. A run-rate, not what you have actually paid.
         </p>
 
         <dl className="mt-5 space-y-3">
@@ -89,11 +89,11 @@ export function SubscriptionPanel({
 
       <div>
         <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-          next 60 days
+          Next 60 days
         </p>
         {upcoming.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            nothing due before {formatDay(horizon)}.
+            Nothing due before {formatDay(horizon)}.
           </p>
         ) : (
           <ol className="mt-4 space-y-2.5">

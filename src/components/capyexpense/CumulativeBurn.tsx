@@ -1,7 +1,7 @@
 "use client";
 
 import type { DashboardModel } from "@/lib/capyexpense/aggregate";
-import { formatMoney, pluralDays } from "@/lib/capyexpense/format";
+import { formatCompact, formatDay, formatMoney, pluralDays } from "@/lib/capyexpense/format";
 import { BURN, buildBurn } from "@/lib/capyexpense/geometry/burn";
 import { SPARK } from "@/lib/capytools/sparkline";
 import { EmptyBody } from "./primitives";
@@ -11,22 +11,30 @@ export function CumulativeBurn({
   model,
   previousLabel,
   width,
-  height = 200,
+  height = 220,
 }: {
   model: DashboardModel;
-  /** What to call the earlier period, e.g. "february". */
+  /** What to call the earlier period, e.g. "February" or "2025". */
   previousLabel: string;
   width?: number;
   height?: number;
 }) {
   const [ref, measured] = useMeasuredWidth();
   const w = width ?? measured;
-  const { burn, currency, windows } = model;
+  const { burn, currency, windows, range } = model;
   const locale = undefined;
+  const money = (n: number) => formatMoney(n, currency, locale);
+
+  /**
+   * A previous window that holds no rows is not a comparison. Drawing it anyway
+   * puts a flat zero line across the full width, which reads as an axis rule,
+   * under a caption claiming a real £0 figure.
+   */
+  const comparable = Boolean(windows.previous) && burn.previousHasData;
 
   const g = buildBurn(
     burn.current,
-    burn.previous,
+    comparable ? burn.previous : [],
     { periodDays: burn.periodDays, elapsed: burn.elapsed, partial: windows.partial },
     w,
     height,
@@ -35,36 +43,24 @@ export function CumulativeBurn({
   const spentSoFar = burn.current.length ? burn.current[burn.current.length - 1] : 0;
   const finished = burn.previousTotal;
 
+  if (spentSoFar === 0 && !comparable) {
+    return <EmptyBody title="Nothing spent in this period yet." />;
+  }
+
   // The best state in the app: with nothing spent yet, the ghost alone carries
   // more information than the chart would.
-  if (spentSoFar === 0 && finished !== null && finished > 0) {
+  if (spentSoFar === 0 && comparable && finished !== null && finished > 0) {
     return (
       <EmptyBody
-        title="nothing yet this period."
-        body={`by this day in ${previousLabel} you'd spent ${formatMoney(
+        title="Nothing yet this period."
+        body={`By this day in ${previousLabel} you'd spent ${money(
           burn.previous[Math.max(0, burn.elapsed - 1)] ?? 0,
-          currency,
-          locale,
         )}.`}
       />
     );
   }
 
-  if (!windows.previous) {
-    return (
-      <div ref={width ? undefined : ref}>
-        <SingleLine g={g} w={w} height={height} model={model} />
-        <p className="mt-3 text-sm text-muted-foreground">
-          no earlier period to compare — this becomes a comparison next time.
-        </p>
-      </div>
-    );
-  }
-
-  const shortTail =
-    burn.previousPeriodDays > 0 && burn.previousPeriodDays < burn.periodDays
-      ? `${previousLabel} was ${pluralDays(burn.previousPeriodDays)}.`
-      : "";
+  const axisY = height - BURN.padBottom;
 
   return (
     <div ref={width ? undefined : ref}>
@@ -73,49 +69,65 @@ export function CumulativeBurn({
         width="100%"
         height={height}
         role="img"
-        aria-label={`cumulative spend. ${formatMoney(spentSoFar, currency, locale)} so far against ${formatMoney(
-          model.spendDelta.previous ?? 0,
-          currency,
-          locale,
-        )} by the same point in ${previousLabel}${
-          finished !== null ? `. ${previousLabel} finished at ${formatMoney(finished, currency, locale)}` : ""
-        }.`}
+        aria-label={
+          comparable
+            ? `Cumulative spend. ${money(spentSoFar)} so far against ${money(
+                model.spendDelta.previous ?? 0,
+              )} by the same point in ${previousLabel}${
+                finished !== null ? `. ${previousLabel} finished at ${money(finished)}` : ""
+              }.`
+            : `Cumulative spend, ${money(spentSoFar)} so far. No earlier period to compare against.`
+        }
         className="block overflow-visible"
       >
+        {/* Baseline. Drawn once, so a ghost series can never be mistaken for it. */}
+        <line x1={0} y1={axisY} x2={w - BURN.padR} y2={axisY} stroke="var(--border)" strokeWidth={1} />
+
+        {g.max > 0 ? (
+          <text
+            x={0}
+            y={BURN.padTop - 8}
+            className="fill-[var(--muted-foreground)] font-mono text-[9px]"
+          >
+            {formatCompact(g.max, currency, locale)}
+          </text>
+        ) : null}
+
         {g.todayX !== null ? (
           <line
             x1={g.todayX}
-            y1={BURN.padTop - 8}
+            y1={BURN.padTop - 4}
             x2={g.todayX}
-            y2={height - BURN.padBottom}
+            y2={axisY}
             stroke="var(--border)"
             strokeWidth={1}
             strokeDasharray="2 4"
           />
         ) : null}
 
-        {/* Last period, over the same elapsed days — the like-for-like part. */}
-        <path
-          d={g.previousSolidPath}
-          fill="none"
-          stroke="var(--muted-foreground)"
-          strokeWidth={BURN.previousWidth}
-          strokeOpacity={BURN.solidGhostOpacity}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        {/* Beyond today: where last period actually landed. Dashed, so it reads
-            as context rather than as a claim about this one. */}
-        <path
-          d={g.previousTailPath}
-          fill="none"
-          stroke="var(--muted-foreground)"
-          strokeWidth={BURN.previousWidth}
-          strokeOpacity={BURN.tailGhostOpacity}
-          strokeDasharray={BURN.ghostDash}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        {comparable ? (
+          <>
+            <path
+              d={g.previousSolidPath}
+              fill="none"
+              stroke="var(--muted-foreground)"
+              strokeWidth={BURN.previousWidth}
+              strokeOpacity={BURN.solidGhostOpacity}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d={g.previousTailPath}
+              fill="none"
+              stroke="var(--muted-foreground)"
+              strokeWidth={BURN.previousWidth}
+              strokeOpacity={BURN.tailGhostOpacity}
+              strokeDasharray={BURN.ghostDash}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </>
+        ) : null}
 
         <path
           d={g.currentPath}
@@ -126,8 +138,6 @@ export function CumulativeBurn({
           strokeLinejoin="round"
         />
 
-        {/* End node reuses the sparkline's ink exactly — same visual grammar as
-            CapyWrapped, no new idea needed. */}
         {g.end ? (
           <>
             <circle cx={g.end.x} cy={g.end.y} r={SPARK.halo} fill="var(--clay)" fillOpacity={SPARK.haloOpacity} />
@@ -137,69 +147,53 @@ export function CumulativeBurn({
               y={g.end.y + 4}
               className="fill-[var(--foreground)] font-mono text-[10px]"
             >
-              {formatMoney(spentSoFar, currency, locale)}
+              {money(spentSoFar)}
             </text>
           </>
         ) : null}
 
-        {g.ghostEnd && g.previousTailPath ? (
+        {comparable && g.ghostEnd && g.previousTailPath && finished !== null ? (
           <text
             x={Math.min(w - 2, g.ghostEnd.x + 8)}
             y={g.ghostEnd.y + 4}
             className="fill-[var(--muted-foreground)] font-mono text-[9px]"
           >
-            {finished !== null ? formatMoney(finished, currency, locale) : ""}
+            {money(finished)}
           </text>
         ) : null}
+
+        {/* Dates, so a year-long line is anchored to something. */}
+        <text x={0} y={height - 5} className="fill-[var(--muted-foreground)] font-mono text-[9px]">
+          {formatDay(range.start)}
+        </text>
+        <text
+          x={w - BURN.padR}
+          y={height - 5}
+          textAnchor="end"
+          className="fill-[var(--muted-foreground)] font-mono text-[9px]"
+        >
+          {formatDay(range.end)}
+        </text>
       </svg>
 
       <p className="mt-3 text-sm text-muted-foreground">
-        <span className="text-foreground">{formatMoney(spentSoFar, currency, locale)}</span> so far
-        {model.spendDelta.previous !== null ? (
-          <> against {formatMoney(model.spendDelta.previous, currency, locale)} by the same point in {previousLabel}</>
-        ) : null}
-        . {finished !== null && windows.partial ? `${previousLabel} finished ${formatMoney(finished, currency, locale)}. ` : ""}
-        {shortTail}
+        {comparable ? (
+          <>
+            <span className="text-foreground">{money(spentSoFar)}</span> so far, against{" "}
+            {money(model.spendDelta.previous ?? 0)} by the same point in {previousLabel}.
+            {finished !== null && windows.partial ? ` ${previousLabel} finished at ${money(finished)}.` : ""}
+            {burn.previousPeriodDays > 0 && burn.previousPeriodDays < burn.periodDays
+              ? ` ${previousLabel} was ${pluralDays(burn.previousPeriodDays)}.`
+              : ""}
+          </>
+        ) : (
+          <>
+            <span className="text-foreground">{money(spentSoFar)}</span> so far. There&rsquo;s no
+            earlier data to compare against yet — this becomes a comparison once the workbook covers
+            an earlier period.
+          </>
+        )}
       </p>
     </div>
-  );
-}
-
-function SingleLine({
-  g,
-  w,
-  height,
-  model,
-}: {
-  g: ReturnType<typeof buildBurn>;
-  w: number;
-  height: number;
-  model: DashboardModel;
-}) {
-  const spent = model.burn.current.length ? model.burn.current[model.burn.current.length - 1] : 0;
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${height}`}
-      width="100%"
-      height={height}
-      role="img"
-      aria-label={`cumulative spend, ${formatMoney(spent, model.currency)} so far.`}
-      className="block overflow-visible"
-    >
-      <path
-        d={g.currentPath}
-        fill="none"
-        stroke="var(--primary)"
-        strokeWidth={BURN.currentWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {g.end ? (
-        <>
-          <circle cx={g.end.x} cy={g.end.y} r={SPARK.halo} fill="var(--clay)" fillOpacity={SPARK.haloOpacity} />
-          <circle cx={g.end.x} cy={g.end.y} r={SPARK.core} fill="var(--clay)" />
-        </>
-      ) : null}
-    </svg>
   );
 }

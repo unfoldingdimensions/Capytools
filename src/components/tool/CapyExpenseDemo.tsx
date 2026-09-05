@@ -49,10 +49,10 @@ export function CapyExpenseDemo() {
       banner={
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/70 bg-muted/40 px-4 py-3">
           <span className="rounded-full border border-border bg-card px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            demo
+            Demo
           </span>
           <p className="text-sm text-muted-foreground">
-            a made-up year, so you can poke at it. every control works. yours reads your own
+            A made-up year, so you can poke at it. Every control works. Yours reads your own
             workbook.
           </p>
         </div>

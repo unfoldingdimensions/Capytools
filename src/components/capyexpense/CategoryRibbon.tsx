@@ -35,8 +35,8 @@ export function CategoryRibbon({
   if (segments.length === 0) {
     return (
       <EmptyBody
-        title="nothing to divide up yet."
-        body="once there are a few rows, this shows where the money actually went."
+        title="Nothing to divide up yet."
+        body="Once there are a few rows, this shows where the money actually went."
       />
     );
   }
@@ -87,7 +87,7 @@ export function CategoryRibbon({
               aria-hidden
             />
             <dt className="truncate text-sm text-foreground">
-              {s.key === OTHER_KEY ? "everything else" : s.label}
+              {s.key === OTHER_KEY ? "Everything else" : s.label}
             </dt>
             <dd className="flex items-baseline gap-2.5 font-mono text-xs tabular-nums">
               <span className="text-muted-foreground">{formatPct(s.share, locale)}</span>

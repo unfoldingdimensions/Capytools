@@ -382,6 +382,15 @@ export interface DashboardModel {
     periodDays: number;
     previousPeriodDays: number;
     previousTotal: number | null;
+    /**
+     * Whether the previous window contained ANY rows.
+     *
+     * "You spent nothing" and "there is nothing here to compare against" are
+     * different facts, and only one of them is worth drawing. Without this the
+     * chart renders a flat zero ghost across the full width, which reads as an
+     * axis rule rather than as data, under a caption saying "against £0".
+     */
+    previousHasData: boolean;
   };
 
   biggest: Transaction[];
@@ -481,6 +490,7 @@ export function buildDashboard(
       // The headline delta stays strictly elapsed-to-elapsed; this is the extra
       // fact, not a replacement for it.
       previousTotal: prevFullRange ? totals(prevFullRows).spend : null,
+      previousHasData: prevFullRows.length > 0,
     },
 
     biggest: biggest(current, 5),

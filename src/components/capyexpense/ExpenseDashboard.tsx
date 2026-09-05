@@ -106,40 +106,40 @@ export function ExpenseDashboard({
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile
           index="01"
-          label="total spend"
+          label="Total spend"
           value={money(totals.spend)}
           sub={
             model.windows.elapsedDays > 0
               ? `${money(model.perDay)} a day across ${pluralDays(model.windows.elapsedDays)} elapsed`
-              : "nothing has happened in this window yet"
+              : "Nothing has happened in this window yet"
           }
           delta={model.spendDelta}
           locale={locale}
         />
         <StatTile
           index="02"
-          label="top category"
+          label="Top category"
           value={topCategory ? topCategory.label : "—"}
           sub={
             topCategory
               ? `${money(topCategory.value)} · ${Math.round(topCategory.share * 100)}% of the period`
-              : "nothing categorised yet"
+              : "Nothing categorised yet"
           }
         />
         <StatTile
           index="03"
-          label="top type"
+          label="Top type"
           value={topType ? topType.label : "—"}
           sub={topType ? `${money(topType.value)} · ${Math.round(topType.share * 100)}%` : undefined}
         />
         <StatTile
           index="04"
-          label="no-spend days"
+          label="No-spend days"
           value={String(model.noSpend.days)}
           sub={
             model.noSpend.longestRun > 1
-              ? `longest quiet stretch: ${pluralDays(model.noSpend.longestRun)}`
-              : `out of ${pluralDays(model.noSpend.outOf)} so far`
+              ? `Longest quiet stretch: ${pluralDays(model.noSpend.longestRun)}`
+              : `Out of ${pluralDays(model.noSpend.outOf)} so far`
           }
         />
       </div>
@@ -147,14 +147,14 @@ export function ExpenseDashboard({
       <div className="grid gap-4 lg:grid-cols-2">
         <ChartCard
           index="01"
-          title="this period against last"
-          caption="running totals, compared day for day so a half-finished period never loses to a whole one."
+          title="This period against last"
+          caption="Running totals, compared day for day, so a half-finished period never loses to a whole one."
           span={2}
         >
           <CumulativeBurn model={model} previousLabel={previousLabel} />
         </ChartCard>
 
-        <ChartCard index="02" title="when it went">
+        <ChartCard index="02" title="When it went">
           <SpendBars
             points={model.series}
             currency={currency}
@@ -163,18 +163,18 @@ export function ExpenseDashboard({
           />
         </ChartCard>
 
-        <ChartCard index="03" title="where it went">
+        <ChartCard index="03" title="Where it went">
           <CategoryRibbon slices={model.categories} currency={currency} locale={locale} />
         </ChartCard>
 
         <ChartCard
           index="04"
-          title="the quiet days"
-          caption="one square per day. the pale ones are days you spent nothing."
+          title="The quiet days"
+          caption="One square per day. The pale ones are days you spent nothing."
           span={2}
           details={
             <ChartDetails
-              label="the biggest days"
+              label="The biggest days"
               rows={model.biggest.map((t) => [
                 `${formatDay(t.date)} · ${t.category}${t.note ? ` · ${t.note}` : ""}`,
                 money(t.amount),
@@ -193,8 +193,8 @@ export function ExpenseDashboard({
 
         <ChartCard
           index="05"
-          title="what repeats"
-          caption="everything marked as a subscription, annualised."
+          title="What repeats"
+          caption="Everything marked as a subscription, annualised."
           span={2}
         >
           <SubscriptionPanel subs={model.subs} now={today} currency={currency} locale={locale} />
@@ -203,8 +203,8 @@ export function ExpenseDashboard({
 
       {model.empty ? (
         <EmptyBody
-          title="nothing in this window."
-          body="try a wider range, or add a few rows to the workbook and refresh."
+          title="Nothing in this window."
+          body="Try a wider range, or add a few rows to the workbook and refresh."
         />
       ) : null}
     </div>
@@ -237,7 +237,7 @@ function ProblemsWell({ problems }: { problems: LoadProblem[] }) {
       </ul>
       {problems.length > shown.length ? (
         <p className="mt-2 text-xs text-muted-foreground">
-          and {problems.length - shown.length} more.
+          And {problems.length - shown.length} more.
         </p>
       ) : null}
     </div>

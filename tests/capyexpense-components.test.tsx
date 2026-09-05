@@ -41,9 +41,9 @@ function render(
 describe("ExpenseDashboard renders", () => {
   it("greets by name and names the range", () => {
     const html = render();
-    expect(html).toContain("good evening");
+    expect(html.toLowerCase()).toContain("good evening");
     expect(html).toContain("ada");
-    expect(html).toContain("september 2026");
+    expect(html.toLowerCase()).toContain("september 2026");
     expect(html).toContain("CapyExpense · tool no. 5");
   });
 
@@ -93,7 +93,7 @@ describe("ExpenseDashboard renders", () => {
 
   it("shows an empty state instead of a blank card when there is nothing", () => {
     const html = render("month", []);
-    expect(html).toContain("nothing in this window");
+    expect(html.toLowerCase()).toContain("nothing in this window");
     expect(html).not.toMatch(/NaN|Infinity/);
   });
 
@@ -101,16 +101,16 @@ describe("ExpenseDashboard renders", () => {
     const html = render("month", SAMPLE_TRANSACTIONS, [
       { level: "warn", file: "CapyExpense-2026.xlsx", sheet: "Sep", row: 41, message: "couldn't read \"n/a\" as a number" },
     ]);
-    expect(html).toContain("1 row skipped");
-    expect(html).toContain("row 41");
+    expect(html.toLowerCase()).toContain("1 row skipped");
+    expect(html.toLowerCase()).toContain("row 41");
     // The rest of the dashboard is still there.
-    expect(html).toContain("total spend");
+    expect(html.toLowerCase()).toContain("total spend");
   });
 
   it("keeps the copy in the house voice", () => {
     const html = render();
-    expect(html).toContain("no-spend days");
-    expect(html).toContain("what repeats");
+    expect(html.toLowerCase()).toContain("no-spend days");
+    expect(html.toLowerCase()).toContain("what repeats");
     // Direction, never judgement — no praise or scolding anywhere.
     expect(html.toLowerCase()).not.toMatch(/well done|great job|you should|too much|overspent/);
   });

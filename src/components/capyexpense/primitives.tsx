@@ -100,7 +100,7 @@ export function DeltaPill({ delta, locale }: { delta: Delta; locale?: string }) 
   if (delta.direction === "unknown") {
     return (
       <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        {delta.previous === null ? "no earlier period" : "no spend last period"}
+        {delta.previous === null ? "No earlier period" : "No spend last period"}
       </span>
     );
   }
@@ -116,7 +116,7 @@ export function DeltaPill({ delta, locale }: { delta: Delta; locale?: string }) 
   return (
     <span className="flex flex-wrap items-baseline gap-x-1.5">
       <span className={cn("font-mono text-[11px] tabular-nums", tone)}>
-        {arrow} {delta.direction === "flat" ? "about the same" : formatPct(delta.ratio, locale)}
+        {arrow} {delta.direction === "flat" ? "About the same" : formatPct(delta.ratio, locale)}
       </span>
       <span className="font-mono text-[10px] text-muted-foreground">{delta.label}</span>
     </span>

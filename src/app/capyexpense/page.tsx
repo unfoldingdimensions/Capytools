@@ -1,12 +1,12 @@
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
-import { CapyExpenseDemo } from "@/components/tool/CapyExpenseDemo";
+import { CapyExpenseShowcase } from "@/components/tool/CapyExpenseShowcase";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 
 export const metadata = {
-  title: "CapyExpense — a local-first expense tracker for windows and linux",
+  title: "CapyExpense — a local-first expense tracker for Windows and Linux",
   description:
     "A desktop expense dashboard that reads a spreadsheet you type into yourself. No account, no bank login, no cloud, no AI. Your file never leaves your machine.",
 };
@@ -14,32 +14,32 @@ export const metadata = {
 /** Claims resolve to docs/research/capyexpense/sources.json. */
 const FAQ = [
   {
-    q: "does it read my bank?",
-    a: "no. there is no bank connection in it, and no way to add one. you type rows into a spreadsheet and capyexpense reads that file.",
+    q: "Does it read my bank?",
+    a: "No. There is no bank connection in it, and no way to add one. You type rows into a spreadsheet and CapyExpense reads that file.",
   },
   {
-    q: "what if i already have a spreadsheet?",
-    a: "paste your columns in. the headers are the whole format — date, category, type, amount — and it reads them by name, so the order does not matter. it also accepts a csv.",
+    q: "What if I already have a spreadsheet?",
+    a: "Paste your columns in. The headers are the whole format — Date, Category, Type, Amount — and they are matched by name, so the order does not matter. A CSV works too.",
   },
   {
-    q: "can i edit past years?",
-    a: "yes. one workbook per year, and it loads all of them together, so any date range works across as many years as you have.",
+    q: "Can I edit past years?",
+    a: "Yes. One workbook per year, and every workbook in the folder is loaded together, so any date range works across as many years as you have.",
   },
   {
-    q: "what happens on 1 january?",
-    a: "it offers you a fresh workbook. last year's stays exactly where it is.",
+    q: "What happens on 1 January?",
+    a: "You are offered a fresh workbook. Last year’s stays exactly where it is.",
   },
   {
-    q: "will an old file still open after an update?",
-    a: "yes, and that is a rule rather than a hope. columns are only ever added to the right, never renamed or removed, columns capyexpense does not recognise are kept untouched, and a file from a newer version still opens. reading never writes to your workbook.",
+    q: "Will an old file still open after an update?",
+    a: "Yes, and that is a rule rather than a hope. Columns are only ever added to the right, never renamed or removed; columns CapyExpense does not recognise are kept untouched; and a file written by a newer version still opens. Reading never writes to your workbook.",
   },
   {
-    q: "is there a mac build?",
-    a: "not yet. gatekeeper blocks unsigned apps outright rather than warning about them, so a mac build needs a paid apple account to be worth shipping.",
+    q: "Is there a Mac build?",
+    a: "Not yet. Gatekeeper blocks unsigned apps outright rather than warning about them, so a Mac build needs a paid Apple account before it is worth shipping.",
   },
   {
-    q: "what does it cost?",
-    a: "nothing, and there is nothing to upsell. that is also why the installer is unsigned — see the note above.",
+    q: "What does it cost?",
+    a: "Nothing, and there is nothing to upsell. That is also why the installer is unsigned — see the note above.",
   },
 ];
 
@@ -57,123 +57,122 @@ export default function CapyExpensePage() {
             </p>
           </Reveal>
           <h1 className="mt-5 font-display text-5xl font-light leading-[1.04] tracking-tight text-foreground sm:text-6xl">
-            <TextReveal text="you already have the data." delay={0.1} />
+            <TextReveal text="You already have the data." delay={0.1} />
             <br />
             <em className="italic">
-              <TextReveal text="it just never talks back." delay={0.32} />
+              <TextReveal text="It just never talks back." delay={0.32} />
             </em>
           </h1>
           <Reveal delay={0.2}>
-            <p className="mt-5 max-w-2xl text-base text-muted-foreground">
-              a local expense dashboard that reads a spreadsheet you type into yourself. windows and
-              linux. no account, no bank login, no cloud, no ai, nothing uploaded.
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
+              A local expense dashboard that reads a spreadsheet you type into yourself. Windows and
+              Linux. No account, no bank login, no cloud, no AI, nothing uploaded.
             </p>
           </Reveal>
         </section>
 
-        {/* The demo comes before the argument. Showing beats claiming. */}
-        <section className="mx-auto mt-12 w-full max-w-6xl text-left">
+        <section className="mx-auto mt-12 w-full max-w-5xl text-left">
           <Reveal delay={0.3}>
-            <CapyExpenseDemo />
+            <CapyExpenseShowcase />
           </Reveal>
         </section>
 
         <div className="mx-auto w-full max-w-4xl text-left">
-          <Section index="01" title="how it works">
+          <Section index="01" title="How it works">
             <div className="grid gap-4 sm:grid-cols-3">
-              <Step index="01" title="the workbook">
-                capyexpense makes one .xlsx a year and then never writes over your rows. you type; it
-                reads.
+              <Step index="01" title="The workbook">
+                CapyExpense creates one .xlsx a year and then never writes over your rows. You type;
+                it reads.
               </Step>
-              <Step index="02" title="the refresh">
-                save in excel, click refresh here. it is a file read — there is nothing to wait for.
+              <Step index="02" title="The refresh">
+                Save in Excel, then click refresh. It is a file read — there is nothing to wait for.
               </Step>
-              <Step index="03" title="the read">
-                five charts and four numbers, all of it drawn from the rows you typed.
+              <Step index="03" title="The read">
+                Five charts and four numbers, every one of them drawn from the rows you typed.
               </Step>
             </div>
           </Section>
 
-          <Section index="02" title="why bother tracking at all">
+          <Section index="02" title="Why bother tracking at all">
             <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
               <p>
-                people who record their expenses spend measurably less. financial self-control
-                strategies, expense self-monitoring among them, carry a medium effect across
-                twenty-nine studies <Cite n={1} />. writing an amount down makes it real in a way an
-                automatic bank feed does not — the act of rehearsing a payment is what makes it stick{" "}
+                People who record their expenses spend measurably less. Financial self-control
+                strategies — expense self-monitoring among them — carry a medium effect across
+                twenty-nine studies <Cite n={1} />. Writing an amount down makes it real in a way an
+                automatic bank feed does not: the act of rehearsing a payment is what makes it stick{" "}
                 <Cite n={2} />.
               </p>
               <p>
-                and the gap is large. people underestimate their upcoming spending by about half, and
+                And the gap is large. People underestimate their upcoming spending by about half, and
                 the expenses they miss are precisely the discretionary ones <Cite n={6} />
-                <Cite n={7} />. simply unpacking spending category by category raised remembered
-                expenses by 36–60% <Cite n={6} /> — which is why the category column is not
-                decoration. it is the intervention.
+                <Cite n={7} />. Simply unpacking spending category by category raised remembered
+                expenses by 36–60% <Cite n={6} />, which is why the category column is not
+                decoration. It is the intervention.
               </p>
               <p>
-                subscriptions are the sharpest version of the same blind spot. asked to estimate,
-                people say $86 a month; itemised, the real figure is $219 — a gap of $133 a month,
-                about $1,600 a year <Cite n={34} />. small recurring charges escape re-evaluation by
-                design <Cite n={35} />, which is why this dashboard annualises them and shows you the
-                number.
+                Subscriptions are the sharpest version of the same blind spot. Asked to estimate,
+                people say $86 a month; itemised, the real figure is $219 — a gap of $133 a month, or
+                roughly $1,600 a year <Cite n={34} />. Small recurring charges escape re-evaluation
+                by design <Cite n={35} />, which is why this dashboard annualises them and puts the
+                number in front of you.
               </p>
             </div>
           </Section>
 
-          <Section index="03" title="why it stays on your machine">
+          <Section index="03" title="Why it stays on your machine">
             <div className="space-y-4 text-[15px] leading-relaxed text-muted-foreground">
               <p>
-                every mainstream expense app routes your transactions through a data aggregator
-                first. ynab stores in the us and shares with mx and plaid <Cite n={11} />; monarch
-                shares via plaid, finicity, mx and spinwheel <Cite n={12} />; rocket money markets
-                &ldquo;never sell your data&rdquo; while its own policy admits sharing &ldquo;in
-                exchange for valuable consideration&rdquo; <Cite n={14} />.
+                Every mainstream expense app routes your transactions through a data aggregator
+                first. YNAB stores in the US and shares with MX and Plaid <Cite n={11} />; Monarch
+                shares via Plaid, Finicity, MX and Spinwheel <Cite n={12} />; Rocket Money markets
+                “never sell your data” while its own policy admits sharing “in exchange for valuable
+                consideration” <Cite n={14} />.
               </p>
               <p>
-                the aggregators have a record. plaid paid $58m to settle a class action over
-                harvesting bank credentials <Cite n={9} />; lawmakers asked the ftc to investigate
-                yodlee for selling transaction data to institutional investors <Cite n={10} />; the
-                budgeting app dave leaked 7.5 million user records <Cite n={15} />.
+                The aggregators have a record. Plaid paid $58m to settle a class action over
+                harvesting bank credentials <Cite n={9} />; lawmakers asked the FTC to investigate
+                Yodlee for selling transaction data to institutional investors <Cite n={10} />; the
+                budgeting app Dave leaked 7.5 million user records <Cite n={15} />.
               </p>
               <p className="text-foreground">
-                capyexpense has no network code in it. not &ldquo;we don&rsquo;t upload&rdquo; — there
-                is no upload path to audit. your year is one .xlsx on your disk, in a format you will
-                still be able to open in 2040 whether or not this project exists.
+                CapyExpense has no network code in it. Not “we don’t upload” — there is no upload
+                path to audit. Your year is one .xlsx on your disk, in a format you will still be
+                able to open in 2040 whether or not this project exists.
               </p>
               <p>
-                the dashboard you just scrolled through is the same code the app runs, on invented
-                numbers. nothing on this page phones home either.
+                The dashboard above is the same code the app runs, on invented numbers. Nothing on
+                this page phones home either.
               </p>
             </div>
           </Section>
 
-          <Section index="04" title="get it">
+          <Section index="04" title="Get it">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
               <div className="flex flex-wrap gap-3">
                 <span className="rounded-full bg-primary px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--primary-foreground)] opacity-60">
-                  windows · coming soon
+                  Windows · coming soon
                 </span>
                 <span className="rounded-full border border-border px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground opacity-60">
-                  linux · coming soon
+                  Linux · coming soon
                 </span>
               </div>
 
               <div className="mt-5 rounded-2xl border border-border/70 bg-muted/40 p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                  about the windows warning
+                  About the Windows warning
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  windows will say it does not recognise this app. it is right: the installer is not
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  Windows will say it does not recognise this app. It is right: the installer is not
                   signed, because a certificate costs more per year than this tool earns, which is
-                  nothing. click <span className="text-foreground">more info</span>, then{" "}
-                  <span className="text-foreground">run anyway</span>. every release ships with a
-                  sha-256 you can check first.
+                  nothing. Click <span className="text-foreground">More info</span>, then{" "}
+                  <span className="text-foreground">Run anyway</span>. Every release ships with a
+                  SHA-256 you can check first.
                 </p>
               </div>
             </div>
           </Section>
 
-          <Section index="05" title="questions">
+          <Section index="05" title="Questions">
             <div className="divide-y divide-border/70">
               {FAQ.map((item) => (
                 <details key={item.q} className="group py-3.5">
@@ -190,8 +189,7 @@ export default function CapyExpensePage() {
           </Section>
 
           <p className="mt-12 text-center text-xs text-muted-foreground">
-            numbered claims resolve to a source ledger of 36 verified references, kept alongside the
-            code.
+            Numbered claims resolve to a ledger of 36 verified sources, kept alongside the code.
           </p>
         </div>
       </main>

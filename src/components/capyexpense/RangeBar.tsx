@@ -7,12 +7,12 @@ import { formatRange } from "@/lib/capyexpense/format";
 import { cn } from "@/lib/utils";
 
 const PRESETS: { key: RangePreset; label: string }[] = [
-  { key: "day", label: "day" },
-  { key: "week", label: "week" },
-  { key: "month", label: "month" },
-  { key: "year", label: "year" },
-  { key: "all", label: "all time" },
-  { key: "custom", label: "custom" },
+  { key: "day", label: "Day" },
+  { key: "week", label: "Week" },
+  { key: "month", label: "Month" },
+  { key: "year", label: "Year" },
+  { key: "all", label: "All time" },
+  { key: "custom", label: "Custom" },
 ];
 
 const STEPPABLE: RangePreset[] = ["day", "week", "month", "year"];
@@ -106,7 +106,7 @@ export function RangeBar({
         // localised picker; a dependency for this would be pure cost.
         <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="capyexpense-from" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            from
+            From
           </label>
           <input
             id="capyexpense-from"
@@ -122,7 +122,7 @@ export function RangeBar({
             className="rounded-full border border-border bg-card px-3 py-1 font-mono text-[11px] text-foreground"
           />
           <label htmlFor="capyexpense-to" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            to
+            To
           </label>
           <input
             id="capyexpense-to"

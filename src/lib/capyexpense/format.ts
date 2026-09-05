@@ -16,8 +16,8 @@ import type { IsoDate } from "./types";
 export const DEFAULT_LOCALE = "en-GB";
 
 const MONTHS_LONG = [
-  "january", "february", "march", "april", "may", "june",
-  "july", "august", "september", "october", "november", "december",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ] as const;
 
 export function formatMoney(
@@ -71,9 +71,10 @@ export function formatCount(value: number, locale: string = DEFAULT_LOCALE): str
   return new Intl.NumberFormat(locale).format(value);
 }
 
-/** "5 sep" — lowercase, to match the house voice. */
+/** "5 Sep" — the short form, for axis ticks and dense rows. */
 export function formatDay(date: IsoDate): string {
-  return `${Number(date.slice(8, 10))} ${monthLabel(date).toLowerCase()}`;
+  const m = monthLabel(date);
+  return `${Number(date.slice(8, 10))} ${m.charAt(0)}${m.slice(1).toLowerCase()}`;
 }
 
 /** "5 september 2026" — for a single named day. */
@@ -91,16 +92,30 @@ export function formatRange(range: DateRange): string {
     case "day":
       return formatLongDay(range.start);
     case "week":
-      return `${formatDay(range.start)} – ${formatDay(range.end)}`;
+      return spanLabel(range);
     case "month":
       return formatMonth(range.start);
     case "year":
       return range.start.slice(0, 4);
     case "all":
-      return range.start === range.end ? "all time" : `all time · ${range.start.slice(0, 4)}–${range.end.slice(0, 4)}`;
+      return range.start === range.end ? "All time" : `All time · ${range.start.slice(0, 4)}–${range.end.slice(0, 4)}`;
     case "custom":
-      return `${formatDay(range.start)} – ${formatDay(range.end)}`;
+      return spanLabel(range);
   }
+}
+
+/**
+ * A day-to-day span, with the years shown only when they differ.
+ *
+ * Without the year check a range running from 1 September 2025 to 5 September
+ * 2026 renders as "1 Sep – 5 Sep", which reads as four days rather than a full
+ * year — the label silently contradicting the total sitting next to it.
+ */
+function spanLabel(range: DateRange): string {
+  const startYear = range.start.slice(0, 4);
+  const endYear = range.end.slice(0, 4);
+  if (startYear === endYear) return `${formatDay(range.start)} – ${formatDay(range.end)}`;
+  return `${formatDay(range.start)} ${startYear} – ${formatDay(range.end)} ${endYear}`;
 }
 
 /** "3 days", "1 day" — used wherever a span is spelled out. */
