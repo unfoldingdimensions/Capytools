@@ -51,3 +51,10 @@ desktop/node_modules/
 desktop/dist/
 desktop/src-tauri/target/
 desktop/src-tauri/gen/
+
+# local working artifacts (agent sessions, design archives, blender source)
+.od-artifact/
+.playwright-mcp/
+.video_agent/
+assets/blender/
+Capytools-Editorial-Landing*.zip
