@@ -10,7 +10,7 @@ Capytools is a suite of five calm little browser tools (CapyWrapped, CapyImagine
 
 ## 1. Repo & branch state
 
-- Working branch: **`landing-page-revamp`** (current). Parent branch: **`feat/capyexpense`** (the CapyExpense PR — tool no. 5, Tauri desktop app, first pushed to origin on 2026-09-09). Both PRs target `main` and are **open, stacked, unmerged**.
+- Working branch: **`landing-page-revamp`**. Parent branch: **`feat/capyexpense`** (the CapyExpense PR — tool no. 5, Tauri desktop app, first pushed to origin on 2026-09-09). Both PRs target `main` and are **open, stacked, unmerged**. On top of the landing sits **`tool-pages-revamp`** (2026-09-09): the five tool pages port the landing's editorial language via a shared `ToolPageShell` — see decisions D15–D18; its PR targets `landing-page-revamp`, so merging it does not deploy.
 - Owner workflow: PRs stay open until the landing is finalised; merging = deploy. Vercel builds a preview per push — previews are the review surface.
 - Recent commits on this branch (newest last): security pass + CapyOnsen + shadcn chore (on the parent) → plates → the editorial landing → design docs → surface arc → Albert Sans → native routing → descender fix → Apache-2.0 license.
 - Untracked on disk (intentional): `Capytools-Editorial-Landing-OpenDesign/` (the design archive this was ported from — includes `assets/imagegen-prompts.md` for regenerating plates), `docs/launch-video/` (a separate effort's logs), `.playwright-mcp/` et al. (gitignored).
@@ -58,7 +58,7 @@ Capytools is a suite of five calm little browser tools (CapyWrapped, CapyImagine
 2. **OG image** for `/` not wired — metadata is text-only. A static OG (hero plate or a satori card) is a cheap win.
 3. **`capabilities.webp`** has tiny garbled micro-text (unreadable at size; cosmetic).
 4. **README** documents the five tools but CapyStrip/CapyExpense sections are thin; a fuller rewrite was out of scope.
-5. Tool-page header still has a "made by" GitHub icon (external) — owner hasn't ruled on nativising it.
+5. ~~Tool-page header still has a "made by" GitHub icon (external)~~ — **resolved 2026-09-09 (D18)**: nativised to an internal `/notes` link on `tool-pages-revamp`; tool-page chrome is now zero-external (test-enforced there too).
 6. Full **Mimosa security audit** still pending (hook has only ever passed in compat mode).
 7. Editorial-lite trims are one-way doors only by convention — any dropped furniture (side rails, pagination, hero index) can be restored from the archive if the owner changes taste.
 

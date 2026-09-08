@@ -51,3 +51,11 @@ Commits and pushes pass, but every hook run prints a partial-scan notice (librar
 3. **Synthetic events don't trigger CSS `:hover`** — use the driver's real `hover()`; and read `aria-pressed` etc. on a *later* tick than the click, React state hasn't flushed synchronously.
 
 The reliable check that caught real bugs this session: computed-style assertions (`getComputedStyle(img).transform`, `.opacity`) rather than screenshots alone.
+
+## L11. Wrap a scaling component in `max-w-full`, and test overflow DURING load, not after
+
+Adding a `w-fit` wrapper (for corner crop marks) around `CardScaled`'s frame caused a **load-transient** horizontal overflow: between hydration and the ResizeObserver's first measure, fit-content sizing could resolve from the unscaled 1080/1200px content, blowing `documentElement.scrollWidth` out to 1116px at a 360px viewport for ~450ms. The settled layout was pixel-identical to before — only a settled-state check would call it clean, and the parent branch compared clean at the same timing because the race resolved earlier there.
+
+Two rules: (1) any fit-content wrapper around content that is briefly unscaled gets `max-w-full` — it caps every state by construction instead of by timing; (2) the Playwright overflow probe must sample `scrollWidth` repeatedly starting at `domcontentloaded`, not once after `networkidle`.
+
+Also bit twice this session: `next start` does NOT pick up a rebuild while running (restart it), and killing the npm/npx wrapper on Windows orphans the node child still holding the port — `netstat -ano | grep :PORT` then `taskkill //PID <pid> //F`, or the "new" server's 200s come from the old build.

@@ -76,3 +76,31 @@
 
 **Decision:** the owner moved the project to the Apache License 2.0. `LICENSE` is the canonical text (copyright filled: "Copyright 2026 unfoldingdimensions"), GitHub shows it via the file, and `/license` reads the file at build time (`readFileSync` in the server component) so the page can never drift from the license text. All user-facing "MIT" mentions became "Apache-2.0" (footer Project column, CTA foot, Method foot, footer blurb/status, notes + design cross-links, README, package.json `license` fields).
 **Consequence:** contributors get an explicit patent grant; the license page stays a pure render of the repo file. Historical references to "MIT" inside these logs describe the past and are left as-is.
+
+---
+
+# tool-pages-revamp (2026-09-09)
+
+## D15 — Tool-page revamp stacks on the landing branch · **decided**
+
+**Context:** the tool pages needed the landing's editorial language, but they must not gate the landing PR.
+**Decision:** new branch `tool-pages-revamp` off `landing-page-revamp`; its PR targets `landing-page-revamp`, not `main`. Merging it does not trigger a deploy (only `landing-page-revamp` → `main` does); the owner merges everything.
+**Consequence:** the landing PR stays reviewable on its own; the tool pages ride on top of it and can be reworked without touching the landing.
+
+## D16 — Port scope: furniture + accents, not a re-skin · **decided**
+
+**Context:** the tools' house language (DESIGN.md tokens, rounded-3xl cards, shadcn pills, sage/clay/water) is already the language the landing was built from; the delta is the landing's editorial furniture.
+**Decision:** every tool page adopts the landing's chrome — hairline `.lp-label` eyebrow (AGENTS.md text unchanged), `.lp-display` headline with the clay `.lp-dot` terminal period, `.lp-lead`, the `.lp-tool-foot` sign-off row ("← back to the suite" + `Nº 0N / 05` index) — via a shared `ToolPageShell`. Selectively inside: numbered step labels take the `--lp-accent-ink` treatment, Creator/Strip's progressive cards enter with the landing's `ScrollReveal`, and the three hero artifacts (Wrapped demo card, Strip drop card, Expense showcase) get plate-style corner crop marks. Cards, buttons and tokens stay house.
+**Consequence:** the pages read as chapters of the same publication without re-skinning working UI. The number appears once (the footer index), not twice on the eyebrow line.
+
+## D17 — CapyExpense is a two-screen page · **decided**
+
+**Context:** the page was a long editorial essay (How it works / Why track / Why local / Get it / FAQ + evidence cards) under a two-state showcase; the owner ruled every other tool page stays a single screen and CapyExpense gets exactly two.
+**Decision:** screen one is the hero + the at-rest showcase (self-drawing chart); screen two is the full dashboard behind the existing in-card switcher (`aria-expanded`/`aria-controls`). The five bands are trimmed to two essentials folded under the showcase: the unsigned-installer warning (collapsed `<details>`, clay-tinted) and the desktop-promise/status line ("stored on your machine, never ours. windows & linux builds coming soon."). The evidence essays and FAQ are dropped from the page (the `Evidence[]` data module stays for future use); the landing already pitches CapyExpense.
+**Consequence:** the page loses its external evidence hrefs, leaving CapyStrip's OpenStreetMap lookup as the site's only functional external tool link.
+
+## D18 — Header "made by" link nativised to /notes · **decided**
+
+**Context:** handover §6.5 — the shared Header's only external link was the GitHub profile icon; the owner hadn't ruled.
+**Decision:** replaced with a ghost icon button linking to `/notes` ("Project notes and issue tracker"), keeping D7 (tool/meta pages keep the shared chrome) and extending D9's zero-external direction to all non-landing chrome. `tests/tool-pages.test.tsx` now asserts the header and four of five tool surfaces render zero external hrefs (Strip's OSM link is the sanctioned functional exception).
+**Consequence:** GitHub is one hop deeper, on `/notes`, consistent with the landing's rule.
