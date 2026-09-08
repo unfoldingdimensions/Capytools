@@ -1258,16 +1258,26 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-work {
-  background: var(--foreground);
-  color: var(--background);
+  /* The slab keeps its ink identity in both themes: ink-on-paper in light,
+     a dark card field on the charcoal page in dark — it must never invert
+     into a white panel. Everything inside mixes against --slab-fg. */
+  --slab-bg: var(--foreground);
+  --slab-fg: var(--background);
+  background: var(--slab-bg);
+  color: var(--slab-fg);
   border-radius: 32px;
   margin: 0 64px;
   padding: 96px 64px;
 }
 
+.dark .lp-work {
+  --slab-bg: var(--card);
+  --slab-fg: var(--foreground);
+}
+
 .lp-work .lp-sec-rule {
-  color: color-mix(in oklab, var(--background) 62%, transparent);
-  border-top-color: color-mix(in srgb, var(--background) 16%, transparent);
+  color: color-mix(in oklab, var(--slab-fg) 62%, transparent);
+  border-top-color: color-mix(in srgb, var(--slab-fg) 16%, transparent);
 }
 
 .lp-work .lp-roman,
@@ -1276,7 +1286,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-work .lp-label {
-  color: color-mix(in oklab, var(--background) 62%, transparent);
+  color: color-mix(in oklab, var(--slab-fg) 62%, transparent);
 }
 
 .lp-work h2 {
@@ -1302,14 +1312,14 @@ a.lp-wire-item .lp-wire-name {
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--background) 65%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--background) 30%, transparent);
+  color: color-mix(in oklab, var(--slab-fg) 65%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--slab-fg) 30%, transparent);
   padding-bottom: 4px;
   transition: color 180ms var(--lp-ease-ui);
 }
 
 .lp-work-link:hover {
-  color: var(--background);
+  color: var(--slab-fg);
 }
 
 .lp-work-grid {
@@ -1322,7 +1332,7 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-work-card {
   display: block;
-  border: 1px solid color-mix(in srgb, var(--background) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--slab-fg) 14%, transparent);
   border-radius: 24px;
   padding: 26px;
   color: inherit;
@@ -1333,7 +1343,7 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-work-card:hover {
   transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--background) 32%, transparent);
+  border-color: color-mix(in srgb, var(--slab-fg) 32%, transparent);
 }
 
 .lp-work-card .lp-label-row {
@@ -1343,7 +1353,7 @@ a.lp-wire-item .lp-wire-name {
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--background) 55%, transparent);
+  color: color-mix(in oklab, var(--slab-fg) 55%, transparent);
 }
 
 .lp-work-card h3 {
@@ -1356,7 +1366,7 @@ a.lp-wire-item .lp-wire-name {
 .lp-work-card p {
   font-size: 13.5px;
   line-height: 1.6;
-  color: color-mix(in oklab, var(--background) 68%, transparent);
+  color: color-mix(in oklab, var(--slab-fg) 68%, transparent);
   margin-top: 10px;
 }
 
@@ -1379,7 +1389,7 @@ a.lp-wire-item .lp-wire-name {
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--background) 55%, transparent);
+  color: color-mix(in oklab, var(--slab-fg) 55%, transparent);
 }
 
 /* -------------------------------- colophon ------------------------------- */
