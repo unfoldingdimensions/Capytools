@@ -71,3 +71,8 @@
 **Context:** the generated plate for CapyWrapped has "2023 YEAR-IN-REVIEW" in the art; the page says 2026 everywhere else. It reads as sample data on a depicted card.
 **Recommendation:** accept for now; regenerate from the archive's `assets/imagegen-prompts.md` with 2026 and re-run the WebP conversion when convenient.
 **Needs:** owner call + an image-generation pass.
+
+## D14 — License: MIT → Apache-2.0 · **decided**
+
+**Decision:** the owner moved the project to the Apache License 2.0. `LICENSE` is the canonical text (copyright filled: "Copyright 2026 unfoldingdimensions"), GitHub shows it via the file, and `/license` reads the file at build time (`readFileSync` in the server component) so the page can never drift from the license text. All user-facing "MIT" mentions became "Apache-2.0" (footer Project column, CTA foot, Method foot, footer blurb/status, notes + design cross-links, README, package.json `license` fields).
+**Consequence:** contributors get an explicit patent grant; the license page stays a pure render of the repo file. Historical references to "MIT" inside these logs describe the past and are left as-is.

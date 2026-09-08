@@ -91,7 +91,7 @@ export default function NotesPage() {
             <span className="lp-dot">.</span>
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Capytools is open source (MIT). If something breaks, the fastest
+            Capytools is open source (Apache-2.0). If something breaks, the fastest
             fix is an issue with the tool name and what you expected:{" "}
             <a
               href={EXTERNAL.issues}
@@ -117,7 +117,7 @@ export default function NotesPage() {
         <section className="mt-12">
           <span className="lp-label">Colophon</span>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Built as a Next.js app, deployed on Vercel, MIT-licensed, version
+            Built as a Next.js app, deployed on Vercel, Apache-2.0-licensed, version
             0.1.0. Set in Fraunces, Plus Jakarta Sans and Albert Sans. The
             editorial collage plates were generated from{" "}
             <TransitionLink href="/design" className="underline decoration-border underline-offset-4">
@@ -137,7 +137,7 @@ export default function NotesPage() {
             Design notes
           </TransitionLink>
           <TransitionLink href="/license" className="lp-read-more">
-            MIT License
+            Apache License
           </TransitionLink>
         </div>
       </main>

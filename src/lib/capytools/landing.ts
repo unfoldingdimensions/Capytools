@@ -369,14 +369,14 @@ export const CTA = {
   lead: "Open the suite in any browser tab and simply start — no account, no cookie banner, no telemetry. CapyExpense lives on your desktop and your disk, never ours.",
   primary: { label: "Open the suite", href: "#labs" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
-  foot: ["● Live", "v0.1.0 / MIT"],
+  foot: ["● Live", "v0.1.0 / Apache-2.0"],
   ribbon: "CAPYTOOLS · FIN.",
   plate: { src: "/plates/cta.webp", width: 1024, height: 1024 },
 } as const;
 
 export const LANDING_FOOTER = {
   blurb:
-    "Calm little tools that run entirely in your browser and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of five, MIT-licensed, version 0.1.0.",
+    "Calm little tools that run entirely in your browser and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of five, Apache-licensed, version 0.1.0.",
   getExpense: {
     label: "Get CapyExpense",
     sub: "Desktop · writes only to your disk",
@@ -397,7 +397,7 @@ export const LANDING_FOOTER = {
       title: "Project",
       links: [
         { label: "Project notes", href: "/notes" },
-        { label: "MIT License", href: "/license" },
+        { label: "Apache License", href: "/license" },
         { label: "Design notes", href: "/design" },
         { label: "Issues", href: "/notes#issues" },
       ],
@@ -411,7 +411,7 @@ export const LANDING_FOOTER = {
       ],
     },
   ],
-  status: ["Capytools · MIT · 2026 / Vol. 01 / Issue Nº 05", "In your browser", "♥ MMXXVI"],
+  status: ["Capytools · Apache-2.0 · 2026 / Vol. 01 / Issue Nº 05", "In your browser", "♥ MMXXVI"],
   mega: [
     { text: "Quiet by " },
     { text: "default", em: true },

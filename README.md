@@ -43,4 +43,4 @@ A local-first expense dashboard that reads a spreadsheet you type into yourself.
 
 ## License
 
-[MIT](LICENSE).
+[Apache-2.0](LICENSE).

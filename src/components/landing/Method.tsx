@@ -65,7 +65,7 @@ export function Method() {
             <span>{METHOD.foot}</span>
           </div>
           <div className="lp-method-foot-right">
-            <a href="#top">capytools</a> · MIT
+            <a href="#top">capytools</a> · Apache-2.0
           </div>
         </div>
       </div>

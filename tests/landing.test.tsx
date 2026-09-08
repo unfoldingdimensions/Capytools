@@ -88,11 +88,12 @@ describe("Editorial meta pages", () => {
     expect(html).toContain("Fraunces");
   });
 
-  it("license page carries the MIT grant", () => {
+  it("license page carries the Apache-2.0 grant, rendered from LICENSE", () => {
     const html = renderToStaticMarkup(<LicensePage />);
     expect(html).toContain("Free as in");
-    expect(html).toContain("Copyright (c) 2026");
-    expect(html).toContain("THE SOFTWARE IS PROVIDED");
+    expect(html).toContain("Apache License");
+    expect(html).toContain("Version 2.0, January 2004");
+    expect(html).toContain("Copyright 2026 unfoldingdimensions");
   });
 
   it("notes lists the suite and keeps contributions one step off the landing", () => {

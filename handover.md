@@ -12,7 +12,7 @@ Capytools is a suite of five calm little browser tools (CapyWrapped, CapyImagine
 
 - Working branch: **`landing-page-revamp`** (current). Parent branch: **`feat/capyexpense`** (the CapyExpense PR — tool no. 5, Tauri desktop app, first pushed to origin on 2026-09-09). Both PRs target `main` and are **open, stacked, unmerged**.
 - Owner workflow: PRs stay open until the landing is finalised; merging = deploy. Vercel builds a preview per push — previews are the review surface.
-- Recent commits on this branch (newest last): security pass + CapyOnsen + shadcn chore (on the parent) → plates → the editorial landing → design docs → surface arc → Albert Sans → native routing → descender fix.
+- Recent commits on this branch (newest last): security pass + CapyOnsen + shadcn chore (on the parent) → plates → the editorial landing → design docs → surface arc → Albert Sans → native routing → descender fix → Apache-2.0 license.
 - Untracked on disk (intentional): `Capytools-Editorial-Landing-OpenDesign/` (the design archive this was ported from — includes `assets/imagegen-prompts.md` for regenerating plates), `docs/launch-video/` (a separate effort's logs), `.playwright-mcp/` et al. (gitignored).
 
 ## 2. What exists now
@@ -27,7 +27,7 @@ Capytools is a suite of five calm little browser tools (CapyWrapped, CapyImagine
 - `src/app/design|license|notes/page.tsx` — editorial meta pages (Header/SiteFooter chrome + `lp-` body).
 - `tests/landing.test.tsx` — 13 assertions incl. **zero external hrefs on the landing** and plate-existence checks.
 
-**New pages this session:** `/notes` (project notes; holds the site's only external links — GitHub issue tracker/repo for contributions), `/design` (design system page), `/license` (MIT).
+**New pages this session:** `/notes` (project notes; holds the site's only external links — GitHub issue tracker/repo for contributions), `/design` (design system page), `/license` (Apache-2.0, read from the repo LICENSE at build time).
 
 ## 3. Standing conventions (violating these = rework)
 

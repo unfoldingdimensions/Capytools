@@ -141,7 +141,7 @@ export default function DesignNotesPage() {
             ← Back to the landing
           </TransitionLink>
           <TransitionLink href="/license" className="lp-read-more">
-            MIT License
+            Apache License
           </TransitionLink>
           <TransitionLink href="/notes" className="lp-read-more">
             Project notes
