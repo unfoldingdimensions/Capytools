@@ -23,6 +23,7 @@ export function CapyOnsen() {
         tabIndex={-1}
       />
       {/* Reduced motion: the poster still, no autoplay. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- one-off decorative still behind a motion-reduce gate; the optimized path buys nothing here */}
       <img
         src={POSTER}
         alt=""

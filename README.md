@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Four so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Five so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -36,6 +36,10 @@ Model-aware prompt engineering, scaled for flash and frontier models (Claude, De
 Your photos talk. This one helps them forget.
 
 Drop, paste or pick a photo and CapyStrip reads everything the file carries — GPS coordinates, device make/model/serials, timestamps, editing software, and AI-generation fingerprints (IPTC digital-source declarations, Stable Diffusion prompts, ComfyUI/NovelAI recipes, C2PA content credentials) — then decodes and re-encodes the image through a canvas so no metadata survives, and re-scans its own output to prove it. Full reports for HEIC and TIFF. Your photo never leaves this tab.
+
+## 5. CapyExpense
+
+A local-first expense dashboard that reads a spreadsheet you type into yourself. The suite's documented desktop exception: a Tauri app with no network code that writes only to your own disk — stored on your machine, never ours. Everything else in the suite still runs 100% in your browser.
 
 ## License
 

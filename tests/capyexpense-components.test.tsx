@@ -120,10 +120,11 @@ describe("registration parity", () => {
   const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
 
   it("is on the landing page with the hero count bumped", () => {
-    const home = read("../src/app/page.tsx");
-    expect(home).toContain('href: "/capyexpense"');
-    expect(home).toContain('eyebrow: "tool no. 5"');
-    expect(home).toContain("Five of them so far.");
+    // The editorial landing registers tools in the landing data module.
+    const landing = read("../src/lib/capytools/landing.ts");
+    expect(landing).toContain('href: "/capyexpense"');
+    expect(landing).toContain('no: "Nº 05"');
+    expect(landing).toContain("Five small tools");
   });
 
   it("is in the header navigation", () => {

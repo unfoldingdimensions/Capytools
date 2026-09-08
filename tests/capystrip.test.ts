@@ -409,11 +409,12 @@ describe("capystrip registration", () => {
   const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
 
   it("is registered on the landing page with the hero count bumped", () => {
-    const home = read("../src/app/page.tsx");
-    expect(home).toContain('href: "/capystrip"');
-    expect(home).toContain('eyebrow: "tool no. 4"');
+    // The editorial landing registers tools in the landing data module.
+    const landing = read("../src/lib/capytools/landing.ts");
+    expect(landing).toContain('href: "/capystrip"');
+    expect(landing).toContain('no: "Nº 04"');
     // Bumped by each new tool; CapyExpense (no. 5) is the current tail.
-    expect(home).toContain("Five of them so far.");
+    expect(landing).toContain("Five small tools");
   });
 
   it("is registered in the header navigation", () => {
