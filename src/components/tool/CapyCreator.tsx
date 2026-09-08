@@ -22,6 +22,7 @@ import {
   detectTaskType,
 } from "@/lib/capycreator/intent";
 import { assemble } from "@/lib/capycreator/assemble";
+import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import {
   getDefaultSettings,
   getStoredSettings,
@@ -206,7 +207,7 @@ export function CapyCreator() {
       {/* CARD 1: THE ASK & MODEL FAMILY */}
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
             01 · The Ask &amp; Model Dialect
           </span>
           <Button
@@ -452,11 +453,12 @@ export function CapyCreator() {
       </div>
 
       {/* CARD 2: QUESTIONNAIRE */}
+      <ScrollReveal direction="up">
       {questions.length > 0 && (
         <div id="questionnaire-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
                 02 · Intent Questionnaire
               </span>
               <span className="ml-2 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
@@ -529,13 +531,15 @@ export function CapyCreator() {
           </div>
         </div>
       )}
+      </ScrollReveal>
 
       {/* CARD 3: ASSEMBLED PROMPT OUTPUT */}
+      <ScrollReveal direction="up">
       {assembledPrompt && (
         <div id="output-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
                 03 · Engineered Prompt
               </span>
               <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
@@ -599,6 +603,7 @@ export function CapyCreator() {
           </div>
         </div>
       )}
+      </ScrollReveal>
     </div>
   );
 }

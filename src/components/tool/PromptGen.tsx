@@ -290,7 +290,7 @@ export function PromptGen() {
       {/* ---- output ---- */}
       <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--lp-accent-ink)]">
             {engine} · seed {pickSet ? seed : "—"}
           </p>
           <Button

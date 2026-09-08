@@ -42,6 +42,13 @@ export function ScrollReveal({
 }) {
   const reduced = useReducedMotion();
 
+  // Tool pages wrap their progressive cards in this reveal; when the wrapped
+  // child is still conditional (`false`), an empty wrapper must not leave a
+  // flex-gap hole behind.
+  if (!children) {
+    return null;
+  }
+
   if (reduced) {
     return <div className={className}>{children}</div>;
   }

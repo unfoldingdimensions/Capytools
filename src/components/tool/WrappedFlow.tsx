@@ -94,6 +94,7 @@ export function WrappedFlow() {
               stats={DEMO_STATS}
               format={narrow ? "square" : "wide"}
               variant={dark ? "dark" : "light"}
+              corners
             />
             <p className="text-center font-mono text-[10px] text-muted-foreground">
               a calm example — paste a real username above to wrap your own

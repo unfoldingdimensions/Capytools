@@ -30,11 +30,14 @@ export function CardScaled({
   format = "wide",
   variant = "light",
   captureRef,
+  corners = false,
 }: {
   stats: WrappedStats;
   format?: CardFormat;
   variant?: CardVariant;
   captureRef?: RefObject<HTMLDivElement | null>;
+  /** Plate-style corner crop marks framing the artifact (the page's demo). */
+  corners?: boolean;
 }) {
   const measureRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
@@ -70,44 +73,57 @@ export function CardScaled({
         {/* card-drift: the gentle float (globals.css) — a composited CSS
             animation, so the scaled text inside is not repainted each frame. */}
         <div className="card-drift">
-          <div
-            /* mx-auto: in square format the frame is narrower than the column,
-               so without it the card sits left of centre. */
-            className="relative mx-auto overflow-hidden rounded-[20px] shadow-[0_1px_2px_rgba(26,26,26,0.05),0_24px_70px_-28px_rgba(26,26,26,0.45)] ring-1 ring-black/[0.04] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_24px_70px_-24px_rgba(0,0,0,0.6)] dark:ring-white/[0.06]"
-            style={{
-              // Before measuring, hold the slot with an aspect ratio so there is
-              // no layout shift on first paint.
-              width: measured ? artW * scale : "100%",
-              height: measured ? artH * scale : undefined,
-              aspectRatio: measured ? undefined : `${artW} / ${artH}`,
-              transition: `width ${morph}, height ${morph}`,
-            }}
-          >
+          {/* Corner-mark frame. fit-content can size from the unscaled 1080px
+              content before the measure effect lands, so max-w-full caps it at
+              the column and the pre-measure frame (width: 100%) fills it. */}
+          <div className="relative mx-auto w-fit max-w-full">
+            {corners && (
+              <>
+                <span aria-hidden className="lp-corner lp-corner-tl" />
+                <span aria-hidden className="lp-corner lp-corner-tr" />
+                <span aria-hidden className="lp-corner lp-corner-bl" />
+                <span aria-hidden className="lp-corner lp-corner-br" />
+              </>
+            )}
             <div
+              /* mx-auto: in square format the frame is narrower than the column,
+                 so without it the card sits left of centre. */
+              className="relative mx-auto overflow-hidden rounded-[20px] shadow-[0_1px_2px_rgba(26,26,26,0.05),0_24px_70px_-28px_rgba(26,26,26,0.45)] ring-1 ring-black/[0.04] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_24px_70px_-24px_rgba(0,0,0,0.6)] dark:ring-white/[0.06]"
               style={{
-                width: artW,
-                height: artH,
-                transform: `scale(${scale})`,
-                transformOrigin: "top left",
-                transition: `transform ${morph}`,
-                opacity: measured ? 1 : 0,
+                // Before measuring, hold the slot with an aspect ratio so there is
+                // no layout shift on first paint.
+                width: measured ? artW * scale : "100%",
+                height: measured ? artH * scale : undefined,
+                aspectRatio: measured ? undefined : `${artW} / ${artH}`,
+                transition: `width ${morph}, height ${morph}`,
               }}
             >
-              <CardArt
-                stats={stats}
-                variant={variant}
-                format={format}
-                sparkline={(series, w, h) => (
-                  <SparklineLive
-                    data={series}
-                    width={w}
-                    height={h}
-                    variant={variant}
-                    guide={stats.activity.peak !== null}
-                    className="h-full w-full"
-                  />
-                )}
-              />
+              <div
+                style={{
+                  width: artW,
+                  height: artH,
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                  transition: `transform ${morph}`,
+                  opacity: measured ? 1 : 0,
+                }}
+              >
+                <CardArt
+                  stats={stats}
+                  variant={variant}
+                  format={format}
+                  sparkline={(series, w, h) => (
+                    <SparklineLive
+                      data={series}
+                      width={w}
+                      height={h}
+                      variant={variant}
+                      guide={stats.activity.peak !== null}
+                      className="h-full w-full"
+                    />
+                  )}
+                />
+              </div>
             </div>
           </div>
         </div>

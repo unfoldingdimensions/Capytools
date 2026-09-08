@@ -22,6 +22,7 @@ import type {
   RawMetadata,
 } from "@/lib/capystrip/types";
 import { CapyScene } from "@/components/mascot/CapyScene";
+import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { TerminalLoader, type LoadStep } from "@/components/tool/TerminalLoader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -301,8 +302,12 @@ export function CapyStrip() {
   return (
     <div className="flex w-full flex-col gap-5">
       {/* CARD 1 — THE DROP */}
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+      <div className="relative rounded-3xl border border-border bg-card p-6 shadow-sm">
+        <span aria-hidden className="lp-corner lp-corner-tl" />
+        <span aria-hidden className="lp-corner lp-corner-tr" />
+        <span aria-hidden className="lp-corner lp-corner-bl" />
+        <span aria-hidden className="lp-corner lp-corner-br" />
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
           01 · The drop
         </span>
 
@@ -358,11 +363,12 @@ export function CapyStrip() {
       )}
 
       {/* CARD 2 — THE REPORT */}
+      <ScrollReveal direction="up">
       {report && !loading && !error && (
         <div id="report-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm" aria-live="polite">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
                 02 · The report
               </span>
               {isDemo && (
@@ -459,12 +465,14 @@ export function CapyStrip() {
           )}
         </div>
       )}
+      </ScrollReveal>
 
       {/* CARD 3 — THE CLEAN COPY */}
+      <ScrollReveal direction="up">
       {report && !isDemo && !loading && !error && clean && (
         <div id="clean-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
               03 · The clean copy
             </span>
             {clean.verified ? (
@@ -544,6 +552,7 @@ export function CapyStrip() {
           </p>
         </div>
       )}
+      </ScrollReveal>
 
       {/* Report-only mode: HEIC off Safari, or any other decode refusal. */}
       {report && !isDemo && !loading && !error && unsupportedMessage && !clean && (

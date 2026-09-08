@@ -16,7 +16,11 @@ export function CapyExpenseShowcase() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full">
+    <div className="relative w-full">
+      <span aria-hidden className="lp-corner lp-corner-tl" />
+      <span aria-hidden className="lp-corner lp-corner-tr" />
+      <span aria-hidden className="lp-corner lp-corner-bl" />
+      <span aria-hidden className="lp-corner lp-corner-br" />
       <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.10)]">
         {!open ? (
           <div className="px-6 pt-8 sm:px-10 sm:pt-10">
