@@ -1,10 +1,11 @@
-import { EXTERNAL, LANDING_FOOTER } from "@/lib/capytools/landing";
+import { LANDING_FOOTER } from "@/lib/capytools/landing";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { TransitionLink } from "@/components/TransitionLink";
 
 /**
  * The editorial footer: brand column, link columns, status row, and the
  * giant closing wordmark. Tool-page footers keep the shared SiteFooter.
+ * Every link routes natively.
  */
 export function LandingFooter() {
   return (
@@ -34,13 +35,7 @@ export function LandingFooter() {
               <ul>
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    {"external" in link && link.external ? (
-                      <a href={link.href} target="_blank" rel="noreferrer noopener">
-                        {link.label}
-                      </a>
-                    ) : (
-                      <TransitionLink href={link.href}>{link.label}</TransitionLink>
-                    )}
+                    <TransitionLink href={link.href}>{link.label}</TransitionLink>
                   </li>
                 ))}
               </ul>
@@ -57,10 +52,8 @@ export function LandingFooter() {
           </span>
           <span>
             {LANDING_FOOTER.status[1]} ·{" "}
-            <a href={EXTERNAL.repo} target="_blank" rel="noreferrer noopener">
-              GitHub
-            </a>{" "}
-            · <span className="lp-heart">{LANDING_FOOTER.status[2]}</span>
+            <TransitionLink href="/notes">Notes</TransitionLink> ·{" "}
+            <span className="lp-heart">{LANDING_FOOTER.status[2]}</span>
           </span>
         </div>
 

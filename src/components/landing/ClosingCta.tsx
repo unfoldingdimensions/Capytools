@@ -3,6 +3,7 @@ import { CTA } from "@/lib/capytools/landing";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { ArrowUpRight } from "@/components/landing/icons";
+import { TransitionLink } from "@/components/TransitionLink";
 
 /** VIII. Closing plate. */
 export function ClosingCta() {
@@ -29,12 +30,12 @@ export function ClosingCta() {
                 {CTA.primary.label}
                 <ArrowUpRight />
               </a>
-              <a className="lp-email-pill" href={CTA.secondary.href} target="_blank" rel="noreferrer noopener">
+              <TransitionLink className="lp-email-pill" href={CTA.secondary.href}>
                 {CTA.secondary.label}
                 <span className="lp-arrow-circle" aria-hidden="true">
                   →
                 </span>
-              </a>
+              </TransitionLink>
             </div>
 
             <div className="lp-cta-foot">

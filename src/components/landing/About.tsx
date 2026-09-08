@@ -3,6 +3,7 @@ import { ABOUT } from "@/lib/capytools/landing";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { ArrowUpRight } from "@/components/landing/icons";
+import { TransitionLink } from "@/components/TransitionLink";
 
 /** II. About / Manifesto — the museum-vitrine plate beside the headline. */
 export function About() {
@@ -23,10 +24,10 @@ export function About() {
               <span className="lp-dot">.</span>
             </h2>
             <p className="lp-lead">{ABOUT.lead}</p>
-            <a className="lp-btn lp-btn-ghost" href={ABOUT.cta.href} target="_blank" rel="noreferrer noopener">
+            <TransitionLink className="lp-btn lp-btn-ghost" href={ABOUT.cta.href}>
               {ABOUT.cta.label}
               <ArrowUpRight />
-            </a>
+            </TransitionLink>
             <div className="lp-about-foot">
               <span className="lp-about-mark" aria-hidden="true">
                 C

@@ -18,7 +18,10 @@ vi.mock("next/image", async () => {
 });
 
 import { Landing } from "../src/components/landing/Landing";
-import { LABS, PLATES } from "../src/lib/capytools/landing";
+import DesignNotesPage from "../src/app/design/page";
+import LicensePage from "../src/app/license/page";
+import NotesPage from "../src/app/notes/page";
+import { EXTERNAL, LABS, PLATES } from "../src/lib/capytools/landing";
 
 const html = renderToStaticMarkup(<Landing />);
 const text = html.replace(/<[^>]+>/g, " ");
@@ -66,6 +69,39 @@ describe("Landing", () => {
   it("provides a skip link and a main landmark", () => {
     expect(html).toContain('class="lp-skip-link"');
     expect(html).toContain('id="main"');
+  });
+
+  it("routes everything natively — zero external hrefs on the landing", () => {
+    expect(html).not.toContain('href="http');
+    // The project-meta targets exist as native editorial pages.
+    expect(html).toContain('href="/design"');
+    expect(html).toContain('href="/license"');
+    expect(html).toContain('href="/notes"');
+  });
+});
+
+describe("Editorial meta pages", () => {
+  it("design notes documents the label voices and the palette", () => {
+    const html = renderToStaticMarkup(<DesignNotesPage />);
+    expect(html).toContain("Design notes");
+    expect(html).toContain("Albert Sans");
+    expect(html).toContain("Fraunces");
+  });
+
+  it("license page carries the MIT grant", () => {
+    const html = renderToStaticMarkup(<LicensePage />);
+    expect(html).toContain("Free as in");
+    expect(html).toContain("Copyright (c) 2026");
+    expect(html).toContain("THE SOFTWARE IS PROVIDED");
+  });
+
+  it("notes lists the suite and keeps contributions one step off the landing", () => {
+    const html = renderToStaticMarkup(<NotesPage />);
+    expect(html).toContain('id="issues"');
+    for (const tool of LABS.tools) expect(html).toContain(`href="${tool.href}"`);
+    // The issue tracker is the one external hop, and it lives here — not on
+    // the landing.
+    expect(html).toContain(`href="${EXTERNAL.issues}"`);
   });
 });
 

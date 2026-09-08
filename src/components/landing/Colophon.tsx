@@ -5,8 +5,7 @@ import { SectionRule } from "@/components/landing/SectionRule";
 import { PartnerGlyph } from "@/components/landing/icons";
 import { TransitionLink } from "@/components/TransitionLink";
 
-/** VII. Colophon / First Line — the README's opening line, quoted verbatim. */
-export function Colophon() {
+/** VII. Colophon / First Line — the README's opening line, quoted verbatim. */export function Colophon() {
   return (
     <section className="lp-section lp-testimonial" id="testimonial">
       <div className="lp-container">
@@ -50,9 +49,9 @@ export function Colophon() {
               ))}
             </div>
 
-            <a className="lp-read-more" href={COLOPHON.readMore.href} target="_blank" rel="noreferrer noopener">
+            <TransitionLink className="lp-read-more" href={COLOPHON.readMore.href}>
               {COLOPHON.readMore.label}
-            </a>
+            </TransitionLink>
           </ScrollReveal>
 
           <ScrollReveal className="lp-testimonial-art" direction="right">

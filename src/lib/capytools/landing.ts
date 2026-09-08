@@ -8,9 +8,10 @@
  *   "quoted verbatim" framing stays true.
  * - The wire's CapyCreator row includes @gemini (the export omitted it;
  *   src/lib/capycreator/profiles.ts has seven families).
- * - The export linked back to capytools.vercel.app from the site itself;
- *   every self-referential link is internal here. Only GitHub links stay
- *   external.
+ * - The export linked back to capytools.vercel.app from the site itself, and
+ *   out to GitHub for project meta; every link here now routes natively
+ *   (/notes, /design, /license are real pages). The landing renders zero
+ *   external hrefs — only the /notes page links out, for contributions.
  * - Editorial-lite: side rails, FIG/coordinate annotations, pagination
  *   counters, the hero index and the inert work arrows did not survive
  *   the port.
@@ -93,7 +94,7 @@ export const ABOUT = {
     { text: "warm water", em: true },
   ] as Headline,
   lead: "Everything runs 100% in your browser — the one documented exception is CapyExpense, a desktop app that writes only to your own disk. Where a tool needs memory it uses localStorage, and nothing else exists to store.",
-  cta: { label: "Read the design notes", href: EXTERNAL.designNotes },
+  cta: { label: "Read the design notes", href: "/design" },
   footer: "No signup · No cookies · No telemetry · No server",
   sideNote:
     "Every tool states its own promise — browser tools keep nothing, desktop tools keep it on your machine.",
@@ -324,7 +325,7 @@ export const COLOPHON = {
     sub: "First line, quoted verbatim",
   },
   partnersLead: "The whole suite, one glyph each — every tool one click from the last.",
-  readMore: { label: "Read the README", href: EXTERNAL.readme },
+  readMore: { label: "Read the notes", href: "/notes" },
   partners: [
     {
       name: "CapyWrapped",
@@ -367,7 +368,7 @@ export const CTA = {
   ] as Headline,
   lead: "Open the suite in any browser tab and simply start — no account, no cookie banner, no telemetry. CapyExpense lives on your desktop and your disk, never ours.",
   primary: { label: "Open the suite", href: "#labs" },
-  secondary: { label: "Open an issue", href: EXTERNAL.issues },
+  secondary: { label: "Open an issue", href: "/notes#issues" },
   foot: ["● Live", "v0.1.0 / MIT"],
   ribbon: "CAPYTOOLS · FIN.",
   plate: { src: "/plates/cta.webp", width: 1024, height: 1024 },
@@ -395,10 +396,10 @@ export const LANDING_FOOTER = {
     {
       title: "Project",
       links: [
-        { label: "README", href: EXTERNAL.readme, external: true },
-        { label: "MIT License", href: EXTERNAL.license, external: true },
-        { label: "Design notes", href: EXTERNAL.designNotes, external: true },
-        { label: "Issues", href: EXTERNAL.issues, external: true },
+        { label: "Project notes", href: "/notes" },
+        { label: "MIT License", href: "/license" },
+        { label: "Design notes", href: "/design" },
+        { label: "Issues", href: "/notes#issues" },
       ],
     },
     {

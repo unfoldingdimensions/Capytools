@@ -2,20 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { EXTERNAL } from "@/lib/capytools/landing";
 import { TransitionLink } from "@/components/TransitionLink";
 
 const LINKS = [
   { label: "Suite", href: "#labs" },
   { label: "Method", href: "#method" },
   { label: "Work", href: "#work" },
-  { label: "Notes", href: "#about" },
+  { label: "Notes", href: "/notes" },
 ];
 
 /**
  * The landing's own masthead (tool pages keep the shared Header): brand mark,
- * section anchors, GitHub, theme toggle, and a headroom hide-on-scroll —
- * hides on the way down, re-pins on the way up, always visible near the top.
+ * section anchors, project notes, theme toggle, and a headroom
+ * hide-on-scroll — hides on the way down, re-pins on the way up, always
+ * visible near the top. Everything routes natively.
  */
 export function LandingMasthead() {
   const [hidden, setHidden] = useState(false);
@@ -54,14 +54,17 @@ export function LandingMasthead() {
         </a>
 
         <nav className="lp-nav-links" aria-label="Landing sections">
-          {LINKS.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-          <a href={EXTERNAL.repo} target="_blank" rel="noreferrer noopener">
-            GitHub
-          </a>
+          {LINKS.map((link) =>
+            link.href.startsWith("#") ? (
+              <a key={link.href} href={link.href}>
+                {link.label}
+              </a>
+            ) : (
+              <TransitionLink key={link.href} href={link.href}>
+                {link.label}
+              </TransitionLink>
+            ),
+          )}
         </nav>
 
         <div className="lp-nav-right">
