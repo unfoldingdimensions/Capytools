@@ -56,14 +56,55 @@ function latin1(bytes: Uint8Array, start: number, end: number): string {
   return out;
 }
 
-/** Inflate a zlib stream. Returns null when the platform can't (or won't). */
-async function inflate(data: Uint8Array): Promise<string | null> {
+/**
+ * Ceiling on inflated text, per file (not per chunk — see readPngText).
+ *
+ * Deflate reaches roughly 1032:1, so a ~4MB zTXt chunk expands to ~4GB. The
+ * previous `new Response(stream).text()` buffered the whole thing with no
+ * limit, and an out-of-memory abort is NOT catchable — the `try` below and the
+ * caller's guard in parse.ts both miss it, and the tab dies. Since CapyStrip
+ * exists to clean images someone else sent you, a hostile PNG is the expected
+ * input, not the exotic one.
+ *
+ * 4MB is far above real payloads (an A1111 prompt is bytes; even a large
+ * ComfyUI workflow is a few hundred KB) and far below anything that hurts.
+ */
+const MAX_INFLATED_BYTES = 4 * 1024 * 1024;
+
+/** Shown instead of a value when a compressed chunk blows the ceiling above. */
+const INFLATE_TOO_LARGE =
+  "(compressed text too large to display — the clean copy still removes it)";
+
+/**
+ * Inflate a zlib stream, refusing to buffer more than `limit` bytes of output.
+ * Returns null when the platform can't (or won't).
+ */
+async function inflate(data: Uint8Array, limit: number): Promise<string | null> {
   if (typeof DecompressionStream === "undefined") return null;
   try {
     const stream = new Blob([data as BlobPart])
       .stream()
       .pipeThrough(new DecompressionStream("deflate"));
-    return await new Response(stream).text();
+    const reader = stream.getReader();
+    const parts: Uint8Array[] = [];
+    let total = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.length;
+      if (total > limit) {
+        await reader.cancel();
+        return INFLATE_TOO_LARGE;
+      }
+      parts.push(value);
+    }
+    const joined = new Uint8Array(total);
+    let at = 0;
+    for (const part of parts) {
+      joined.set(part, at);
+      at += part.length;
+    }
+    return new TextDecoder("utf-8").decode(joined);
   } catch {
     return null;
   }
@@ -72,6 +113,9 @@ async function inflate(data: Uint8Array): Promise<string | null> {
 /** Read every text chunk: tEXt (latin1), zTXt (zlib) and iTXt (utf-8, maybe zlib). */
 export async function readPngText(bytes: Uint8Array): Promise<PngTextChunk[]> {
   const out: PngTextChunk[] = [];
+  // Budget is per FILE, not per chunk: nothing caps how many zTXt chunks a PNG
+  // may carry, so a per-chunk limit alone would just be paid 500 times over.
+  let inflateBudget = MAX_INFLATED_BYTES;
 
   for (const chunk of walkPngChunks(bytes)) {
     if (chunk.type === "tEXt") {
@@ -86,7 +130,8 @@ export async function readPngText(bytes: Uint8Array): Promise<PngTextChunk[]> {
       const nul = chunk.data.indexOf(0);
       // key\0 + compression-method byte (0 = zlib, the only defined method)
       if (nul < 0 || nul + 2 > chunk.data.length) continue;
-      const text = await inflate(chunk.data.subarray(nul + 2));
+      const text = await inflate(chunk.data.subarray(nul + 2), inflateBudget);
+      if (text) inflateBudget -= text.length;
       out.push({
         key: latin1(chunk.data, 0, nul),
         value: text ?? INFLATE_UNAVAILABLE,
@@ -105,7 +150,10 @@ export async function readPngText(bytes: Uint8Array): Promise<PngTextChunk[]> {
       if (translatedEnd < 0) continue;
       const textBytes = chunk.data.subarray(translatedEnd + 1);
       const compressed = compressionFlag === 1 && compressionMethod === 0;
-      const text = compressed ? await inflate(textBytes) : new TextDecoder("utf-8").decode(textBytes);
+      const text = compressed
+        ? await inflate(textBytes, inflateBudget)
+        : new TextDecoder("utf-8").decode(textBytes);
+      if (compressed && text) inflateBudget -= text.length;
       out.push({ key, value: text ?? INFLATE_UNAVAILABLE, chunk: "iTXt" });
     }
   }

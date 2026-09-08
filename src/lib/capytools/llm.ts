@@ -71,6 +71,32 @@ export function getDefaultSettings(provider: LlmProvider = "opencode"): LlmSetti
   };
 }
 
+/**
+ * Bound a stored baseUrl on the way OUT of localStorage, not just on the way in.
+ *
+ * This value is where the user's API key gets sent (`buildHeaders` attaches
+ * `Authorization` to whatever origin it names). Anything able to write one
+ * storage key — an XSS, a browser extension, someone else on the machine —
+ * would otherwise silently redirect every future request, key and prompt text
+ * included, with nothing visible changing in the UI.
+ *
+ * Plain http is allowed only for loopback, because the `custom` preset
+ * legitimately defaults to a local Ollama at http://localhost:11434/v1.
+ */
+const LOOPBACK = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+
+export function safeBaseUrl(value: unknown, fallback: string): string {
+  if (typeof value !== "string" || !value) return fallback;
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:") return value;
+    if (url.protocol === "http:" && LOOPBACK.has(url.hostname)) return value;
+  } catch {
+    // Not a URL at all — fall through to the provider default.
+  }
+  return fallback;
+}
+
 export function getStoredSettings(storageKey: string): LlmSettings {
   if (typeof window === "undefined") {
     return getDefaultSettings();
@@ -86,10 +112,7 @@ export function getStoredSettings(storageKey: string): LlmSettings {
     return {
       provider,
       apiKey: typeof parsed.apiKey === "string" ? parsed.apiKey : "",
-      baseUrl:
-        typeof parsed.baseUrl === "string" && parsed.baseUrl
-          ? parsed.baseUrl
-          : PROVIDER_PRESETS[provider].defaultBaseUrl,
+      baseUrl: safeBaseUrl(parsed.baseUrl, PROVIDER_PRESETS[provider].defaultBaseUrl),
       model:
         typeof parsed.model === "string" && parsed.model
           ? parsed.model

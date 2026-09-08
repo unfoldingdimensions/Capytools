@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
+import { notFound } from "next/navigation";
 import { ShareCardView } from "@/components/share/ShareCardView";
-import { SITE_URL } from "@/lib/utils";
+import { SITE_URL, sanitizeUsername } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -10,9 +11,14 @@ export async function generateMetadata({
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
   const { username } = await params;
-  const title = `@${username} · CapyWrapped`;
-  const description = `${username}'s GitHub year, wrapped in a calm little card. No signup. No cookies. Nothing stored.`;
-  const image = `${SITE_URL}/api/og/${username}`;
+  // Never echo the raw segment: without this, /u/<any text> renders that text as
+  // the page title and og:description, i.e. someone else's copy under this domain.
+  const clean = sanitizeUsername(username);
+  if (!clean) return { title: "Not found · CapyWrapped" };
+
+  const title = `@${clean} · CapyWrapped`;
+  const description = `${clean}'s GitHub year, wrapped in a calm little card. No signup. No cookies. Nothing stored.`;
+  const image = `${SITE_URL}/api/og/${encodeURIComponent(clean)}`;
   return {
     title,
     description,
@@ -20,7 +26,7 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      images: [{ url: image, width: 1200, height: 630, alt: `@${username} on GitHub — wrapped by Capytools` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `@${clean} on GitHub — wrapped by Capytools` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -36,6 +42,9 @@ export default async function SharePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
+  const clean = sanitizeUsername(username);
+  if (!clean) notFound();
+
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <Header tool="CapyWrapped" />
@@ -43,10 +52,10 @@ export default async function SharePage({
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-5">
         <div className="mb-6 text-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            CapyWrapped · @{username}
+            CapyWrapped · @{clean}
           </p>
         </div>
-        <ShareCardView username={username} />
+        <ShareCardView username={clean} />
       </main>
 
       <SiteFooter />

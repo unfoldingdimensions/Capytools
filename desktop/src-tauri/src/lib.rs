@@ -1,5 +1,20 @@
 use std::path::Path;
 
+/// A label becomes a filename, and on Linux it is also written into a config
+/// file as a value. Reject anything that could leave the Desktop folder or open
+/// a second line: `Path::join` REPLACES the base when handed an absolute path,
+/// and a newline in a `.desktop` body starts a new Desktop Entry key.
+fn safe_label(label: &str) -> Result<String, String> {
+    let trimmed = label.trim();
+    if trimmed.is_empty()
+        || trimmed.contains(std::path::is_separator)
+        || trimmed.contains([':', '\n', '\r'])
+    {
+        return Err("that shortcut name isn't usable".into());
+    }
+    Ok(trimmed.to_string())
+}
+
 /// Put a shortcut to the WORKBOOK on the desktop.
 ///
 /// Requirement 11 asked for a desktop shortcut. The installer already puts the
@@ -12,6 +27,14 @@ fn create_workbook_shortcut(workbook_path: String, label: String) -> Result<Stri
         return Err("that workbook is not there any more".into());
     }
 
+    // Both inputs reach a shell or a config file, and both derive from a filename
+    // read off disk — which the user may not have chosen. Bound them here, once,
+    // rather than at each use below.
+    let label = safe_label(&label)?;
+    if workbook_path.contains(['\n', '\r']) {
+        return Err("that workbook's name isn't usable".into());
+    }
+
     let desktop = dirs_desktop().ok_or("couldn't find your desktop folder")?;
 
     #[cfg(target_os = "windows")]
@@ -19,13 +42,23 @@ fn create_workbook_shortcut(workbook_path: String, label: String) -> Result<Stri
         let link = desktop.join(format!("{label}.lnk"));
         // WScript.Shell via PowerShell rather than a COM crate: this is ten
         // lines and one fewer dependency to keep current.
-        let script = format!(
-            "$s=(New-Object -COM WScript.Shell).CreateShortcut('{}'); $s.TargetPath='{}'; $s.Save()",
-            link.display(),
-            target.display()
-        );
+        //
+        // The two paths are passed as ENVIRONMENT, never spliced into the script
+        // text. A single quote is a legal Windows filename character, and inside
+        // a PowerShell single-quoted string the only escape is `''` — so a
+        // workbook called `Budget 2026'; <command>; '.xlsx` would otherwise close
+        // the literal and run the rest. Keeping the script a constant means no
+        // filename can reach the parser at all.
         std::process::Command::new("powershell")
-            .args(["-NoProfile", "-NonInteractive", "-Command", &script])
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "$s=(New-Object -COM WScript.Shell).CreateShortcut($env:CAPY_LINK); \
+                 $s.TargetPath=$env:CAPY_TARGET; $s.Save()",
+            ])
+            .env("CAPY_LINK", &link)
+            .env("CAPY_TARGET", target)
             .status()
             .map_err(|e| format!("couldn't make the shortcut: {e}"))?;
         return Ok(link.display().to_string());

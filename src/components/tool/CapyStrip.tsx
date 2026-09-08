@@ -61,6 +61,16 @@ const EXTENSION_BY_MIME: Record<string, string> = {
   "image/webp": ".webp",
 };
 
+/**
+ * Input ceiling. `accept="image/*"` is advisory and the paste listener has no
+ * gate at all, so nothing bounded what got read: parse.ts materialises the
+ * whole file and then hands the same Blob to exifr three more times. 60MB
+ * clears any phone camera (a 48MP HEIC is ~10MB, a RAW-ish TIFF ~40MB) while
+ * keeping a hostile file from being the cheap half of a memory attack.
+ */
+const MAX_FILE_MB = 60;
+const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
+
 function loaderSteps(): LoadStep[] {
   return [
     { label: "reading bytes", state: "pending" },
@@ -150,6 +160,17 @@ export function CapyStrip() {
       setError(null);
       setIsDemo(false);
       setReport(null);
+
+      // Guarded here rather than at each entry point: the picker, the drop zone
+      // and the window paste listener all land in this function.
+      if (file.size > MAX_FILE_BYTES) {
+        setError({
+          title: "That photo is a bit much.",
+          body: `CapyStrip reads files up to ${MAX_FILE_MB}MB — this one is ${Math.round(file.size / 1024 / 1024)}MB. Resize it and bring it back.`,
+        });
+        return;
+      }
+
       setLoading(true);
       setSteps(loaderSteps());
 

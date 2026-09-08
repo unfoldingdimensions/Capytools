@@ -4,6 +4,7 @@ import { fetchContributions } from "@/lib/github/contributions";
 import { fetchLanguageShares } from "@/lib/github/languages";
 import { GithubError } from "@/lib/github/types";
 import { computeWrapped } from "@/lib/github/stats";
+import { sanitizeUsername } from "@/lib/utils";
 import { CardArt } from "@/components/card/CardArt";
 
 export const runtime = "nodejs";
@@ -40,16 +41,20 @@ export async function GET(
   { params }: { params: Promise<{ username: string }> },
 ) {
   const { username } = await params;
+  // Reject before fanning out: this route costs up to ~55 upstream requests on
+  // the server's token, so a name that cannot exist must not buy any of them.
+  const clean = sanitizeUsername(username);
+  if (!clean) return new Response("Not found", { status: 404 });
 
   try {
     const [user, repos, events, contributions, languages] = await Promise.all([
-      getUser(username),
-      getRepos(username),
-      getEvents(username),
+      getUser(clean),
+      getRepos(clean),
+      getEvents(clean),
       // Same chart and language sources as the page, so the social preview
       // matches what the visitor saw.
-      fetchContributions(username).catch(() => []),
-      fetchLanguageShares(username).catch(() => []),
+      fetchContributions(clean).catch(() => []),
+      fetchLanguageShares(clean).catch(() => []),
     ]);
     const stats = computeWrapped(user, repos, events, new Date(), contributions, languages);
 

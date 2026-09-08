@@ -4,6 +4,15 @@ export const GITHUB_API_BASE = "https://api.github.com";
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
+/** Is this URL GitHub's REST API — i.e. somewhere the token may be sent? */
+function isGithubApi(url: string): boolean {
+  try {
+    return new URL(url).host === "api.github.com";
+  } catch {
+    return false;
+  }
+}
+
 const API_HEADERS = {
   Accept: "application/vnd.github+json",
   "X-GitHub-Api-Version": "2022-11-28",
@@ -29,8 +38,12 @@ export async function fetchPage<T>(
     const headers = new Headers(init?.headers);
     headers.set("Accept", API_HEADERS.Accept);
     headers.set("X-GitHub-Api-Version", API_HEADERS["X-GitHub-Api-Version"]);
+    // The token goes to GitHub's API host and nowhere else. This function is
+    // also handed URLs parsed out of an upstream `Link` RESPONSE header
+    // (see extractNextPage), so without the host check the rule would be
+    // "let a response tell us where to send our credential next".
     const token = typeof process !== "undefined" ? process.env?.GITHUB_TOKEN : undefined;
-    if (token && !headers.has("Authorization")) {
+    if (token && !headers.has("Authorization") && isGithubApi(url)) {
       headers.set("Authorization", `Bearer ${token}`);
     }
     response = await fetch(url, { ...init, headers, signal: controller.signal });
