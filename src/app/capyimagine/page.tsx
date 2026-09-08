@@ -1,9 +1,5 @@
-import { AmbientBackground } from "@/components/AmbientBackground";
-import { Header } from "@/components/header";
-import { SiteFooter } from "@/components/site-footer";
+import { ToolPageShell } from "@/components/tool/ToolPageShell";
 import { PromptGen } from "@/components/tool/PromptGen";
-import { Reveal } from "@/components/Reveal";
-import { TextReveal } from "@/components/TextReveal";
 
 export const metadata = {
   title: "CapyImagine — random image & video prompts",
@@ -13,41 +9,15 @@ export const metadata = {
 
 export default function CapyImagine() {
   return (
-    // No `bg-background` here on purpose: body already paints it, and an opaque
-    // wrapper would cover the fixed ambient layer sitting at -z-10.
-    <div className="flex min-h-dvh flex-col text-foreground">
-      <AmbientBackground />
-      <Header tool="CapyImagine" />
-
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20">
-        <section className="flex w-full flex-col items-center pt-5 text-center sm:pt-8">
-          <Reveal>
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              CapyImagine · tool no. 2
-            </p>
-          </Reveal>
-
-          <h1 className="mt-5 font-display text-5xl font-light leading-[1.04] tracking-tight text-foreground sm:text-6xl">
-            <TextReveal text="A prompt worth" delay={0.1} />
-            <br />
-            <em className="italic">
-              <TextReveal text="rendering." delay={0.32} />
-            </em>
-          </h1>
-
-          <Reveal delay={0.2}>
-            <p className="mt-5 text-base text-muted-foreground">
-              random image &amp; video prompts, tuned per engine. all local.
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.3} className="mt-9 w-full text-left">
-            <PromptGen />
-          </Reveal>
-        </section>
-      </main>
-
-      <SiteFooter />
-    </div>
+    <ToolPageShell
+      tool="CapyImagine"
+      eyebrow="CapyImagine · tool no. 2"
+      index="Nº 02 / 05"
+      headline={[{ text: "A prompt worth" }, { text: "rendering", em: true, dot: true }]}
+      lead="random image & video prompts, tuned per engine. all local."
+      align="left"
+    >
+      <PromptGen />
+    </ToolPageShell>
   );
 }
