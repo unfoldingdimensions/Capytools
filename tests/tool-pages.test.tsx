@@ -1,0 +1,93 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
+import type { ReactElement } from "react";
+
+import CapyCreatorPage from "@/app/capycreator/page";
+import CapyExpensePage from "@/app/capyexpense/page";
+import CapyImaginePage from "@/app/capyimagine/page";
+import CapyStripPage from "@/app/capystrip/page";
+import CapyWrappedPage from "@/app/capywrapped/page";
+import { Header } from "@/components/header";
+import { CapyExpenseShowcase } from "@/components/tool/CapyExpenseShowcase";
+
+const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
+
+describe("tool pages — editorial shell", () => {
+  const pages = [
+    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 05"],
+    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 05"],
+    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 05"],
+    [CapyStripPage, "CapyStrip · tool no. 4", "this one helps them forget", "Nº 04 / 05"],
+    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 05"],
+  ] as const;
+
+  for (const [Page, eyebrow, headline, index] of pages) {
+    it(`${eyebrow} — shell furniture, one h1, clay dot, back link`, () => {
+      const html = markup(<Page />);
+
+      // AGENTS.md eyebrow contract, carried by .lp-label.
+      expect(html).toContain(eyebrow);
+      expect(html).toContain('class="lp-label"');
+      expect(html.match(/<h1/g)).toHaveLength(1);
+      // TextReveal splits words into spans; the intact line lives in aria-label.
+      expect(html).toContain(`aria-label="${headline}"`);
+      // The landing's clay terminal period.
+      expect(html).toContain('class="lp-dot"');
+      // Editorial sign-off row: internal back link + index meta.
+      expect(html).toContain('href="/"');
+      expect(html).toContain("back to the suite");
+      expect(html).toContain(index);
+    });
+
+    it(`${eyebrow} — external hrefs stay functional-only`, () => {
+      const html = markup(<Page />);
+      if (Page === CapyStripPage) {
+        // The at-rest demo report ships exactly one external link — the
+        // OpenStreetMap lookup for its sample coordinates. Functional, not chrome.
+        const externals = html.match(/href="http[^"]*/g) ?? [];
+        expect(externals).toHaveLength(1);
+        expect(externals[0]).toContain("openstreetmap.org");
+      } else {
+        // Shared chrome is nativised (D18); these surfaces carry no external links.
+        expect(html).not.toContain('href="http');
+      }
+    });
+  }
+
+  it("CapyExpense keeps the two essentials and drops the bands", () => {
+    const html = markup(<CapyExpensePage />);
+    expect(html).toContain("stored on your machine, never ours");
+    expect(html).toContain("Windows will warn you about this app");
+    expect(html).not.toContain("Why bother tracking");
+    // The expense display is the oversized stacked variant.
+    expect(html).toContain("lp-tool-display-lg");
+    expect(html).toContain("lp-lead-lg");
+    // Screen two is reachable: the switcher's controls exist at rest.
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('aria-controls="capyexpense-demo"');
+  });
+
+  it("corner marks frame the hero artifacts", () => {
+    // Strip's drop card, Wrapped's demo card and the Expense showcase carry
+    // the landing's plate crop marks.
+    expect(markup(<CapyStripPage />)).toContain("lp-corner-tl");
+    expect(markup(<CapyWrappedPage />)).toContain("lp-corner-tl");
+    expect(markup(<CapyExpensePage />)).toContain("lp-corner-tl");
+  });
+});
+
+describe("shared chrome", () => {
+  it("header links the notes page, never an external profile", () => {
+    const html = markup(<Header tool="CapyWrapped" />);
+    expect(html).toContain('href="/notes"');
+    expect(html).toContain("Project notes and issue tracker");
+    expect(html).not.toContain('href="http');
+  });
+
+  it("expense showcase keeps its a11y switcher contract", () => {
+    const html = markup(<CapyExpenseShowcase />);
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('aria-controls="capyexpense-demo"');
+    expect(html).toContain("lp-corner-tl");
+  });
+});
