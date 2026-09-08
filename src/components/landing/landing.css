@@ -1004,6 +1004,18 @@ a.lp-wire-item .lp-wire-name {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scale(1);
+  transition: transform 600ms var(--lp-ease-reveal);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Card-level hover zoom: the plate settles in at 105% while the frame clips
+   it. :focus-within gives keyboard users the same affordance via the arrow
+   link. */
+.lp-lab:hover .lp-lab-img img,
+.lp-lab:focus-within .lp-lab-img img {
+  transform: scale(1.05);
 }
 
 .lp-lab-badge {
@@ -1885,6 +1897,7 @@ a.lp-wire-item .lp-wire-name {
   .lp-btn,
   .lp-work-card,
   .lp-partner,
+  .lp-lab-img img,
   .lp-arrow-mark svg {
     transition: none;
   }
@@ -1895,6 +1908,11 @@ a.lp-wire-item .lp-wire-name {
 
   .lp-work-card:hover,
   .lp-partner:hover {
+    transform: none;
+  }
+
+  .lp-lab:hover .lp-lab-img img,
+  .lp-lab:focus-within .lp-lab-img img {
     transform: none;
   }
 }
