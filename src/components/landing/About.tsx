@@ -1,13 +1,10 @@
+import Image from "next/image";
 import { ABOUT } from "@/lib/capytools/landing";
-import { CapyOnsen } from "@/components/CapyOnsen";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { ArrowUpRight } from "@/components/landing/icons";
 
-/**
- * II. About / Manifesto. The export's about.png plate slot is the resident
- * capybara instead — the CapyOnsen loop literally illustrating the headline.
- */
+/** II. About / Manifesto — the museum-vitrine plate beside the headline. */
 export function About() {
   return (
     <section className="lp-section lp-about" id="about">
@@ -30,7 +27,6 @@ export function About() {
               {ABOUT.cta.label}
               <ArrowUpRight />
             </a>
-            <p className="lp-about-side-note">{ABOUT.sideNote}</p>
             <div className="lp-about-foot">
               <span className="lp-about-mark" aria-hidden="true">
                 C
@@ -40,9 +36,19 @@ export function About() {
           </ScrollReveal>
 
           <ScrollReveal className="lp-about-art" direction="right">
-            <div className="lp-onsen">
-              <CapyOnsen />
+            <div className="lp-plate">
+              <span className="lp-corner lp-corner-tl" aria-hidden="true" />
+              <span className="lp-corner lp-corner-br" aria-hidden="true" />
+              <Image
+                src={ABOUT.plate.src}
+                alt=""
+                aria-hidden="true"
+                width={ABOUT.plate.width}
+                height={ABOUT.plate.height}
+                sizes="(max-width: 880px) 100vw, 46vw"
+              />
             </div>
+            <p className="lp-about-side-note">{ABOUT.sideNote}</p>
             <p className="lp-about-caption">
               {ABOUT.caption[0]}
               <span>{ABOUT.caption[1]}</span>

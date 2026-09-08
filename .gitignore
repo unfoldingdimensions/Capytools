@@ -52,9 +52,11 @@ desktop/dist/
 desktop/src-tauri/target/
 desktop/src-tauri/gen/
 
-# local working artifacts (agent sessions, design archives, blender source)
+# local working artifacts (agent sessions, design archives)
 .od-artifact/
 .playwright-mcp/
 .video_agent/
-assets/blender/
 Capytools-Editorial-Landing*.zip
+
+# local design archive (source of the landing port)
+Capytools-Editorial-Landing-OpenDesign/

@@ -98,6 +98,7 @@ export const ABOUT = {
   sideNote:
     "Every tool states its own promise — browser tools keep nothing, desktop tools keep it on your machine.",
   caption: ["Studies in quiet software.", "(Capytools, MMXXVI)"],
+  plate: { src: "/plates/about.webp", width: 1024, height: 1024 },
 } as const;
 
 export const CAPABILITIES = {
@@ -418,6 +419,7 @@ export const LANDING_FOOTER = {
 
 /** The plates the page ships, for the asset-existence test. */
 export const PLATES = [
+  "about",
   "hero",
   "capabilities",
   "cta",

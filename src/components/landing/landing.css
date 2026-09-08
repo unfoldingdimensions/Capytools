@@ -748,14 +748,6 @@ a.lp-wire-item .lp-wire-name {
   margin-top: 6px;
 }
 
-.lp-onsen {
-  border: 1px solid var(--border);
-  border-radius: 26px;
-  overflow: hidden;
-  background: var(--card);
-  box-shadow: var(--lp-shadow);
-}
-
 /* ------------------------------ capabilities ------------------------------ */
 
 .lp-capabilities-grid {
