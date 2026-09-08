@@ -1767,6 +1767,9 @@ a.lp-wire-item .lp-wire-name {
   letter-spacing: -0.015em;
   color: var(--foreground);
   text-align: center;
+  /* Fraunces descenders (y, Q tail) paint below the 1em line box; the
+     padding keeps them inside the clip instead of cut at the page end. */
+  padding-bottom: 0.25em;
 }
 
 .lp-foot-mega .lp-word em {
