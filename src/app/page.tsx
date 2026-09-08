@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { TransitionLink } from "@/components/TransitionLink";
-import { CapyOnsen } from "@/components/CapyOnsen";
 
 const TOOLS = [
   {
@@ -67,10 +66,6 @@ export default function Home() {
             <p className="mt-5 max-w-md text-base text-muted-foreground">
               Five of them so far. Nothing you touch leaves your machine.
             </p>
-          </Reveal>
-
-          <Reveal delay={0.25} className="mt-10 w-full max-w-md sm:mt-12">
-            <CapyOnsen />
           </Reveal>
 
           {/* 100ms apart — the standard stagger, and well inside the 500ms budget. */}
