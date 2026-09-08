@@ -58,12 +58,12 @@ export async function GET(
     ]);
     const stats = computeWrapped(user, repos, events, new Date(), contributions, languages);
 
-    const [fraunces300, fraunces500, sans500, plex400, plex500] = await Promise.all([
+    const [fraunces300, fraunces500, sans500, albert400, albert500] = await Promise.all([
       googleFont("Fraunces", 300),
       googleFont("Fraunces", 500),
       googleFont("Plus Jakarta Sans", 500),
-      googleFont("IBM Plex Mono", 400),
-      googleFont("IBM Plex Mono", 500),
+      googleFont("Albert Sans", 400),
+      googleFont("Albert Sans", 500),
     ]);
 
     return new ImageResponse(
@@ -75,8 +75,8 @@ export async function GET(
           { name: "Fraunces", data: fraunces300, weight: 300, style: "normal" },
           { name: "Fraunces", data: fraunces500, weight: 500, style: "normal" },
           { name: "Plus Jakarta Sans", data: sans500, weight: 500, style: "normal" },
-          { name: "IBM Plex Mono", data: plex400, weight: 400, style: "normal" },
-          { name: "IBM Plex Mono", data: plex500, weight: 500, style: "normal" },
+          { name: "Albert Sans", data: albert400, weight: 400, style: "normal" },
+          { name: "Albert Sans", data: albert500, weight: 500, style: "normal" },
         ],
         headers: {
           "Cache-Control": "public, max-age=60, s-maxage=3600, stale-while-revalidate=600",

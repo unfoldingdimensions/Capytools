@@ -10,7 +10,7 @@ export async function exportNodePng(
   node: HTMLElement,
   opts: { width: number; height: number; filename: string },
 ) {
-  await document.fonts.ready; // Fraunces/PJS/Plex must be loaded before capture
+  await document.fonts.ready; // Fraunces/PJS/Albert must be loaded before capture
   const dataUrl = await toPng(node, {
     width: opts.width,
     height: opts.height,

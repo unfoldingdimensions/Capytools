@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Albert_Sans, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -16,10 +16,12 @@ const display = Fraunces({
   subsets: ["latin"],
 });
 
-const mono = IBM_Plex_Mono({
+// The label voice (eyebrows, tags, code). It was IBM Plex Mono; the family is
+// now Albert Sans — a geometric sans — but the token keeps its `--font-mono`
+// name so every `font-mono` utility resolves to it in one place.
+const label = Albert_Sans({
   variable: "--font-mono",
   subsets: ["latin"],
-  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "antialiased",
         sans.variable,
         display.variable,
-        mono.variable,
+        label.variable,
         "font-sans",
       )}
     >

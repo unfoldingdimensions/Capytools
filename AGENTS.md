@@ -27,7 +27,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Typography**:
   - Titles: `font-display` (Fraunces serif, font-light, italic emphasis `<em className="italic">`).
   - UI: `font-sans` (Plus Jakarta Sans).
-  - Eyebrows, Code & Tags: `font-mono` (IBM Plex Mono uppercase tracking-[0.24em]).
+  - Eyebrows, Code & Tags: `font-mono` (Albert Sans uppercase tracking-[0.24em]).
 - **Surfaces**: `rounded-3xl` for main cards, `rounded-2xl` for inset wells, `rounded-full` for pills/buttons.
 - **Atmosphere**: Use `AmbientBackground` + `CapyMark` mascot on every tool page.
 

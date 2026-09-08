@@ -44,7 +44,7 @@ typography:
     fontWeight: 500
     lineHeight: 1.6
   label-caps:
-    fontFamily: IBM Plex Mono
+    fontFamily: Albert Sans
     fontSize: 0.6875rem
     fontWeight: 500
     lineHeight: 1.5
@@ -174,8 +174,9 @@ infinitely alternating loops, out of phase. Every motion dies under
 
 Fraunces (serif, light) for titles only — `font-display`, `font-light`, italic
 `<em>` for the emphasis word ("made *quiet*"). Plus Jakarta Sans for all UI
-at base weight 500. IBM Plex Mono (400/500) for eyebrows, code, and tags,
-always uppercase with `tracking-[0.24em]`.
+at base weight 500. Albert Sans (a geometric sans, serving as the
+`font-mono` label voice) for eyebrows, code, and tags, always uppercase with
+`tracking-[0.24em]`.
 
 - `display-xl` — landing hero (`text-5xl sm:text-6xl`), tight leading 1.04.
 - `display-md` — tool card titles (`text-2xl`), normal weight.

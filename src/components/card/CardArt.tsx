@@ -50,7 +50,7 @@ export function cardPalette(variant: CardVariant): Record<string, string> {
 
 const FONT_DISPLAY = "'Fraunces', Georgia, serif";
 const FONT_SANS = "'Plus Jakarta Sans', system-ui, sans-serif";
-const FONT_MONO = "'IBM Plex Mono', ui-monospace, monospace";
+const FONT_MONO = "'Albert Sans', 'Plus Jakarta Sans', system-ui, sans-serif";
 
 function StatCell({
   c,
