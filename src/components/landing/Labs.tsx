@@ -116,12 +116,18 @@ export function Labs() {
               <span key={tool.name} className="lp-on" />
             ))}
           </div>
-          <span className="lp-meta">
-            {LABS.foot} ·{" "}
-            <a href="#top" style={{ color: "var(--lp-accent-ink)" }}>
-              BACK TO THE TOP ↑
-            </a>
-          </span>
+          {/* Distributed CTA: a visitor convinced by the catalog acts here,
+              not at the bottom of the page. */}
+          <div className="lp-labs-foot-right">
+            <span className="lp-meta">{LABS.foot}</span>
+            <TransitionLink
+              href="/capywrapped"
+              className="lp-btn lp-btn-primary lp-btn-sm"
+            >
+              Open the suite
+              <ArrowUpRight />
+            </TransitionLink>
+          </div>
         </div>
       </div>
     </section>

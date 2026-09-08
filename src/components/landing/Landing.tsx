@@ -30,8 +30,12 @@ export function Landing() {
       <main id="main">
         <Hero />
         <LiveWire />
-        <About />
-        <Capabilities />
+        {/* The manifesto band — one surface for the two reading sections,
+            breaking the long cream run before the catalog. */}
+        <div className="lp-band">
+          <About />
+          <Capabilities />
+        </div>
         <Labs />
         <Method />
         <SelectedWork />
