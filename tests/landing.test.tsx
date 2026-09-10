@@ -123,3 +123,28 @@ describe("Landing assets", () => {
     expect(readme).toContain("## 5. CapyExpense");
   });
 });
+
+describe("Crawl surface", () => {
+  it("sitemap covers every tool the landing links, and nothing that fans out", async () => {
+    const { default: sitemap } = await import("@/app/sitemap");
+    const { LABS } = await import("@/lib/capytools/landing");
+    const urls = sitemap().map((entry) => entry.url);
+
+    for (const tool of LABS.tools) {
+      expect(urls.some((url) => url.endsWith(tool.href))).toBe(true);
+    }
+    expect(urls.some((url) => url.includes("/api/") || url.includes("/u/"))).toBe(false);
+    // Absolute URLs only — a relative loc is an invalid sitemap entry.
+    expect(urls.every((url) => url.startsWith("http"))).toBe(true);
+  });
+
+  it("robots keeps crawlers off the GitHub-backed fan-out", async () => {
+    const { default: robots } = await import("@/app/robots");
+    const { rules, sitemap: sitemapUrl } = robots();
+    const disallow = Array.isArray(rules) ? [] : [rules.disallow].flat();
+
+    expect(disallow).toContain("/api/");
+    expect(disallow).toContain("/u/");
+    expect(sitemapUrl).toMatch(/^https?:\/\/.+\/sitemap\.xml$/);
+  });
+});
