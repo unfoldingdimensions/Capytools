@@ -27,9 +27,12 @@ const hits = new Map<string, { count: number; resetAt: number }>();
  * Vercel overwrites `x-vercel-forwarded-for` at its edge with the real peer,
  * so that is the one worth keying on.
  *
- * When the header is absent — local dev, or a misconfigured deploy — everyone
- * shares one bucket. That fails CLOSED (stricter, not looser), which is the
- * right direction for a fallback to lean.
+ * When the header is absent — local dev, or a host that is not Vercel —
+ * everyone shares one bucket. That fails CLOSED (stricter, not looser), which
+ * is the right direction for a fallback to lean, but it does mean a self-hosted
+ * deploy limits ALL visitors to 30 API calls a minute between them: swap
+ * `x-vercel-forwarded-for` for whatever header that platform sets at its edge.
+ * Documented for self-hosters on /notes.
  */
 function clientKey(request: NextRequest): string {
   const platform = request.headers.get("x-vercel-forwarded-for");
@@ -69,8 +72,9 @@ export function proxy(request: NextRequest) {
 }
 
 /**
- * Only the fan-out routes. The rest of the site is static and cheap, and
- * counting it here would just spend budget on page views.
+ * The API surface only — that is where the fan-out lives (`/api/og`,
+ * `/api/languages`, `/api/contributions`). The rest of the site is static and
+ * cheap, and counting it here would just spend budget on page views.
  *
  * ponytail: in-memory, so the budget is per serverless instance rather than
  * global — a scaled-out deploy allows proportionally more. It still turns an

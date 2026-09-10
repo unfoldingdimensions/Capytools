@@ -125,6 +125,25 @@ export default function NotesPage() {
             </TransitionLink>
             .
           </p>
+          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            Vercel&rsquo;s cookieless analytics counts page views and load times for
+            this site. Nothing you type, drop or upload into a tool is part of
+            that &mdash; it never leaves the tab.
+          </p>
+        </section>
+
+        <section className="mt-12">
+          <span className="lp-label">Running your own copy</span>
+          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            The three GitHub-backed API routes are rate limited per visitor, keyed
+            on the address Vercel writes at its edge. Off Vercel that header is
+            absent and every visitor shares one bucket of 30 calls a minute, so
+            point <code className="font-mono text-[13px]">clientKey</code> in{" "}
+            <code className="font-mono text-[13px]">src/proxy.ts</code> at whatever
+            header your platform sets. Set{" "}
+            <code className="font-mono text-[13px]">GITHUB_TOKEN</code> too, or the
+            card routes run on GitHub&rsquo;s 60-an-hour anonymous quota.
+          </p>
         </section>
 
         <div className="lp-divider mt-14" aria-hidden="true" />

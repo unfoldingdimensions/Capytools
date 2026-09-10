@@ -7,6 +7,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { cn } from "@/lib/utils";
+// The whole editorial stylesheet, on every tool page — deliberately. Turbopack
+// emits it into the same shared CSS chunk the landing already loads (~5KB
+// gzipped of it), so a visitor arriving from the landing pays nothing, and
+// splitting it per route would trade that cache hit for a second request.
 import "@/components/landing/landing.css";
 
 /**
