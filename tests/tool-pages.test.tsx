@@ -9,6 +9,7 @@ import CapyStripPage from "@/app/capystrip/page";
 import CapyWrappedPage from "@/app/capywrapped/page";
 import { Header } from "@/components/header";
 import { CapyExpenseShowcase } from "@/components/tool/CapyExpenseShowcase";
+import { EXPENSE_RESEARCH } from "@/lib/capytools/capyexpense-page";
 
 const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
 
@@ -41,7 +42,19 @@ describe("tool pages — editorial shell", () => {
 
     it(`${eyebrow} — external hrefs stay functional-only`, () => {
       const html = markup(<Page />);
-      if (Page === CapyStripPage) {
+      if (Page === CapyExpensePage) {
+        // The research section cites its sources, and a claim you cannot check
+        // is not evidence. The budget still holds: every external href on the
+        // page must be one of those citations, so chrome cannot sneak back in.
+        const cited = new Set(
+          EXPENSE_RESEARCH.flatMap((item) => item.sources.map((source) => source.href)),
+        );
+        const externals = html.match(/href="(http[^"]*)"/g) ?? [];
+        expect(externals.length).toBe(cited.size);
+        for (const raw of externals) {
+          expect(cited).toContain(raw.slice(6, -1).replace(/&amp;/g, "&"));
+        }
+      } else if (Page === CapyStripPage) {
         // The at-rest demo report ships exactly one external link — the
         // OpenStreetMap lookup for its sample coordinates. Functional, not chrome.
         const externals = html.match(/href="http[^"]*/g) ?? [];
@@ -60,6 +73,11 @@ describe("tool pages — editorial shell", () => {
     // No release exists yet, so the page must not offer or imply a download.
     expect(html).toContain("Not out yet");
     expect(html).toContain("nothing to");
+    // The four sections the page owes a visitor who cannot download it yet.
+    expect(html).toContain("What it is");
+    expect(html).toContain("Why typing it out");
+    expect(html).toContain("Questions");
+    expect(html).toContain("Coming soon");
     expect(html).not.toMatch(/href="[^"]*\.(msi|exe|dmg|AppImage|deb)"/);
     expect(html).not.toContain("Why bother tracking");
     // The expense display is the oversized stacked variant.
