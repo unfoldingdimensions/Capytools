@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ClipboardPaste, Copy, Download } from "lucide-react";
+import { Check, ClipboardPaste, Copy, Download, ImageUp } from "lucide-react";
 
 import {
   CleanUnsupportedError,
@@ -342,7 +342,7 @@ export function CapyStrip() {
             dragOver && "border-primary bg-muted/50",
           )}
         >
-          <CapyScene pose="loaf" className="w-16 text-foreground/60" />
+          <ImageUp className="size-9 stroke-[1.25] text-muted-foreground" aria-hidden />
           <span className="mt-1 text-sm font-medium text-foreground">Drop a photo here</span>
           <span className="text-xs text-muted-foreground">
             or click to pick one — or paste a screenshot. it never leaves this tab.
