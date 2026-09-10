@@ -54,10 +54,13 @@ describe("tool pages — editorial shell", () => {
     });
   }
 
-  it("CapyExpense keeps the two essentials and drops the bands", () => {
+  it("CapyExpense reads as coming soon, and drops the bands", () => {
     const html = markup(<CapyExpensePage />);
     expect(html).toContain("stored on your machine, never ours");
-    expect(html).toContain("Windows will warn you about this app");
+    // No release exists yet, so the page must not offer or imply a download.
+    expect(html).toContain("Not out yet");
+    expect(html).toContain("nothing to");
+    expect(html).not.toMatch(/href="[^"]*\.(msi|exe|dmg|AppImage|deb)"/);
     expect(html).not.toContain("Why bother tracking");
     // The expense display is the oversized stacked variant.
     expect(html).toContain("lp-tool-display-lg");

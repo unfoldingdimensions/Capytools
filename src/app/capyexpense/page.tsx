@@ -10,8 +10,12 @@ export const metadata = {
 /**
  * Two screens: the hero chart (screen one), and the whole dashboard behind
  * `Show the whole dashboard` (screen two — the in-card switcher in
- * CapyExpenseShowcase). The page carries exactly two pieces of prose beyond
- * that: how to get it, and what the unsigned installer means.
+ * CapyExpenseShowcase). The page carries exactly one piece of prose beyond
+ * that: the status, which is that there is nothing to download yet.
+ *
+ * There is no download link and no release, so the page must not read as a
+ * product page for one. When builds ship, the unsigned-installer note below
+ * moves back into the present tense and a download button joins it.
  */
 export default function CapyExpensePage() {
   return (
@@ -31,21 +35,17 @@ export default function CapyExpensePage() {
 
       <div className="mx-auto mt-16 w-full max-w-[68ch] text-left">
         <div className="rounded-2xl border border-[var(--clay)]/25 bg-[var(--clay)]/[0.07] p-5">
-          <details className="group">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-medium text-foreground">
-              Windows will warn you about this app
-              <span className="shrink-0 text-lg leading-none text-muted-foreground transition-transform duration-300 group-open:rotate-45">
-                +
-              </span>
-            </summary>
-            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-              And it is right to. The installer is not signed, because a certificate costs more per
-              year than this tool earns, which is nothing. Click{" "}
-              <span className="text-foreground">More info</span>, then{" "}
-              <span className="text-foreground">Run anyway</span>. Every release ships with a
-              SHA-256 you can check first.
-            </p>
-          </details>
+          <p className="text-[15px] font-medium text-foreground">
+            Not out yet — this is what it will look like.
+          </p>
+          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+            Everything above is the real app running on sample data. The Windows
+            and Linux builds are still being packaged, so there is nothing to
+            download today. When they land they will be unsigned — a certificate
+            costs more per year than this tool earns, which is nothing — so
+            Windows will warn you, and every release will ship with a SHA-256 you
+            can check first.
+          </p>
         </div>
         <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           a desktop tool — stored on your machine, never ours. windows &amp; linux builds coming

@@ -38,9 +38,9 @@ export const HERO = {
     { text: ", quiet by " },
     { text: "default", em: true },
   ] as Headline,
-  lead: "Five small tools — CapyWrapped, CapyImagine, CapyCreator, CapyStrip and CapyExpense — that run entirely in your browser and keep nothing. No signup, no cookies, no telemetry, no server. Named after the capybara: calm, unhurried, at home anywhere.",
+  lead: "Five small tools — CapyWrapped, CapyImagine, CapyCreator, CapyStrip and CapyExpense — that run entirely in your browser and keep nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.",
   primary: { label: "Open the tools", href: "#labs" },
-  secondary: { label: "CapyExpense desktop", href: "/capyexpense" },
+  secondary: { label: "CapyExpense — coming soon", href: "/capyexpense" },
   stats: [
     { value: "05", label: "tools", sub: "in the suite", tone: "solid" },
     { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
@@ -95,7 +95,7 @@ export const ABOUT = {
   ] as Headline,
   lead: "Everything runs 100% in your browser — the one documented exception is CapyExpense, a desktop app that writes only to your own disk. Where a tool needs memory it uses localStorage, and nothing else exists to store.",
   cta: { label: "Read the design notes", href: "/design" },
-  footer: "No signup · No cookies · No telemetry · No server",
+  footer: "No signup · No cookies · No server",
   sideNote:
     "Every tool states its own promise — browser tools keep nothing, desktop tools keep it on your machine.",
   caption: ["Studies in quiet software.", "(Capytools, MMXXVI)"],
@@ -128,7 +128,7 @@ export const CAPABILITIES = {
       tag: "Privacy",
       icon: "privacy",
       title: ["Stores", "nothing"],
-      copy: "No signup, no cookies, no telemetry. Where a tool needs memory it stays in localStorage.",
+      copy: "No signup, no cookies, no server. Where a tool needs memory it stays in localStorage.",
       href: "/capystrip",
     },
     {
@@ -219,12 +219,12 @@ export const LABS = {
       plate: { src: "/plates/lab-4.webp", width: 896, height: 1200 },
     },
     {
-      badge: "Desktop",
+      badge: "Desktop · soon",
       no: "Nº 05",
       year: "2026",
       name: "CapyExpense",
       blurb:
-        "The one that lives on your machine — a Tauri desktop app writing only to your own disk.",
+        "The one that will live on your machine — a Tauri desktop app writing only to your own disk. Builds are not out yet.",
       href: "/capyexpense",
       cat: "desktop" as LabCategory,
       plate: { src: "/plates/lab-5.webp", width: 896, height: 1200 },
@@ -349,7 +349,7 @@ export const COLOPHON = {
     },
     {
       name: "CapyExpense",
-      small: "On your disk",
+      small: "Coming soon",
       href: "/capyexpense",
     },
   ],
@@ -366,7 +366,7 @@ export const CTA = {
     { text: ", your tools stay " },
     { text: "calm", em: true },
   ] as Headline,
-  lead: "Open the suite in any browser tab and simply start — no account, no cookie banner, no telemetry. CapyExpense lives on your desktop and your disk, never ours.",
+  lead: "Open the suite in any browser tab and simply start — no account, no cookie banner, no setup. CapyExpense lives on your desktop and your disk, never ours.",
   primary: { label: "Open the suite", href: "#labs" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
   foot: ["● Live", "v0.1.0 / Apache-2.0"],
@@ -378,7 +378,7 @@ export const LANDING_FOOTER = {
   blurb:
     "Calm little tools that run entirely in your browser and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of five, Apache-licensed, version 0.1.0.",
   getExpense: {
-    label: "Get CapyExpense",
+    label: "CapyExpense, soon",
     sub: "Desktop · writes only to your disk",
     href: "/capyexpense",
   },

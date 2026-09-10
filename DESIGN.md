@@ -128,7 +128,7 @@ components:
 
 Calm little tools. Everything runs 100% in-browser (the documented exception
 is CapyExpense, a Tauri desktop app that writes only the user's own files on
-the user's own disk). No signup, no cookies, no telemetry, no server. The UI
+the user's own disk). No signup, no cookies, no server. The UI
 should feel like it has already arrived and is just settling in — slow,
 deliberate, never snappy.
 

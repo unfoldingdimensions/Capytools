@@ -70,7 +70,7 @@ export default function DesignNotesPage() {
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
             Browser tools execute 100% in your tab and store nothing. The one
             documented exception is CapyExpense, a desktop app that writes only
-            to your own disk. No signup, no cookies, no telemetry, no server —
+            to your own disk. No signup, no cookies, no server —
             the constraints are the aesthetic.
           </p>
         </section>

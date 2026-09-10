@@ -4,11 +4,11 @@ import { Landing } from "@/components/landing/Landing";
 
 export const metadata: Metadata = {
   description:
-    "Five small tools that run entirely in your browser and keep nothing. No signup, no cookies, no telemetry, no server.",
+    "Five small tools that run entirely in your browser and keep nothing. No signup, no cookies, no server.",
   openGraph: {
     title: "Capytools — calm little tools",
     description:
-      "Five small tools that run entirely in your browser and keep nothing. No signup, no cookies, no telemetry, no server.",
+      "Five small tools that run entirely in your browser and keep nothing. No signup, no cookies, no server.",
   },
 };
 
