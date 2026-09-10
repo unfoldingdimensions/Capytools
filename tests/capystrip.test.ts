@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { sniffImageKind } from "../src/lib/capystrip/detect";
 import {
+  canvasIsUsable,
   decideOutputMime,
   isVerificationClean,
 } from "../src/lib/capystrip/clean";
@@ -440,5 +441,46 @@ describe("CapyStrip GPS normalisation", () => {
     expect(normalizeGps({ latitude: NaN, longitude: 151.2093 })).toBeNull();
     expect(normalizeGps(undefined)).toBeNull();
     expect(normalizeGps(null)).toBeNull();
+  });
+});
+
+describe("canvas probe replaces the guessed size cap", () => {
+  /** A ctx stub: `paints` false is the silent-failure mode browsers show past their limit. */
+  const ctx = (paints: boolean, throws = false) => {
+    const calls: string[] = [];
+    return {
+      calls,
+      ctx: {
+        fillStyle: "",
+        fillRect: () => calls.push("fillRect"),
+        clearRect: () => calls.push("clearRect"),
+        getImageData: () => {
+          if (throws) throw new Error("tainted or oversized");
+          return { data: paints ? [255, 0, 0, 255] : [0, 0, 0, 0] };
+        },
+      } as unknown as CanvasRenderingContext2D,
+    };
+  };
+
+  it("passes a canvas that really paints, and clears the probe pixel", () => {
+    const { ctx: c, calls } = ctx(true);
+    expect(canvasIsUsable(c, 6000, 4000)).toBe(true);
+    // The probe must not survive into the clean copy.
+    expect(calls).toContain("clearRect");
+  });
+
+  it("fails a canvas that silently paints nothing", () => {
+    expect(canvasIsUsable(ctx(false).ctx, 20000, 20000)).toBe(false);
+  });
+
+  it("fails closed when the readback throws", () => {
+    expect(canvasIsUsable(ctx(true, true).ctx, 20000, 20000)).toBe(false);
+  });
+
+  it("does not judge by size — a 24MP photo is fine on a canvas that works", () => {
+    // 6000x4000 = 24 Mpx, over the old hardcoded 16.7 Mpx cap that turned away
+    // an ordinary 2.4MB phone JPEG.
+    expect(6000 * 4000).toBeGreaterThan(16_777_216);
+    expect(canvasIsUsable(ctx(true).ctx, 6000, 4000)).toBe(true);
   });
 });

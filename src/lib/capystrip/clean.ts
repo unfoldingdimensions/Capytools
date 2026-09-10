@@ -159,8 +159,36 @@ function isEmptyRecord(record?: Record<string, unknown>): boolean {
 }
 
 const DIMENSION_GUARD = 8192;
-const MAX_CANVAS_AREA = 16_777_216;
 const DECODE_TIMEOUT_MS = 15_000;
+
+/**
+ * Does this browser actually back a canvas of this size?
+ *
+ * The danger being guarded is specific: past its limit a browser hands back a
+ * canvas that looks fine and silently paints nothing, so `toBlob` returns a
+ * VALID blob of a blank image, the null-check misses it, and the re-scan of a
+ * blank bitmap comes back "verified" — a blank photo, presented as your clean
+ * copy.
+ *
+ * This used to be a fixed 16.7 Mpx cap borrowed from Safari/iOS, which turned
+ * away any 24MP phone photo on browsers that would have handled it fine (the
+ * old comment predicted exactly this and asked for a feature-detect). Painting
+ * one pixel and reading it back tests the canvas in front of us instead of
+ * guessing on its behalf: cheap, exact, and it fails in the direction of
+ * telling the truth. The probe pixel is cleared before the photo is drawn.
+ */
+export function canvasIsUsable(ctx: CanvasRenderingContext2D, width: number, height: number): boolean {
+  try {
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(width - 1, height - 1, 1, 1);
+    const probe = ctx.getImageData(width - 1, height - 1, 1, 1).data;
+    const painted = probe[0] === 255 && probe[3] === 255;
+    ctx.clearRect(0, 0, width, height);
+    return painted;
+  } catch {
+    return false;
+  }
+}
 
 export async function cleanImage(
   file: Blob,
@@ -192,22 +220,23 @@ export async function cleanImage(
       throw new CleanUnsupportedError("The image decoded to an empty size — nothing to redraw.");
     }
 
-    // ponytail: fixed area cap, matched to the tightest mainstream limit
-    // (Safari/iOS ~16.7 Mpx). Over it, toBlob returns a VALID blob of a blank
-    // image, so the null-check below never fires and the re-scan of a blank
-    // bitmap comes back "verified". Feature-detect per browser if this ever
-    // turns real photos away.
-    if (width * height > MAX_CANVAS_AREA) {
-      throw new CleanUnsupportedError(
-        "This photo is unusually large and this browser can't re-encode it safely. The report is still complete.",
-      );
-    }
-
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new CleanUnsupportedError("Couldn't get a drawing surface from this browser.");
+
+    // Ask the canvas whether it works, rather than predicting it from a size.
+    // The message names pixels, because that is what the limit is about — a
+    // reader looking at a 2.4MB file has no way to connect "large" to 24
+    // megapixels otherwise.
+    if (!canvasIsUsable(ctx, width, height)) {
+      const megapixels = (width * height) / 1_000_000;
+      throw new CleanUnsupportedError(
+        `This photo is ${width}×${height} (${megapixels.toFixed(1)} megapixels), and this browser won't redraw one that big — the limit is on pixels, not file size. The report above is still complete. Scaling it down, or opening this in a different browser, will produce a clean copy.`,
+      );
+    }
+
     ctx.drawImage(img, 0, 0);
 
     const blob = await toBlob(canvas, mimeType, quality);
