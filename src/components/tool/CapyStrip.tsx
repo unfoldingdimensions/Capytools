@@ -364,194 +364,194 @@ export function CapyStrip() {
 
       {/* CARD 2 — THE REPORT */}
       <ScrollReveal direction="up">
-      {report && !loading && !error && (
-        <div id="report-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm" aria-live="polite">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                02 · The report
-              </span>
-              {isDemo && (
-                <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                  demo
+        {report && !loading && !error && (
+          <div id="report-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm" aria-live="polite">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
+                  02 · The report
                 </span>
+                {isDemo && (
+                  <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                    demo
+                  </span>
+                )}
+                <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                  {KIND_LABELS[report.kind]} · {formatBytes(report.byteSize)}
+                </span>
+              </div>
+
+              {!isDemo && (
+                <Button variant="ghost" size="sm" className="min-w-[84px] rounded-full" onClick={copyReport}>
+                  {copied ? <Check className="mr-1 size-3.5" /> : <Copy className="mr-1 size-3.5" />}
+                  {copied ? "Copied" : "Copy report as JSON"}
+                </Button>
               )}
-              <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                {KIND_LABELS[report.kind]} · {formatBytes(report.byteSize)}
-              </span>
             </div>
 
-            {!isDemo && (
-              <Button variant="ghost" size="sm" className="min-w-[84px] rounded-full" onClick={copyReport}>
-                {copied ? <Check className="mr-1 size-3.5" /> : <Copy className="mr-1 size-3.5" />}
-                {copied ? "Copied" : "Copy report as JSON"}
-              </Button>
+            <h3 className="mt-3 font-display text-2xl font-light text-foreground">
+              {VERDICT_COPY[report.verdict]}
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {report.fileName} — {report.chattyCount > 0
+                ? `${report.chattyCount} sensitive ${report.chattyCount === 1 ? "detail" : "details"} found.`
+                : "nothing sensitive found."}
+            </p>
+
+            {/* GPS mini-card */}
+            {report.gps && (
+              <div className="mt-4 rounded-2xl border border-border/70 bg-muted/40 p-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--clay)]">
+                  location · sensitive
+                </span>
+                <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[13px] text-foreground">
+                      {report.gps.latitude.toFixed(5)}, {report.gps.longitude.toFixed(5)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {formatGpsDms(report.gps.latitude, "lat")} · {formatGpsDms(report.gps.longitude, "lon")}
+                    </p>
+                  </div>
+                  <a
+                    href={`https://www.openstreetmap.org/?mlat=${report.gps.latitude}&mlon=${report.gps.longitude}#map=15/${report.gps.latitude}/${report.gps.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  >
+                    open in OpenStreetMap →
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* AI signals */}
+            {report.aiSignals.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  what it confesses
+                </h4>
+                <ul className="mt-2 space-y-1.5">
+                  {report.aiSignals.map((signal) => (
+                    <li key={signal} className="flex items-start gap-2 text-sm text-foreground">
+                      <span aria-hidden className="mt-[7px] size-1.5 shrink-0 rounded-full bg-primary" />
+                      {signal}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Fields by category */}
+            {grouped.length > 0 ? (
+              <div className="mt-5 space-y-5">
+                {grouped.map((group) => (
+                  <div key={group.category}>
+                    <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      {CATEGORY_LABELS[group.category]}
+                    </h4>
+                    <dl className="mt-2 divide-y divide-border/60">
+                      {group.items.map((item) => (
+                        <FieldRow key={item.id} item={item} />
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-5 text-sm text-muted-foreground">
+                No readable metadata — {VERDICT_COPY[report.verdict].toLowerCase()}
+              </p>
             )}
           </div>
-
-          <h3 className="mt-3 font-display text-2xl font-light text-foreground">
-            {VERDICT_COPY[report.verdict]}
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {report.fileName} — {report.chattyCount > 0
-              ? `${report.chattyCount} sensitive ${report.chattyCount === 1 ? "detail" : "details"} found.`
-              : "nothing sensitive found."}
-          </p>
-
-          {/* GPS mini-card */}
-          {report.gps && (
-            <div className="mt-4 rounded-2xl border border-border/70 bg-muted/40 p-4">
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--clay)]">
-                location · sensitive
-              </span>
-              <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[13px] text-foreground">
-                    {report.gps.latitude.toFixed(5)}, {report.gps.longitude.toFixed(5)}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatGpsDms(report.gps.latitude, "lat")} · {formatGpsDms(report.gps.longitude, "lon")}
-                  </p>
-                </div>
-                <a
-                  href={`https://www.openstreetmap.org/?mlat=${report.gps.latitude}&mlon=${report.gps.longitude}#map=15/${report.gps.latitude}/${report.gps.longitude}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-                >
-                  open in OpenStreetMap →
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* AI signals */}
-          {report.aiSignals.length > 0 && (
-            <div className="mt-4">
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                what it confesses
-              </h4>
-              <ul className="mt-2 space-y-1.5">
-                {report.aiSignals.map((signal) => (
-                  <li key={signal} className="flex items-start gap-2 text-sm text-foreground">
-                    <span aria-hidden className="mt-[7px] size-1.5 shrink-0 rounded-full bg-primary" />
-                    {signal}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Fields by category */}
-          {grouped.length > 0 ? (
-            <div className="mt-5 space-y-5">
-              {grouped.map((group) => (
-                <div key={group.category}>
-                  <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    {CATEGORY_LABELS[group.category]}
-                  </h4>
-                  <dl className="mt-2 divide-y divide-border/60">
-                    {group.items.map((item) => (
-                      <FieldRow key={item.id} item={item} />
-                    ))}
-                  </dl>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-5 text-sm text-muted-foreground">
-              No readable metadata — {VERDICT_COPY[report.verdict].toLowerCase()}
-            </p>
-          )}
-        </div>
-      )}
+        )}
       </ScrollReveal>
 
       {/* CARD 3 — THE CLEAN COPY */}
       <ScrollReveal direction="up">
-      {report && !isDemo && !loading && !error && clean && (
-        <div id="clean-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-              03 · The clean copy
-            </span>
-            {clean.verified ? (
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-foreground">
-                re-scanned — clean
+        {report && !isDemo && !loading && !error && clean && (
+          <div id="clean-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
+                03 · The clean copy
               </span>
-            ) : (
-              <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
-                couldn&apos;t verify
-              </span>
-            )}
-          </div>
+              {clean.verified ? (
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-foreground">
+                  re-scanned — clean
+                </span>
+              ) : (
+                <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
+                  couldn&apos;t verify
+                </span>
+              )}
+            </div>
 
-          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
-            {cleanUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={cleanUrl}
-                alt={`Cleaned preview of ${report.fileName}`}
-                className="h-28 w-28 shrink-0 rounded-2xl border border-border bg-muted/40 object-contain"
-              />
-            )}
-
-            <div className="flex-1">
-              <p className="text-sm text-foreground">
-                {clean.mimeType.replace("image/", "")} · {clean.width} × {clean.height}
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {formatBytes(clean.bytesBefore)} → {formatBytes(clean.bytesAfter)}
-              </p>
-
-              {clean.mimeType === "image/jpeg" && (
-                <div className="mt-3">
-                  <label htmlFor="clean-quality" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    quality · {Math.round(quality * 100)}
-                  </label>
-                  <input
-                    id="clean-quality"
-                    type="range"
-                    min={0.5}
-                    max={1}
-                    step={0.01}
-                    value={quality}
-                    onChange={(e) => {
-                      const next = Number(e.target.value);
-                      qualityRef.current = next;
-                      setQuality(next);
-                      scheduleReencode();
-                    }}
-                    className="mt-1 block w-full accent-primary"
-                  />
-                </div>
+            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+              {cleanUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={cleanUrl}
+                  alt={`Cleaned preview of ${report.fileName}`}
+                  className="h-28 w-28 shrink-0 rounded-2xl border border-border bg-muted/40 object-contain"
+                />
               )}
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button className="rounded-full" onClick={downloadClean}>
-                  <Download className="mr-1.5 size-4" />
-                  Download clean copy
-                </Button>
+              <div className="flex-1">
+                <p className="text-sm text-foreground">
+                  {clean.mimeType.replace("image/", "")} · {clean.width} × {clean.height}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {formatBytes(clean.bytesBefore)} → {formatBytes(clean.bytesAfter)}
+                </p>
+
+                {clean.mimeType === "image/jpeg" && (
+                  <div className="mt-3">
+                    <label htmlFor="clean-quality" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      quality · {Math.round(quality * 100)}
+                    </label>
+                    <input
+                      id="clean-quality"
+                      type="range"
+                      min={0.5}
+                      max={1}
+                      step={0.01}
+                      value={quality}
+                      onChange={(e) => {
+                        const next = Number(e.target.value);
+                        qualityRef.current = next;
+                        setQuality(next);
+                        scheduleReencode();
+                      }}
+                      className="mt-1 block w-full accent-primary"
+                    />
+                  </div>
+                )}
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button className="rounded-full" onClick={downloadClean}>
+                    <Download className="mr-1.5 size-4" />
+                    Download clean copy
+                  </Button>
+                </div>
               </div>
             </div>
+
+            {clean.notes.length > 0 && (
+              <div className="mt-4 space-y-1 rounded-2xl border border-border/60 bg-muted/30 p-3.5">
+                {clean.notes.map((note) => (
+                  <p key={note} className="text-xs leading-snug text-muted-foreground">
+                    {note}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            <p className="mt-3 text-xs text-muted-foreground">
+              redrawn from scratch through a canvas — the copy carries none of the metadata above. your
+              photo never left this tab.
+            </p>
           </div>
-
-          {clean.notes.length > 0 && (
-            <div className="mt-4 space-y-1 rounded-2xl border border-border/60 bg-muted/30 p-3.5">
-              {clean.notes.map((note) => (
-                <p key={note} className="text-xs leading-snug text-muted-foreground">
-                  {note}
-                </p>
-              ))}
-            </div>
-          )}
-
-          <p className="mt-3 text-xs text-muted-foreground">
-            redrawn from scratch through a canvas — the copy carries none of the metadata above. your
-            photo never left this tab.
-          </p>
-        </div>
-      )}
+        )}
       </ScrollReveal>
 
       {/* Report-only mode: HEIC off Safari, or any other decode refusal. */}

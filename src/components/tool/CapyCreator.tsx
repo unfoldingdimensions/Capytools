@@ -454,155 +454,155 @@ export function CapyCreator() {
 
       {/* CARD 2: QUESTIONNAIRE */}
       <ScrollReveal direction="up">
-      {questions.length > 0 && (
-        <div id="questionnaire-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                02 · Intent Questionnaire
-              </span>
-              <span className="ml-2 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                {taskType.replace(/_/g, " ")} · Tier {effectiveTier}
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 rounded-full text-xs text-muted-foreground"
-              onClick={() => setAnswers({})}
-            >
-              <RotateCcw className="mr-1 size-3" />
-              Reset fields
-            </Button>
-          </div>
-
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            {effectiveTier <= 2
-              ? "Required fields are highlighted for low-tier models. Be specific to prevent hallucinations and loose compliance."
-              : "Optional questions can be left blank—frontier models will infer unstated context naturally."}
-          </p>
-
-          <div className="mt-4 space-y-3.5">
-            {questions.map((q) => (
-              <div
-                key={q.id}
-                className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-all focus-within:border-ring focus-within:bg-card"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-                    {q.dimension.replace(/_/g, " ")}
-                  </span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em]",
-                      q.required
-                        ? "border border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]"
-                        : "border border-border bg-muted/60 text-muted-foreground"
-                    )}
-                  >
-                    {q.required ? "Required" : "Optional"}
-                  </span>
-                </div>
-
-                <p className="mt-1.5 text-xs font-medium leading-snug text-foreground">
-                  {q.text}
-                </p>
-
-                <textarea
-                  rows={2}
-                  value={answers[q.id] || ""}
-                  onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
-                  placeholder={
-                    q.required
-                      ? "Answer needed for accurate prompt assembly..."
-                      : "Optional (leave blank to let model infer)..."
-                  }
-                  className="mt-2 w-full resize-y rounded-xl border border-border bg-card p-2.5 font-sans text-xs text-foreground outline-none focus:border-ring"
-                />
+        {questions.length > 0 && (
+          <div id="questionnaire-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
+                  02 · Intent Questionnaire
+                </span>
+                <span className="ml-2 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                  {taskType.replace(/_/g, " ")} · Tier {effectiveTier}
+                </span>
               </div>
-            ))}
-          </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 rounded-full text-xs text-muted-foreground"
+                onClick={() => setAnswers({})}
+              >
+                <RotateCcw className="mr-1 size-3" />
+                Reset fields
+              </Button>
+            </div>
 
-          <div className="mt-5 flex justify-end border-t border-border pt-4">
-            <Button className="rounded-full font-medium" onClick={handleAssemble}>
-              Assemble prompt
-              <ArrowRight className="ml-1.5 size-4" />
-            </Button>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              {effectiveTier <= 2
+                ? "Required fields are highlighted for low-tier models. Be specific to prevent hallucinations and loose compliance."
+                : "Optional questions can be left blank—frontier models will infer unstated context naturally."}
+            </p>
+
+            <div className="mt-4 space-y-3.5">
+              {questions.map((q) => (
+                <div
+                  key={q.id}
+                  className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-all focus-within:border-ring focus-within:bg-card"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                      {q.dimension.replace(/_/g, " ")}
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em]",
+                        q.required
+                          ? "border border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]"
+                          : "border border-border bg-muted/60 text-muted-foreground"
+                      )}
+                    >
+                      {q.required ? "Required" : "Optional"}
+                    </span>
+                  </div>
+
+                  <p className="mt-1.5 text-xs font-medium leading-snug text-foreground">
+                    {q.text}
+                  </p>
+
+                  <textarea
+                    rows={2}
+                    value={answers[q.id] || ""}
+                    onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                    placeholder={
+                      q.required
+                        ? "Answer needed for accurate prompt assembly..."
+                        : "Optional (leave blank to let model infer)..."
+                    }
+                    className="mt-2 w-full resize-y rounded-xl border border-border bg-card p-2.5 font-sans text-xs text-foreground outline-none focus:border-ring"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 flex justify-end border-t border-border pt-4">
+              <Button className="rounded-full font-medium" onClick={handleAssemble}>
+                Assemble prompt
+                <ArrowRight className="ml-1.5 size-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </ScrollReveal>
 
       {/* CARD 3: ASSEMBLED PROMPT OUTPUT */}
       <ScrollReveal direction="up">
-      {assembledPrompt && (
-        <div id="output-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                03 · Engineered Prompt
-              </span>
-              <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                {activeProfile.family} · Tier {effectiveTier}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Polish Switch */}
-              <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs">
-                <Switch
-                  id="polish-switch"
-                  checked={polishEnabled}
-                  onCheckedChange={handlePolishToggle}
-                  disabled={isPolishing}
-                />
-                <label htmlFor="polish-switch" className="flex cursor-pointer items-center gap-1 font-medium text-foreground">
-                  <Sparkles className="size-3.5 text-primary" />
-                  Polish ({polishSettings.model})
-                </label>
+        {assembledPrompt && (
+          <div id="output-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
+                  03 · Engineered Prompt
+                </span>
+                <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                  {activeProfile.family} · Tier {effectiveTier}
+                </span>
               </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className="min-w-[84px] rounded-full"
-                onClick={copyToClipboard}
-              >
-                {copied ? <Check className="mr-1 size-3.5" /> : <Copy className="mr-1 size-3.5" />}
-                {copied ? "Copied" : "Copy"}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Polish Switch */}
+                <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs">
+                  <Switch
+                    id="polish-switch"
+                    checked={polishEnabled}
+                    onCheckedChange={handlePolishToggle}
+                    disabled={isPolishing}
+                  />
+                  <label htmlFor="polish-switch" className="flex cursor-pointer items-center gap-1 font-medium text-foreground">
+                    <Sparkles className="size-3.5 text-primary" />
+                    Polish ({polishSettings.model})
+                  </label>
+                </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full"
-                onClick={downloadMarkdown}
-              >
-                <Download className="mr-1 size-3.5" />
-                .md
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="min-w-[84px] rounded-full"
+                  onClick={copyToClipboard}
+                >
+                  {copied ? <Check className="mr-1 size-3.5" /> : <Copy className="mr-1 size-3.5" />}
+                  {copied ? "Copied" : "Copy"}
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={downloadMarkdown}
+                >
+                  <Download className="mr-1 size-3.5" />
+                  .md
+                </Button>
+              </div>
+            </div>
+
+            {/* Inset Output Well */}
+            <pre className="mt-4 min-h-36 select-all whitespace-pre-wrap break-words rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed text-foreground">
+              {assembledPrompt}
+            </pre>
+
+            {/* Polish Status Note */}
+            {polishNote && (
+              <p className="mt-2 text-xs font-medium text-muted-foreground">
+                {polishNote}
+              </p>
+            )}
+
+            {/* Model Dialect Principles Footer */}
+            <div className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-3.5 text-xs text-muted-foreground">
+              <span className="font-semibold text-foreground">{activeProfile.family} Guidance: </span>
+              {activeProfile.prompt_principles.do.slice(0, 2).join(" ")}
             </div>
           </div>
-
-          {/* Inset Output Well */}
-          <pre className="mt-4 min-h-36 select-all whitespace-pre-wrap break-words rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed text-foreground">
-            {assembledPrompt}
-          </pre>
-
-          {/* Polish Status Note */}
-          {polishNote && (
-            <p className="mt-2 text-xs font-medium text-muted-foreground">
-              {polishNote}
-            </p>
-          )}
-
-          {/* Model Dialect Principles Footer */}
-          <div className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-3.5 text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">{activeProfile.family} Guidance: </span>
-            {activeProfile.prompt_principles.do.slice(0, 2).join(" ")}
-          </div>
-        </div>
-      )}
+        )}
       </ScrollReveal>
     </div>
   );
