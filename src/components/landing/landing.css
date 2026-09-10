@@ -21,6 +21,15 @@
  */
 
 .lp {
+  /*
+   * clip, not hidden: `hidden` would make this a scroll container and break
+   * the sticky masthead. Several editorial pieces sit outside the container on
+   * purpose — the offset about plate, the -12px crop marks, the reveal
+   * variants that animate in from x: ±36 — and on a 375px screen those add up
+   * to ~32px of horizontal scroll before the reveal has even fired. Clip the
+   * overhang instead of letting the page slide sideways.
+   */
+  overflow-x: clip;
   --lp-accent-ink: #a05e3c;
   --lp-line-soft: color-mix(in oklab, var(--foreground) 8%, transparent);
   --lp-line-faint: color-mix(in oklab, var(--foreground) 5%, transparent);

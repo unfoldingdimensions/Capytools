@@ -35,7 +35,12 @@ export function Header({ tool }: { tool?: string }) {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 sm:flex" aria-label="Tools navigation">
+        {/*
+          md, not sm: with the fifth pill (Expense) the row needs ~680px, so at
+          the sm breakpoint (640px) it overflowed and gave the page a
+          horizontal scrollbar. Measured, not guessed — see the 640px case.
+        */}
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Tools navigation">
           {TOOLS.map((t) => {
             const active = tool?.toLowerCase().includes(t.label.toLowerCase());
             return (
