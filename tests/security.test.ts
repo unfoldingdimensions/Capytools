@@ -150,4 +150,26 @@ describe("PNG text inflation is bounded", () => {
     // The whole point: nothing near 64MB was ever held.
     expect(chunks[0].value.length).toBeLessThan(500);
   });
+
+  it.skipIf(!hasStreams)("charges an over-limit chunk the whole file budget", async () => {
+    // The budget is per FILE. A bomb that trips the ceiling must exhaust it,
+    // or a PNG carrying hundreds of small bombs pays 4MB of inflation each
+    // time: 500 chunks measured 4.3s before this, 0.24s after.
+    const bomb = deflateSync(Buffer.alloc(5 * 1024 * 1024));
+    const body = new Uint8Array(
+      Buffer.concat([Buffer.from("parameters\0\0", "latin1"), bomb]),
+    );
+    const out = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+    for (let i = 0; i < 200; i += 1) {
+      const len = body.length;
+      out.push((len >>> 24) & 255, (len >>> 16) & 255, (len >>> 8) & 255, len & 255);
+      for (const ch of "zTXt") out.push(ch.charCodeAt(0));
+      out.push(...body, 0, 0, 0, 0);
+    }
+
+    const started = Date.now();
+    const chunks = await readPngText(new Uint8Array(out));
+    expect(chunks).toHaveLength(200);
+    expect(Date.now() - started).toBeLessThan(2_000);
+  });
 });

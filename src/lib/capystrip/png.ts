@@ -110,6 +110,17 @@ async function inflate(data: Uint8Array, limit: number): Promise<string | null> 
   }
 }
 
+/**
+ * Charge a chunk against the file budget. A chunk that BLEW the ceiling spent
+ * the whole remaining budget, not the 60 bytes of the sentinel it returns —
+ * otherwise a PNG carrying thousands of small bombs pays 4MB of inflation each
+ * time and hangs the tab, which is the case the per-file budget exists for.
+ */
+function spend(budget: number, text: string | null): number {
+  if (text === null) return budget;
+  return text === INFLATE_TOO_LARGE ? 0 : budget - text.length;
+}
+
 /** Read every text chunk: tEXt (latin1), zTXt (zlib) and iTXt (utf-8, maybe zlib). */
 export async function readPngText(bytes: Uint8Array): Promise<PngTextChunk[]> {
   const out: PngTextChunk[] = [];
@@ -131,7 +142,7 @@ export async function readPngText(bytes: Uint8Array): Promise<PngTextChunk[]> {
       // key\0 + compression-method byte (0 = zlib, the only defined method)
       if (nul < 0 || nul + 2 > chunk.data.length) continue;
       const text = await inflate(chunk.data.subarray(nul + 2), inflateBudget);
-      if (text) inflateBudget -= text.length;
+      inflateBudget = spend(inflateBudget, text);
       out.push({
         key: latin1(chunk.data, 0, nul),
         value: text ?? INFLATE_UNAVAILABLE,
@@ -153,7 +164,7 @@ export async function readPngText(bytes: Uint8Array): Promise<PngTextChunk[]> {
       const text = compressed
         ? await inflate(textBytes, inflateBudget)
         : new TextDecoder("utf-8").decode(textBytes);
-      if (compressed && text) inflateBudget -= text.length;
+      if (compressed) inflateBudget = spend(inflateBudget, text);
       out.push({ key, value: text ?? INFLATE_UNAVAILABLE, chunk: "iTXt" });
     }
   }
