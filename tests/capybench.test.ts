@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { computeCost, extractArtifact } from "../bench/run.mjs";
+import { VENDORS, checkUsage, computeCost, extractArtifact } from "../bench/run.mjs";
 
 const fence = "`".repeat(3);
 const block = (body: string) => `${fence}html\n${body}\n${fence}`;
@@ -48,5 +48,60 @@ describe("computeCost", () => {
     const quiet = computeCost({ ...usage, reasoningTokens: 0 }, pricing);
     const thinking = computeCost({ ...usage, reasoningTokens: 12_000 }, pricing);
     expect(thinking.totalUsd).toBe(quiet.totalUsd);
+  });
+});
+
+describe("checkUsage", () => {
+  const clean = { inputTokens: 1_000, outputTokens: 20_000, reasoningTokens: 8_000, cachedInputTokens: 0 };
+
+  it("stays quiet when reasoning sits inside output and nothing was cached", () => {
+    expect(checkUsage(clean)).toEqual([]);
+  });
+
+  it("shouts when reasoning exceeds output, which would mean the cost is understated", () => {
+    const warnings = checkUsage({ ...clean, reasoningTokens: 25_000 });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain("UNDERSTATES");
+  });
+
+  it("flags cached input, which the cost overstates at the full input rate", () => {
+    const warnings = checkUsage({ ...clean, cachedInputTokens: 1_024 });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain("OVERSTATES");
+  });
+});
+
+describe("google adapter", () => {
+  it("bills candidatesTokenCount and reports thoughts as a subset of it", () => {
+    const out = VENDORS.google.read({
+      candidates: [{ content: { parts: [{ text: "<!DOCTYPE html>" }, { text: "<p>hi</p>" }] }, finishReason: "STOP" }],
+      usageMetadata: {
+        promptTokenCount: 1_100,
+        candidatesTokenCount: 30_000,
+        thoughtsTokenCount: 9_000,
+        cachedContentTokenCount: 0,
+      },
+    });
+    expect(out.text).toBe("<!DOCTYPE html><p>hi</p>");
+    expect(out.usage).toEqual({
+      inputTokens: 1_100,
+      outputTokens: 30_000,
+      reasoningTokens: 9_000,
+      cachedInputTokens: 0,
+    });
+    expect(out.stopReason).toBe("STOP");
+    expect(checkUsage(out.usage)).toEqual([]);
+  });
+
+  it("keeps the api key out of the url", () => {
+    const url = VENDORS.google.url({ baseUrl: "https://generativelanguage.googleapis.com", id: "gemini-3.8-flash" });
+    expect(url).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent");
+    expect(VENDORS.google.headers("secret")["x-goog-api-key"]).toBe("secret");
+  });
+
+  it("survives a truncated response with no candidates", () => {
+    const out = VENDORS.google.read({ usageMetadata: { promptTokenCount: 1_100 } });
+    expect(out.text).toBe("");
+    expect(out.usage.outputTokens).toBe(0);
   });
 });

@@ -18,6 +18,10 @@ const SPEC_VERSION = "1";
 const BENCHMARK = "capy-onsen";
 const REQUEST_TIMEOUT_MS = 600_000;
 const TRANSPORT_RETRIES = 2;
+// Protocol cap: every run gets the same output ceiling, so a model with a 128K cap is
+// not handed a bigger budget than one capped at 64K. Also keeps non-streaming requests
+// clear of HTTP timeouts, which is why the runs are non-streaming in the first place.
+const MAX_OUTPUT_TOKENS = 64_000;
 const FENCE = "`".repeat(3);
 
 /** Take the last fenced html block; failing that a bare document; failing that nothing. */
@@ -42,7 +46,7 @@ export function computeCost(usage, pricing) {
   return { inputUsd, outputUsd, totalUsd: round(inputUsd + outputUsd) };
 }
 
-const VENDORS = {
+export const VENDORS = {
   anthropic: {
     url: (m) => `${m.baseUrl}/v1/messages`,
     headers: (key) => ({
@@ -88,7 +92,58 @@ const VENDORS = {
       stopReason: json.choices?.[0]?.finish_reason ?? null,
     }),
   },
+  // Gemini's native shape. Google publishes an OpenAI-compatible path too, but it sits at
+  // /v1beta/openai/chat/completions and reports thinking/cache token details as empty, so
+  // the native endpoint is the one that can account for what we are billed.
+  google: {
+    url: (m) => `${m.baseUrl}/v1beta/models/${m.id}:generateContent`,
+    // Key goes in a header, never the query string.
+    headers: (key) => ({ "content-type": "application/json", "x-goog-api-key": key }),
+    body: (m, prompt) => ({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: m.maxOutputTokens },
+    }),
+    read: (json) => ({
+      text: (json.candidates?.[0]?.content?.parts ?? [])
+        .map((p) => p.text ?? "")
+        .join(""),
+      usage: {
+        // promptTokenCount already includes cached content, per the API reference.
+        inputTokens: json.usageMetadata?.promptTokenCount ?? 0,
+        // candidatesTokenCount is the billed output quantity; thoughts are understood to
+        // sit inside it (output prices are documented as including thinking tokens).
+        // checkUsage() below fails loudly if a real response contradicts that.
+        outputTokens: json.usageMetadata?.candidatesTokenCount ?? 0,
+        reasoningTokens: json.usageMetadata?.thoughtsTokenCount ?? 0,
+        cachedInputTokens: json.usageMetadata?.cachedContentTokenCount ?? 0,
+      },
+      stopReason: json.candidates?.[0]?.finishReason ?? null,
+    }),
+  },
 };
+
+/**
+ * The cost figure rests on two claims the vendors' own docs leave partly implicit.
+ * Rather than trust them silently, check them against every real response.
+ */
+export function checkUsage(usage) {
+  const warnings = [];
+  if (usage.reasoningTokens > usage.outputTokens) {
+    warnings.push(
+      `reasoning tokens (${usage.reasoningTokens}) exceed output tokens ` +
+        `(${usage.outputTokens}): they are NOT a subset, so this cost UNDERSTATES the bill. ` +
+        "Do not publish this run until the pricing model is fixed.",
+    );
+  }
+  if (usage.cachedInputTokens > 0) {
+    warnings.push(
+      `${usage.cachedInputTokens} cached input tokens were reported; caching is on by ` +
+        "default at OpenAI and Google. Cost bills them at the full input rate, so it " +
+        "slightly OVERSTATES the bill.",
+    );
+  }
+  return warnings;
+}
 
 function die(message) {
   console.error(`capybench: ${message}`);
@@ -110,7 +165,7 @@ function resolveModel(id) {
     );
   }
   if (!VENDORS[row.vendor]) die(`"${id}" has unknown vendor "${row.vendor}"`);
-  return { id, ...row };
+  return { id, ...row, maxOutputTokens: Math.min(row.maxOutputTokens, MAX_OUTPUT_TOKENS) };
 }
 
 async function callModel(model, prompt) {
@@ -194,9 +249,8 @@ async function main() {
   const out = await callModel(model, prompt);
   const { html, extracted } = extractArtifact(out.text);
   const cost = computeCost(out.usage, model);
-  if (out.usage.cachedInputTokens > 0) {
-    console.error("capybench: cached input tokens reported; cost ignores cache discounts");
-  }
+  const warnings = checkUsage(out.usage);
+  for (const w of warnings) console.error(`capybench: WARNING — ${w}`);
 
   const dir = join(BENCH, "results", `v${SPEC_VERSION}`, modelId.replace(/[^a-z0-9.-]+/gi, "-"));
   mkdirSync(dir, { recursive: true });
@@ -233,6 +287,9 @@ async function main() {
           sha256: createHash("sha256").update(html, "utf8").digest("hex"),
           extracted,
         },
+        // Kept in the result, not just the console: a run whose accounting is suspect
+        // must carry that with it wherever the number is displayed.
+        warnings,
       },
       null,
       2,

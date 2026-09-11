@@ -52,7 +52,11 @@ capability and nothing else.
   pricing is only meaningful against official token accounting.
 - Temperature and reasoning/thinking effort left at vendor default; both recorded
   in `params` rather than set by us.
-- `maxOutputTokens`: the model's maximum or 64000, whichever is lower. Recorded.
+- `maxOutputTokens`: **clamped to 64000 for every model** by `MAX_OUTPUT_TOKENS` in
+  `run.mjs`, so a model with a 128K cap is not handed a larger budget than one capped
+  at 64K. `prices.json` still records each model's true cap; the clamp is what gets
+  sent, and `params.maxOutputTokens` records it. It also keeps non-streaming requests
+  clear of HTTP timeouts, which is what makes non-streaming viable at all.
 - Non-streaming, so `durationMs` (request send → final byte) means the same thing
   for every model.
 - Artifact extraction is **mechanical, never a judgment call**: the last fenced
@@ -112,25 +116,54 @@ extracted artifact) and `raw.txt` (the full response, for audit). `result.json`:
 }
 ```
 
-Three things that keep the money numbers honest:
+`result.json` also carries a `warnings` array — `checkUsage()` in `run.mjs` tests the
+two accounting claims the cost figure rests on against every real response, and a run
+whose accounting is suspect carries that warning wherever the number is displayed.
+
+Four things that keep the money numbers honest:
 
 1. **Cost is frozen at run time.** The rate that was in force on the day of the run
    is written into the result and never recomputed. A March run is never re-priced
    at today's rates. There is deliberately **no live pricing feed** — no vendor ships
    a pricing API, and a scraper against a page with no contract would break silently
    and quietly poison the one number this benchmark cannot afford to get wrong.
-2. **Reasoning tokens are a subset of output tokens**, not an addition — Anthropic
-   counts thinking inside `output_tokens`, OpenAI counts reasoning inside
-   `completion_tokens`. They are reported for display and never billed twice.
-   `tests/capybench.test.ts` pins this.
+2. **Reasoning tokens are a subset of output tokens**, not an addition — confirmed for
+   all three vendors [3][9][12][24]. They are reported for display and never billed
+   twice. Pinned by a test, and `checkUsage()` warns loudly if a live response ever
+   reports more reasoning than output, which would mean the cost *understates* the bill.
 3. **A model with no verified official price cannot produce a result.**
    `bench/run.mjs` aborts on a null rate and tells you which page to read.
+4. **Cost is exact on Anthropic and conservative elsewhere.** Anthropic caching cannot
+   engage without an explicit `cache_control` breakpoint [4], but OpenAI and Google
+   cache automatically [10][25], so a cache hit makes the real invoice *lower* than the
+   published figure. `checkUsage()` flags any run with cached tokens. Our prompt is
+   ~1.1K tokens, which sits just above OpenAI's 1,024-token cache minimum and below
+   Google's 2,048/4,096, so a repeat OpenAI run is the realistic case.
+
+One asymmetry for whoever builds the page: Anthropic reports cached tokens *excluded*
+from its input count while OpenAI and Google *include* them, so a cross-vendor "input
+tokens" column compares slightly different quantities. The published USD cost is
+unaffected.
 
 `bench/prices.json` is hand-maintained: one row per model with `vendor`, `label`,
-`baseUrl`, `apiKeyEnv`, `maxOutputTokens`, the two rates, `asOf`, and `source` (the
-vendor's own pricing page). Keys beginning `_` are ignored. **Every row currently
-ships with null rates — they must be read off the official page and filled before
-that model can run** [1][2].
+`baseUrl`, `apiKeyEnv`, `maxOutputTokens`, the two rates, `asOf`, `source` (the
+vendor's own pricing page) and `tiers` (batch/cache/long-context rates, never folded
+into the main rate). Keys beginning `_` are ignored. **18 models across three vendors
+are priced as of 2026-09-12** [1][7][12]; rates were merged from
+`docs/research/capybench/pricing.json` after review rather than written straight in.
+
+Two corrections applied during that merge, both worth knowing about:
+- `pricing.json` had Claude Fable 5.1 at `$10/$25`. The canonical Anthropic pricing
+  table and `sources.json` [1] both give **$10/$50**; the row's batch note had been
+  derived from the wrong figure and was corrected with it. Both files now read $10/$50.
+- Haiku is keyed by its undated ID `claude-haiku-4-5`, not the dated snapshot, per
+  Anthropic's model table. The snapshot ID is noted in `tiers`.
+
+Deliberately excluded: Claude Mythos 5.1 (`claude-mythos-5-1`, $10/$50) is
+access-restricted to Project Glasswing, and legacy/previous-generation models from all
+three vendors are still purchasable but no longer the current lineup — the brief's
+"Could not verify" section lists them with their rates if a retrospective run ever
+wants them.
 
 ## 6. Running it
 
@@ -142,9 +175,21 @@ node bench/run.mjs --model claude-opus-5             # one shot, writes the resu
 API keys come from the environment variable named in the model's row, never from a
 file, and are never written into a result.
 
-Adding a model: add a row to `prices.json` with rates read off the vendor's page. Two
-vendor adapters exist — `anthropic` (`/v1/messages`) and `openai-compatible`
-(`/v1/chat/completions`). A new vendor is one ~20-line entry in `VENDORS`.
+Adding a model: add a row to `prices.json` with rates read off the vendor's page. Three
+vendor adapters exist — `anthropic` (`/v1/messages`), `openai-compatible`
+(`/v1/chat/completions`) and `google` (native `:generateContent`). A new vendor is one
+~20-line entry in `VENDORS`.
+
+Gemini uses Google's **native** endpoint rather than its OpenAI-compatible path: the
+compat layer reports thinking and cache token details as empty [6][27], and those are
+exactly the fields the cost figure depends on. The API key travels in an
+`x-goog-api-key` header, never the query string.
+
+Before the first published Gemini run, sanity-check one real response:
+`candidatesTokenCount - thoughtsTokenCount >= 0`. The API reference defines the two
+separately without stating the subset relationship [26]; two other official statements
+imply thoughts sit inside the output total [12][24]. `checkUsage()` fails loudly if a
+response contradicts that, but confirm it once by eye.
 
 ## 7. Notes for whoever builds the comparison page
 
@@ -163,6 +208,29 @@ browser entirely, so none of the iframe sandboxing, `X-Frame-Options` exception 
   an eyeballed recording is an unfair one. Sim time matters too: the prompt
   specifies a sixty-second day, so a recording shorter than that cannot show the
   dusk yuzu event, which is one of the discriminators.
+- **Host the videos from `/public`, committed to the repo** [28][29][30]. At 20–40 short
+  clips the bandwidth is a rounding error inside Hobby's 100 GB, storage is free, and
+  the privacy promise stays literally true — one party, no player, no cookies. Revisit
+  Vercel Blob only past a few GB or if 100 GB/month becomes real, and revisit it *on
+  Pro*, because exceeding Hobby's allowance pauses the whole site [29]. An embedded
+  third-party player is out: YouTube's own developer policy says the embed collects and
+  shares user data [36].
+- **Encode every recording once, identically**: H.264 High in MP4 — the only format
+  that plays everywhere, 97.26% global and iOS Safari since 3.2 [38][41] — at
+  `-crf 21 -preset slow -tune animation -pix_fmt yuv420p`, fixed 2-second GOP,
+  `+faststart` [42]. Screen content is flat colour and hard edges, so CRF holds small
+  HUD text at low bitrate. Identical settings across all recordings are a precondition
+  for frame-accurate side-by-side comparison, not a nicety.
+- **Sync playback** with `<video muted playsinline preload="auto">` elements driven off
+  one `performance.now()` master clock and a `requestAnimationFrame` drift-correction
+  loop — hard-seek past ~80 ms of drift, rate-nudge past ~30 ms, and gate both start and
+  scrub on every `seeked` event [44][45][46][47]. Muted autoplay needs exactly
+  `autoplay muted playsinline` and works on desktop and mobile [48][49]. Note `rAF` is
+  paused in hidden tabs [47].
+- **Two things worth stealing from prior art** [50][51]: publish cost next to every
+  model (FlappyBench does; it omits wall-clock time, which we show), and keep an honest
+  blemish log for any run that needed an exception. What to avoid: an authored verdict
+  or scored rubric — that is the game we explicitly opted out of.
 - Committed JSON is imported straight out of the repo where a page needs it — see
   `src/lib/promptgen/criteria.ts:1331` importing from `docs/research/`.
 - Page shell: `src/components/tool/ToolPageShell.tsx` owns all the chrome
@@ -183,6 +251,10 @@ Covers the only non-trivial logic, which is also the money path:
   bare `<!DOCTYPE`, prose only → `"none"`.
 - `computeCost` against known rates, plus the invariant that reasoning tokens change
   nothing.
+- `checkUsage` — quiet on clean usage, shouts on reasoning-exceeds-output
+  (understated cost) and on cached input (overstated cost).
+- The `google` adapter's usage mapping, that the API key stays out of the URL, and that
+  a truncated response with no candidates does not throw.
 
 Run with `npm run test`. `bench/` passes `npx eslint bench` and `npx tsc --noEmit`
 as-is; it is not swept into the Next build because `tsconfig.json`'s `include` lists
@@ -190,7 +262,7 @@ as-is; it is not swept into the Next build because `tsconfig.json`'s `include` l
 
 **Definition of done (v1):** the prompt is frozen and hashed; `--dry-run` resolves a
 model, its price and its request shape without calling anything; an unpriced or
-unknown model aborts; a real run writes three files with a frozen rate; and the six
+unknown model aborts; a real run writes three files with a frozen rate; and the twelve
 tests pass.
 
 ## 9. Out-of-scope backlog
@@ -204,6 +276,13 @@ tests pass.
 
 ## 10. Sources (keys → `./sources.json`)
 
-`[1]` Anthropic official API pricing. `[2]` OpenAI official API pricing.
-**Both are unverified in-repo** — the rate must be read off the page and dated in
-`prices.json` before a model runs.
+52 sources, every one read on 2026-09-12: vendor pricing and token-accounting docs
+`[1]`–`[11]` (Anthropic), `[7]`–`[11]` (OpenAI), `[12]`–`[27]` (Google); Vercel limits
+and pricing `[28]`–`[35]`; media format, playback and autoplay `[36]`–`[49]`; prior art
+`[50]`–`[52]`. Full findings in [`research-brief.md`](./research-brief.md), rates in
+[`pricing.json`](./pricing.json).
+
+The brief's **"Could not verify"** section is the part to read before trusting anything
+here — it lists, up front, every claim that could not be pinned to an official page,
+including Anthropic truncation billing (a well-supported inference, not a quoted fact)
+and the Gemini thinking-token subset relationship.
