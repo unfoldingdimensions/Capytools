@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { VENDORS, checkUsage, computeCost, extractArtifact } from "../bench/run.mjs";
+import { findContamination, runFolderName, slug } from "../bench/new-run.mjs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 
 const fence = "`".repeat(3);
 const block = (body: string) => `${fence}html\n${body}\n${fence}`;
@@ -103,5 +107,63 @@ describe("google adapter", () => {
     const out = VENDORS.google.read({ usageMetadata: { promptTokenCount: 1_100 } });
     expect(out.text).toBe("");
     expect(out.usage.outputTokens).toBe(0);
+  });
+});
+
+describe("run folder naming", () => {
+  it("strips the dots and spaces that would become %20 in a video URL", () => {
+    expect(slug("gemini-3.8-flash")).toBe("gemini-3-8-flash");
+    expect(slug("Claude Opus 5")).toBe("claude-opus-5");
+    expect(slug("gpt-5.6-sol")).toBe("gpt-5-6-sol");
+  });
+
+  it("names a folder model__date", () => {
+    expect(runFolderName("gemini-3.8-flash", "2026-09-12")).toBe("gemini-3-8-flash__2026-09-12");
+  });
+});
+
+describe("findContamination", () => {
+  it("treats this repo as fatally contaminated — it would hand over the design system", () => {
+    const { fatal } = findContamination(process.cwd());
+    expect(fatal.some((h) => h.endsWith("CLAUDE.md"))).toBe(true);
+    expect(fatal.some((h) => h.endsWith("AGENTS.md"))).toBe(true);
+    expect(fatal.some((h) => h.endsWith(".git"))).toBe(true);
+  });
+
+  it("looks at parents too, not just the folder itself", () => {
+    // bench/ holds none of these; the repo root above it holds all three.
+    const { fatal } = findContamination(join(process.cwd(), "bench"));
+    expect(fatal.some((h) => h.endsWith("CLAUDE.md"))).toBe(true);
+  });
+
+  it("finds nothing fatal in a temp directory", () => {
+    const dir = mkdtempSync(join(tmpdir(), "capybench-sterile-"));
+    try {
+      expect(findContamination(dir).fatal).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("classifies the operator user-level config as ambient, not fatal", () => {
+    const dir = mkdtempSync(join(tmpdir(), "capybench-ambient-"));
+    try {
+      const { fatal, ambient } = findContamination(dir);
+      expect(fatal).toEqual([]);
+      // Every hit reported as ambient lives directly in the home directory.
+      for (const a of ambient) expect(dirname(a)).toBe(resolve(homedir()));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("catches a contaminant in the run directory itself as fatal", () => {
+    const dir = mkdtempSync(join(tmpdir(), "capybench-dirty-"));
+    try {
+      writeFileSync(join(dir, "AGENTS.md"), "read the style guide");
+      expect(findContamination(dir).fatal).toEqual([join(dir, "AGENTS.md")]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

@@ -1,4 +1,4 @@
-# CapyBench — implementation plan (v1: spec, prompt & result format)
+# CapyBench — implementation plan (v2: agentic runs, spec, prompt & result format)
 
 *This document is a complete handoff: a session that has never seen the originating
 conversation should be able to run CapyBench and add to it from this alone.
@@ -6,29 +6,48 @@ Citation keys `[n]` resolve to `./sources.json`.*
 
 ## 1. Mission & scope
 
-CapyBench runs one fixed prompt against many models, one shot each, and publishes
-the outputs so a visitor compares them **side by side with their own eyes**. We
-publish only mechanical facts: wall-clock time, tokens in and out, and USD cost at
-the model's own **official** API rates. No score, no rubric, no opinion from us.
+CapyBench gives many models one fixed prompt, records each one's output as a video,
+and publishes the recordings so a visitor compares them **side by side with their own
+eyes**. We publish only mechanical facts. No score, no rubric, no opinion from us.
 Judgment stays with the visitor.
 
 The task is **Capy Onsen** — a single self-contained HTML file simulating a capybara
 hot spring. Chosen over a physics-stacking alternative, which stays on the shelf as
 a candidate v2 task with a different failure profile.
 
-**In scope (v1)**
-- The benchmark prompt, byte-frozen: `bench/prompt.v1.md`.
-- The run protocol and the fairness rules that make two results comparable (§3).
-- The runner: `bench/run.mjs`.
-- The result format: `bench/results/v1/<model>/result.json` (§5).
-- The price ledger: `bench/prices.json`.
+### Execution model: agentic, one prompt, isolated folder
 
-**Out of scope (v1 — do NOT build)**
-- The `/capybench` comparison page. Design it against real artifacts, not against
-  a guess at what models will emit. See §7 for what is already known about it.
+**v2 changed how runs happen.** Each model runs as an agent in its own sterile folder,
+given the prompt once, with no human turns after it. It writes `index.html` itself and
+may test its own work. This produces better artifacts than a single API call — the
+model can look at what it made and fix it — and it is closer to how people actually
+use these models.
+
+**What that costs, stated plainly: there is no comparable USD cost figure any more,
+and v2 does not publish one.** A coding agent's token count is mostly harness — system
+prompt plus tool definitions dwarf the task — and it differs per harness. Chat
+subscriptions are not billed per token at all. Wall-clock includes the operator. So
+comparing tokens or dollars across agentic runs compares harnesses and typing speed,
+not models. §5 lists what *is* honestly measurable and published instead.
+
+The v1 one-shot API path (`bench/run.mjs`, `bench/prices.json`) is **shelved, not
+deleted**: it still works, is still tested, and is the thing to reach for if rigorous
+token-and-dollar numbers are ever wanted again. Its 18 verified official rates stay
+current and useful either way.
+
+**In scope (v2)**
+- The benchmark prompt, byte-frozen: `bench/prompt.v2.md` (agentic wording).
+- The run protocol and the fairness rules that make two runs comparable (§3).
+- The run scaffolder and sterility guard: `bench/new-run.mjs`.
+- The result format: one `run.json` per run folder (§5).
+- Shelved but maintained: `bench/run.mjs`, `bench/prices.json`, `bench/prompt.v1.md`.
+
+**Out of scope (v2 — do NOT build)**
+- The `/capybench` comparison page. Design it against real recordings, not against
+  a guess at what models will produce. See §7 for what is already decided about it.
 - Landing-page registration, tool numbering, any change to the "05 of 05" counts.
 - Any second benchmark task.
-- Console-error counting, screenshot capture, automated scoring of any kind.
+- Automated scoring of any kind. That is the game we explicitly opted out of.
 
 ## 2. Read these first (repo law)
 
@@ -40,39 +59,81 @@ a candidate v2 task with a different failure profile.
 
 ## 3. Run protocol (the fairness contract)
 
-Every rule here exists so that a difference between two results is a difference in
+Every rule here exists so that a difference between two runs is a difference in
 capability and nothing else.
 
-- One user message, `bench/prompt.v1.md` verbatim. **No system prompt.**
-- **One shot, zero iterations.** No retries on bad output. A model that emits prose
-  instead of a file is a real, publishable result.
-- Retry **only** on transport failure (HTTP 5xx, timeout), twice, and record the
-  count in `run.transportRetries`.
-- **Official vendor API only** — never OpenRouter or any other reseller. Official
-  pricing is only meaningful against official token accounting.
-- Temperature and reasoning/thinking effort left at vendor default; both recorded
-  in `params` rather than set by us.
-- `maxOutputTokens`: **clamped to 64000 for every model** by `MAX_OUTPUT_TOKENS` in
-  `run.mjs`, so a model with a 128K cap is not handed a larger budget than one capped
-  at 64K. `prices.json` still records each model's true cap; the clamp is what gets
-  sent, and `params.maxOutputTokens` records it. It also keeps non-streaming requests
-  clear of HTTP timeouts, which is what makes non-streaming viable at all.
-- Non-streaming, so `durationMs` (request send → final byte) means the same thing
-  for every model.
-- Artifact extraction is **mechanical, never a judgment call**: the last fenced
-  `html` block wins; failing that, a response starting with `<!DOCTYPE` is taken
-  whole; failing that, `extracted: "none"` with an empty artifact.
+- **Same harness for every model.** Same agent, same tools, same system prompt, same
+  machine. This is the single rule that keeps an agentic comparison meaningful; break
+  it and you are benchmarking model-plus-harness pairs, which cannot be attributed to
+  the model. Recorded in `harness` on every run so a later reader can check it was.
+- **One prompt, no human turns after it.** Paste `bench/prompt.v2.md` verbatim and
+  then say nothing. The agent stops when it says it is done. `humanTurnsAfterPrompt`
+  records this and should be `0` on every published run.
+- **The run folder must be sterile**, and this is checked, not remembered — see the
+  contamination rule below. It is the failure most likely to silently invalidate
+  everything.
+- A model that never produces a file is a real, publishable result. Record it with an
+  empty artifact rather than re-running.
+- **Anything that needed an exception goes in `blemishes`**, in the run's own words —
+  a crash, a restart, a tool that would not authorise. An honest blemish log is what
+  keeps the single-prompt claim credible; both benchmarks worth learning from keep one
+  [50][51].
+- One run folder is never reused. `new-run.mjs` refuses to scaffold over an existing
+  one.
+
+### The contamination rule
+
+An agent reads instruction files from its working directory **and every parent
+directory**. A run folder anywhere under this repo would hand the model
+`AGENTS.md` — the sage palette, Fraunces and Plus Jakarta, the `rounded-3xl` surface
+rules, the whole brand ethos. The benchmark would be measuring who read the style
+guide. `findContamination()` in `bench/new-run.mjs` walks from the run folder to the
+filesystem root and splits what it finds:
+
+- **fatal** — project-level config (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`,
+  `.cursorrules`, `.claude/`, `.mcp.json`, `.git`, and friends) found anywhere other
+  than the home directory itself. These vary by location, so one run could inherit a
+  design system while another inherits nothing. `new-run.mjs` refuses to scaffold.
+- **ambient** — the operator's own user-level config sitting directly in the home
+  directory (`~/.claude`, `~/CLAUDE.md`). On this machine `~/.claude/CLAUDE.md` exists
+  and applies to every project, so it cannot be escaped without leaving home entirely.
+  Because every model runs in the same harness on the same machine it applies
+  *equally* to all of them — a constant, not a variable, which is a far smaller
+  problem. It is still a thumb on the scale, so it is recorded in
+  `harness.ambientConfig` and disclosed on the page rather than quietly ignored.
+
+**Keeping run folders on a drive root outside the home directory (e.g. `E:\`) leaves
+`ambientConfig` empty**, which is the cleanest option and what to prefer.
+
+Also: no MCP servers, no skills, no project memory. Turn them off for the runs.
+
+### Shelved v1 protocol (API one-shot)
+
+Still implemented and tested in `bench/run.mjs`, for if rigorous token/dollar numbers
+are wanted again: one user message, prompt verbatim, no system prompt, zero
+iterations, official vendor API only (never a reseller), vendor-default temperature
+and reasoning, `maxOutputTokens` clamped to 64000 for every model so a 128K-cap model
+is not handed twice the budget of a 64K one, non-streaming so `durationMs` means one
+thing, and mechanical artifact extraction (last fenced `html` block; else a bare
+`<!DOCTYPE` response whole; else `extracted: "none"`).
 
 ## 4. The prompt
 
-`bench/prompt.v1.md` is the single canonical copy — **do not paraphrase it here or
-anywhere else.** Its sha256 goes into every result, which is what proves two results
-answered the same question. Changing one byte means incrementing `SPEC_VERSION` in
-`bench/run.mjs`; old results stay under `results/v1/` answering the old prompt.
+`bench/prompt.v2.md` is the single canonical copy — **do not paraphrase it here or
+anywhere else.** Its sha256 goes into every run, which is what proves two runs
+answered the same question. Changing one byte means a new `prompt.vN.md` and bumping
+`SPEC_VERSION`; old runs keep answering the prompt they were given.
 
 It asks for a one-file, no-dependency, no-network simulation: ten procedurally drawn
 capybaras with decaying needs, a real state machine, obstacle pathfinding, a
 sixty-second day/night arc, and a yuzu crate that tips into the pool at dusk.
+
+v2 differs from `prompt.v1.md` only in the deliverable wording, because the execution
+model changed: **write `index.html` into the working directory** rather than emit a
+fenced code block, create no other files, install nothing — and, stated explicitly so
+it is equally available to every model, *"you may open and test your own work before
+you finish."* Everything from **Stage** onwards is byte-identical to v1, which is what
+keeps the two versions comparable as tasks even though their numbers are not.
 
 **The discriminators** — the requirements chosen because weak output fails them
 *visibly, within ten seconds*, which is what makes a side-by-side worth looking at:
@@ -92,10 +153,45 @@ Known tradeoff, accepted deliberately: the prompt is long and highly specified, 
 makes this an **execution and instruction-following-at-scale** benchmark more than a
 creativity one. That is the right call for fair visual comparison.
 
-## 5. Result format
+## 5. Result format (v2)
 
-`bench/results/v1/<model-slug>/` holds three files: `result.json`, `index.html` (the
-extracted artifact) and `raw.txt` (the full response, for audit). `result.json`:
+One folder per run, named `<model-slug>__<local-date>` — e.g.
+`gemini-3-8-flash__2026-09-12`. The slug strips dots and spaces because these names
+end up in video URLs, and the date is the operator's **local** calendar day, not UTC,
+so an evening run is not filed under yesterday. It holds `prompt.md` (the exact prompt
+given, copied in), `index.html` (what the model wrote) and `run.json`:
+
+```json
+{
+  "benchmark": "capy-onsen",
+  "specVersion": "2",
+  "promptSha256": "…",
+  "model":   { "id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash", "vendor": "google" },
+  "harness": { "name": "claude-code", "version": "…", "ambientConfig": [] },
+  "run":     { "protocol": "agentic-single-prompt",
+               "startedAt": "2026-09-12T10:00:00Z", "finishedAt": "2026-09-12T10:07:30Z",
+               "durationSeconds": 450, "turns": 14, "toolCalls": 31,
+               "humanTurnsAfterPrompt": 0 },
+  "blemishes": [],
+  "artifact":  { "file": "index.html", "bytes": 84213, "sha256": "…" },
+  "notes": ""
+}
+```
+
+**There is deliberately no `cost` and no `usage`.** Those fields are absent rather
+than null, because a null invites someone to fill it with a number that cannot mean
+what it appears to mean (§1). What gets published instead: session duration, turn
+count, tool-call count, the blemish log, and the harness named openly.
+
+Fill the nulls by hand after a run, then `node bench/new-run.mjs --finalize <dir>`
+computes `durationSeconds` from the timestamps and the artifact's bytes and sha256,
+and tells you what is still unfilled. A run with no `index.html` finalizes to an empty
+artifact with a warning — that is a real result, not an error.
+
+### Shelved v1 result format (API one-shot)
+
+`bench/results/v1/<model-slug>/` holds `result.json`, `index.html` and `raw.txt` (the
+full response, for audit). `result.json`:
 
 ```json
 {
@@ -168,12 +264,31 @@ wants them.
 ## 6. Running it
 
 ```bash
+# 1. Scaffold a sterile run folder. Refuses if the location is contaminated.
+node bench/new-run.mjs --model gemini-3.8-flash --dir E:\capybench-runs
+
+# 2. Open the agent in that folder. Paste prompt.md verbatim. Say nothing else.
+#    Record when you started and finished, the turn count and the tool-call count.
+
+# 3. Fill the nulls in run.json, then:
+node bench/new-run.mjs --finalize E:\capybench-runs\gemini-3-8-flash__2026-09-12
+```
+
+`--dir` defaults to a `capybench-runs` folder beside the repo; pass it explicitly to
+put runs somewhere outside the home directory, which keeps `ambientConfig` empty.
+Runs live **outside** this repo by necessity (§3), and get copied into
+`bench/results/v2/` afterwards for archival, once there is something worth archiving.
+
+### Shelved v1 path (API one-shot)
+
+```bash
 node bench/run.mjs --model claude-opus-5 --dry-run   # resolve everything, call nothing
 node bench/run.mjs --model claude-opus-5             # one shot, writes the result
 ```
 
 API keys come from the environment variable named in the model's row, never from a
-file, and are never written into a result.
+file, and are never written into a result. As of 2026-09-12 only `GEMINI_API_KEY` is
+set on this machine; `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` are not.
 
 Adding a model: add a row to `prices.json` with rates read off the vendor's page. Three
 vendor adapters exist — `anthropic` (`/v1/messages`), `openai-compatible`
@@ -227,10 +342,16 @@ browser entirely, so none of the iframe sandboxing, `X-Frame-Options` exception 
   scrub on every `seeked` event [44][45][46][47]. Muted autoplay needs exactly
   `autoplay muted playsinline` and works on desktop and mobile [48][49]. Note `rAF` is
   paused in hidden tabs [47].
-- **Two things worth stealing from prior art** [50][51]: publish cost next to every
-  model (FlappyBench does; it omits wall-clock time, which we show), and keep an honest
-  blemish log for any run that needed an exception. What to avoid: an authored verdict
-  or scored rubric — that is the game we explicitly opted out of.
+- **The stat row publishes what agentic runs can honestly support** (§5): session
+  duration, turn count, tool-call count, the blemish log, and the harness named
+  openly — plus `harness.ambientConfig` if it is not empty. **No cost column.** If a
+  cost figure is ever wanted, it comes from the shelved API path, and the page must say
+  the number describes a *different run* than the video shows.
+- **One thing worth stealing from prior art, one to avoid** [50][51]: keep the honest
+  blemish log (both benchmarks worth learning from do, and it is what makes a
+  single-prompt claim believable). Avoid the authored verdict or scored rubric — that
+  is the game we explicitly opted out of. Note FlappyBench publishes cost but not
+  wall-clock time; we are doing the reverse, and for a defensible reason.
 - Committed JSON is imported straight out of the repo where a page needs it — see
   `src/lib/promptgen/criteria.ts:1331` importing from `docs/research/`.
 - Page shell: `src/components/tool/ToolPageShell.tsx` owns all the chrome
@@ -255,18 +376,37 @@ Covers the only non-trivial logic, which is also the money path:
   (understated cost) and on cached input (overstated cost).
 - The `google` adapter's usage mapping, that the API key stays out of the URL, and that
   a truncated response with no candidates does not throw.
+- `slug` / `runFolderName` — dots and spaces stripped, `model__date` shape.
+- `findContamination` — this repo classified fatal (it would hand over the design
+  system), parents walked and not just the folder itself, a temp folder clean of
+  anything fatal, the operator's home-directory config classified ambient rather than
+  fatal, and a contaminant in the run folder itself caught as fatal.
+
+The scaffolder's end-to-end behaviour is checked by hand rather than in vitest (it
+touches real directories): it refuses inside this repo naming all four offenders,
+scaffolds on `E:\` with `ambientConfig: []`, copies a prompt whose hash matches
+`run.json`, refuses to reuse a folder, warns and records an empty artifact when there
+is no `index.html`, and computes `durationSeconds` from the timestamps.
 
 Run with `npm run test`. `bench/` passes `npx eslint bench` and `npx tsc --noEmit`
 as-is; it is not swept into the Next build because `tsconfig.json`'s `include` lists
 `**/*.ts`/`**/*.mts` but not `.mjs`.
 
-**Definition of done (v1):** the prompt is frozen and hashed; `--dry-run` resolves a
-model, its price and its request shape without calling anything; an unpriced or
-unknown model aborts; a real run writes three files with a frozen rate; and the twelve
-tests pass.
+**Definition of done (v2):** the agentic prompt is frozen and hashed; `new-run.mjs`
+scaffolds a sterile folder and refuses a contaminated one; `--finalize` fills duration
+and artifact hash and names what is missing; `run.json` carries no cost or usage
+field; the shelved API path still resolves a model and its frozen price via
+`--dry-run`; and the nineteen tests pass.
 
 ## 9. Out-of-scope backlog
 
+- **The recording protocol — the next thing to write.** §7 settles the encoding recipe
+  and where videos are hosted, but nothing yet pins down how a capture is *made*:
+  window size, duration, frame rate, the `?seed=` used, whether the three interactions
+  are exercised and at what timestamps, and whether capture starts at page load.
+  Until that is written down and identical for every run, the side-by-side is not a
+  fair comparison. A recording shorter than 60 seconds cannot show the dusk yuzu event,
+  which is one of the discriminators.
 - The `/capybench` comparison page (§7).
 - Show the spec beside the two frames as a checklist the *visitor* ticks off — keeps
   judgment with them, as intended.
