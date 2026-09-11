@@ -62,10 +62,11 @@ current and useful either way.
 Every rule here exists so that a difference between two runs is a difference in
 capability and nothing else.
 
-- **Same harness for every model.** Same agent, same tools, same system prompt, same
-  machine. This is the single rule that keeps an agentic comparison meaningful; break
-  it and you are benchmarking model-plus-harness pairs, which cannot be attributed to
-  the model. Recorded in `harness` on every run so a later reader can check it was.
+- **Each model runs in its own native harness**, and the harness is disclosed on every
+  row. Gemini in Antigravity, Claude in Claude Code, and models with no first-party
+  agent in a common fallback (Hermes). This is a deliberate choice: almost nobody uses
+  these models through the raw API, and a closed model on its own platform *is* the
+  product people get. See §3.1 for what it costs and how it is disclosed.
 - **One prompt, no human turns after it.** Paste `bench/prompt.v2.md` verbatim and
   then say nothing. The agent stops when it says it is done. `humanTurnsAfterPrompt`
   records this and should be `0` on every published run.
@@ -81,6 +82,39 @@ capability and nothing else.
 - One run folder is never reused. `new-run.mjs` refuses to scaffold over an existing
   one.
 
+### 3.1 What "native harness" means for the comparison
+
+CapyBench v2 compares **model-plus-harness pairs, as shipped** — not models in
+isolation. A difference between two rows cannot be attributed to the model alone, and
+the page must never imply it can. This is the honest cost of a design that is far more
+representative of real use, and the trade was made knowingly.
+
+Three consequences to handle rather than hide:
+
+1. **Capability asymmetry is the largest variable.** A harness that can open the file
+   in a browser and look at it lets the model iterate on visual feedback; one that can
+   only write text does not. That gap will visibly separate outputs, and it is not a
+   model property. Record what each harness could actually do in
+   `harness.capabilities` so a reader can see *why* one run iterated and another did
+   not.
+2. **Turn and tool-call counts are not comparable across harnesses.** One harness's
+   "turn" is another's "step", and some expose no count at all. Record them when
+   available because they are useful within a harness — but **do not put them in a
+   cross-model comparison column.** Session duration is the only timing figure that
+   means roughly the same thing everywhere, and even that includes harness latency and
+   the operator.
+3. **The fallback harness creates two classes of row.** Models sharing the Hermes
+   fallback are comparable *to each other* in a way none of them is to Claude in
+   Claude Code. Grouping or labelling rows by harness on the page makes that legible
+   instead of misleading.
+4. **Each harness carries its own user-level config**, so the operator's own standing
+   instructions reach exactly one model and not the others — see the contamination
+   rule below. Neutralise per harness where possible; disclose where not.
+
+What stays identical regardless of harness, and is what makes the exercise a benchmark
+at all: the prompt, byte-for-byte; one prompt with no human turns after it; a sterile
+folder; and the blemish log.
+
 ### The contamination rule
 
 An agent reads instruction files from its working directory **and every parent
@@ -95,17 +129,45 @@ filesystem root and splits what it finds:
   than the home directory itself. These vary by location, so one run could inherit a
   design system while another inherits nothing. `new-run.mjs` refuses to scaffold.
 - **ambient** — the operator's own user-level config sitting directly in the home
-  directory (`~/.claude`, `~/CLAUDE.md`). On this machine `~/.claude/CLAUDE.md` exists
-  and applies to every project, so it cannot be escaped without leaving home entirely.
-  Because every model runs in the same harness on the same machine it applies
-  *equally* to all of them — a constant, not a variable, which is a far smaller
-  problem. It is still a thumb on the scale, so it is recorded in
-  `harness.ambientConfig` and disclosed on the page rather than quietly ignored.
+  directory (`~/.claude`, `~/CLAUDE.md`). It cannot be escaped without leaving home
+  entirely, so it is reported rather than refused, and recorded in
+  `harness.ambientConfig`.
+
+**Ambient config is a per-harness asymmetry, not a shared constant.** Each harness
+reads only its own user-level files, so `~/.claude/CLAUDE.md` reaches Claude Code and
+nothing else. On this machine that file carries real task-relevant instructions —
+*"make surgical, minimal changes — do not refactor code the user did not ask for"*,
+*"be concise"* — which on a build-from-scratch generative task plausibly works
+**against** the model that receives them. So this is not a thumb on the scale in the
+obvious direction, and it is not negligible either way. **Neutralise it for the run
+where the harness can skip user settings; where it cannot, record it and disclose it
+on the row.**
 
 **Keeping run folders on a drive root outside the home directory (e.g. `E:\`) leaves
-`ambientConfig` empty**, which is the cleanest option and what to prefer.
+`ambientConfig` empty**, which is the cleanest option and what to prefer. Note this
+does not help with user-level config that lives in the home directory regardless of
+where the run folder sits — that has to be handled at the harness.
 
-Also: no MCP servers, no skills, no project memory. Turn them off for the runs.
+**Measured state of this machine, 2026-09-12** — check it again before each run round,
+because it drifts:
+
+| Path | State | Reaches |
+| --- | --- | --- |
+| `~/.claude/CLAUDE.md` | 1193 bytes, 26 lines of real instructions | Claude Code only |
+| `~/.gemini/GEMINI.md` | 0 bytes, empty | Gemini / Antigravity |
+| `~/.gemini/skills/agents-sdk` | a user-level skill is installed | Gemini / Antigravity |
+| `~/.gemini/antigravity-cli/settings.json` | settings present, contents unreviewed | Antigravity |
+| `~/.antigravity` | exists, no instruction files found | Antigravity |
+
+Untreated, that means Claude runs under *"make surgical, minimal changes — do not
+refactor"* and *"be concise"* while Gemini runs under nothing — a handicap on a
+build-from-scratch task. The cheapest reliable neutralisation is to rename the
+offending file for the duration of a run round and put it back afterwards, which is
+reversible and easy to verify. Decide and apply this **before** the first published
+run, not after.
+
+Also: no MCP servers, no skills, no project memory. Turn them off for the runs — note
+the installed user-level Gemini skill above counts as instructions.
 
 ### Shelved v1 protocol (API one-shot)
 
@@ -167,7 +229,12 @@ given, copied in), `index.html` (what the model wrote) and `run.json`:
   "specVersion": "2",
   "promptSha256": "…",
   "model":   { "id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash", "vendor": "google" },
-  "harness": { "name": "claude-code", "version": "…", "ambientConfig": [] },
+  "harness": { "name": "claude-code", "version": "…", "nativeTo": "anthropic",
+               "capabilities": { "writeFiles": true, "readFiles": true,
+                                 "runCommands": true, "browserPreview": true,
+                                 "webSearch": false },
+               "modelSettings": "default effort, thinking on",
+               "ambientConfig": [] },
   "run":     { "protocol": "agentic-single-prompt",
                "startedAt": "2026-09-12T10:00:00Z", "finishedAt": "2026-09-12T10:07:30Z",
                "durationSeconds": 450, "turns": 14, "toolCalls": 31,
@@ -180,8 +247,19 @@ given, copied in), `index.html` (what the model wrote) and `run.json`:
 
 **There is deliberately no `cost` and no `usage`.** Those fields are absent rather
 than null, because a null invites someone to fill it with a number that cannot mean
-what it appears to mean (§1). What gets published instead: session duration, turn
-count, tool-call count, the blemish log, and the harness named openly.
+what it appears to mean (§1). What gets published instead: session duration, the
+blemish log, and the harness with its capabilities named openly. Turn and tool-call
+counts are recorded but stay out of any cross-model column (§3.1).
+
+`harness.nativeTo` carries the vendor slug when the harness is that model's
+first-party agent, or `"fallback"` when it is the shared stand-in — that is what lets
+the page group the two classes of row honestly. `harness.capabilities` is the field
+that explains output differences a model cannot be credited or blamed for.
+
+**On `webSearch` specifically: turn it off wherever the harness allows.** The task is
+generative, not research — an agent that can search may find a reference
+implementation of exactly this, which is a different task than the one the others were
+given. Where it cannot be disabled, record it as `true` and say so on the row.
 
 Fill the nulls by hand after a run, then `node bench/new-run.mjs --finalize <dir>`
 computes `durationSeconds` from the timestamps and the artifact's bytes and sha256,

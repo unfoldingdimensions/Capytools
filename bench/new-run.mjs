@@ -19,17 +19,32 @@ const BENCH = dirname(fileURLToPath(import.meta.url));
 const SPEC_VERSION = "2";
 const BENCHMARK = "capy-onsen";
 
-/** Agent instruction files and anything that can carry them. */
+/**
+ * Agent instruction files and anything that can carry them.
+ *
+ * INCOMPLETE BY CONSTRUCTION: each model runs in its own native harness, and every
+ * harness reads its own instruction files. Before a harness's first run, check its
+ * docs for what it loads from the working directory and its parents, and add those
+ * names here. A missing entry is a silent contamination; a name that does not exist
+ * costs nothing (existsSync simply returns false), so err toward adding.
+ *
+ * Unverified for Antigravity and the Hermes fallback — do that before running them.
+ */
 const CONTAMINANTS = [
   "CLAUDE.md",
   "AGENTS.md",
   "GEMINI.md",
+  "AGENT.md",
   ".cursorrules",
   ".windsurfrules",
   ".clinerules",
   ".github/copilot-instructions.md",
   ".cursor",
   ".claude",
+  ".gemini",
+  ".antigravity",
+  ".hermes",
+  ".agent",
   ".mcp.json",
   ".git",
 ];
@@ -43,11 +58,13 @@ const CONTAMINANTS = [
  *             Capytools design system while another gets nothing. Never acceptable.
  *   ambient — the operator's own user-level config, which sits directly in the home
  *             directory (~/.claude, ~/CLAUDE.md). On most machines this cannot be
- *             escaped without leaving home entirely, and because every model runs in
- *             the same harness on the same machine it applies *equally* to every run.
- *             A constant is a far smaller problem than a variable — but it is still a
- *             thumb on the scale, so it gets recorded in run.json and disclosed rather
- *             than quietly ignored.
+ *             escaped without leaving home entirely, so it is reported rather than
+ *             refused.
+ *
+ * Ambient config is NOT harmless, and is not a shared constant: each harness reads its
+ * own user-level files, so ~/.claude/CLAUDE.md reaches Claude Code and nothing else.
+ * That makes it a per-harness asymmetry. Neutralise it for the run where the harness
+ * allows skipping user settings; where it does not, record it and disclose it.
  */
 export function findContamination(dir) {
   const home = resolve(homedir());
@@ -116,7 +133,14 @@ function finalize(dir) {
     console.error("capybench: WARNING — fill startedAt and finishedAt to get a duration");
   }
 
-  const blank = ["harness.name", "run.turns", "run.startedAt", "run.finishedAt"].filter((path) => {
+  const blank = [
+    "harness.name",
+    "harness.nativeTo",
+    "harness.capabilities.webSearch",
+    "run.turns",
+    "run.startedAt",
+    "run.finishedAt",
+  ].filter((path) => {
     const value = path.split(".").reduce((o, k) => o?.[k], run);
     return value === null || value === undefined || value === "";
   });
@@ -149,9 +173,11 @@ function scaffold(modelId, parentDir) {
   }
   for (const a of ambient) {
     console.error(
-      `capybench: NOTE — user-level config applies to this run: ${a}. It is the same for ` +
-        "every model in the same harness, so it is a constant, not a variable. Recorded " +
-        "in run.json as harness.ambientConfig so the page can disclose it.",
+      `capybench: WARNING — user-level config may reach this run: ${a}\n` +
+        "  Only the harness that owns it reads it, so this is a per-harness asymmetry, " +
+        "not a shared constant.\n" +
+        "  Neutralise it if the harness can skip user settings; otherwise record it in " +
+        "harness.ambientConfig and disclose it.",
     );
   }
   if (existsSync(dir)) die(`${dir} already exists — a run folder is never reused`);
@@ -172,9 +198,26 @@ function scaffold(modelId, parentDir) {
         specVersion: SPEC_VERSION,
         promptSha256: createHash("sha256").update(prompt, "utf8").digest("hex"),
         model: { id: modelId, label: row?.label ?? null, vendor: row?.vendor ?? null },
-        // The one thing that keeps an agentic comparison meaningful: same harness for
-        // every model, recorded so a later reader can check that it was.
-        harness: { name: null, version: null, ambientConfig: ambient },
+        // Each model runs in its own native harness, so the harness is a variable, not
+        // a constant — which makes recording it part of the result, not metadata.
+        // nativeTo: the vendor slug when this is the model's first-party agent, or
+        // "fallback" for the shared stand-in. capabilities: what the harness could
+        // actually do, which is what explains output differences the model cannot be
+        // credited or blamed for. Turn webSearch off wherever the harness allows it.
+        harness: {
+          name: null,
+          version: null,
+          nativeTo: null,
+          capabilities: {
+            writeFiles: null,
+            readFiles: null,
+            runCommands: null,
+            browserPreview: null,
+            webSearch: null,
+          },
+          modelSettings: null,
+          ambientConfig: ambient,
+        },
         run: {
           protocol: "agentic-single-prompt",
           startedAt: null,
@@ -197,7 +240,8 @@ function scaffold(modelId, parentDir) {
 
   console.log(`capybench: ${dir}`);
   console.log("  prompt.md  — paste verbatim as the single prompt; no human turns after it");
-  console.log("  run.json   — fill harness, startedAt/finishedAt, turns, toolCalls");
+  console.log("  run.json   — fill harness (name, version, nativeTo, capabilities),");
+  console.log("               startedAt/finishedAt, turns, toolCalls");
   if (!row) console.log(`  note: "${modelId}" is not in prices.json, so label/vendor are null`);
 }
 
