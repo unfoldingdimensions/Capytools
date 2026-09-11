@@ -1,0 +1,7 @@
+# CapyBench hashes files byte-for-byte and records the digest in every result:
+# the prompt's sha256 is what proves two models answered the same question, and an
+# artifact's sha256 is what proves the published video came from that file. Any
+# line-ending conversion would change those digests per platform and quietly break
+# both guarantees, so these paths are never touched.
+bench/prompt.v*.md -text
+bench/results/** -text

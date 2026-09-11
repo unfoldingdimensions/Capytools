@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "url": "https://claude.com/pricing#api",
+    "title": "Anthropic — official Claude API pricing, per million tokens (UNVERIFIED: read the page and date the rate in bench/prices.json before running a Claude model)"
+  },
+  {
+    "id": 2,
+    "url": "https://openai.com/api/pricing/",
+    "title": "OpenAI — official API pricing, per million tokens (UNVERIFIED: read the page and date the rate in bench/prices.json before running an OpenAI model)"
+  }
+]

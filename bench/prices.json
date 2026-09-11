@@ -1,0 +1,49 @@
+{
+  "_note": "Official vendor list rates only, hand-verified against the vendor's own pricing page. Never a reseller, never an aggregator. A null rate is UNVERIFIED and run.mjs will refuse to run that model: fill inputPerMTok, outputPerMTok and asOf from the page at `source` first. Rates are USD per million tokens. Keys starting with _ are ignored.",
+  "_schema": {
+    "<model-id>": {
+      "vendor": "anthropic | openai-compatible",
+      "label": "shown to visitors",
+      "baseUrl": "official API base",
+      "apiKeyEnv": "env var holding the key",
+      "maxOutputTokens": 64000,
+      "inputPerMTok": null,
+      "outputPerMTok": null,
+      "asOf": "YYYY-MM-DD, the day the rate was read off `source`",
+      "source": "URL of the vendor's own pricing page"
+    }
+  },
+  "claude-opus-5": {
+    "vendor": "anthropic",
+    "label": "Claude Opus 5",
+    "baseUrl": "https://api.anthropic.com",
+    "apiKeyEnv": "ANTHROPIC_API_KEY",
+    "maxOutputTokens": 64000,
+    "inputPerMTok": null,
+    "outputPerMTok": null,
+    "asOf": null,
+    "source": "https://claude.com/pricing#api"
+  },
+  "claude-sonnet-5": {
+    "vendor": "anthropic",
+    "label": "Claude Sonnet 5",
+    "baseUrl": "https://api.anthropic.com",
+    "apiKeyEnv": "ANTHROPIC_API_KEY",
+    "maxOutputTokens": 64000,
+    "inputPerMTok": null,
+    "outputPerMTok": null,
+    "asOf": null,
+    "source": "https://claude.com/pricing#api"
+  },
+  "claude-haiku-4-5-20251001": {
+    "vendor": "anthropic",
+    "label": "Claude Haiku 4.5",
+    "baseUrl": "https://api.anthropic.com",
+    "apiKeyEnv": "ANTHROPIC_API_KEY",
+    "maxOutputTokens": 64000,
+    "inputPerMTok": null,
+    "outputPerMTok": null,
+    "asOf": null,
+    "source": "https://claude.com/pricing#api"
+  }
+}
