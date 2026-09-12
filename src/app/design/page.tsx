@@ -45,10 +45,14 @@ export default function DesignNotesPage() {
   return (
     // No `bg-background`: the body paints the canvas over the fixed ambient layer.
     <div className="lp flex min-h-dvh flex-col text-foreground">
+      <a className="lp-skip-link" href="#main">
+        Skip to content
+      </a>
+
       <AmbientBackground />
       <Header />
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 pb-24 pt-16">
+      <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-6 pb-24 pt-16">
         <span className="lp-label">Design notes · Colophon</span>
         <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
           Calm, <em>by design</em>

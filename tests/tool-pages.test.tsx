@@ -38,6 +38,10 @@ describe("tool pages — editorial shell", () => {
       expect(html).toContain('href="/"');
       expect(html).toContain("back to the suite");
       expect(html).toContain(index);
+      // The chrome puts a nav in front of the content, so every tool page owes
+      // the reader the same bypass the landing has always shipped.
+      expect(html).toContain('class="lp-skip-link"');
+      expect(html).toContain('id="main"');
     });
 
     it(`${eyebrow} — external hrefs stay functional-only`, () => {
@@ -98,11 +102,30 @@ describe("tool pages — editorial shell", () => {
 });
 
 describe("shared chrome", () => {
-  it("header links the notes page, never an external profile", () => {
+  it("the one header carries the suite, the CTA and no external href", () => {
     const html = markup(<Header tool="CapyWrapped" />);
     expect(html).toContain('href="/notes"');
-    expect(html).toContain("Project notes and issue tracker");
+    // The persistent action is the same on every page, tool pages included.
+    expect(html).toContain("Open the tools");
+    // One brand mark for the whole site (the interim capybara seal).
+    expect(html).toContain("lp-brand-glyph");
+    // An app surface has to say which room you are standing in.
+    expect(html).toContain('aria-current="page"');
+    // The nav collapses rather than disappearing.
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('aria-controls="site-nav-menu"');
     expect(html).not.toContain('href="http');
+  });
+
+  it("a tool page and the landing render the same masthead shell", () => {
+    // Both go through <Header>, so both must carry its container, mark and
+    // action — this is the invariant that stops the two drifting apart again.
+    const html = markup(<CapyWrappedPage />);
+    expect(html).toContain("lp-nav-inner");
+    expect(html).toContain("lp-brand-glyph");
+    expect(html).toContain("Open the tools");
+    // The tool page marks the current tool; the landing has no current tool.
+    expect(html).toContain('aria-current="page"');
   });
 
   it("expense showcase keeps its a11y switcher contract", () => {

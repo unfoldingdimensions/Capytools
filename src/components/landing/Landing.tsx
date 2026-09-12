@@ -1,5 +1,5 @@
 import "./landing.css";
-import { LandingMasthead } from "@/components/landing/LandingMasthead";
+import { Header } from "@/components/header";
 import { Hero } from "@/components/landing/Hero";
 import { LiveWire } from "@/components/landing/LiveWire";
 import { About } from "@/components/landing/About";
@@ -14,10 +14,21 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 /**
  * The editorial landing — assembled from the OpenDesign export, section for
  * section: cover plate, live wire, manifesto, promises, tool catalog, house
- * rules, the ink slab, the colophon, and the closing plate. The tool pages
- * keep the shared Header/SiteFooter; the landing ships its own masthead and
- * footer.
+ * rules, the ink slab, the colophon, and the closing plate.
+ *
+ * The masthead is the shared `<Header>` — the landing only gives it section
+ * anchors instead of the suite switcher, and points the brand at `#top` rather
+ * than home. The landing keeps its own footer.
  */
+
+/** In-page sections, in place of the tool switcher other pages get. */
+const LANDING_LINKS = [
+  { href: "#labs", label: "Suite" },
+  { href: "#method", label: "Method" },
+  { href: "#work", label: "Work" },
+  { href: "/notes", label: "Notes" },
+];
+
 export function Landing() {
   return (
     <div className="lp">
@@ -25,7 +36,11 @@ export function Landing() {
         Skip to content
       </a>
 
-      <LandingMasthead />
+      <Header
+        links={LANDING_LINKS}
+        cta={{ label: "Open the tools", href: "#labs" }}
+        brandHref="#top"
+      />
 
       <main id="main">
         <Hero />

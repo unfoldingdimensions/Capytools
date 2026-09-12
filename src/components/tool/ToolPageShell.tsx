@@ -57,10 +57,17 @@ export function ToolPageShell({
     // wrapper would cover the fixed ambient layer sitting at -z-10. `.lp`
     // activates the landing stylesheet's custom properties.
     <div className="lp flex min-h-dvh flex-col text-foreground">
+      {/* The landing has always offered this; the tool pages put a six-item nav
+          in front of the content and offered no way past it. */}
+      <a className="lp-skip-link" href="#main">
+        Skip to content
+      </a>
+
       <AmbientBackground />
       <Header tool={tool} />
 
       <main
+        id="main"
         className={cn(
           "mx-auto flex w-full flex-1 flex-col items-center px-6 pb-20",
           large ? "max-w-5xl" : "max-w-4xl",

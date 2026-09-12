@@ -296,6 +296,20 @@
   flex-shrink: 0;
 }
 
+/* Wordmark + "· Tool": one baseline-aligned group, so the smaller tool name
+   sits on the wordmark's baseline instead of centred beside it. */
+.lp-brand-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.lp-brand-tool {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
 .lp-brand-mark {
   display: inline-flex;
   align-items: center;
@@ -308,6 +322,16 @@
   font-style: italic;
   font-weight: 400;
   font-size: 17px;
+  flex-shrink: 0;
+}
+
+/* Interim logotype: the circle is the landing's seal, the glyph inside it is
+   the suite's own capybara. Both are placeholders pending the real mark — see
+   src/components/brand-mark.tsx, which is the only place to change. Sized in
+   em so the glyph follows the seal's font-size. */
+.lp-brand-glyph {
+  width: 1.45em;
+  height: 1.15em;
 }
 
 .lp-nav-links {
@@ -330,6 +354,22 @@
 
 .dark .lp-nav-links a:hover {
   color: var(--primary);
+}
+
+/* Current page. The tool pages are an app surface, so the switcher has to say
+   which room you are standing in. Landing links are anchors and never active. */
+.lp-nav-links a.is-active {
+  color: var(--foreground);
+}
+
+.lp-nav-links a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 1px;
+  background: color-mix(in oklab, var(--foreground) 40%, transparent);
 }
 
 .lp-nav-right {
@@ -365,6 +405,104 @@
 
 .lp-nav-cta:active {
   transform: translateY(1px);
+}
+
+/* Nav disclosure. The row carries any number of tools down to 1180px; below
+   that the same links stack into a panel rather than disappearing. The old
+   chrome simply removed the nav — the landing dropped its four anchors at
+   880px and the tool header dropped its five pills at 768px, which left the
+   tool switcher absent on every phone. */
+.lp-nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  transition: border-color 180ms var(--lp-ease-ui);
+}
+
+.lp-nav-toggle:hover {
+  border-color: color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.lp-nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--foreground);
+  transition:
+    transform 220ms var(--lp-ease-reveal),
+    opacity 220ms var(--lp-ease-ui);
+}
+
+.lp-nav.is-open .lp-nav-toggle span:first-child {
+  transform: translateY(3px) rotate(45deg);
+}
+
+.lp-nav.is-open .lp-nav-toggle span:last-child {
+  transform: translateY(-3px) rotate(-45deg);
+}
+
+.lp-nav-menu {
+  display: none;
+  border-top: 1px solid var(--lp-line-soft);
+  background: var(--background);
+}
+
+/* `.lp-container` supplies the horizontal padding; only the vertical rhythm
+   is set here, and on a more specific selector so it wins. */
+.lp-nav-menu nav {
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+  padding-bottom: 14px;
+}
+
+.lp-nav-menu a {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--lp-line-faint);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition: color 180ms var(--lp-ease-ui);
+}
+
+.lp-nav-menu a:last-child {
+  border-bottom: 0;
+}
+
+.lp-nav-menu a:hover,
+.lp-nav-menu a.is-active {
+  color: var(--foreground);
+}
+
+.lp-nav-menu .lp-nav-menu-cta {
+  margin-top: 12px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+  text-align: center;
+}
+
+@media (max-width: 1179px) {
+  .lp-nav-links {
+    display: none;
+  }
+
+  .lp-nav-toggle {
+    display: inline-flex;
+  }
+
+  .lp-nav-menu.is-open {
+    display: block;
+  }
 }
 
 /* ----------------------------------- hero -------------------------------- */
@@ -1936,10 +2074,6 @@ a.lp-wire-item .lp-wire-name {
     border-right: 0;
     border-bottom: 1px solid var(--lp-line-soft);
   }
-
-  .lp-nav-links {
-    display: none;
-  }
 }
 
 @media (max-width: 560px) {
@@ -1953,6 +2087,12 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-nav-cta::after {
+    display: none;
+  }
+
+  /* "Capytools · CapyWrapped" plus the right-hand cluster crowds a 390px bar;
+     the page's own h1 already names the tool. */
+  .lp-brand-tool {
     display: none;
   }
 

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TerminalLoader } from "../src/components/tool/TerminalLoader";
@@ -45,6 +47,36 @@ describe("TerminalLoader", () => {
     const html = renderToStaticMarkup(<TerminalLoader username="x" steps={steps([])} />);
     expect(html).toContain(`0 of ${TOTAL} steps complete`);
     expect(html).toContain(pct(0));
+  });
+});
+
+/**
+ * The site states this contract in writing on /design: "Every motion dies
+ * under prefers-reduced-motion". The CSS guard in globals.css cannot reach a
+ * JS-driven animation, and motion's own default is `reducedMotion: "never"`,
+ * so the wiring is asserted here — there is no jsdom in this suite to drive
+ * `matchMedia` and observe the rendered difference.
+ */
+describe("reduced motion", () => {
+  const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8");
+
+  it("applies motion's own reduced-motion contract app-wide", () => {
+    expect(read("src/app/layout.tsx")).toContain("MotionProvider");
+    expect(read("src/components/motion-provider.tsx")).toContain('reducedMotion="user"');
+  });
+
+  it("keeps a local guard where the config alone is not enough", () => {
+    // Reveal/TextReveal must render their settled state outright (the config
+    // only drops the transform); TerminalLoader runs an infinite pulse.
+    for (const file of [
+      "src/components/Reveal.tsx",
+      "src/components/TextReveal.tsx",
+      "src/components/tool/TerminalLoader.tsx",
+    ]) {
+      expect(read(file), `${file} should guard prefers-reduced-motion`).toContain(
+        "useReducedMotion",
+      );
+    }
   });
 });
 
