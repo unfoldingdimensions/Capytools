@@ -121,7 +121,7 @@
     transition-property: color, background-color, border-color, outline-color,
       text-decoration-color, fill, stroke;
     transition-duration: 150ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-timing-function: var(--ease-ui);
   }
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -197,7 +197,7 @@
 }
 
 .card-drift {
-  animation: card-drift 9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: card-drift 9s var(--ease-drift) infinite;
   will-change: transform;
   backface-visibility: hidden;
 }
@@ -215,7 +215,7 @@
   }
 }
 .capy-drift {
-  animation: capy-drift 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: capy-drift 6s var(--ease-drift) infinite;
   will-change: transform;
   transform-origin: center;
 }
@@ -249,7 +249,7 @@
   }
 }
 .capy-breathe {
-  animation: capy-breathe 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: capy-breathe 4.8s var(--ease-drift) infinite;
   will-change: transform;
   transform-origin: bottom center;
 }
@@ -303,7 +303,7 @@
 .ambient-wash-a {
   top: -18vmax;
   left: -14vmax;
-  animation: ambient-a 52s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+  animation: ambient-a 52s var(--ease-drift) infinite alternate;
 }
 
 .ambient-wash-b {
@@ -311,7 +311,7 @@
   bottom: -22vmax;
   width: 70vmax;
   height: 70vmax;
-  animation: ambient-b 68s cubic-bezier(0.45, 0, 0.55, 1) -14s infinite alternate;
+  animation: ambient-b 68s var(--ease-drift) -14s infinite alternate;
 }
 
 .ambient-wash-c {
@@ -319,7 +319,7 @@
   right: -26vmax;
   width: 54vmax;
   height: 54vmax;
-  animation: ambient-c 44s cubic-bezier(0.45, 0, 0.55, 1) -31s infinite alternate;
+  animation: ambient-c 44s var(--ease-drift) -31s infinite alternate;
 }
 
 @keyframes ambient-a {

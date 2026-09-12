@@ -59,6 +59,27 @@
   --chart-3: #c2b2a3;
   --chart-4: #c07952;
   --chart-5: #d9a441;
+
+  /*
+    Motion. These are the numbers DESIGN.md describes, in one place, so CSS and
+    the motion library cannot drift apart again — before this the landing ran
+    `cubic-bezier(0.22, 1, 0.36, 1)` and `cubic-bezier(0.2, 0, 0, 1)` while
+    `motion.ts` called its own curves "the" house curves, and hover durations
+    ranged from 150ms to 600ms against a documented 350.
+
+    The JavaScript mirror is src/lib/capytools/motion.ts.
+    tests/motion-tokens.test.ts fails if the two disagree.
+
+    Which duration applies is decided by WHAT MOVES, not by which component it
+    is: anything changing colour, border or opacity fades; anything that
+    translates or scales moves.
+  */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1); /* expo-out: reveals, entrances */
+  --ease-ui: cubic-bezier(0.33, 1, 0.68, 1); /* hovers, small moves, fades */
+  --ease-drift: cubic-bezier(0.45, 0, 0.55, 1); /* the infinite ambient loops */
+  --dur-fade: 250ms; /* colour, border, opacity */
+  --dur-move: 350ms; /* translate, scale */
+  --dur-entrance: 600ms; /* panels and cards arriving; 900ms for the hero */
 }
 
 .dark {

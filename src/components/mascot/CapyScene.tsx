@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CAPY_POSE, HEAD_PIVOT, POSE_VIEWBOX } from "@/lib/capytools/mascot";
+import { cssEase } from "@/lib/capytools/motion";
 import { cn } from "@/lib/utils";
 
 export type CapyPose = "loaf" | "friends" | "nap";
@@ -10,7 +11,7 @@ export type CapyPose = "loaf" | "friends" | "nap";
 const CYCLE: CapyPose[] = ["loaf", "friends", "nap"];
 const HOLD_MS = 4200;
 const SHIFT_MS = 900;
-const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const EASE = cssEase.entrance;
 
 interface Layer {
   transform: string;

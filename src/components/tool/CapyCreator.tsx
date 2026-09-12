@@ -238,7 +238,7 @@ export function CapyCreator() {
 
         {/* Collapsible Provider Settings Panel */}
         {showSettings && (
-          <div className="mt-4 rounded-2xl border border-border/80 bg-muted/40 p-4 transition-all">
+          <div className="mt-4 rounded-2xl border border-border/80 bg-muted/40 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)]">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-foreground">
                 LLM Polish Provider Configuration
@@ -515,7 +515,7 @@ export function CapyCreator() {
               {questions.map((q) => (
                 <div
                   key={q.id}
-                  className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-all focus-within:border-ring focus-within:bg-card"
+                  className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)] focus-within:border-ring focus-within:bg-card"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">

@@ -6,6 +6,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { spreadFrom, startTaggedTransition } from "@/lib/capytools/reveal";
+import { cssEase } from "@/lib/capytools/motion";
 
 /** Reveal duration for the theme spread, ms. */
 const SPREAD_MS = 650;
@@ -41,7 +42,7 @@ export function ThemeToggle() {
       { clipPath: [from, to] },
       {
         duration: SPREAD_MS,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+        easing: cssEase.ui,
         pseudoElement: "::view-transition-new(root)",
       },
     );
@@ -68,8 +69,8 @@ export function ThemeToggle() {
         HTML and re-render the whole page on the client.
       */}
       <span className="relative block h-4 w-4">
-        <Sun className="absolute inset-0 h-4 w-4 -rotate-90 scale-50 opacity-0 transition-all duration-300 ease-out dark:rotate-0 dark:scale-100 dark:opacity-100" />
-        <Moon className="absolute inset-0 h-4 w-4 rotate-0 scale-100 opacity-100 transition-all duration-300 ease-out dark:rotate-90 dark:scale-50 dark:opacity-0" />
+        <Sun className="absolute inset-0 h-4 w-4 -rotate-90 scale-50 opacity-0 transition-[transform,opacity] duration-[var(--dur-move)] ease-out dark:rotate-0 dark:scale-100 dark:opacity-100" />
+        <Moon className="absolute inset-0 h-4 w-4 rotate-0 scale-100 opacity-100 transition-[transform,opacity] duration-[var(--dur-move)] ease-out dark:rotate-90 dark:scale-50 dark:opacity-0" />
       </span>
     </Button>
   );
