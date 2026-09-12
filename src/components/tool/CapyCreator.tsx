@@ -40,6 +40,7 @@ import {
 } from "@/lib/capycreator/types";
 
 import { Button } from "@/components/ui/button";
+import { MountReveal } from "@/components/mount-reveal";
 import { StageCard, StageChip } from "@/components/stage-card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -240,7 +241,7 @@ export function CapyCreator() {
 
         {/* Collapsible Provider Settings Panel */}
         {showSettings && (
-          <div className="mt-4 rounded-2xl border border-border/80 bg-muted/40 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)]">
+          <MountReveal className="mt-4 rounded-2xl border border-border/80 bg-muted/40 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)]">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-foreground">
                 LLM Polish Provider Configuration
@@ -358,7 +359,7 @@ export function CapyCreator() {
                 </Button>
               </div>
             </div>
-          </div>
+          </MountReveal>
         )}
 
         {/* Ask input textarea */}
