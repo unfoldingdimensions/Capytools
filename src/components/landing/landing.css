@@ -153,8 +153,11 @@
   background: var(--lp-accent-ink);
 }
 
+/* The index mark beside an eyebrow. It was the muted token at 70% alpha, which
+   measures 2.88:1 on the cream canvas at 11px — under AA's 4.5:1. The quiet
+   register is the muted token itself, not a faded one. */
 .lp-ix {
-  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  color: var(--muted-foreground);
 }
 
 .lp-display {
@@ -2041,7 +2044,8 @@ a.lp-wire-item .lp-wire-name {
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  /* Same 2.88:1 problem as `.lp-ix` — see the note there. */
+  color: var(--muted-foreground);
 }
 
 /* ------------------------------ breakpoints ------------------------------ */
