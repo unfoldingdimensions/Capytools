@@ -12,7 +12,7 @@ export default function CapyStripPage() {
     <ToolPageShell
       tool="CapyStrip"
       eyebrow="CapyStrip · tool no. 4"
-      index="Nº 04 / 05"
+      index="Nº 04 / 06"
       headline={[
         { text: "Your photos talk." },
         { text: "This one helps them forget", em: true, dot: true },

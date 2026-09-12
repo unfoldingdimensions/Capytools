@@ -97,6 +97,19 @@ export const SUITE: SuiteTool[] = [
     line: "The desktop one — writes only to your own disk.",
     plate: { src: "/plates/lab-5.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyOG",
+    short: "OG",
+    href: "/capyog",
+    cat: "browser",
+    badge: "OG",
+    year: "2026",
+    blurb:
+      "OG images and social cards worth sharing — templates, sizes and accents composed in a live preview, then downloaded or copied. Nothing uploads.",
+    note: "Cards, in-tab",
+    line: "OG images & social cards, composed in your browser.",
+    plate: { src: "/plates/lab-6.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;

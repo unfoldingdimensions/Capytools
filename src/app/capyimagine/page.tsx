@@ -12,7 +12,7 @@ export default function CapyImagine() {
     <ToolPageShell
       tool="CapyImagine"
       eyebrow="CapyImagine · tool no. 2"
-      index="Nº 02 / 05"
+      index="Nº 02 / 06"
       headline={[{ text: "A prompt worth" }, { text: "rendering", em: true, dot: true }]}
       lead="random image & video prompts, tuned per engine. all local."
       align="left"

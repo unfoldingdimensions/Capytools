@@ -34,16 +34,17 @@ const html = renderToStaticMarkup(<Landing />);
 const text = html.replace(/<[^>]+>/g, " ");
 
 describe("Landing", () => {
-  it("links all five tools by their internal routes", () => {
+  it("links all six tools by their internal routes", () => {
     for (const tool of LABS.tools) {
       expect(html).toContain(`href="${tool.href}"`);
     }
-    // CapyExpense is one of the five — the suite count is not aspirational.
+    // CapyExpense is one of the six — the suite count is not aspirational.
     expect(text).toContain("CapyWrapped");
     expect(text).toContain("CapyImagine");
     expect(text).toContain("CapyCreator");
     expect(text).toContain("CapyStrip");
     expect(text).toContain("CapyExpense");
+    expect(text).toContain("CapyOG");
   });
 
   it("has exactly one h1", () => {
@@ -79,8 +80,8 @@ describe("Landing", () => {
   });
 
   it("keeps the verbatim README quote out of the derivation", () => {
-    expect(text).toContain("Five so far");
-    expect(text).not.toContain("Four so far");
+    expect(text).toContain("Six so far");
+    expect(text).not.toContain("Five so far");
   });
 
   it("ships a keyboard-reachable pause for the marquee (WCAG 2.2.2)", () => {
@@ -165,8 +166,9 @@ describe("Landing assets", () => {
 
   it("keeps the README quote in sync with the README itself", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
-    expect(readme).toContain("Five so far");
+    expect(readme).toContain("Six so far");
     expect(readme).toContain("## 5. CapyExpense");
+    expect(readme).toContain("## 6. CapyOG");
   });
 });
 

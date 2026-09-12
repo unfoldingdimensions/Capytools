@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Five so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Six so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -49,6 +49,16 @@ Drop, paste or pick a photo and CapyStrip reads everything the file carries — 
 ## 5. CapyExpense
 
 A local-first expense dashboard that reads a spreadsheet you type into yourself. The suite's documented desktop exception: a Tauri app with no network code that writes only to your own disk — stored on your machine, never ours. Everything else in the suite still runs 100% in your browser.
+
+## 6. CapyOG
+
+A card worth sharing. Compose Open Graph images and social cards right in the browser: four templates, six size presets from the 1200×630 link card to Pinterest's 1000×1500 pin, four accents, light and dark.
+
+- **Honest sizes**: each preset carries what the platform actually documents (X crops to 2:1, LinkedIn needs ≥1200×627, Facebook accepts ≤8 MB) — not the folklore.
+- **What you see is what exports**: the preview is the card at its canonical pixel size, scaled to fit; the download captures a full-size copy of those exact pixels.
+- **Export your way**: PNG at 1×/2×/3×, JPEG with a quality slider, or copy the image straight to the clipboard for a paste into any composer.
+
+No server route renders your card, nothing is uploaded, nothing is stored.
 
 ## Privacy
 
