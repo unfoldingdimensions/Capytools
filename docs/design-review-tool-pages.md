@@ -16,36 +16,61 @@ or four more tools, with CapyExpense about to launch.
 
 ## 0. Status
 
-*Updated 2026-09-12.* **P0 #1–3 are implemented and verified** — 500/501 tests
-pass, ESLint clean, `next build` green (the one failing test,
-`capyexpense-geometry > format > formats an unlisted but well-formed code`, is
-pre-existing and untouched by this work).
+*Updated 2026-09-12. All six P0 items are addressed.*
+
+| PR | Items | State |
+|---|---|---|
+| [#3](https://github.com/unfoldingdimensions/Capytools/pull/3) | P0 #1, #2, #3 | merged to `main` |
+| [#4](https://github.com/unfoldingdimensions/Capytools/pull/4) | P0 #4, #5, #6 | open, awaiting review |
 
 | # | Change | Where |
 |---|---|---|
 | 1 | One reduced-motion contract for every `motion.*` in the app, plus local guards where the config alone is not enough | new `src/components/motion-provider.tsx` (`reducedMotion="user"`), wired in `layout.tsx`; explicit `useReducedMotion` guards in `Reveal`, `TextReveal`, `TerminalLoader` |
-| 2 | One masthead for the whole site — landing, tools and meta pages — on the landing's `.lp-container`, with one CTA, one brand mark and a nav that collapses instead of vanishing | `src/components/header.tsx` rewritten; `Landing` now renders it; new `src/components/brand-mark.tsx` is the single logo slot |
+| 2 | One masthead for the whole site — landing, tools and meta pages — on the landing's `.lp-container`, with one CTA, one brand mark and a nav that collapses instead of vanishing | `src/components/header.tsx` rewritten; `Landing` now renders it; new `src/components/brand-mark.tsx` is the single logo slot; the superseded `LandingMasthead.tsx` deleted |
 | 3 | Skip link on every page, not just the landing | `ToolPageShell`, `notes`, `design`, `license` |
+| 4 | `CapyCreator` moved onto the shared form primitives, every label bound to its control, and its two smooth-scroll jumps put under `prefers-reduced-motion` | `CapyCreator.tsx`; new `src/components/ui/textarea.tsx` |
+| 5 | The unreachable page wipe removed, and the seam documented with the upgrade path rather than half-implemented | `globals.css`, `lib/capytools/reveal.ts`, `TransitionLink.tsx` |
+| 6 | The tool nav measures its own fit instead of trusting a breakpoint, and folds into the disclosure when the row would not fit | `header.tsx`, `landing.css` |
 
-Measured after the change: at a 919px viewport the brand sits at x=32 on
+Verification as of #4: **484 tests pass**, ESLint clean, `tsc --noEmit` clean,
+`next build` green (14/14 static pages). The one failing test,
+`capyexpense-geometry > format > formats an unlisted but well-formed code`, is
+pre-existing on `main` and untouched by this work.
+
+Measured after #2: at a 919px viewport the brand sits at x=32 on
 `/capywrapped`; at 735px it sits at x=24 on the landing — both exactly what
 `.lp-container`'s responsive padding predicts from a single shared component
 (before: x=84 vs x=32 at the same 1015px width).
 
-Decisions recorded from the client on 2026-09-12: tool pages converge **up** to
-the editorial landing; tool pages are an **app surface**; no per-tool accent
-colour; `landing.css` stays on every tool page; the lowercase register is
-deliberate but must not touch titles or anything needing uppercase; the circle-`C`
-was a placeholder pending a real logotype.
+Measured after #6, over CDP in headless Chrome at 390 / 900 / 1180 / 1400 /
+1700px on the landing and on a tool page: the row is inline while it fits, folds
+into the disclosure when it does not, and the page never overflows horizontally
+at any width. Two faults in the measurement itself were only visible by doing
+that — the container's `clientWidth` includes the page gutter it must not count,
+and `<Link ref={...}>` leaves the ref null in the App Router, which made the
+fold a silent no-op.
 
-Still open from P0: #4 (`CapyCreator`'s raw inputs and the unassociated label),
-#5 (`TransitionLink` / the dead wipe). #6 is partly addressed — the nav now
-collapses into a disclosure rather than dropping out, which removes the
-five-pill ceiling that forced the `md` breakpoint.
+### Decisions recorded from the client (2026-09-12)
 
-Loose end from this change: `src/components/landing/LandingMasthead.tsx` is now an
-unused passthrough (kept so the repo cannot drift back to two headers); it can be
-deleted — the delete was declined by the approval prompt on this run.
+Tool pages converge **up** to the editorial landing; a tool page is an **app
+surface**; no per-tool accent colour; `landing.css` stays on every tool page; the
+lowercase register is deliberate but must not touch titles or anything needing
+uppercase; the circle-`C` was a placeholder pending a real logotype.
+
+### Deliberately not done
+
+- **The page transition itself.** The unsupported half was removed rather than
+  half-implemented; re-adding it needs React's `<ViewTransition>`, which
+  `react@19.x` stable does not export. `TransitionLink` stays as the single seam
+  where it would reattach. Client decision on 2026-09-12: leave as is for now.
+- **One further deletion.** `src/components/TransitionLink.tsx` would be unused
+  if its 27 call sites were unwrapped. It stays for now as a documented seam
+  that names the upgrade path; unwrapping it needs an approved file delete.
+  (`LandingMasthead.tsx`, the other passthrough, was deleted in #4 once the
+  delete was approved.)
+- **Everything in P1 and P2** — the suite count hardcoded in roughly fifteen
+  places, the two `repeat(5, 1fr)` grids, the second footer, the missing
+  section-rule vocabulary on tool pages, and the `--clay` over-use.
 
 ---
 
@@ -169,6 +194,9 @@ STORED` — would reconcile 3.4 and 3.5 in one move.
 ---
 
 ## 4. Findings, by severity
+
+*All six P0 items are addressed — see §0 for what landed, where, and what was
+left out deliberately. The ratings below are the original findings as written.*
 
 ### P0 — fix before the CapyExpense launch
 
