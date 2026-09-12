@@ -43,8 +43,11 @@
   --lp-line-soft: color-mix(in oklab, var(--foreground) 8%, transparent);
   --lp-line-faint: color-mix(in oklab, var(--foreground) 5%, transparent);
   --lp-shadow: 0 30px 60px -30px color-mix(in oklab, var(--foreground) 16%, transparent);
-  --lp-ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
-  --lp-ease-ui: cubic-bezier(0.2, 0, 0, 1);
+  /* Aliases for the shared motion tokens (src/app/tokens.css) — every rule in
+     this sheet already used these two names, so unifying the curves was two
+     lines instead of forty call sites. */
+  --lp-ease-reveal: var(--ease-entrance);
+  --lp-ease-ui: var(--ease-ui);
 }
 
 .dark .lp {
@@ -84,7 +87,7 @@
   top: -56px;
   left: 24px;
   z-index: 100;
-  transition: top 180ms var(--lp-ease-ui);
+  transition: top var(--dur-fade) var(--lp-ease-ui);
   background: var(--primary);
   color: var(--primary-foreground);
   padding: 10px 18px;
@@ -205,10 +208,10 @@
   font-weight: 500;
   letter-spacing: -0.005em;
   transition:
-    transform 180ms var(--lp-ease-ui),
-    background-color 180ms var(--lp-ease-ui),
-    color 180ms var(--lp-ease-ui),
-    border-color 180ms var(--lp-ease-ui);
+    transform var(--dur-move) var(--lp-ease-ui),
+    background-color var(--dur-fade) var(--lp-ease-ui),
+    color var(--dur-fade) var(--lp-ease-ui),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-btn:active {
@@ -232,7 +235,7 @@
   stroke: currentColor;
   stroke-width: 1.8;
   fill: none;
-  transition: transform 180ms var(--lp-ease-ui);
+  transition: transform var(--dur-move) var(--lp-ease-ui);
 }
 
 .lp-btn:hover svg {
@@ -277,8 +280,8 @@
   border-bottom: 1px solid transparent;
   transform: translateY(0);
   transition:
-    transform 360ms var(--lp-ease-reveal),
-    border-color 220ms var(--lp-ease-ui);
+    transform var(--dur-move) var(--lp-ease-reveal),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-nav.is-hidden {
@@ -363,7 +366,7 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--foreground);
-  transition: color 180ms var(--lp-ease-ui);
+  transition: color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-nav-links a:hover {
@@ -408,8 +411,8 @@
   font-weight: 500;
   white-space: nowrap;
   transition:
-    background-color 180ms var(--lp-ease-ui),
-    transform 180ms var(--lp-ease-ui);
+    background-color var(--dur-fade) var(--lp-ease-ui),
+    transform var(--dur-move) var(--lp-ease-ui);
 }
 
 .lp-nav-cta::after {
@@ -446,7 +449,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;
-  transition: border-color 180ms var(--lp-ease-ui);
+  transition: border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-nav-toggle:hover {
@@ -459,8 +462,8 @@
   height: 1px;
   background: var(--foreground);
   transition:
-    transform 220ms var(--lp-ease-reveal),
-    opacity 220ms var(--lp-ease-ui);
+    transform var(--dur-move) var(--lp-ease-reveal),
+    opacity var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-nav.is-open .lp-nav-toggle span:first-child {
@@ -492,7 +495,7 @@
   font-size: 15px;
   font-weight: 500;
   color: var(--muted-foreground);
-  transition: color 180ms var(--lp-ease-ui);
+  transition: color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-nav-menu a:last-child {
@@ -761,8 +764,8 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
   transition:
-    color 180ms var(--lp-ease-ui),
-    border-color 180ms var(--lp-ease-ui);
+    color var(--dur-fade) var(--lp-ease-ui),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-wire-pause:hover {
@@ -850,7 +853,7 @@
 }
 
 a.lp-wire-item {
-  transition: color 180ms var(--lp-ease-ui);
+  transition: color var(--dur-fade) var(--lp-ease-ui);
 }
 
 a.lp-wire-item:hover {
@@ -1080,7 +1083,7 @@ a.lp-wire-item .lp-wire-name {
   stroke: currentColor;
   stroke-width: 1.8;
   fill: none;
-  transition: transform 180ms var(--lp-ease-ui);
+  transition: transform var(--dur-move) var(--lp-ease-ui);
 }
 
 .lp-arrow-mark:hover svg {
@@ -1137,9 +1140,9 @@ a.lp-wire-item .lp-wire-name {
   font-weight: 500;
   color: var(--foreground);
   transition:
-    background-color 180ms var(--lp-ease-ui),
-    color 180ms var(--lp-ease-ui),
-    border-color 180ms var(--lp-ease-ui);
+    background-color var(--dur-fade) var(--lp-ease-ui),
+    color var(--dur-fade) var(--lp-ease-ui),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-pill .lp-pill-count {
@@ -1223,7 +1226,7 @@ a.lp-wire-item .lp-wire-name {
   height: 100%;
   object-fit: cover;
   transform: scale(1);
-  transition: transform 600ms var(--lp-ease-reveal);
+  transition: transform var(--dur-move) var(--lp-ease-reveal);
   will-change: transform;
   backface-visibility: hidden;
 }
@@ -1540,7 +1543,7 @@ a.lp-wire-item .lp-wire-name {
   color: color-mix(in oklab, var(--slab-fg) 65%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--slab-fg) 30%, transparent);
   padding-bottom: 4px;
-  transition: color 180ms var(--lp-ease-ui);
+  transition: color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-work-link:hover {
@@ -1562,8 +1565,8 @@ a.lp-wire-item .lp-wire-name {
   padding: 26px;
   color: inherit;
   transition:
-    transform 350ms var(--lp-ease-reveal),
-    border-color 220ms var(--lp-ease-ui);
+    transform var(--dur-move) var(--lp-ease-reveal),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-work-card:hover {
@@ -1709,8 +1712,8 @@ a.lp-wire-item .lp-wire-name {
   text-align: center;
   color: var(--foreground);
   transition:
-    transform 250ms var(--lp-ease-reveal),
-    border-color 180ms var(--lp-ease-ui);
+    transform var(--dur-move) var(--lp-ease-reveal),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-partner:hover {
@@ -1811,8 +1814,8 @@ a.lp-wire-item .lp-wire-name {
   font-weight: 500;
   color: var(--foreground);
   transition:
-    background-color 180ms var(--lp-ease-ui),
-    border-color 180ms var(--lp-ease-ui);
+    background-color var(--dur-fade) var(--lp-ease-ui),
+    border-color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-email-pill:hover {
@@ -1921,7 +1924,7 @@ a.lp-wire-item .lp-wire-name {
 .lp-foot-col li a {
   font-size: 13.5px;
   color: color-mix(in oklab, var(--foreground) 80%, transparent);
-  transition: color 180ms var(--lp-ease-ui);
+  transition: color var(--dur-fade) var(--lp-ease-ui);
 }
 
 .lp-foot-col li a:hover {

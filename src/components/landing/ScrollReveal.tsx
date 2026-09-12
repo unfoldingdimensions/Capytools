@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
+import { ease } from "@/lib/capytools/motion";
 
 /**
  * Scroll-triggered entrance for the editorial landing's below-fold content.
@@ -13,7 +14,7 @@ import type { ReactNode } from "react";
  * Under prefers-reduced-motion the content renders static and visible.
  */
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE = ease.slowOut;
 
 type Direction = "up" | "left" | "right" | "scale" | "rise-lg";
 

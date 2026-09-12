@@ -9,6 +9,10 @@ import { cn } from "@/lib/utils";
  * Link whose underline wipes in from the left on hover/focus, with an optional
  * arrow that nudges. The underline is a pseudo-element scale so it animates on
  * the compositor rather than reflowing text.
+ *
+ * The `ease-[cubic-bezier(...)]` values are the entrance curve written out
+ * because Tailwind reads class strings statically and cannot take a JS token —
+ * they are `--ease-entrance` / `cssEase.entrance`, and they must match it.
  */
 export function AnimatedLink({
   children,

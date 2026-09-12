@@ -23,7 +23,8 @@ or four more tools, with CapyExpense about to launch.
 | [#3](https://github.com/unfoldingdimensions/Capytools/pull/3) | P0 #1, #2, #3 | merged to `main` |
 | [#4](https://github.com/unfoldingdimensions/Capytools/pull/4) | P0 #4, #5, #6 | merged to `main` |
 | [#5](https://github.com/unfoldingdimensions/Capytools/pull/5) | P1 #7, #8, #9 | merged to `main` |
-| this PR | P1 #10, #11, #12 | open, awaiting review |
+| [#6](https://github.com/unfoldingdimensions/Capytools/pull/6) | P1 #10, #11, #12 | merged to `main` |
+| this PR | P1 #13, #14, #15 | open, awaiting review |
 
 | # | Change | Where |
 |---|---|---|
@@ -39,6 +40,9 @@ or four more tools, with CapyExpense about to launch.
 | 10 | One button scale: the landing's CTA and a tool's main verb are both 48px, and `transition-all` is gone from the button | `landing.css`, `ui/button.tsx`, `UsernameForm`, `PromptGen`, `CapyCreator`, `CapyStrip`, `CapyExpenseShowcase` |
 | 11 | The radius scale collapsed to the documented three | `CardScaled`, `CapyStrip`, `ErrorCard`, `TerminalLoader`, `CapyExpenseShowcase`; guarded by `tests/design-scale.test.ts` |
 | 12 | Clay pulled back to alerts, required markers and the headline period; links moved to `--water`; `--gold` given the year-peak | `landing.css`, `capyexpense/page.tsx`, `CapyExpenseHeroChart.tsx` |
+| 13 | One easing language: three curves, defined once as `--ease-*` and mirrored in `motion.ts` | `tokens.css`, `motion.ts`, `landing.css`, `globals.css`, `Hero`, `ScrollReveal`, `CapyScene`, `CardScaled`, `CapyExpenseHeroChart`, `theme-toggle` |
+| 14 | The last blanket transitions removed, and a test that fails on a new one | `switch`, `theme-toggle`, `CapyCreator`; `tests/motion-tokens.test.ts` |
+| 15 | Hover durations collapsed onto two tokens, by what moves: 250ms fades, 350ms moves | `tokens.css`, `landing.css` (31 rules) |
 
 Verification as of #4: **484 tests pass**, ESLint clean, `tsc --noEmit` clean,
 `next build` green (14/14 static pages). The one failing test,
@@ -77,10 +81,9 @@ uppercase; the circle-`C` was a placeholder pending a real logotype.
   (`LandingMasthead.tsx`, the other passthrough, was deleted in #4 once the
   delete was approved.)
 - **The rest of P1 and P2** — the second footer, the missing section-rule
-  vocabulary on tool pages, and the per-tool eyebrow and index still written by
-  hand in each `page.tsx`. (The suite counts, the shared stage skeleton, the
-  tool-page surface rhythm, the button and radius scales and the palette roles
-  are done — #7 through #12.)
+  vocabulary on tool pages, the per-tool eyebrow and index still written by hand
+  in each `page.tsx`, and the motion gaps left in §6 (the filter replay, and the
+  missing "card mounts in place" transition). (#7 through #15 are done.)
 
 ---
 

@@ -6,6 +6,7 @@ import type { WrappedStats } from "@/lib/github/types";
 import { CardArt, CARD_WIDE } from "@/components/card/CardArt";
 import type { CardFormat, CardVariant } from "@/components/card/CardArt";
 import { SparklineLive } from "@/components/card/SparklineLive";
+import { cssEase } from "@/lib/capytools/motion";
 
 /** Share of the viewport height the preview may occupy. */
 const MAX_VIEWPORT_SHARE = 0.62;
@@ -65,7 +66,7 @@ export function CardScaled({
   const measured = scale > 0;
   // Frame and content share one duration/easing so the card doesn't scale ahead
   // of its own border during the wide↔square morph.
-  const morph = `${MORPH_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+  const morph = `${MORPH_MS}ms ${cssEase.entrance}`;
 
   return (
     <>

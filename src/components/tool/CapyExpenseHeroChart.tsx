@@ -2,6 +2,7 @@ import { byBucket } from "@/lib/capyexpense/aggregate";
 import type { DateRange } from "@/lib/capyexpense/bucket";
 import { addMonths, startOfMonth } from "@/lib/capyexpense/dates";
 import { DEFAULT_LOCALE, formatCompact } from "@/lib/capyexpense/format";
+import { cssEase } from "@/lib/capytools/motion";
 import { SAMPLE_CURRENCY, SAMPLE_NOW, SAMPLE_TRANSACTIONS } from "@/lib/capyexpense/sample";
 
 /**
@@ -104,16 +105,16 @@ export function CapyExpenseHeroChart() {
           .capyexpense-bar {
             transform-box: fill-box;
             transform-origin: bottom;
-            animation: capyexpense-grow ${BAR_MS}ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            animation: capyexpense-grow ${BAR_MS}ms ${cssEase.entrance} backwards;
           }
           .capyexpense-line {
             stroke-dasharray: 1;
-            animation: capyexpense-draw ${LINE_MS}ms cubic-bezier(0.33, 0, 0.25, 1) ${LINE_START}ms backwards;
+            animation: capyexpense-draw ${LINE_MS}ms ${cssEase.ui} ${LINE_START}ms backwards;
           }
           .capyexpense-peak {
             transform-box: fill-box;
             transform-origin: center;
-            animation: capyexpense-pop 420ms cubic-bezier(0.16, 1, 0.3, 1) ${LINE_START + LINE_MS - 120}ms backwards;
+            animation: capyexpense-pop 420ms ${cssEase.entrance} ${LINE_START + LINE_MS - 120}ms backwards;
           }
         }
       `}</style>

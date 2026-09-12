@@ -3,10 +3,11 @@
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { HERO, HERO_PLATE } from "@/lib/capytools/landing";
+import { ease } from "@/lib/capytools/motion";
 import { ArrowUpRight } from "@/components/landing/icons";
 import { TransitionLink } from "@/components/TransitionLink";
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE = ease.slowOut;
 
 /**
  * The cover plate. Above the fold, so entrances are mount-triggered (the
