@@ -1636,7 +1636,10 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-testimonial h2 {
-  font-weight: 700;
+  /* The display face, like the other seven section headlines. This one alone
+     was set in the UI face at weight 700 — a pull-quote voice nobody chose. */
+  font-family: var(--font-display);
+  font-weight: 300;
   font-size: clamp(30px, 3.6vw, 46px);
   line-height: 1.16;
   letter-spacing: -0.02em;
@@ -1646,7 +1649,7 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-testimonial h2 em {
   font-style: italic;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .lp-author {
