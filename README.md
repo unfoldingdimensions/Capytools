@@ -4,6 +4,15 @@ A home for small, quiet tools. Five so far. All run in your browser and keep not
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
+No signup, no cookie banner, no onboarding tour. Open a tool, use it, close the tab.
+
+## House rules
+
+1. **Arrive** — no account, no cookie banner, no onboarding tour.
+2. **Compute** — every byte is processed in your browser.
+3. **Forget** — the suite forgets you the moment the tab closes.
+4. **Keep** — download the file. Desktop tools keep it on your disk.
+
 ## 1. CapyWrapped
 
 Your GitHub year, wrapped in a calm little card. Named after the capybara.
@@ -41,6 +50,18 @@ Drop, paste or pick a photo and CapyStrip reads everything the file carries — 
 
 A local-first expense dashboard that reads a spreadsheet you type into yourself. The suite's documented desktop exception: a Tauri app with no network code that writes only to your own disk — stored on your machine, never ours. Everything else in the suite still runs 100% in your browser.
 
+## Privacy
+
+Nothing you type, drop or upload into a tool leaves the tab. There is no account to make and no database to leak.
+
+Vercel's cookieless analytics counts page views and load times for the site itself. It sees none of your file.
+
+## Contributing
+
+Bug reports and pull requests are welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md), which covers the promise each tool keeps, the design system, and how to add a tool.
+
+Found something broken? [Open an issue](https://github.com/unfoldingdimensions/Capytools/issues) with the tool name and what you expected.
+
 ## License
 
-[Apache-2.0](LICENSE).
+[Apache-2.0](LICENSE). Copyright 2026 unfoldingdimensions.
