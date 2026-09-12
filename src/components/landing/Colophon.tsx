@@ -1,5 +1,7 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { COLOPHON, TESTIMONIAL_PLATE } from "@/lib/capytools/landing";
+import { gridColumns } from "@/lib/capytools/suite";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { PartnerGlyph } from "@/components/landing/icons";
@@ -35,7 +37,12 @@ import { TransitionLink } from "@/components/TransitionLink";
             <div className="lp-divider" aria-hidden="true" />
             <p className="lp-partners-lead">{COLOPHON.partnersLead}</p>
 
-            <div className="lp-partners">
+            <div
+              className="lp-partners"
+              style={
+                { "--lp-partner-cols": gridColumns(COLOPHON.partners.length) } as CSSProperties
+              }
+            >
               {COLOPHON.partners.map((partner, i) => (
                 <ScrollReveal key={partner.name} delay={i * 0.07}>
                   <TransitionLink href={partner.href} className="lp-partner">

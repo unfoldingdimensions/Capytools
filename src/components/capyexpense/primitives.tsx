@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { StageCard } from "@/components/stage-card";
 import { cn } from "@/lib/utils";
 import type { Delta } from "@/lib/capyexpense/compare";
 import { formatPct } from "@/lib/capyexpense/format";
@@ -12,7 +13,12 @@ import { formatPct } from "@/lib/capyexpense/format";
  * `tests/capyexpense-boundaries.test.ts` fails the build if that slips.
  */
 
-/** The house numbered stage card, as used by CapyStrip and CapyCreator. */
+/**
+ * The dashboard's name for the shared numbered stage card. It was the first
+ * implementation and the only one with a docstring; the three tool pages each
+ * grew their own copy of it. `StageCard` is the one implementation now, and
+ * this stays so the dashboard's call sites and the desktop app read unchanged.
+ */
 export function ChartCard({
   index,
   title,
@@ -29,19 +35,9 @@ export function ChartCard({
   details?: ReactNode;
 }) {
   return (
-    <section
-      className={cn(
-        "flex flex-col rounded-3xl border border-border bg-card p-6 shadow-sm",
-        span === 2 && "lg:col-span-2",
-      )}
-    >
-      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-        {index} · {title}
-      </span>
-      {caption ? <p className="mt-2 text-sm text-muted-foreground">{caption}</p> : null}
-      <div className="mt-5 flex-1">{children}</div>
-      {details}
-    </section>
+    <StageCard index={index} title={title} caption={caption} span={span} footer={details}>
+      {children}
+    </StageCard>
   );
 }
 

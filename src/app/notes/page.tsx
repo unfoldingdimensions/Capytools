@@ -4,6 +4,7 @@ import { AmbientBackground } from "@/components/AmbientBackground";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { EXTERNAL } from "@/lib/capytools/landing";
+import { SUITE, SUITE_WORD_CAP, pad2 } from "@/lib/capytools/suite";
 import { TransitionLink } from "@/components/TransitionLink";
 
 export const metadata: Metadata = {
@@ -12,13 +13,13 @@ export const metadata: Metadata = {
     "Project notes for Capytools: the suite, the house rules, how to report an issue, and the colophon.",
 };
 
-const TOOLS = [
-  { no: "Nº 01", name: "CapyWrapped", href: "/capywrapped", line: "Your GitHub year in a calm little card." },
-  { no: "Nº 02", name: "CapyImagine", href: "/capyimagine", line: "Random image and video prompts, in your engine's dialect." },
-  { no: "Nº 03", name: "CapyCreator", href: "/capycreator", line: "Model-aware prompt engineering, flash to frontier." },
-  { no: "Nº 04", name: "CapyStrip", href: "/capystrip", line: "Photos talk; this helps them forget." },
-  { no: "Nº 05", name: "CapyExpense", href: "/capyexpense", line: "The desktop one — writes only to your own disk." },
-];
+/** Derived, so the notes page cannot fall behind the suite itself. */
+const TOOLS = SUITE.map((tool, i) => ({
+  no: `Nº ${pad2(i + 1)}`,
+  name: tool.name,
+  href: tool.href,
+  line: tool.line,
+}));
 
 const RULES = [
   { num: "01", title: "Arrive", copy: "No account, no cookie banner, no onboarding tour." },
@@ -44,9 +45,9 @@ export default function NotesPage() {
           <span className="lp-dot">.</span>
         </h1>
         <p className="lp-lead mt-6 max-w-[42ch]">
-          Five of them so far. All run in your browser and keep nothing — the
-          one documented exception is CapyExpense, which lives on your disk
-          instead.
+          {SUITE_WORD_CAP} of them so far. All run in your browser and keep
+          nothing — the one documented exception is CapyExpense, which lives on
+          your disk instead.
         </p>
 
         <div className="lp-divider mt-14" aria-hidden="true" />

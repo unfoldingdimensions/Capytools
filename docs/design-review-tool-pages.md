@@ -21,7 +21,8 @@ or four more tools, with CapyExpense about to launch.
 | PR | Items | State |
 |---|---|---|
 | [#3](https://github.com/unfoldingdimensions/Capytools/pull/3) | P0 #1, #2, #3 | merged to `main` |
-| [#4](https://github.com/unfoldingdimensions/Capytools/pull/4) | P0 #4, #5, #6 | open, awaiting review |
+| [#4](https://github.com/unfoldingdimensions/Capytools/pull/4) | P0 #4, #5, #6 | merged to `main` |
+| this PR | P1 #7, #8, #9 | open, awaiting review |
 
 | # | Change | Where |
 |---|---|---|
@@ -31,6 +32,9 @@ or four more tools, with CapyExpense about to launch.
 | 4 | `CapyCreator` moved onto the shared form primitives, every label bound to its control, and its two smooth-scroll jumps put under `prefers-reduced-motion` | `CapyCreator.tsx`; new `src/components/ui/textarea.tsx` |
 | 5 | The unreachable page wipe removed, and the seam documented with the upgrade path rather than half-implemented | `globals.css`, `lib/capytools/reveal.ts`, `TransitionLink.tsx` |
 | 6 | The tool nav measures its own fit instead of trusting a breakpoint, and folds into the disclosure when the row would not fit | `header.tsx`, `landing.css` |
+| 7 | One registry for the suite; every count, list and grid column derives from it | new `src/lib/capytools/suite.ts`; `landing.ts`, `Labs.tsx`, `Colophon.tsx`, `header.tsx`, `notes/page.tsx`, `app/page.tsx`, `landing.css` |
+| 8 | One numbered-stage card, replacing four implementations of it | new `src/components/stage-card.tsx`; `CapyStrip`, `CapyCreator`, `PromptGen`, `capyexpense/primitives.tsx` |
+| 9 | The landing's surface arc on every tool page: cream hero → white stage band → sage sign-off | `ToolPageShell.tsx`, `landing.css` |
 
 Verification as of #4: **484 tests pass**, ESLint clean, `tsc --noEmit` clean,
 `next build` green (14/14 static pages). The one failing test,
@@ -68,9 +72,10 @@ uppercase; the circle-`C` was a placeholder pending a real logotype.
   that names the upgrade path; unwrapping it needs an approved file delete.
   (`LandingMasthead.tsx`, the other passthrough, was deleted in #4 once the
   delete was approved.)
-- **Everything in P1 and P2** — the suite count hardcoded in roughly fifteen
-  places, the two `repeat(5, 1fr)` grids, the second footer, the missing
-  section-rule vocabulary on tool pages, and the `--clay` over-use.
+- **The rest of P1 and P2** — the second footer, the missing section-rule
+  vocabulary on tool pages, the per-tool eyebrow and index still written by hand
+  in each `page.tsx`, and the `--clay` over-use. (The suite counts, the shared
+  stage skeleton and the tool-page surface rhythm are done — #7, #8, #9.)
 
 ---
 

@@ -5,21 +5,18 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SUITE } from "@/lib/capytools/suite";
 
 export type NavLink = { href: string; label: string; active?: boolean };
 
 /**
- * The suite's tool switcher, shared by every page. Notes is the last entry
- * because it is the one non-tool destination the chrome carries — it used to
- * be an icon button on the tool pages and a text link on the landing, which
- * was another way the two headers drifted apart.
+ * The suite's tool switcher, derived from the registry so a new tool appears
+ * here the moment it appears in `SUITE` — the row measures its own fit and
+ * folds into the disclosure, so nothing here needs editing for tool #9 either.
+ * Notes is the one non-tool destination the chrome carries.
  */
 const TOOL_LINKS: NavLink[] = [
-  { href: "/capywrapped", label: "Wrapped" },
-  { href: "/capyimagine", label: "Imagine" },
-  { href: "/capycreator", label: "Creator" },
-  { href: "/capystrip", label: "Strip" },
-  { href: "/capyexpense", label: "Expense" },
+  ...SUITE.map((tool) => ({ href: tool.href, label: tool.short })),
   { href: "/notes", label: "Notes" },
 ];
 

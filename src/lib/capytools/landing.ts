@@ -17,6 +17,17 @@
  *   the port.
  */
 
+import {
+  SUITE,
+  SUITE_INDEX,
+  SUITE_LIST,
+  SUITE_WORD,
+  SUITE_WORD_CAP,
+  countByCategory,
+  pad2,
+  suiteNumber,
+} from "@/lib/capytools/suite";
+
 export const EXTERNAL = {
   repo: "https://github.com/unfoldingdimensions/Capytools",
   readme: "https://github.com/unfoldingdimensions/Capytools#readme",
@@ -31,18 +42,18 @@ export type Headline = { text: string; em?: boolean }[];
 
 export const HERO = {
   label: "Calm little tool suite",
-  ix: "· Nº 05",
+  ix: `· Nº ${SUITE_INDEX}`,
   headline: [
     { text: "Calm " },
     { text: "little tools", em: true },
     { text: ", quiet by " },
     { text: "default", em: true },
   ] as Headline,
-  lead: "Five small tools — CapyWrapped, CapyImagine, CapyCreator, CapyStrip and CapyExpense — that run entirely in your browser and keep nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.",
+  lead: `${SUITE_WORD_CAP} small tools — ${SUITE_LIST} — that run entirely in your browser and keep nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.`,
   primary: { label: "Open the tools", href: "#labs" },
   secondary: { label: "CapyExpense — coming soon", href: "/capyexpense" },
   stats: [
-    { value: "05", label: "tools", sub: "in the suite", tone: "solid" },
+    { value: SUITE_INDEX, label: "tools", sub: "in the suite", tone: "solid" },
     { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
     { value: "100%", label: "client-side", sub: "no uploads", tone: "clay" },
   ] as { value: string; label: string; sub: string; tone: string }[],
@@ -51,14 +62,8 @@ export const HERO = {
 
 export const WIRE = {
   title: "The suite, live",
-  sub: "Five tools · zero servers · one tab",
-  tools: [
-    { no: "Nº 01", name: "CapyWrapped" },
-    { no: "Nº 02", name: "CapyImagine" },
-    { no: "Nº 03", name: "CapyCreator" },
-    { no: "Nº 04", name: "CapyStrip" },
-    { no: "Nº 05", name: "CapyExpense" },
-  ],
+  sub: `${SUITE_WORD_CAP} tools · zero servers · one tab`,
+  tools: SUITE.map((tool, i) => ({ no: `Nº ${pad2(i + 1)}`, name: tool.name })),
   /** Real engine lists: src/lib/promptgen/criteria.ts + capycreator/profiles.ts. */
   engines: {
     imagine: [
@@ -154,82 +159,35 @@ export type LabCategory = "browser" | "desktop";
 
 export const LABS = {
   roman: "IV.",
-  meta: ["Labs / Tool Catalog", "05 of 05 shipped"],
+  meta: ["Labs / Tool Catalog", `${SUITE_INDEX} of ${SUITE_INDEX} shipped`],
   label: "Labs",
   ix: "· Nº 04",
   headline: [
-    { text: "Five quiet tools, each one " },
+    { text: `${SUITE_WORD_CAP} quiet tools, each one ` },
     { text: "finished", em: true },
     { text: " before the next begins" },
   ] as Headline,
   pills: [
-    { id: "all", label: "All", count: "05" },
-    { id: "browser", label: "Browser", count: "04" },
-    { id: "desktop", label: "Desktop", count: "01" },
+    { id: "all", label: "All", count: SUITE_INDEX },
+    { id: "browser", label: "Browser", count: pad2(countByCategory("browser")) },
+    { id: "desktop", label: "Desktop", count: pad2(countByCategory("desktop")) },
   ] as { id: "all" | LabCategory; label: string; count: string }[],
   residence: {
-    ring: "05",
+    ring: SUITE_INDEX,
     title: "Tools in residence",
-    sub: ["one suite, five small rooms,", "no lobby, no queue"],
+    sub: [`one suite, ${SUITE_WORD} small rooms,`, "no lobby, no queue"],
   },
-  foot: "05 / 05 TOOLS",
-  tools: [
-    {
-      badge: "Wrapped",
-      no: "Nº 01",
-      year: "2026",
-      name: "CapyWrapped",
-      blurb:
-        "Your GitHub year in a calm little card — contributions, a month-by-month trendline, stars and top languages.",
-      href: "/capywrapped",
-      cat: "browser" as LabCategory,
-      plate: { src: "/plates/lab-1.webp", width: 896, height: 1200 },
-    },
-    {
-      badge: "Imagine",
-      no: "Nº 02",
-      year: "2026",
-      name: "CapyImagine",
-      blurb:
-        "Random image and video prompts, tuned in your engine's dialect — ratios, frames and negative clauses included.",
-      href: "/capyimagine",
-      cat: "browser" as LabCategory,
-      plate: { src: "/plates/lab-2.webp", width: 896, height: 1200 },
-    },
-    {
-      badge: "Create",
-      no: "Nº 03",
-      year: "2026",
-      name: "CapyCreator",
-      blurb:
-        "Model-aware prompt engineering scaled from flash to frontier — intent elucidation, assembly, optional polish.",
-      href: "/capycreator",
-      cat: "browser" as LabCategory,
-      plate: { src: "/plates/lab-3.webp", width: 896, height: 1200 },
-    },
-    {
-      badge: "Strip",
-      no: "Nº 04",
-      year: "2026",
-      name: "CapyStrip",
-      blurb:
-        "Photos talk; this helps them forget. Reads every metadata trail, strips it in-tab, then proves the strip.",
-      href: "/capystrip",
-      cat: "browser" as LabCategory,
-      plate: { src: "/plates/lab-4.webp", width: 896, height: 1200 },
-    },
-    {
-      badge: "Desktop · soon",
-      no: "Nº 05",
-      year: "2026",
-      name: "CapyExpense",
-      blurb:
-        "The one that will live on your machine — a Tauri desktop app writing only to your own disk. Builds are not out yet.",
-      href: "/capyexpense",
-      cat: "desktop" as LabCategory,
-      plate: { src: "/plates/lab-5.webp", width: 896, height: 1200 },
-    },
-  ],
+  foot: `${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`,
+  tools: SUITE.map((tool, i) => ({
+    badge: tool.badge,
+    no: `Nº ${pad2(i + 1)}`,
+    year: tool.year,
+    name: tool.name,
+    blurb: tool.blurb,
+    href: tool.href,
+    cat: tool.cat,
+    plate: tool.plate,
+  })),
 } as const;
 
 export const METHOD = {
@@ -286,11 +244,11 @@ export const WORK = {
     { text: " and clutter for " },
     { text: "cards", em: true },
   ] as Headline,
-  link: { label: "All five tools", href: "#labs" },
+  link: { label: `All ${SUITE_WORD} tools`, href: "#labs" },
   cards: [
     {
       kicker: "Featured tool",
-      index: "01 / 05",
+      index: `${suiteNumber("/capywrapped")} / ${SUITE_INDEX}`,
       name: "CapyWrapped",
       copy: "Your GitHub year, wrapped in a calm little card — contributions, a month-by-month trendline, stars and top languages. Named after the capybara.",
       href: "/capywrapped",
@@ -299,7 +257,7 @@ export const WORK = {
     },
     {
       kicker: "Privacy tool",
-      index: "04 / 05",
+      index: `${suiteNumber("/capystrip")} / ${SUITE_INDEX}`,
       name: "CapyStrip",
       copy: "Drop, paste or pick a photo. CapyStrip reads GPS, device serials, editing software and AI fingerprints, strips everything in-tab, then re-scans its own output to prove it.",
       href: "/capystrip",
@@ -314,6 +272,9 @@ export const COLOPHON = {
   meta: ["Colophon / First Line", "Quoted verbatim"],
   label: "From the first line",
   ix: "· Nº 07",
+  // A verbatim quote from the project README, so the count in it is NOT derived
+  // — "five" here is a quotation, and tests/landing.test.tsx asserts this string
+  // against the README itself so the two cannot drift apart silently.
   quote: [
     { text: "“A home for " },
     { text: "small, quiet tools.", em: true },
@@ -326,33 +287,11 @@ export const COLOPHON = {
   },
   partnersLead: "The whole suite, one glyph each — every tool one click from the last.",
   readMore: { label: "Read the notes", href: "/notes" },
-  partners: [
-    {
-      name: "CapyWrapped",
-      small: "GitHub year",
-      href: "/capywrapped",
-    },
-    {
-      name: "CapyImagine",
-      small: "Prompt roulette",
-      href: "/capyimagine",
-    },
-    {
-      name: "CapyCreator",
-      small: "Model-aware",
-      href: "/capycreator",
-    },
-    {
-      name: "CapyStrip",
-      small: "Metadata off",
-      href: "/capystrip",
-    },
-    {
-      name: "CapyExpense",
-      small: "Coming soon",
-      href: "/capyexpense",
-    },
-  ],
+  partners: SUITE.map((tool) => ({
+    name: tool.name,
+    small: tool.note,
+    href: tool.href,
+  })),
 } as const;
 
 export const CTA = {
@@ -375,8 +314,7 @@ export const CTA = {
 } as const;
 
 export const LANDING_FOOTER = {
-  blurb:
-    "Calm little tools that run entirely in your browser and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of five, Apache-licensed, version 0.1.0.",
+  blurb: `Calm little tools that run entirely in your browser and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of ${SUITE_WORD}, Apache-licensed, version 0.1.0.`,
   getExpense: {
     label: "CapyExpense, soon",
     sub: "Desktop · writes only to your disk",
@@ -385,13 +323,7 @@ export const LANDING_FOOTER = {
   columns: [
     {
       title: "Suite",
-      links: [
-        { label: "CapyWrapped", href: "/capywrapped" },
-        { label: "CapyImagine", href: "/capyimagine" },
-        { label: "CapyCreator", href: "/capycreator" },
-        { label: "CapyStrip", href: "/capystrip" },
-        { label: "CapyExpense", href: "/capyexpense" },
-      ],
+      links: SUITE.map((tool) => ({ label: tool.name, href: tool.href })),
     },
     {
       title: "Project",
@@ -405,13 +337,17 @@ export const LANDING_FOOTER = {
     {
       title: "Colophon",
       links: [
-        { label: "Five tools", href: "#labs" },
+        { label: `${SUITE_WORD_CAP} tools`, href: "#labs" },
         { label: "House rules", href: "#method" },
         { label: "First line", href: "#testimonial" },
       ],
     },
   ],
-  status: ["Capytools · Apache-2.0 · 2026 / Vol. 01 / Issue Nº 05", "In your browser", "♥ MMXXVI"],
+  status: [
+    `Capytools · Apache-2.0 · 2026 / Vol. 01 / Issue Nº ${SUITE_INDEX}`,
+    "In your browser",
+    "♥ MMXXVI",
+  ],
   mega: [
     { text: "Quiet by " },
     { text: "default", em: true },

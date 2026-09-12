@@ -23,6 +23,7 @@ import {
 } from "@/lib/promptgen/criteria";
 import { assemble, buildPickSet, generateSeed } from "@/lib/promptgen/assemble";
 import { Button } from "@/components/ui/button";
+import { StageCard, StageChip } from "@/components/stage-card";
 import {
   Select,
   SelectContent,
@@ -158,7 +159,7 @@ export function PromptGen() {
   return (
     <div className="flex w-full flex-col gap-4">
       {/* ---- controls ---- */}
-      <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+      <StageCard index="01" title="Scene controls">
         <Field label="Detail">
           <div className="inline-flex rounded-full bg-muted/50 p-1">
             {TIER_META.map((t) => (
@@ -285,14 +286,18 @@ export function PromptGen() {
             </label>
           </div>
         </div>
-      </div>
+      </StageCard>
 
       {/* ---- output ---- */}
-      <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--lp-accent-ink)]">
+      <StageCard
+        index="02"
+        title="The prompt"
+        chips={
+          <StageChip>
             {engine} · seed {pickSet ? seed : "—"}
-          </p>
+          </StageChip>
+        }
+        actions={
           <Button
             variant="ghost"
             size="sm"
@@ -303,11 +308,12 @@ export function PromptGen() {
             {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
             {copied ? "Copied" : "Copy"}
           </Button>
-        </div>
+        }
+      >
 
         {/* Inset panel: bg-muted against the card's bg-card reads as a well in
             both themes, so the prompt is an object you copy rather than body text. */}
-        <pre className="mt-3 min-h-24 whitespace-pre-wrap break-words rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed text-foreground">
+        <pre className="min-h-24 whitespace-pre-wrap break-words rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed text-foreground">
           {prompt || "…"}
         </pre>
 
@@ -362,7 +368,7 @@ export function PromptGen() {
             Randomize
           </Button>
         </div>
-      </div>
+      </StageCard>
     </div>
   );
 }

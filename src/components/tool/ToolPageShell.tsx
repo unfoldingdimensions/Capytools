@@ -16,10 +16,18 @@ import "@/components/landing/landing.css";
 /**
  * The editorial chrome every tool page shares, in the landing's voice: a
  * hairline eyebrow, a display headline whose terminal period is the landing's
- * clay dot, a lead line, and a sign-off row ("back to the suite" + index).
+ * clay dot, a lead line, the stage itself, and a sign-off.
  *
- * The tool itself mounts as the single screen below the header block — pages
- * may extend as results render, but nothing editorial is added around them.
+ * The page runs the LANDING'S SURFACE ARC, not a flat sheet: the hero sits on
+ * the cream canvas, the stage sits on a white band with hairline rules, and the
+ * sign-off sits on the sage accent. That is the landing's cream → white band →
+ * cream → ink slab → sage band rhythm, cut down to the three surfaces a tool
+ * page has room for. Before this, all five tools were one uninterrupted cream
+ * field from masthead to footer, so the only thing distinguishing them was the
+ * widget in the middle.
+ *
+ * The tool itself is the single screen inside that band — pages may extend as
+ * results render, but nothing editorial is added around them.
  */
 export function ToolPageShell({
   tool,
@@ -52,6 +60,8 @@ export function ToolPageShell({
   entrance?: boolean;
   children: React.ReactNode;
 }) {
+  const width = large ? "max-w-5xl" : "max-w-4xl";
+
   return (
     // No `bg-background` here on purpose: body already paints it, and an opaque
     // wrapper would cover the fixed ambient layer sitting at -z-10. `.lp`
@@ -66,16 +76,12 @@ export function ToolPageShell({
       <AmbientBackground />
       <Header tool={tool} />
 
-      <main
-        id="main"
-        className={cn(
-          "mx-auto flex w-full flex-1 flex-col items-center px-6 pb-20",
-          large ? "max-w-5xl" : "max-w-4xl",
-        )}
-      >
+      <main id="main" className="flex w-full flex-1 flex-col">
+        {/* Cover plate — the cream canvas, as the landing's hero has it. */}
         <section
           className={cn(
-            "flex w-full flex-col items-center text-center",
+            "mx-auto flex w-full flex-col items-center px-6 text-center",
+            width,
             large ? "pt-8 sm:pt-14" : "pt-5 sm:pt-8",
           )}
         >
@@ -109,20 +115,28 @@ export function ToolPageShell({
           </Reveal>
         </section>
 
-        {entrance ? (
-          <Reveal delay={0.3} className={cn("mt-9 w-full", align === "left" && "text-left")}>
-            {children}
-          </Reveal>
-        ) : (
-          // Expense's own entrance is the chart drawing itself; no container fade.
-          <div className={cn("mt-9 w-full", align === "left" && "text-left")}>{children}</div>
-        )}
+        {/* The stage, on the band. */}
+        <div className="lp-tool-band mt-9">
+          <div className={cn("mx-auto w-full px-6 py-10 sm:py-14", width)}>
+            {entrance ? (
+              <Reveal delay={0.3} className={cn("w-full", align === "left" && "text-left")}>
+                {children}
+              </Reveal>
+            ) : (
+              // Expense's own entrance is the chart drawing itself; no container fade.
+              <div className={cn("w-full", align === "left" && "text-left")}>{children}</div>
+            )}
+          </div>
+        </div>
 
-        <div className="lp-tool-foot w-full">
-          <Link href="/" className="lp-read-more">
-            ← back to the suite
-          </Link>
-          <span className="lp-tool-foot-ix">{index}</span>
+        {/* The closing accent, and where the sign-off lives. */}
+        <div className="lp-tool-signoff">
+          <div className={cn("lp-tool-foot mx-auto w-full px-6", width)}>
+            <Link href="/" className="lp-read-more">
+              ← back to the suite
+            </Link>
+            <span className="lp-tool-foot-ix">{index}</span>
+          </div>
         </div>
       </main>
 

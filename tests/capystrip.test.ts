@@ -3,6 +3,8 @@ import { deflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 
 import { sniffImageKind } from "../src/lib/capystrip/detect";
+import { HERO, LABS } from "../src/lib/capytools/landing";
+import { SUITE, pad2, suiteNumber } from "../src/lib/capytools/suite";
 import {
   canvasIsUsable,
   decideOutputMime,
@@ -407,20 +409,17 @@ describe("decideOutputMime", () => {
 // ---- 7. registration parity ---------------------------------------------------
 
 describe("capystrip registration", () => {
-  const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
-
-  it("is registered on the landing page with the hero count bumped", () => {
-    // The editorial landing registers tools in the landing data module.
-    const landing = read("../src/lib/capytools/landing.ts");
-    expect(landing).toContain('href: "/capystrip"');
-    expect(landing).toContain('no: "Nº 04"');
-    // Bumped by each new tool; CapyExpense (no. 5) is the current tail.
-    expect(landing).toContain("Five small tools");
-  });
-
-  it("is registered in the header navigation", () => {
-    const header = read("../src/components/header.tsx");
-    expect(header).toContain('{ href: "/capystrip", label: "Strip" }');
+  it("is registered in the suite, and every surface derives from that one row", () => {
+    const at = SUITE.findIndex((tool) => tool.href === "/capystrip");
+    expect(at).toBeGreaterThanOrEqual(0);
+    expect(SUITE[at].name).toBe("CapyStrip");
+    // The landing catalog, the masthead's switcher, the Colophon's partner row,
+    // the footer's Suite column, the notes page and the sitemap all read this
+    // array, so its position here is the tool's number everywhere — and adding
+    // a tool is one row plus its page, not a scavenger hunt.
+    expect(suiteNumber("/capystrip")).toBe(pad2(at + 1));
+    expect(LABS.tools.some((tool) => tool.href === "/capystrip")).toBe(true);
+    expect(HERO.lead).toContain("CapyStrip");
   });
 });
 
