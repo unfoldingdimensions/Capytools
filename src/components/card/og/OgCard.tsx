@@ -39,7 +39,7 @@ export function OgCard({
     fontSize: Math.max(10, Math.round(unit * 0.022)),
     letterSpacing: "0.24em",
     textTransform: "uppercase",
-    color: c.accent,
+    color: c.accentText,
   };
   const attribution: CSSProperties = {
     fontFamily: FONT_MONO,
@@ -54,6 +54,7 @@ export function OgCard({
         width,
         height,
         boxSizing: "border-box",
+        overflow: "hidden",
         background: c.bg,
         color: c.ink,
         fontFamily: FONT_SANS,
@@ -83,6 +84,21 @@ const FONT_SANS = "'Plus Jakarta Sans', system-ui, sans-serif";
 const FONT_MONO = "'Albert Sans', 'Plus Jakarta Sans', system-ui, sans-serif";
 
 type Tokens = ReturnType<typeof accentTokens>;
+
+/**
+ * Clamp a text block to `lines`, so overlong input ends in an ellipsis instead
+ * of growing past the frame and being silently cropped by the export. Satori
+ * allows `-webkit-box` only on single-child nodes (invariants §1), which every
+ * call site here satisfies.
+ */
+function clampLines(lines: number): CSSProperties {
+  return {
+    overflow: "hidden",
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: lines,
+  };
+}
 
 /** Display title: the plain segment clamped to two lines, the italic one on
  *  its own line — the house headline pattern. Each block carries exactly one
@@ -114,10 +130,7 @@ function Title({
         <div
           style={{
             ...type,
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: clamp,
+            ...clampLines(clamp),
           }}
         >
           {data.title}
@@ -129,10 +142,7 @@ function Title({
             ...type,
             fontStyle: "italic",
             fontWeight: 400,
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 1,
+            ...clampLines(1),
           }}
         >
           {data.titleEm}
@@ -194,7 +204,7 @@ function Quote({
         viewBox="0 0 24 24"
         width={mark}
         height={mark}
-        fill={c.accent}
+        fill={c.accentText}
         style={{ display: "flex" }}
         aria-hidden
       >
@@ -210,10 +220,7 @@ function Quote({
             lineHeight: 1.14,
             color: c.ink,
             wordBreak: "break-word",
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 4,
+            ...clampLines(4),
             marginTop: Math.round(unit * 0.03),
           }}
         >
@@ -255,6 +262,8 @@ function Stat({
             letterSpacing: "-0.02em",
             fontVariantNumeric: "tabular-nums",
             color: c.ink,
+            wordBreak: "break-word",
+            ...clampLines(1),
           }}
         >
           {data.big}
@@ -269,6 +278,7 @@ function Stat({
             lineHeight: 1.2,
             color: c.ink,
             marginTop: Math.round(unit * 0.025),
+            ...clampLines(2),
           }}
         >
           {data.title}
@@ -282,6 +292,7 @@ function Stat({
             lineHeight: 1.35,
             color: c.muted,
             marginTop: Math.round(unit * 0.015),
+            ...clampLines(2),
           }}
         >
           {data.subtitle}
@@ -312,7 +323,7 @@ function Announcement({
             letterSpacing: "0.18em",
             textTransform: "uppercase",
             color: c.accentInk,
-            background: c.accent,
+            background: c.accentFill,
             borderRadius: 999,
             padding: `${Math.max(4, Math.round(unit * 0.012))}px ${Math.round(
               unit * 0.026,
@@ -332,6 +343,7 @@ function Announcement({
             lineHeight: 1.35,
             color: c.muted,
             marginTop: Math.round(unit * 0.025),
+            ...clampLines(2),
           }}
         >
           {data.subtitle}
