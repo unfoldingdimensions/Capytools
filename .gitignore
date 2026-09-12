@@ -60,3 +60,14 @@ Capytools-Editorial-Landing*.zip
 
 # local design archive (source of the landing port)
 Capytools-Editorial-Landing-OpenDesign/
+
+# stray agent-harness scaffolding (not part of the app)
+.openclaw/
+evolution-drafts/
+.agents/skills/fc-nginx-website/
+/SOUL.md
+/IDENTITY.md
+/MEMORY.md
+/HEARTBEAT.md
+/TOOLS.md
+/USER.md

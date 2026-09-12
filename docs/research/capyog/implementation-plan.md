@@ -1,4 +1,4 @@
-# CapyOG (tool no. 5) — Implementation Plan
+# CapyOG (tool no. 6) — Implementation Plan
 
 *Prepared 2026-09-05 by the orchestrator session. This document is a complete handoff: an agent
 session that has never seen this conversation should be able to implement CapyOG from it alone.
@@ -144,8 +144,8 @@ tests/capyog.test.ts
 tests/capyog-render.test.tsx      # Satori smoke (§9)
 ```
 
-Register in: `src/app/page.tsx` (`TOOLS` array, eyebrow `tool no. 5`; hero count sentence —
-currently "Four of them so far." at `src/app/page.tsx:61` — becomes "Five of them so far.") and
+Register in: `src/app/page.tsx` (`TOOLS` array, eyebrow `tool no. 6`; hero count sentence —
+currently "Five of them so far." — becomes "Six of them so far.") and
 `src/components/header.tsx` (`TOOLS` nav: `{ href: "/capyog", label: "OG" }`). Add a numbered
 section to `README.md`.
 
@@ -291,7 +291,7 @@ image into the post composer (X intent URLs can't carry images — cite `postToX
 Facebook ≤ 8 MB, LinkedIn needs ≥1200×627, Pinterest crops >2:3. This is the SEO/demand copy doing
 double duty as help text.
 
-Page shell: copy `src/app/capyimagine/page.tsx` exactly — eyebrow **`CapyOG · tool no. 5`**, Fraunces
+Page shell: copy `src/app/capyimagine/page.tsx` exactly — eyebrow **`CapyOG · tool no. 6`**, Fraunces
 heading with italic punchline ("a card worth *sharing*."), lowercase subtitle "og images & social
 cards, composed in your browser. all local.". Metadata:
 
@@ -310,9 +310,9 @@ you add a failure path (export failure → inline note is enough).
 
 ## 8. Registration recipe (per AGENTS.md §5)
 
-1. `TOOLS` in `src/app/page.tsx` — `{ href: "/capyog", eyebrow: "tool no. 5", name: "CapyOG",
+1. `TOOLS` in `src/app/page.tsx` — `{ href: "/capyog", eyebrow: "tool no. 6", name: "CapyOG",
    line: "social cards & og images, composed in your browser." }`; bump the hero sentence to
-   "Five of them so far."; grid already `lg:grid-cols-3` (fits 5–6 tools without change).
+   "Six of them so far."; grid already `lg:grid-cols-3` (fits 5–6 tools without change).
 2. `TOOLS` in `src/components/header.tsx` — `{ href: "/capyog", label: "OG" }`.
 3. `README.md` — numbered tool section (match the existing entries' voice).
 4. Respect the parallel-session rule in §4 for committing page/header.
