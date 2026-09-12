@@ -26,7 +26,7 @@ or four more tools, with CapyExpense about to launch.
 | # | Change | Where |
 |---|---|---|
 | 1 | One reduced-motion contract for every `motion.*` in the app, plus local guards where the config alone is not enough | new `src/components/motion-provider.tsx` (`reducedMotion="user"`), wired in `layout.tsx`; explicit `useReducedMotion` guards in `Reveal`, `TextReveal`, `TerminalLoader` |
-| 2 | One masthead for the whole site — landing, tools and meta pages — on the landing's `.lp-container`, with one CTA, one brand mark and a nav that collapses instead of vanishing | `src/components/header.tsx` rewritten; `Landing` now renders it; new `src/components/brand-mark.tsx` is the single logo slot |
+| 2 | One masthead for the whole site — landing, tools and meta pages — on the landing's `.lp-container`, with one CTA, one brand mark and a nav that collapses instead of vanishing | `src/components/header.tsx` rewritten; `Landing` now renders it; new `src/components/brand-mark.tsx` is the single logo slot; the superseded `LandingMasthead.tsx` deleted |
 | 3 | Skip link on every page, not just the landing | `ToolPageShell`, `notes`, `design`, `license` |
 | 4 | `CapyCreator` moved onto the shared form primitives, every label bound to its control, and its two smooth-scroll jumps put under `prefers-reduced-motion` | `CapyCreator.tsx`; new `src/components/ui/textarea.tsx` |
 | 5 | The unreachable page wipe removed, and the seam documented with the upgrade path rather than half-implemented | `globals.css`, `lib/capytools/reveal.ts`, `TransitionLink.tsx` |
@@ -63,11 +63,11 @@ uppercase; the circle-`C` was a placeholder pending a real logotype.
   half-implemented; re-adding it needs React's `<ViewTransition>`, which
   `react@19.x` stable does not export. `TransitionLink` stays as the single seam
   where it would reattach. Client decision on 2026-09-12: leave as is for now.
-- **Two file deletions.** `src/components/landing/LandingMasthead.tsx` has been
-  unused since #2, and `src/components/TransitionLink.tsx` would be unused if its
-  27 call sites were unwrapped. Both need an approved file delete; both are kept
-  as passthroughs meanwhile, so the repo cannot drift back to two
-  implementations of either.
+- **One further deletion.** `src/components/TransitionLink.tsx` would be unused
+  if its 27 call sites were unwrapped. It stays for now as a documented seam
+  that names the upgrade path; unwrapping it needs an approved file delete.
+  (`LandingMasthead.tsx`, the other passthrough, was deleted in #4 once the
+  delete was approved.)
 - **Everything in P1 and P2** — the suite count hardcoded in roughly fifteen
   places, the two `repeat(5, 1fr)` grids, the second footer, the missing
   section-rule vocabulary on tool pages, and the `--clay` over-use.
