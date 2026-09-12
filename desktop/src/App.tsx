@@ -9,6 +9,7 @@ import { dataSpanOf, resolveRange } from "@/lib/capyexpense/bucket";
 import { todayIso } from "@/lib/capyexpense/dates";
 import { SAMPLE_CURRENCY, SAMPLE_NOW, SAMPLE_TRANSACTIONS } from "@/lib/capyexpense/sample";
 import { workbookFileName } from "@/lib/capyexpense/workbook-plan";
+import { HistoryPanel } from "./HistoryPanel";
 import { Onboarding } from "./Onboarding";
 import { readPrefs, savePrefs, type Prefs } from "./settings";
 import { applyTheme, readTheme, watchSystemTheme } from "./theme";
@@ -28,6 +29,7 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [fatal, setFatal] = useState<string | null>(null);
   const [state, setState] = useState<RangeState>({ preset: "month", anchor: todayIso() });
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // Hydrate stored values on client mount (AGENTS.md pattern).
   const hydrate = useCallback(() => {
@@ -202,6 +204,15 @@ export function App() {
             </button>
             <button
               type="button"
+              onClick={() => setHistoryOpen((v) => !v)}
+              aria-expanded={historyOpen}
+              aria-controls="capyexpense-history"
+              className="rounded-full border border-border px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {historyOpen ? "hide history" : "version history"}
+            </button>
+            <button
+              type="button"
               disabled={loading}
               onClick={() => void refresh(prefs.folder!)}
               className="min-w-[84px] rounded-full bg-primary px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--primary-foreground)] disabled:opacity-50"
@@ -234,6 +245,17 @@ export function App() {
           ) : null
         }
       />
+
+      {historyOpen ? (
+        <div id="capyexpense-history">
+          <HistoryPanel
+            folder={prefs.folder}
+            workbooks={workspace?.files ?? []}
+            transactions={workspace?.transactions ?? []}
+            onRestored={() => refresh(prefs.folder!)}
+          />
+        </div>
+      ) : null}
 
       <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
