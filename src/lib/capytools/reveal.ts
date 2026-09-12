@@ -1,13 +1,24 @@
 /**
- * View-transition helpers shared by the theme spread and the page wipe.
+ * View-transition helpers for the theme spread.
  *
- * Both effects use the same trick: wrap a DOM change in
- * `document.startViewTransition`, then animate the incoming snapshot. CSS in
- * globals.css keys off `data-vt` on <html> so the two effects can't apply each
- * other's keyframes.
+ * The effect works by wrapping a DOM change in `document.startViewTransition`,
+ * then animating the incoming snapshot. CSS in globals.css keys off `data-vt`
+ * on <html>, so the tag says which effect is running.
+ *
+ * There used to be a second effect — a page wipe on navigation — and
+ * `TransitionLink` still exists as the single seam where it would be
+ * reattached. The hand-rolled version was removed when it turned out that
+ * `router.push()` inside the transition callback does not compose with the App
+ * Router: the callback has to mutate the DOM synchronously, and the new route
+ * renders after it returns. The supported replacement is React's
+ * `<ViewTransition>` plus `<Link transitionTypes>` (see
+ * `next/dist/docs/01-app/02-guides/view-transitions.md`), which needs the React
+ * canary build — `ViewTransition` is not exported by react@19.x stable, which
+ * is what this project pins. Until that dependency moves, navigation is a hard
+ * cut and there is deliberately no half-implementation here.
  */
 
-export type TransitionKind = "theme" | "wipe";
+export type TransitionKind = "theme";
 
 /** Circle geometry that grows from `box` until it clears the whole viewport. */
 export function spreadFrom(

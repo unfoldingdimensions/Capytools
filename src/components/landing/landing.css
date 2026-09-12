@@ -338,6 +338,11 @@
   display: flex;
   align-items: center;
   gap: 34px;
+  /* The row is measured, not guessed at (see Header). `min-width: 0` lets
+     flexbox squeeze it instead of widening the bar, so the pre-hydration
+     frame can clip a long row but can never break the layout. */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .lp-nav-links a {
@@ -413,7 +418,12 @@
    880px and the tool header dropped its five pills at 768px, which left the
    tool switcher absent on every phone. */
 .lp-nav-toggle {
-  display: none;
+  /* Always in the flow, hidden or not: `visibility`, never `display`, so the
+     right-hand cluster keeps a constant width and the fit measurement in
+     Header has something stable to subtract. */
+  display: inline-flex;
+  visibility: hidden;
+  flex-shrink: 0;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
@@ -491,13 +501,29 @@
   text-align: center;
 }
 
+/* Measured overflow: the row would not fit, so it folds into the disclosure.
+   `position: absolute` takes it out of the flow while `visibility: hidden`
+   keeps it measurable and out of the a11y tree and the tab order — display:
+   none would zero its width and make the measurement flap. */
+.lp-nav.is-crowded .lp-nav-links {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lp-nav.is-crowded .lp-nav-toggle {
+  visibility: visible;
+}
+
+/* No-JS floor. The measurement would fold the row below this width anyway, but
+   the page has to be right before hydration. */
 @media (max-width: 1179px) {
   .lp-nav-links {
     display: none;
   }
 
   .lp-nav-toggle {
-    display: inline-flex;
+    visibility: visible;
   }
 
   .lp-nav-menu.is-open {

@@ -80,6 +80,26 @@ describe("reduced motion", () => {
   });
 });
 
+/**
+ * The page wipe was removed, not shipped half-working: its keyframes were
+ * unreachable and its docstring claimed a behaviour that did not exist.
+ * Re-adding it needs React's <ViewTransition>, which react@19.x stable does
+ * not export — see src/lib/capytools/reveal.ts. This guards against the CSS
+ * coming back without the wiring.
+ */
+describe("no unreachable page transition", () => {
+  const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8");
+
+  it("leaves no wipe keyframes or tag in the stylesheet", () => {
+    expect(read("src/app/globals.css")).not.toContain('data-vt="wipe"');
+    expect(read("src/app/globals.css")).not.toContain("vt-wipe");
+  });
+
+  it("leaves no wipe tag in the transition helper", () => {
+    expect(read("src/lib/capytools/reveal.ts")).not.toContain('"wipe"');
+  });
+});
+
 describe("TextReveal", () => {
   it("keeps the sentence readable to assistive tech while animating words", () => {
     const html = renderToStaticMarkup(<TextReveal text="Your GitHub year," />);

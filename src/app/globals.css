@@ -131,10 +131,10 @@
       animation-duration: 0.01ms !important;
     }
   }
-  /* View transitions. `data-vt` on <html> (set in lib/capytools/reveal.ts) picks
-     which effect runs, so the theme spread and the page wipe never apply each
-     other's keyframes. Both stack the incoming snapshot on top of the outgoing
-     one rather than cross-fading them. */
+  /* View transitions. `data-vt` on <html> (set in lib/capytools/reveal.ts) tags
+     which effect is running — today only the theme spread. The incoming
+     snapshot stacks on top of the outgoing one rather than cross-fading with
+     it. */
   :root[data-vt]::view-transition-old(root),
   :root[data-vt]::view-transition-new(root) {
     mix-blend-mode: normal;
@@ -151,28 +151,6 @@
   :root[data-vt="theme"]::view-transition-old(root),
   :root[data-vt="theme"]::view-transition-new(root) {
     animation: none;
-  }
-
-  /* Page wipe: the new page slides up over the old one behind a colour band. */
-  :root[data-vt="wipe"]::view-transition-old(root) {
-    animation: vt-wipe-out 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  :root[data-vt="wipe"]::view-transition-new(root) {
-    animation: vt-wipe-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @keyframes vt-wipe-out {
-    to {
-      transform: translateY(-2%);
-      opacity: 0.6;
-    }
-  }
-  @keyframes vt-wipe-in {
-    from {
-      clip-path: inset(100% 0 0 0);
-    }
-    to {
-      clip-path: inset(0 0 0 0);
-    }
   }
   html {
     @apply font-sans antialiased;

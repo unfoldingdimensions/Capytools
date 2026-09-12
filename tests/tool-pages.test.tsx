@@ -92,6 +92,17 @@ describe("tool pages — editorial shell", () => {
     expect(html).toContain('aria-controls="capyexpense-demo"');
   });
 
+  it("CapyCreator's fields are labelled, not just visually captioned", () => {
+    const html = markup(<CapyCreatorPage />);
+    // The primary ask field used to be a <label> with no htmlFor against a
+    // <textarea> with no id, so clicking the label did nothing, the field had
+    // no accessible name, and keyboard focus showed only a 1px border colour
+    // change. It is the shared Textarea now, which carries the house ring.
+    expect(html).toContain('id="creator-ask"');
+    expect(html).toContain('for="creator-ask"');
+    expect(html).toContain('data-slot="textarea"');
+  });
+
   it("corner marks frame the hero artifacts", () => {
     // Strip's drop card, Wrapped's demo card and the Expense showcase carry
     // the landing's plate crop marks.

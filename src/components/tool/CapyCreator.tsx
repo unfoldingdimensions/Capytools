@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import {
   ArrowRight,
   Check,
@@ -39,6 +40,8 @@ import {
 } from "@/lib/capycreator/types";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -59,6 +62,7 @@ const TIER_OPTIONS = [
 ];
 
 export function CapyCreator() {
+  const reduced = useReducedMotion();
   const [ask, setAsk] = useState("do a design review of the login page");
   const [model, setModel] = useState<ModelFamily>("gemini");
   const [tierOverride, setTierOverride] = useState<string>("auto");
@@ -93,16 +97,28 @@ export function CapyCreator() {
   const effectiveTier = tierOverride === "auto" ? activeProfile.capability_tier : Number(tierOverride);
   const taskType = useMemo(() => detectTaskType(ask), [ask]);
 
+  // Scrolling is motion: `scrollIntoView({behavior:"smooth"})` animates the
+  // viewport and `prefers-reduced-motion` does not govern it, so it is asked
+  // for explicitly — the same promise the CSS and motion layers keep.
+  const revealCard = useCallback(
+    (id: string) => {
+      window.setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({
+          behavior: reduced ? "auto" : "smooth",
+          block: "start",
+        });
+      }, 50);
+    },
+    [reduced],
+  );
+
   // Handle question generation
   const handleGenerateQuestions = useCallback(() => {
     const tierNum = tierOverride === "auto" ? undefined : Number(tierOverride);
     const qs = buildQuestionnaire(ask, model, tierNum);
     setQuestions(qs);
-    // Smooth scroll down to questionnaire
-    setTimeout(() => {
-      document.getElementById("questionnaire-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  }, [ask, model, tierOverride]);
+    revealCard("questionnaire-card");
+  }, [ask, model, tierOverride, revealCard]);
 
   // Handle assembly
   const handleAssemble = useCallback(() => {
@@ -113,10 +129,8 @@ export function CapyCreator() {
     setLastDeterministicPrompt(out);
     setPolishEnabled(false);
     setPolishNote("");
-    setTimeout(() => {
-      document.getElementById("output-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  }, [ask, model, answers, tierOverride, activeProfile]);
+    revealCard("output-card");
+  }, [ask, model, answers, tierOverride, activeProfile, revealCard]);
 
   // Handle polish toggle
   const handlePolishToggle = async (enabled: boolean) => {
@@ -240,7 +254,7 @@ export function CapyCreator() {
                   value={polishSettings.provider}
                   onValueChange={(v) => handleProviderChange(v as PolishProvider)}
                 >
-                  <SelectTrigger className="mt-1 w-full rounded-xl bg-card" aria-label="Polish Provider">
+                  <SelectTrigger className="mt-1 w-full rounded-2xl bg-card" aria-label="Polish Provider">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -257,46 +271,58 @@ export function CapyCreator() {
               </div>
 
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <label
+                  htmlFor="polish-model"
+                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                >
                   Polish Model Name
-                </span>
-                <input
+                </label>
+                <Input
+                  id="polish-model"
                   type="text"
                   value={polishSettings.model}
                   onChange={(e) => setPolishSettings({ ...polishSettings, model: e.target.value })}
                   placeholder={PROVIDER_PRESETS[polishSettings.provider].defaultModel}
-                  className="mt-1 w-full rounded-xl border border-border bg-card px-3 py-1.5 font-mono text-xs text-foreground outline-none focus:border-primary"
+                  className="mt-1 bg-card font-mono text-xs"
                 />
               </div>
             </div>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <label
+                  htmlFor="polish-base-url"
+                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                >
                   Base URL
-                </span>
-                <input
+                </label>
+                <Input
+                  id="polish-base-url"
                   type="text"
                   value={polishSettings.baseUrl}
                   onChange={(e) => setPolishSettings({ ...polishSettings, baseUrl: e.target.value })}
                   placeholder={PROVIDER_PRESETS[polishSettings.provider].defaultBaseUrl}
-                  className="mt-1 w-full rounded-xl border border-border bg-card px-3 py-1.5 font-mono text-xs text-foreground outline-none focus:border-primary"
+                  className="mt-1 bg-card font-mono text-xs"
                 />
               </div>
 
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <label
+                  htmlFor="polish-api-key"
+                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                >
                   API Key
-                </span>
+                </label>
                 <div className="relative mt-1">
-                  <input
+                  <Input
+                    id="polish-api-key"
                     type="password"
                     value={polishSettings.apiKey}
                     onChange={(e) => setPolishSettings({ ...polishSettings, apiKey: e.target.value })}
                     placeholder={PROVIDER_PRESETS[polishSettings.provider].placeholderKey}
-                    className="w-full rounded-xl border border-border bg-card px-3 py-1.5 pr-8 font-mono text-xs text-foreground outline-none focus:border-primary"
+                    className="bg-card pr-8 font-mono text-xs"
                   />
-                  <Key className="absolute right-2.5 top-2.5 size-3 text-muted-foreground" />
+                  <Key className="pointer-events-none absolute right-2.5 top-1/2 size-3 -translate-y-1/2 text-muted-foreground" />
                 </div>
               </div>
             </div>
@@ -334,14 +360,18 @@ export function CapyCreator() {
 
         {/* Ask input textarea */}
         <div className="mt-4">
-          <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <label
+            htmlFor="creator-ask"
+            className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+          >
             Your ask (can be vague)
           </label>
-          <textarea
+          <Textarea
+            id="creator-ask"
             value={ask}
             onChange={(e) => setAsk(e.target.value)}
             rows={3}
-            className="mt-1.5 w-full resize-y rounded-2xl border border-border bg-muted/40 p-3.5 font-sans text-sm text-foreground outline-none transition-all focus:border-ring focus:ring-2 focus:ring-ring/20"
+            className="mt-1.5 bg-muted/40 font-sans"
             placeholder="e.g. do a design review of the login page"
           />
 
@@ -504,11 +534,15 @@ export function CapyCreator() {
                     </span>
                   </div>
 
-                  <p className="mt-1.5 text-xs font-medium leading-snug text-foreground">
+                  <label
+                    htmlFor={`answer-${q.id}`}
+                    className="mt-1.5 block text-xs font-medium leading-snug text-foreground"
+                  >
                     {q.text}
-                  </p>
+                  </label>
 
-                  <textarea
+                  <Textarea
+                    id={`answer-${q.id}`}
                     rows={2}
                     value={answers[q.id] || ""}
                     onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
@@ -517,7 +551,7 @@ export function CapyCreator() {
                         ? "Answer needed for accurate prompt assembly..."
                         : "Optional (leave blank to let model infer)..."
                     }
-                    className="mt-2 w-full resize-y rounded-xl border border-border bg-card p-2.5 font-sans text-xs text-foreground outline-none focus:border-ring"
+                    className="mt-2 bg-card font-sans text-xs"
                   />
                 </div>
               ))}
