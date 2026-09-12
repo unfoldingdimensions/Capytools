@@ -46,8 +46,32 @@ export function buildManifest(name: string, shortName: string): string {
   return `${JSON.stringify(manifest, null, 2)}\n`;
 }
 
-/** The exact `<head>` block, shipped verbatim in html-snippet.txt. */
-export const HEAD_SNIPPET = `<link rel="icon" href="/favicon.ico" sizes="32x32">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/manifest.webmanifest">`;
+/**
+ * Every file the pack carries, in order — the one list the `<head>` block is
+ * checked against.
+ *
+ * `favicon.svg` is a passthrough of the dropped file, so it exists only when
+ * the source WAS an SVG. That is why the snippet below is a function of the
+ * same flag and not a constant: it used to name favicon.svg unconditionally,
+ * which sent anyone who dropped a PNG away with a link to a file the zip did
+ * not contain.
+ */
+export function packFileNames(hasSvg: boolean): string[] {
+  return [
+    "favicon.ico",
+    ...PACK_SPECS.map((spec) => spec.file),
+    "manifest.webmanifest",
+    "html-snippet.txt",
+    ...(hasSvg ? ["favicon.svg"] : []),
+  ];
+}
+
+/** The exact `<head>` block for this pack, shipped verbatim in html-snippet.txt. */
+export function headSnippet(hasSvg: boolean): string {
+  return [
+    '<link rel="icon" href="/favicon.ico" sizes="32x32">',
+    ...(hasSvg ? ['<link rel="icon" href="/favicon.svg" type="image/svg+xml">'] : []),
+    '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
+    '<link rel="manifest" href="/manifest.webmanifest">',
+  ].join("\n");
+}

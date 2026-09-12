@@ -11,7 +11,8 @@ import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { IDLE_HEADLINE, IDLE_HINT, LOADER_STEPS } from "@/lib/capyresize/demo";
 import { buildIco, type IcoFrame } from "@/lib/capyresize/ico";
-import { HEAD_SNIPPET, ICO_SIZES, buildManifest, maskableBox } from "@/lib/capyresize/pack";
+import { saveBlob } from "@/lib/download";
+import { ICO_SIZES, buildManifest, headSnippet, maskableBox } from "@/lib/capyresize/pack";
 import {
   CanvasRefusedError,
   DecodeFailedError,
@@ -104,6 +105,8 @@ function ColorField({
   );
 }
 
+const PACK_ZIP_NAME = "favicon-pack.zip";
+
 export function CapyResize() {
   const [stage, setStage] = useState<StageId>("resize");
 
@@ -113,7 +116,10 @@ export function CapyResize() {
   const [loading, setLoading] = useState(false);
   const [loaderStep, setLoaderStep] = useState(-1);
   const [error, setError] = useState<ErrorNotice | null>(null);
-  const [status, setStatus] = useState("");
+  // Stamped with the file it describes, so "saved x.png." steps aside once the
+  // dial no longer produces that file. An empty stamp is a note about the
+  // source, which stays put.
+  const [status, setStatus] = useState({ text: "", file: "" });
   const [dragOver, setDragOver] = useState(false);
 
   // Stage A — the dial.
@@ -132,6 +138,7 @@ export function CapyResize() {
   const [packFiles, setPackFiles] = useState<PackFiles | null>(null);
   const [stripUrls, setStripUrls] = useState<string[]>([]);
   const [snippetCopied, setSnippetCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const fileInput = useRef<HTMLInputElement>(null);
   const runId = useRef(0);
@@ -152,7 +159,7 @@ export function CapyResize() {
     setFileName(file.name);
     setBeforeBytes(file.size);
     setLoading(true);
-    setStatus("");
+    setStatus({ text: "", file: "" });
 
     try {
       setLoaderStep(0);
@@ -175,11 +182,12 @@ export function CapyResize() {
       setBackground(sampleCornerColor(next.img));
       setLoading(false);
       setLoaderStep(-1);
-      setStatus(
-        next.animated
+      setStatus({
+        text: next.animated
           ? `read ${next.width}×${next.height} — animated gif, the first frame is the one that gets used.`
           : `read ${next.width}×${next.height} — the dial above sets the rest.`,
-      );
+        file: "",
+      });
     } catch (caught) {
       if (runId.current !== run) return;
       setLoading(false);
@@ -244,9 +252,9 @@ export function CapyResize() {
         } catch (caught) {
           if (cancelled) return;
           if (caught instanceof CanvasRefusedError) {
-            setStatus("the browser refused this export — try a smaller size.");
+            setStatus({ text: "the browser refused this export — try a smaller size.", file: "" });
           } else {
-            setStatus("the export failed — dial the size down and try again.");
+            setStatus({ text: "the export failed — dial the size down and try again.", file: "" });
           }
         }
       })();
@@ -285,6 +293,9 @@ export function CapyResize() {
           const icon512 = drawPaddedFrom(decoded.img, 512, 512, background);
           const maskable = drawPaddedFrom(decoded.img, 512, maskableBox(512), background);
 
+          // The snippet and the file it names come off one flag, or the reader
+          // is handed a <link> to something the zip never carried.
+          const withSvg = decoded.kind === "svg" && currentFile.current !== null;
           const files: PackFiles = [
             { name: "favicon.ico", blob: new Blob([buildIco(icoFrames)], { type: "image/x-icon" }) },
             { name: "apple-touch-icon.png", blob: await encodeCanvas(apple, "png", 1) },
@@ -295,9 +306,12 @@ export function CapyResize() {
               name: "manifest.webmanifest",
               blob: new Blob([buildManifest(name, short)], { type: "application/manifest+json" }),
             },
-            { name: "html-snippet.txt", blob: new Blob([`${HEAD_SNIPPET}\n`], { type: "text/plain" }) },
+            {
+              name: "html-snippet.txt",
+              blob: new Blob([`${headSnippet(withSvg)}\n`], { type: "text/plain" }),
+            },
           ];
-          if (decoded.kind === "svg" && currentFile.current) {
+          if (withSvg && currentFile.current) {
             // Passthrough only — raster to vector is not a thing this does.
             files.push({ name: "favicon.svg", blob: currentFile.current });
           }
@@ -320,9 +334,12 @@ export function CapyResize() {
         } catch (caught) {
           if (cancelled) return;
           if (caught instanceof CanvasRefusedError) {
-            setStatus("the browser refused this export — try a smaller source image.");
+            setStatus({
+              text: "the browser refused this export — try a smaller source image.",
+              file: "",
+            });
           } else {
-            setStatus("the pack build failed — try the file again.");
+            setStatus({ text: "the pack build failed — try the file again.", file: "" });
           }
         }
       })();
@@ -334,47 +351,62 @@ export function CapyResize() {
     };
   }, [decoded, siteName, shortName, background, applePad, stage]);
 
+  // One flag decides the passthrough file, the <link> that names it, and the
+  // block the copy button hands over.
+  const snippet = headSnippet(decoded?.kind === "svg");
+
   const download = useCallback(async () => {
-    if (!result) return;
+    if (!result || busy) return;
     // A Safari WebP fallback hands back PNG bytes; the name says what is inside.
     const effective: OutputFormat = result.webpFallback ? "png" : format;
     const name = resizeFilename(fileName, result.width, effective);
-    const url = URL.createObjectURL(result.blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
-    setStatus(
-      result.webpFallback
-        ? `saved ${name} — this browser writes webp as png, so png is what you got.`
-        : `saved ${name}.`,
-    );
-  }, [result, format, fileName]);
+    setBusy(true);
+    try {
+      saveBlob(result.blob, name);
+      setStatus({
+        text: result.webpFallback
+          ? `saved ${name} — this browser writes webp as png, so png is what you got.`
+          : `saved ${name}.`,
+        file: name,
+      });
+    } finally {
+      setBusy(false);
+    }
+  }, [result, format, fileName, busy]);
 
   const downloadZip = useCallback(async () => {
-    if (!packFiles) return;
-    const blob = await zipPack(packFiles);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "favicon-pack.zip";
-    a.click();
-    URL.revokeObjectURL(url);
-    setStatus(`saved favicon-pack.zip — ${packFiles.length} files, unzips where you drop it.`);
-  }, [packFiles]);
+    if (!packFiles || busy) return;
+    setBusy(true);
+    try {
+      saveBlob(await zipPack(packFiles), PACK_ZIP_NAME);
+      setStatus({
+        text: `saved favicon-pack.zip — ${packFiles.length} files, unzips where you drop it.`,
+        file: PACK_ZIP_NAME,
+      });
+    } finally {
+      setBusy(false);
+    }
+  }, [packFiles, busy]);
 
   const copySnippet = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(HEAD_SNIPPET);
+      await navigator.clipboard.writeText(snippet);
       setSnippetCopied(true);
       window.setTimeout(() => setSnippetCopied(false), COPIED_MS);
     } catch {
-      setStatus("this browser blocked the copy — select the text above by hand.");
+      setStatus({ text: "this browser blocked the copy — select the text above by hand.", file: "" });
     }
-  }, []);
+  }, [snippet]);
 
   const savings = result ? savingsPercent(result.beforeBytes, result.afterBytes) : 0;
+  // The note only speaks for the file currently on the dial.
+  const currentName =
+    stage === "favicon"
+      ? PACK_ZIP_NAME
+      : result
+        ? resizeFilename(fileName, result.width, result.webpFallback ? "png" : format)
+        : "";
+  const note = status.file && status.file !== currentName ? "" : status.text;
 
   return (
     <div className="flex w-full flex-col gap-5">
@@ -647,13 +679,18 @@ export function CapyResize() {
                 </div>
 
                 <div className="mt-5 flex justify-center">
-                  <Button size="sm" className="min-w-[84px] rounded-full" onClick={() => void download()}>
+                  <Button
+                    size="sm"
+                    className="min-w-[84px] rounded-full"
+                    onClick={() => void download()}
+                    disabled={busy}
+                  >
                     <Download className="mr-1.5 size-3.5" />
                     Download
                   </Button>
                 </div>
                 <p aria-live="polite" className="mt-3 min-h-5 text-center text-xs text-muted-foreground">
-                  {status}
+                  {note}
                 </p>
               </>
             ) : (
@@ -708,7 +745,7 @@ export function CapyResize() {
                 <div className="mt-4">
                   <span className={labelClass}>paste into your head</span>
                   <div className="mt-1.5 overflow-x-auto rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
-                    <pre className="whitespace-pre">{HEAD_SNIPPET}</pre>
+                    <pre className="whitespace-pre">{snippet}</pre>
                   </div>
                   <p className="mt-2 text-[11px] text-muted-foreground">
                     the svg line waits for a file you can add later — browsers skip it quietly until it exists.
@@ -716,7 +753,12 @@ export function CapyResize() {
                 </div>
 
                 <div className="mt-5 flex flex-wrap justify-center gap-2">
-                  <Button size="sm" className="min-w-[84px] rounded-full" onClick={() => void downloadZip()}>
+                  <Button
+                    size="sm"
+                    className="min-w-[84px] rounded-full"
+                    onClick={() => void downloadZip()}
+                    disabled={busy}
+                  >
                     <Download className="mr-1.5 size-3.5" />
                     Download ZIP
                   </Button>
@@ -731,7 +773,7 @@ export function CapyResize() {
                   </Button>
                 </div>
                 <p aria-live="polite" className="mt-3 min-h-5 text-center text-xs text-muted-foreground">
-                  {status}
+                  {note}
                 </p>
               </>
             ) : (

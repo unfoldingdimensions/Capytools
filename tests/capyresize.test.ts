@@ -4,7 +4,14 @@ import { describe, expect, it } from "vitest";
 
 import { metadata } from "../src/app/capyresize/page";
 import { buildIco } from "../src/lib/capyresize/ico";
-import { HEAD_SNIPPET, ICO_SIZES, PACK_SPECS, buildManifest, maskableBox } from "../src/lib/capyresize/pack";
+import {
+  ICO_SIZES,
+  PACK_SPECS,
+  buildManifest,
+  headSnippet,
+  maskableBox,
+  packFileNames,
+} from "../src/lib/capyresize/pack";
 import {
   CanvasRefusedError,
   extensionFor,
@@ -162,15 +169,31 @@ describe("pack — the traced file set", () => {
     expect(masked).toHaveLength(1);
   });
 
-  it("the head snippet is exactly the four traced lines", () => {
-    expect(HEAD_SNIPPET).toBe(
-      [
-        '<link rel="icon" href="/favicon.ico" sizes="32x32">',
-        '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
-        '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
-        '<link rel="manifest" href="/manifest.webmanifest">',
-      ].join("\n"),
-    );
+  it("the head snippet names the svg line only when the pack carries one", () => {
+    expect(headSnippet(true).split("\n")).toEqual([
+      '<link rel="icon" href="/favicon.ico" sizes="32x32">',
+      '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
+      '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
+      '<link rel="manifest" href="/manifest.webmanifest">',
+    ]);
+    expect(headSnippet(false)).not.toContain("favicon.svg");
+    expect(headSnippet(false).split("\n")).toHaveLength(3);
+  });
+
+  /**
+   * The bug this pins: the snippet was a constant naming favicon.svg, while
+   * the file is a passthrough that only exists for an SVG source — so anyone
+   * who dropped a PNG was handed a <link> to a file the zip never carried.
+   */
+  it("every href in the snippet is a file the pack actually ships", () => {
+    for (const hasSvg of [true, false]) {
+      const shipped = packFileNames(hasSvg);
+      const hrefs = [...headSnippet(hasSvg).matchAll(/href="\/([^"]+)"/g)].map((m) => m[1]);
+      expect(hrefs.length).toBeGreaterThan(0);
+      for (const href of hrefs) {
+        expect(shipped, `${href} (hasSvg=${hasSvg})`).toContain(href);
+      }
+    }
   });
 
   it("maskableBox restates the 40% safe zone as an 80% fit", () => {
