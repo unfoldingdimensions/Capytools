@@ -12,7 +12,6 @@ export default function CapyQRPage() {
     <ToolPageShell
       tool="CapyQR"
       eyebrow="CapyQR · tool no. 7"
-      index="Nº 07 / 08"
       headline={[{ text: "A code worth" }, { text: "scanning", em: true, dot: true }]}
       lead="styled wi-fi, contact and link codes, composed and proof-scanned in your browser. all local."
       align="left"

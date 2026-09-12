@@ -24,7 +24,6 @@ export default function CapyExpensePage() {
     <ToolPageShell
       tool="CapyExpense"
       eyebrow="CapyExpense · tool no. 5"
-      index="Nº 05 / 08"
       large
       entrance={false}
       headline={[
