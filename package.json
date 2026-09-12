@@ -1,8 +1,33 @@
 {
   "name": "capytools",
   "version": "0.1.0",
-  "private": true,
+  "description": "A home for small, quiet tools. Five so far — all run in your browser and keep nothing.",
+  "keywords": [
+    "browser-tools",
+    "client-side",
+    "privacy",
+    "local-first",
+    "no-tracking",
+    "exif-removal",
+    "metadata-removal",
+    "prompt-engineering",
+    "github-stats",
+    "nextjs",
+    "react",
+    "typescript",
+    "tauri",
+    "tailwindcss"
+  ],
   "license": "Apache-2.0",
+  "homepage": "https://capytools.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unfoldingdimensions/Capytools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unfoldingdimensions/Capytools/issues"
+  },
+  "private": true,
   "scripts": {
     "dev": "next dev --webpack --port 3024",
     "build": "next build",
