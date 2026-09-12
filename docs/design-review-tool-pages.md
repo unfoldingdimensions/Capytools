@@ -22,7 +22,8 @@ or four more tools, with CapyExpense about to launch.
 |---|---|---|
 | [#3](https://github.com/unfoldingdimensions/Capytools/pull/3) | P0 #1, #2, #3 | merged to `main` |
 | [#4](https://github.com/unfoldingdimensions/Capytools/pull/4) | P0 #4, #5, #6 | merged to `main` |
-| this PR | P1 #7, #8, #9 | open, awaiting review |
+| [#5](https://github.com/unfoldingdimensions/Capytools/pull/5) | P1 #7, #8, #9 | merged to `main` |
+| this PR | P1 #10, #11, #12 | open, awaiting review |
 
 | # | Change | Where |
 |---|---|---|
@@ -35,6 +36,9 @@ or four more tools, with CapyExpense about to launch.
 | 7 | One registry for the suite; every count, list and grid column derives from it | new `src/lib/capytools/suite.ts`; `landing.ts`, `Labs.tsx`, `Colophon.tsx`, `header.tsx`, `notes/page.tsx`, `app/page.tsx`, `landing.css` |
 | 8 | One numbered-stage card, replacing four implementations of it | new `src/components/stage-card.tsx`; `CapyStrip`, `CapyCreator`, `PromptGen`, `capyexpense/primitives.tsx` |
 | 9 | The landing's surface arc on every tool page: cream hero → white stage band → sage sign-off | `ToolPageShell.tsx`, `landing.css` |
+| 10 | One button scale: the landing's CTA and a tool's main verb are both 48px, and `transition-all` is gone from the button | `landing.css`, `ui/button.tsx`, `UsernameForm`, `PromptGen`, `CapyCreator`, `CapyStrip`, `CapyExpenseShowcase` |
+| 11 | The radius scale collapsed to the documented three | `CardScaled`, `CapyStrip`, `ErrorCard`, `TerminalLoader`, `CapyExpenseShowcase`; guarded by `tests/design-scale.test.ts` |
+| 12 | Clay pulled back to alerts, required markers and the headline period; links moved to `--water`; `--gold` given the year-peak | `landing.css`, `capyexpense/page.tsx`, `CapyExpenseHeroChart.tsx` |
 
 Verification as of #4: **484 tests pass**, ESLint clean, `tsc --noEmit` clean,
 `next build` green (14/14 static pages). The one failing test,
@@ -73,9 +77,10 @@ uppercase; the circle-`C` was a placeholder pending a real logotype.
   (`LandingMasthead.tsx`, the other passthrough, was deleted in #4 once the
   delete was approved.)
 - **The rest of P1 and P2** — the second footer, the missing section-rule
-  vocabulary on tool pages, the per-tool eyebrow and index still written by hand
-  in each `page.tsx`, and the `--clay` over-use. (The suite counts, the shared
-  stage skeleton and the tool-page surface rhythm are done — #7, #8, #9.)
+  vocabulary on tool pages, and the per-tool eyebrow and index still written by
+  hand in each `page.tsx`. (The suite counts, the shared stage skeleton, the
+  tool-page surface rhythm, the button and radius scales and the palette roles
+  are done — #7 through #12.)
 
 ---
 

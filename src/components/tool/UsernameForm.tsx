@@ -39,11 +39,7 @@ export function UsernameForm({
         autoCapitalize="none"
         spellCheck={false}
       />
-      <Button
-        type="submit"
-        disabled={busy}
-        className="h-12 rounded-full bg-primary px-6 text-base font-semibold text-primary-foreground hover:bg-primary/90 sm:text-sm"
-      >
+      <Button type="submit" size="lg" disabled={busy} className="rounded-full font-semibold">
         {busy ? "wrapping…" : "wrap it"}
       </Button>
     </form>

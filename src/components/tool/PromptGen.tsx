@@ -363,7 +363,7 @@ export function PromptGen() {
               ? "Draw locked — tweak the controls above to re-word the same scene."
               : "Every control re-words this scene; Randomize draws a new one."}
           </p>
-          <Button className="rounded-full" onClick={randomize} disabled={locked}>
+          <Button size="lg" className="rounded-full" onClick={randomize} disabled={locked}>
             <Dices className="size-4" />
             Randomize
           </Button>

@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { deflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 

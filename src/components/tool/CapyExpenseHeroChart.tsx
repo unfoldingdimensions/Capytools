@@ -158,8 +158,13 @@ export function CapyExpenseHeroChart() {
         />
 
         <g className="capyexpense-peak">
-          <circle cx={POINTS[PEAK].x} cy={POINTS[PEAK].y} r={7} fill="var(--clay)" fillOpacity={0.18} />
-          <circle cx={POINTS[PEAK].x} cy={POINTS[PEAK].y} r={3.5} fill="var(--clay)" />
+          {/* GOLD, not clay. This is the one chart in the suite that is a whole
+              year, so its peak is the palette's "single yearly moment" — which
+              is what gold is for and had no job until now. The dashboard's
+              SpendBars keep clay: a period peak is the loudest moment on a
+              chart, which is clay's job. */}
+          <circle cx={POINTS[PEAK].x} cy={POINTS[PEAK].y} r={7} fill="var(--gold)" fillOpacity={0.18} />
+          <circle cx={POINTS[PEAK].x} cy={POINTS[PEAK].y} r={3.5} fill="var(--gold)" />
         </g>
 
         {MONTHS.map((m, i) => (

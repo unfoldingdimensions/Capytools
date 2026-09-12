@@ -27,7 +27,7 @@ export function TerminalLoader({ username, steps }: { username: string; steps: L
 
   return (
     <div
-      className="w-full rounded-[20px] border border-border bg-card px-6 py-7 sm:px-8"
+      className="w-full rounded-2xl border border-border bg-card px-6 py-7 sm:px-8"
       role="status"
       aria-live="polite"
       aria-label={`Wrapping ${username}: ${done} of ${steps.length} steps complete`}

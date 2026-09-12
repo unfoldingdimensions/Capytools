@@ -32,7 +32,7 @@ function copy(kind: GithubError["kind"]): { title: string; body: string } {
 export function ErrorCard({ error, onRetry }: { error: GithubError; onRetry?: () => void }) {
   const { title, body } = copy(error.kind);
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 rounded-[20px] border border-border bg-card px-8 py-10 text-center">
+    <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-border bg-card px-8 py-10 text-center">
       <CapyScene pose="nap" className="w-20 text-foreground/70" title="Napping capybara" />
       <h3 className="font-display text-xl text-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground">{body}</p>
