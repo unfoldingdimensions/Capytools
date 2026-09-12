@@ -224,6 +224,7 @@ export function CapyCreator() {
       <StageCard
         index="01"
         title="The Ask & Model Dialect"
+        marks
         actions={
           <Button
             variant="ghost"

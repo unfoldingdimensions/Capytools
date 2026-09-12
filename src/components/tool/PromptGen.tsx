@@ -160,7 +160,7 @@ export function PromptGen() {
   return (
     <div className="flex w-full flex-col gap-4">
       {/* ---- controls ---- */}
-      <StageCard index="01" title="Scene controls">
+      <StageCard index="01" title="Scene controls" marks>
         <Field label="Detail">
           <div className="inline-flex rounded-full bg-muted/50 p-1">
             {TIER_META.map((t) => (
