@@ -87,7 +87,9 @@ describe("CapyOG themes", () => {
     for (const accent of ACCENTS) {
       for (const variant of VARIANTS) {
         const theme = accentTokens(accent, variant);
-        for (const key of ["bg", "ink", "muted", "border", "accent", "accentInk", "track"]) {
+        const keys = ["bg", "ink", "muted", "border", "track"];
+        const accents = ["accent", "accentText", "accentFill", "accentInk"];
+        for (const key of [...keys, ...accents]) {
           expect(theme[key as keyof typeof theme].length).toBeGreaterThan(0);
         }
       }
@@ -119,6 +121,63 @@ describe("CapyOG themes", () => {
       for (const variant of VARIANTS) {
         expect(accentTokens(accent, variant).accentInk).toBe("#141412");
       }
+    }
+  });
+
+  /**
+   * The AA claim, measured rather than asserted by a comment. The brand accent
+   * was carrying three contrast roles at once and two of them failed in light
+   * mode (gold-on-white was 2.25:1; and on water's #5f7a72 even pure black tops
+   * out at 4.42:1, so no dark ink could ever pass the pill). `accent` is
+   * decoration now — these are the two pairings that carry text.
+   */
+  const contrast = (a: string, b: string) => {
+    const channel = (v: number) => {
+      const c = v / 255;
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    const luminance = (hex: string) => {
+      const n = Number.parseInt(hex.slice(1), 16);
+      return (
+        0.2126 * channel((n >> 16) & 255) +
+        0.7152 * channel((n >> 8) & 255) +
+        0.0722 * channel(n & 255)
+      );
+    };
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  it("the contrast helper agrees with the WCAG reference pairs", () => {
+    expect(contrast("#000000", "#ffffff")).toBeCloseTo(21, 5);
+    expect(contrast("#777777", "#ffffff")).toBeCloseTo(4.48, 2);
+  });
+
+  it("accent text on the card background clears AA (4.5:1)", () => {
+    for (const accent of ACCENTS) {
+      for (const variant of VARIANTS) {
+        const t = accentTokens(accent, variant);
+        const ratio = contrast(t.accentText, t.bg);
+        expect(ratio, `${accent}/${variant} eyebrow`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it("the dark ink on an accent fill clears AA (4.5:1)", () => {
+    for (const accent of ACCENTS) {
+      for (const variant of VARIANTS) {
+        const t = accentTokens(accent, variant);
+        const ratio = contrast(t.accentInk, t.accentFill);
+        expect(ratio, `${accent}/${variant} tag pill`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it("body ink and muted text clear AA on the card background", () => {
+    for (const variant of VARIANTS) {
+      const t = accentTokens("sage", variant);
+      expect(contrast(t.ink, t.bg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(t.muted, t.bg)).toBeGreaterThanOrEqual(4.5);
     }
   });
 });
@@ -183,6 +242,6 @@ describe("CapyOG registration", () => {
   it("the README carries the tool's section and the count", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
     expect(readme).toContain("## 6. CapyOG");
-    expect(readme).toContain("Six so far");
+    expect(readme).toContain("Eight so far");
   });
 });

@@ -52,6 +52,43 @@ describe("CapyOG OG rendering", () => {
     expect(png.readUInt32BE(20)).toBe(1920);
   }, 30_000);
 
+  /**
+   * Overlong copy used to grow past the frame and get silently cropped by the
+   * export; every block is clamped now. Satori is strict about `-webkit-box`,
+   * so render the worst case through it — all four templates, every slot far
+   * too long — and the smoke fails if a clamp is ever spelled in a way Satori
+   * rejects.
+   */
+  const TOO_LONG = "an overlong line ".repeat(24).trim();
+
+  for (const template of templates) {
+    it(`clamps the ${template} card instead of overflowing it`, async () => {
+      const res = new ImageResponse(
+        <OgCard
+          data={{
+            eyebrow: TOO_LONG,
+            title: TOO_LONG,
+            titleEm: TOO_LONG,
+            subtitle: TOO_LONG,
+            big: TOO_LONG,
+            attribution: TOO_LONG,
+            tag: TOO_LONG,
+          }}
+          template={template}
+          accent="gold"
+          variant="light"
+          width={1200}
+          height={630}
+        />,
+        { width: 1200, height: 630 },
+      );
+      const png = Buffer.from(await res.arrayBuffer());
+      expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+      expect(png.readUInt32BE(16)).toBe(1200);
+      expect(png.readUInt32BE(20)).toBe(630);
+    }, 30_000);
+  }
+
   it("renders the 1000×1500 pin frame", async () => {
     const res = new ImageResponse(
       <OgCard

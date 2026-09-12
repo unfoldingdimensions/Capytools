@@ -6,6 +6,7 @@ import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
+import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
 import { cn } from "@/lib/utils";
 // The whole editorial stylesheet, on every tool page — deliberately. Turbopack
 // emits it into the same shared CSS chunk the landing already loads (~5KB
@@ -32,7 +33,6 @@ import "@/components/landing/landing.css";
 export function ToolPageShell({
   tool,
   eyebrow,
-  index,
   headline,
   lead,
   align = "center",
@@ -44,8 +44,6 @@ export function ToolPageShell({
   tool: string;
   /** The AGENTS.md eyebrow contract: `Capy<Name> · tool no. X`. */
   eyebrow: string;
-  /** Sign-off index meta, e.g. "Nº 01 / 05". */
-  index: string;
   /**
    * Headline lines; `em` renders the italic emphasis line, `dot` swaps that
    * line's terminal period for the landing's clay `.lp-dot`.
@@ -60,6 +58,11 @@ export function ToolPageShell({
   entrance?: boolean;
   children: React.ReactNode;
 }) {
+  // The sign-off numbers are facts of the registry, not of the page: this
+  // tool's position in SUITE over the suite's size. Every page used to
+  // hand-carry its own "Nº 06 / 08", so shipping a tool meant re-editing all
+  // of them and the last one to be forgotten simply lied.
+  const index = `Nº ${pad2(SUITE.findIndex((row) => row.name === tool) + 1)} / ${SUITE_INDEX}`;
   const width = large ? "max-w-5xl" : "max-w-4xl";
 
   return (
