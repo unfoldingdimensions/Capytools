@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Seven so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Eight so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -69,6 +69,16 @@ A code worth scanning. Compose styled QR codes right in the browser: link and te
 - **Export your way**: PNG or JPEG at 512–2048 px, or vector SVG when no logo is set.
 
 No server route shortens or tracks your codes, nothing is uploaded, nothing is stored.
+
+## 8. CapyResize
+
+Every size it needs to be. Drop one image and either dial a target width or generate the whole favicon pack, right in the browser.
+
+- **Resize & convert**: target width with an aspect lock, PNG/JPEG/WebP output, a quality slider, and JPEG alpha flattening onto a color you pick. Downscales go through progressive halving — repeated ~50% steps, the technique production tools ship — so fine lines survive.
+- **Favicon pack**: one square-ish logo in, a ZIP out — `favicon.ico` (16/32/48, PNG frames), `apple-touch-icon.png` (180), the 192 and 512 icons Chrome's install criteria name, a separate maskable 512 with the art inside the 40% safe zone, `manifest.webmanifest`, and the exact four-line `<head>` snippet.
+- **Proof before you ship**: honest before/after byte counts that only appear after real encoding, a 16/32 px strip showing whether your logo survives the tab, and notes that say what actually happened — animated GIFs take their first frame, and Safari's silent WebP-to-PNG fallback is named, not hidden.
+
+No server route resizes anything, nothing is uploaded, nothing is stored.
 
 ## Privacy
 

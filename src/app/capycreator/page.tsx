@@ -12,7 +12,7 @@ export default function CapyCreatorPage() {
     <ToolPageShell
       tool="CapyCreator"
       eyebrow="CapyCreator · tool no. 3"
-      index="Nº 03 / 07"
+      index="Nº 03 / 08"
       headline={[{ text: "A prompt engineered," }, { text: "for your model", em: true, dot: true }]}
       lead="interrogates intent and scales scaffolding per model capability tier. all local."
       align="left"

@@ -123,6 +123,19 @@ export const SUITE: SuiteTool[] = [
     line: "Styled QR codes, proven scannable in-tab.",
     plate: { src: "/plates/lab-7.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyResize",
+    short: "Resize",
+    href: "/capyresize",
+    cat: "browser",
+    badge: "Resize",
+    year: "2026",
+    blurb:
+      "Resize, convert and favicon-pack without uploading — progressive-halving quality, honest byte counts, and a 16-pixel proof strip before you ship.",
+    note: "Bytes, proven",
+    line: "Resize, convert and favicon-pack, entirely in-tab.",
+    plate: { src: "/plates/lab-8.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
