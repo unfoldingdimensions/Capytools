@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ABOUT } from "@/lib/capytools/landing";
+import { BrandMark } from "@/components/brand-mark";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { ArrowUpRight } from "@/components/landing/icons";
@@ -29,9 +30,7 @@ export function About() {
               <ArrowUpRight />
             </TransitionLink>
             <div className="lp-about-foot">
-              <span className="lp-about-mark" aria-hidden="true">
-                C
-              </span>
+              <BrandMark className="lp-about-mark" />
               <span>{ABOUT.footer}</span>
             </div>
           </ScrollReveal>

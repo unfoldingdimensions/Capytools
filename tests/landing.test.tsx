@@ -71,6 +71,17 @@ describe("Landing", () => {
     expect(html).toContain('id="main"');
   });
 
+  it("uses the one shared masthead, not a landing-only one", () => {
+    // Same component as the tool pages: same container, same brand mark, same
+    // persistent action. The landing only swaps in section anchors.
+    expect(html).toContain("lp-nav-inner");
+    expect(html).toContain("lp-brand-glyph");
+    expect(html).toContain("Open the tools");
+    for (const anchor of ["#labs", "#method", "#work"]) {
+      expect(html).toContain(`href="${anchor}"`);
+    }
+  });
+
   it("routes everything natively — zero external hrefs on the landing", () => {
     expect(html).not.toContain('href="http');
     // The project-meta targets exist as native editorial pages.

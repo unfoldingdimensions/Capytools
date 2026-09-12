@@ -1,4 +1,5 @@
 import { LANDING_FOOTER } from "@/lib/capytools/landing";
+import { BrandMark } from "@/components/brand-mark";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { TransitionLink } from "@/components/TransitionLink";
 
@@ -14,10 +15,8 @@ export function LandingFooter() {
         <div className="lp-foot-grid">
           <div className="lp-foot-brand">
             <a href="#top" className="lp-brand" aria-label="Capytools — back to top">
-              <span className="lp-brand-mark" aria-hidden="true">
-                C
-              </span>
-              <span>Capytools</span>
+              <BrandMark />
+              <span className="lp-brand-text">Capytools</span>
             </a>
             <p>{LANDING_FOOTER.blurb}</p>
             <TransitionLink

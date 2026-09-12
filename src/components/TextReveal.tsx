@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Fragment } from "react";
 import { ease, dur } from "@/lib/capytools/motion";
 
@@ -10,6 +10,12 @@ import { ease, dur } from "@/lib/capytools/motion";
  * Splitting on whitespace keeps whole words intact so the line still wraps
  * naturally and screen readers read one continuous string (the source text is
  * exposed via aria-label; the animated spans are hidden from the a11y tree).
+ *
+ * Under `prefers-reduced-motion` the words render as plain text inside the
+ * same wrapper — no blur, no rise — so the head of every tool page is static
+ * for a reader who asked for stillness. The markup shape is deliberately
+ * identical either way, so the a11y contract does not change with the motion
+ * preference.
  */
 export function TextReveal({
   text,
@@ -25,7 +31,20 @@ export function TextReveal({
   stagger?: number;
   as?: "span" | "h1" | "h2" | "p";
 }) {
+  const reduced = useReducedMotion();
   const words = text.split(/(\s+)/); // keep separators so spacing survives
+
+  if (reduced) {
+    return (
+      <Tag
+        className={className}
+        role={Tag === "span" ? "text" : undefined}
+        aria-label={text}
+      >
+        <span aria-hidden>{text}</span>
+      </Tag>
+    );
+  }
 
   return (
     <Tag

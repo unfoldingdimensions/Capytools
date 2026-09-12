@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ease, dur } from "@/lib/capytools/motion";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,7 @@ export interface LoadStep {
  * about which one is slow.
  */
 export function TerminalLoader({ username, steps }: { username: string; steps: LoadStep[] }) {
+  const reduced = useReducedMotion();
   const done = steps.filter((s) => s.state === "done").length;
 
   return (
@@ -45,11 +46,15 @@ export function TerminalLoader({ username, steps }: { username: string; steps: L
             key={step.label}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: dur.fade / 1000,
-              delay: (i * dur.staggerGap) / 1000,
-              ease: ease.slowOut,
-            }}
+            transition={
+              reduced
+                ? { duration: 0 }
+                : {
+                    duration: dur.fade / 1000,
+                    delay: (i * dur.staggerGap) / 1000,
+                    ease: ease.slowOut,
+                  }
+            }
             className="flex items-center gap-3"
           >
             <Glyph state={step.state} />
@@ -77,7 +82,7 @@ export function TerminalLoader({ username, steps }: { username: string; steps: L
           className="h-full rounded-full bg-primary"
           initial={false}
           animate={{ width: `${(done / steps.length) * 100}%` }}
-          transition={{ duration: dur.hover / 1000, ease: ease.gentle }}
+          transition={reduced ? { duration: 0 } : { duration: dur.hover / 1000, ease: ease.gentle }}
         />
       </div>
     </div>
@@ -85,8 +90,12 @@ export function TerminalLoader({ username, steps }: { username: string; steps: L
 }
 
 function Glyph({ state }: { state: StepState }) {
+  const reduced = useReducedMotion();
   if (state === "done") return <span className="text-primary">✓</span>;
   if (state === "failed") return <span className="text-destructive">×</span>;
+  // An infinite pulse is the one motion a reduced-motion reader least wants,
+  // so the pending dot is simply static for them.
+  if (reduced) return <span className="text-muted-foreground">·</span>;
   return (
     <motion.span
       className="text-muted-foreground"
