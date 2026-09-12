@@ -50,9 +50,13 @@ When supporting optional LLM generation or polish:
 - Always strip reasoning tags defensively (`stripThinkingTags` for `<think>...</think>`).
 
 ### 5. Registering New Tools
-1. Create tool page at `src/app/capy<name>/page.tsx`.
-2. Implement client component in `src/components/tool/<ToolName>.tsx`.
-3. Add tool to `TOOLS` list in `src/app/page.tsx` and adjust grid (`sm:grid-cols-2 lg:grid-cols-3`).
-4. Add unit tests in `tests/<name>.test.ts`.
+The recipe lives in **CONTRIBUTING.md, "Adding a tool"** — one copy, so it
+cannot drift from the code the way this list did. In short: a page on
+`ToolPageShell`, a client component, a row in the `SUITE` registry
+(`src/lib/capytools/suite.ts`), a lab plate, a README section, and tests.
+
+`SUITE` is the only registry. There is no `TOOLS` array in `src/app/page.tsx`
+and no grid to adjust — the landing, masthead, footer, notes page, sitemap,
+every count and the `Nº 06 / 08` sign-off all derive from that one row.
 
 <!-- END:capytools-architecture-rules -->

@@ -75,6 +75,11 @@ required fields and alerts, water `#5f7a72` for links and secondary, gold
 `#d9a441` for milestones and sparkles. Clay and gold carry meaning; don't spend
 them on decoration.
 
+Those hexes are fills and decoration. An accent used as *text* needs its own
+darker shade in light mode — sage measures 2.94:1 on white and gold 2.25:1,
+both under AA — which is why `src/lib/capyog/themes.ts` splits `accent`,
+`accentText` and `accentFill` and measures all three in tests.
+
 **Type** — `font-display` (Fraunces) for titles, light weight, with italic
 emphasis via `<em className="italic">`. `font-sans` (Plus Jakarta Sans) for UI.
 `font-mono` (Albert Sans) for eyebrows, code and tags.
@@ -116,20 +121,33 @@ model that leaks `<think>` into a user's prompt is a bug, not a quirk.
 
 ## Adding a tool
 
-1. Page at `src/app/capy<name>/page.tsx`, on the shared `ToolPageShell`.
-2. Client component at `src/components/tool/<ToolName>.tsx`.
-3. Register in the `SUITE` array in `src/lib/capytools/suite.ts` — the
-   masthead, footer, notes page, sitemap and every count derive from that one
-   row. Ship the lab plate (`public/plates/lab-N.webp`, 896×1200) and add its
-   name to `PLATES` in `src/lib/capytools/landing.ts` (the asset-existence
-   test enforces both).
-4. Add the numbered README section and update the first-line count ("N so
-   far"), mirrored verbatim into the landing's `COLOPHON.quote` — the sync
-   test asserts the two agree.
-5. Unit tests at `tests/<name>.test.ts`.
+Take the next free tool number, then work down this list. Most of it is
+enforced by a test, so `npm test` tells you what you have left.
 
-Take the next free tool number. The number appears in the eyebrow, the sign-off
-index, the notes page and the README, and they're expected to agree.
+1. **Page** at `src/app/capy<name>/page.tsx`, on the shared `ToolPageShell`.
+   Export a `metadata` object whose `title` carries the tool name and whose
+   `description` carries the promise ("100% in your browser" for a browser
+   tool) — `tests/<name>.test.ts` asserts both.
+2. **Client component** at `src/components/tool/<ToolName>.tsx`.
+3. **Register** in the `SUITE` array in `src/lib/capytools/suite.ts`. The
+   masthead, footer, notes page, sitemap and every count derive from that one
+   row, so this is the only place the suite learns your tool exists.
+4. **Lab plate** at `public/plates/lab-N.webp`, 896×1200, with its name added
+   to `PLATES` in `src/lib/capytools/landing.ts`. The asset test checks both
+   that the file exists and that the landing renders it.
+5. **README section**, numbered to match, plus the first-line count ("N so
+   far"). That sentence lives in three places and all three are asserted
+   against each other: the README, `COLOPHON.quote` in
+   `src/lib/capytools/landing.ts` (verbatim), and `package.json`'s
+   `description`.
+6. **Unit tests** at `tests/<name>.test.ts`.
+7. **Add a row** to the page table in `tests/tool-pages.test.tsx`, and bump the
+   denominator on the rows already there — a ninth tool makes every sign-off
+   read `/ 09`.
+
+Don't write the sign-off index into your page. `ToolPageShell` derives
+`Nº 06 / 08` from the tool's position in `SUITE` and the suite's size; the
+eyebrow (`Capy<Name> · tool no. N`) is the only place you type the number.
 
 ## Commits and pull requests
 
