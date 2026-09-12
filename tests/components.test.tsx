@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TerminalLoader } from "../src/components/tool/TerminalLoader";
 import type { LoadStep } from "../src/components/tool/TerminalLoader";
+import { ErrorCard, githubErrorNotice } from "../src/components/tool/ErrorCard";
 import { TextReveal } from "../src/components/TextReveal";
 import { WRAP_STEPS } from "../src/lib/github/wrap";
 
@@ -97,6 +98,52 @@ describe("no unreachable page transition", () => {
 
   it("leaves no wipe tag in the transition helper", () => {
     expect(read("src/lib/capytools/reveal.ts")).not.toContain('"wipe"');
+  });
+});
+
+describe("transient confirmations share one timing", () => {
+  const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8");
+
+  it("takes its durations from the feedback module, not from local numbers", () => {
+    // Four numbers had accumulated for the same event: a copied tick at 1500ms
+    // in three tools and 2200ms in a fourth, 3000ms for a settings
+    // confirmation, 4000ms for the paste notice.
+    for (const file of [
+      "src/components/tool/PromptGen.tsx",
+      "src/components/tool/CapyCreator.tsx",
+      "src/components/tool/CapyStrip.tsx",
+      "src/components/card/CardComposer.tsx",
+    ]) {
+      expect(read(file), `${file} should import the feedback timings`).toContain(
+        "capytools/feedback",
+      );
+    }
+  });
+});
+
+describe("ErrorCard", () => {
+  // One implementation, two tools. It used to take a GithubError and know the
+  // GitHub wording, so CapyStrip grew a second component beside it with the
+  // same markup and different words.
+  it("renders what it is told, and offers retry only when there is one", () => {
+    const plain = renderToStaticMarkup(<ErrorCard title="That photo is a bit much." body="60MB ceiling." />);
+    expect(plain).toContain("That photo is a bit much.");
+    expect(plain).toContain("60MB ceiling.");
+    expect(plain).not.toContain("<button");
+
+    const retryable = renderToStaticMarkup(
+      <ErrorCard title="t" body="b" onRetry={() => {}} />,
+    );
+    expect(retryable).toContain("try again");
+    expect(retryable).toContain("<button");
+  });
+
+  it("offers retry only for the GitHub failures that retrying can fix", () => {
+    expect(githubErrorNotice("rate_limited").retry).toBe(true);
+    expect(githubErrorNotice("network").retry).toBe(true);
+    expect(githubErrorNotice("not_found").retry).toBeUndefined();
+    expect(githubErrorNotice("empty").retry).toBeUndefined();
+    expect(githubErrorNotice("not_found").title).toContain("isn't here");
   });
 });
 

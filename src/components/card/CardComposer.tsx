@@ -17,6 +17,7 @@ import {
 import type { PostResult } from "@/lib/card/export";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { COPIED_MS, NOTICE_MS } from "@/lib/capytools/feedback";
 
 const XLogo = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
@@ -91,14 +92,14 @@ export function CardComposer({ stats }: { stats: WrappedStats }) {
     void postToX(captureRef.current, stats, intents.url, CARD_WIDE[format]).then((result) => {
       if (result === "shared") composer?.close(); // share sheet handled it
       setPosted(result);
-      setTimeout(() => setPosted("idle"), 4000);
+      setTimeout(() => setPosted("idle"), NOTICE_MS);
     });
   };
 
   const doCopy = () => {
     void copyPost(captureRef.current, stats, intents.url, CARD_WIDE[format]).then((r) => {
       setCopied(r.ok && r.withImage ? "post" : "text");
-      setTimeout(() => setCopied("idle"), 2200);
+      setTimeout(() => setCopied("idle"), COPIED_MS);
     });
   };
 

@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { COPIED_MS } from "@/lib/capytools/feedback";
 
 /**
  * Categories drawn on top of the tier list. Engine params live here too — every
@@ -153,7 +154,7 @@ export function PromptGen() {
       return; // denied / insecure context — the block below is selectable anyway
     }
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setCopied(false), COPIED_MS);
   };
 
   return (

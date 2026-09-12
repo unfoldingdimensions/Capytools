@@ -18,7 +18,7 @@ describe("tool pages — editorial shell", () => {
     [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 05"],
     [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 05"],
     [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 05"],
-    [CapyStripPage, "CapyStrip · tool no. 4", "this one helps them forget", "Nº 04 / 05"],
+    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 05"],
     [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 05"],
   ] as const;
 
@@ -110,6 +110,34 @@ describe("tool pages — editorial shell", () => {
     expect(markup(<CapyWrappedPage />)).toContain("lp-corner-tl");
     expect(markup(<CapyExpensePage />)).toContain("lp-corner-tl");
   });
+});
+
+describe("copy register", () => {
+  // Client decision, 2026-09-12: the lowercase register is the house voice for
+  // UI copy — but titles take sentence case. Four tools were already
+  // consistent and two were wrong in opposite directions: CapyStrip's headline
+  // was lowercase, CapyExpense's lead was not. The rule itself is written down
+  // in DESIGN.md under "Register".
+  const pages = [
+    ["CapyWrapped", CapyWrappedPage],
+    ["CapyImagine", CapyImaginePage],
+    ["CapyCreator", CapyCreatorPage],
+    ["CapyStrip", CapyStripPage],
+    ["CapyExpense", CapyExpensePage],
+  ] as const;
+
+  for (const [name, Page] of pages) {
+    it(`${name}: sentence-case headline, lowercase lead`, () => {
+      const html = markup(<Page />);
+
+      const h1 = html.match(/<h1[\s\S]*?<\/h1>/)?.[0] ?? "";
+      const firstSegment = h1.match(/aria-label="([^"]+)"/)?.[1] ?? "";
+      expect(firstSegment, `${name} headline should start uppercase`).toMatch(/^[A-Z]/);
+
+      const lead = html.match(/class="lp-lead[^"]*">([^<]+)</)?.[1] ?? "";
+      expect(lead, `${name} lead should start lowercase`).toMatch(/^[a-z]/);
+    });
+  }
 });
 
 describe("shared chrome", () => {

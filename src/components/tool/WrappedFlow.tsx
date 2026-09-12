@@ -10,7 +10,7 @@ import { DEMO_STATS } from "@/lib/capytools/demo";
 import { CardComposer } from "@/components/card/CardComposer";
 import { CardScaled } from "@/components/card/CardScaled";
 import { UsernameForm } from "@/components/tool/UsernameForm";
-import { ErrorCard } from "@/components/tool/ErrorCard";
+import { ErrorCard, githubErrorNotice } from "@/components/tool/ErrorCard";
 import { TerminalLoader } from "@/components/tool/TerminalLoader";
 import type { LoadStep } from "@/components/tool/TerminalLoader";
 import { readWrappedCache, writeWrappedCache } from "@/lib/capytools/cache";
@@ -68,6 +68,8 @@ export function WrappedFlow() {
     fetchAndWrap(u);
   };
 
+  const errorNotice = error ? githubErrorNotice(error.kind) : null;
+
   return (
     <div className="flex w-full flex-col items-center">
       <UsernameForm onSubmit={handleGenerate} busy={status === "loading"} />
@@ -105,8 +107,14 @@ export function WrappedFlow() {
           <TerminalLoader username={username} steps={steps} />
         )}
         {status === "success" && stats && <CardComposer stats={stats} />}
-        {status === "error" && error && (
-          <ErrorCard error={error} onRetry={() => username && handleGenerate(username)} />
+        {status === "error" && error && errorNotice && (
+          <ErrorCard
+            title={errorNotice.title}
+            body={errorNotice.body}
+            onRetry={
+              errorNotice.retry && username ? () => handleGenerate(username) : undefined
+            }
+          />
         )}
       </div>
     </div>
