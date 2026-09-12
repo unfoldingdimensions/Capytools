@@ -2079,12 +2079,15 @@ a.lp-wire-item .lp-wire-name {
     row-gap: 18px;
   }
 
+  /* The brand takes its own row instead of the fourth column being hidden.
+     `:nth-child(4) { display: none }` silently dropped the whole Colophon
+     column — the three links under it — on every tablet from 560px to 1080px. */
   .lp-foot-grid {
-    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .lp-foot-grid .lp-foot-col:nth-child(4) {
-    display: none;
+  .lp-foot-brand {
+    grid-column: 1 / -1;
   }
 }
 
