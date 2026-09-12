@@ -80,8 +80,8 @@ describe("Landing", () => {
   });
 
   it("keeps the verbatim README quote out of the derivation", () => {
-    expect(text).toContain("Seven so far");
-    expect(text).not.toContain("Six so far");
+    expect(text).toContain("Eight so far");
+    expect(text).not.toContain("Seven so far");
   });
 
   it("ships a keyboard-reachable pause for the marquee (WCAG 2.2.2)", () => {
@@ -166,10 +166,23 @@ describe("Landing assets", () => {
 
   it("keeps the README quote in sync with the README itself", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
-    expect(readme).toContain("Seven so far");
+    expect(readme).toContain("Eight so far");
     expect(readme).toContain("## 5. CapyExpense");
     expect(readme).toContain("## 6. CapyOG");
     expect(readme).toContain("## 7. CapyQR");
+    expect(readme).toContain("## 8. CapyResize");
+  });
+
+  // The same sentence lives in three places; the colophon and the README were
+  // already pinned to each other, and package.json was the one free copy — it
+  // still said "Five so far" three tools later.
+  it("keeps package.json's description on the same count", () => {
+    const pkg = readFileSync(join(process.cwd(), "package.json"), "utf8");
+    const count = /A home for small, quiet tools\. (\w+) so far/.exec(
+      readFileSync(join(process.cwd(), "README.md"), "utf8"),
+    );
+    expect(count?.[1], "README should carry the count sentence").toBeTruthy();
+    expect(pkg).toContain(`A home for small, quiet tools. ${count?.[1]} so far`);
   });
 });
 

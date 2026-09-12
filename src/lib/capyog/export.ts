@@ -83,18 +83,20 @@ export async function exportCard(node: HTMLElement, opts: ExportRequest): Promis
 }
 
 /**
- * Copy the card image alone — no share URL exists to pair it with. Returns
- * false when the clipboard rejects the write, so the caller can show the
- * text-free fallback note.
+ * Copy the card image alone — no share URL exists to pair it with. Takes the
+ * same `scale` the download uses, so "same pixels" in the fallback note is
+ * literally true. Returns false when the clipboard rejects the write, so the
+ * caller can show that note.
  */
 export async function copyCardImage(
   node: HTMLElement,
   width: number,
   height: number,
+  scale: ExportScale,
 ): Promise<boolean> {
   if (typeof ClipboardItem === "undefined") return false;
   try {
-    const blob = await capturePngBlob(node, width, height);
+    const blob = await capturePngBlob(node, width, height, scale);
     if (!blob) return false;
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     return true;

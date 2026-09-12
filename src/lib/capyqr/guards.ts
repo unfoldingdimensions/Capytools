@@ -68,16 +68,17 @@ export const QUIET_COPY: Record<GuardBand, string> = {
 };
 
 /**
- * The engine's own README anchors the logo at 0.4 of the code's width and
- * warns past 0.5; community guidance pairs logos with H correction (~30%
- * codeword recovery). Everything here is consensus, not spec.
+ * Community guidance pairs logos with H correction (~30% codeword recovery).
+ * Consensus, not spec.
+ *
+ * There is no "logo too big" note: the engine is pinned to the README's 0.4
+ * anchor in `buildEngineOptions` and nothing can move it, so a size warning
+ * would be a branch no user could ever reach. It belongs back here the day a
+ * size control does.
  */
-export function logoAdvice(hasLogo: boolean, imageSize: number, ecc: EccLevel): string[] {
+export function logoAdvice(hasLogo: boolean, ecc: EccLevel): string[] {
   if (!hasLogo) return [];
   const notes: string[] = [];
-  if (imageSize > 0.4) {
-    notes.push("the logo is past 40% of the code's width — shrink it below 0.4 so the pattern survives.");
-  }
   if (ecc === "H") {
     notes.push("error correction is at H — about 30% of the code can be covered and still scan.");
   } else {

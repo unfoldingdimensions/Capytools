@@ -23,15 +23,21 @@ export async function exportNodePng(
   a.click();
 }
 
-/** Render a node to an exact-size PNG Blob (used for the clipboard image copy). */
+/**
+ * Render a node to an exact-size PNG Blob (used for the clipboard image copy).
+ *
+ * `pixelRatio` defaults to the retina 2x every Wrapped call site wants; CapyOG
+ * passes its own scale so a copied image is the same pixels as a download.
+ */
 export async function capturePngBlob(
   node: HTMLElement,
   width: number,
   height: number,
+  pixelRatio = 2,
 ): Promise<Blob | null> {
   await document.fonts.ready;
   try {
-    const dataUrl = await toPng(node, { width, height, pixelRatio: 2, cacheBust: true });
+    const dataUrl = await toPng(node, { width, height, pixelRatio, cacheBust: true });
     return await (await fetch(dataUrl)).blob();
   } catch {
     return null;

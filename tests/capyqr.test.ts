@@ -13,10 +13,13 @@ import {
   quietBand,
   quietZonePx,
 } from "../src/lib/capyqr/guards";
+import qrcode from "qrcode-generator";
+
 import { capacityNote, moduleCountFor, versionForModuleCount } from "../src/lib/capyqr/matrix";
 import { buildPayload, escapeWifiValue } from "../src/lib/capyqr/payloads";
 import { CAPY_PRESETS } from "../src/lib/capyqr/presets";
 import type { PayloadFields, PayloadKind } from "../src/lib/capyqr/types";
+import { verifyPixels } from "../src/lib/capyqr/verify";
 import {
   PAPER_COLOR,
   buildEngineOptions,
@@ -201,19 +204,15 @@ describe("CapyQR guards", () => {
     expect(QUIET_COPY.hard).toContain("slide it back up");
   });
 
-  it("advises on logos: size past 0.4, ECC below H, and the H safety line", () => {
-    expect(logoAdvice(false, 0.4, "Q")).toEqual([]);
-    const underH = logoAdvice(true, 0.4, "Q");
+  it("advises on logos: ECC below H, and the H safety line", () => {
+    expect(logoAdvice(false, "Q")).toEqual([]);
+    const underH = logoAdvice(true, "Q");
     expect(underH).toHaveLength(1);
     expect(underH[0]).toContain("H");
 
-    const atH = logoAdvice(true, 0.4, "H");
+    const atH = logoAdvice(true, "H");
     expect(atH).toHaveLength(1);
     expect(atH[0]).toContain("30%");
-
-    const oversized = logoAdvice(true, 0.5, "Q");
-    expect(oversized).toHaveLength(2);
-    expect(oversized[0]).toContain("40%");
   });
 });
 
@@ -324,9 +323,76 @@ describe("CapyQR render decision helpers — pure, table-tested", () => {
   });
 });
 
+describe("CapyQR proof scan", () => {
+  /**
+   * A real QR rendered to raw pixels, then decoded by the real jsQR — the
+   * tool's headline claim, checked without a browser.
+   *
+   * This is also the regression guard for jsqr@1.4.0's broken "onlyInvert"
+   * (it scans a buffer the binarizer never filled and throws), which is why
+   * verify.ts inverts the pixels itself.
+   */
+  const SCALE = 8;
+  const QUIET = 4;
+
+  const render = (value: string, inverted: boolean) => {
+    const qr = qrcode(0, "Q");
+    qr.addData(value, "Byte");
+    qr.make();
+    const modules = qr.getModuleCount();
+    const side = (modules + QUIET * 2) * SCALE;
+    const pixels = new Uint8ClampedArray(side * side * 4);
+    for (let y = 0; y < side; y++) {
+      for (let x = 0; x < side; x++) {
+        const mx = Math.floor(x / SCALE) - QUIET;
+        const my = Math.floor(y / SCALE) - QUIET;
+        const dark =
+          mx >= 0 && my >= 0 && mx < modules && my < modules && qr.isDark(my, mx);
+        const value = (inverted ? !dark : dark) ? 0 : 255;
+        const at = (y * side + x) * 4;
+        pixels[at] = value;
+        pixels[at + 1] = value;
+        pixels[at + 2] = value;
+        pixels[at + 3] = 255;
+      }
+    }
+    return { pixels, side };
+  };
+
+  const URL_PAYLOAD = "https://capytools.vercel.app";
+
+  it("reads an upright code and does not call it inverted", () => {
+    const { pixels, side } = render(URL_PAYLOAD, false);
+    const result = verifyPixels(pixels, side, side);
+    expect(result).toEqual({ ok: true, data: URL_PAYLOAD, inverted: false });
+  });
+
+  it("reads a light-on-dark code and flags it as inverted", () => {
+    const { pixels, side } = render(URL_PAYLOAD, true);
+    const result = verifyPixels(pixels, side, side);
+    expect(result).toEqual({ ok: true, data: URL_PAYLOAD, inverted: true });
+  });
+
+  it("says no, calmly, when there is no code in the pixels", () => {
+    const side = 120;
+    const pixels = new Uint8ClampedArray(side * side * 4).fill(255);
+    expect(verifyPixels(pixels, side, side)).toEqual({ ok: false });
+    expect(verifyPixels(new Uint8ClampedArray(0), 0, 0)).toEqual({ ok: false });
+  });
+
+  it("the gold preset is the light-on-dark one — the guard has something to catch", () => {
+    const gold = CAPY_PRESETS.find((preset) => preset.id === "gold");
+    const fg = gold?.style.fg;
+    const modules = fg?.mode === "solid" ? fg.color : "";
+    expect(contrastRatio(modules, "#ffffff")).toBeLessThan(
+      contrastRatio(gold?.style.bg ?? "", "#ffffff"),
+    );
+  });
+});
+
 describe("CapyQR registration", () => {
   it("sits seventh in the SUITE with its plate", () => {
-    expect(SUITE).toHaveLength(7);
+    expect(SUITE).toHaveLength(8);
     const row = SUITE[6];
     expect(row.name).toBe("CapyQR");
     expect(row.href).toBe("/capyqr");
