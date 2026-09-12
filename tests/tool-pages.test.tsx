@@ -6,6 +6,7 @@ import CapyCreatorPage from "@/app/capycreator/page";
 import CapyExpensePage from "@/app/capyexpense/page";
 import CapyImaginePage from "@/app/capyimagine/page";
 import CapyOGPage from "@/app/capyog/page";
+import CapyQRPage from "@/app/capyqr/page";
 import CapyStripPage from "@/app/capystrip/page";
 import CapyWrappedPage from "@/app/capywrapped/page";
 import { Header } from "@/components/header";
@@ -16,12 +17,13 @@ const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
 
 describe("tool pages — editorial shell", () => {
   const pages = [
-    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 06"],
-    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 06"],
-    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 06"],
-    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 06"],
-    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 06"],
-    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 06"],
+    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 07"],
+    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 07"],
+    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 07"],
+    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 07"],
+    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 07"],
+    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 07"],
+    [CapyQRPage, "CapyQR · tool no. 7", "scanning", "Nº 07 / 07"],
   ] as const;
 
   for (const [Page, eyebrow, headline, index] of pages) {
@@ -116,6 +118,7 @@ describe("tool pages — editorial shell", () => {
       CapyStripPage,
       CapyExpensePage,
       CapyOGPage,
+      CapyQRPage,
     ]) {
       expect(markup(<Page />)).toContain("lp-corner-tl");
     }
@@ -135,6 +138,7 @@ describe("copy register", () => {
     ["CapyStrip", CapyStripPage],
     ["CapyExpense", CapyExpensePage],
     ["CapyOG", CapyOGPage],
+    ["CapyQR", CapyQRPage],
   ] as const;
 
   for (const [name, Page] of pages) {

@@ -278,7 +278,7 @@ export const COLOPHON = {
   quote: [
     { text: "“A home for " },
     { text: "small, quiet tools.", em: true },
-    { text: " Six so far. All run in your browser and keep nothing.”" },
+    { text: " Seven so far. All run in your browser and keep nothing.”" },
   ] as Headline,
   author: {
     initial: "C",
@@ -369,6 +369,7 @@ export const PLATES = [
   "lab-4",
   "lab-5",
   "lab-6",
+  "lab-7",
   "method-1",
   "method-2",
   "method-3",

@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Six so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Seven so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -59,6 +59,16 @@ A card worth sharing. Compose Open Graph images and social cards right in the br
 - **Export your way**: PNG at 1×/2×/3×, JPEG with a quality slider, or copy the image straight to the clipboard for a paste into any composer.
 
 No server route renders your card, nothing is uploaded, nothing is stored.
+
+## 7. CapyQR
+
+A code worth scanning. Compose styled QR codes right in the browser: link and text, Wi-Fi with spec-exact escaping, vCard contacts, and mailto — styled with dot shapes, corner treatments, colors, gradients, a quiet-zone slider and a center logo. Five Capy presets get you started.
+
+- **Proved, not promised**: the tool scans its own output in-tab before you export and shows what decoded, next to a "verified scannable" chip.
+- **Honest guards**: WCAG-style contrast, quiet zone measured in modules, payload capacity and logo-size notes — heuristics labeled as heuristics.
+- **Export your way**: PNG or JPEG at 512–2048 px, or vector SVG when no logo is set.
+
+No server route shortens or tracks your codes, nothing is uploaded, nothing is stored.
 
 ## Privacy
 
