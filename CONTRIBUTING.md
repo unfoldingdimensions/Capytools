@@ -116,15 +116,20 @@ model that leaks `<think>` into a user's prompt is a bug, not a quirk.
 
 ## Adding a tool
 
-1. Page at `src/app/capy<name>/page.tsx`.
+1. Page at `src/app/capy<name>/page.tsx`, on the shared `ToolPageShell`.
 2. Client component at `src/components/tool/<ToolName>.tsx`.
-3. Register in the `TOOLS` list in `src/app/page.tsx` and bump the count
-   sentence in the hero.
-4. Add the nav entry in `src/components/header.tsx`.
+3. Register in the `SUITE` array in `src/lib/capytools/suite.ts` — the
+   masthead, footer, notes page, sitemap and every count derive from that one
+   row. Ship the lab plate (`public/plates/lab-N.webp`, 896×1200) and add its
+   name to `PLATES` in `src/lib/capytools/landing.ts` (the asset-existence
+   test enforces both).
+4. Add the numbered README section and update the first-line count ("N so
+   far"), mirrored verbatim into the landing's `COLOPHON.quote` — the sync
+   test asserts the two agree.
 5. Unit tests at `tests/<name>.test.ts`.
 
-Take the next free tool number. The number appears in the eyebrow, the notes
-page and the README, and they're expected to agree.
+Take the next free tool number. The number appears in the eyebrow, the sign-off
+index, the notes page and the README, and they're expected to agree.
 
 ## Commits and pull requests
 
