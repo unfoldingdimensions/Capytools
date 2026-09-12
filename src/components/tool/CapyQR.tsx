@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
+import { saveBlob } from "@/lib/download";
 import { buildPayload } from "@/lib/capyqr/payloads";
 import { capacityNote, moduleCountFor } from "@/lib/capyqr/matrix";
 import {
@@ -28,6 +29,8 @@ import {
   quietZonePx,
 } from "@/lib/capyqr/guards";
 import { CAPY_PRESETS, DEFAULT_STYLE } from "@/lib/capyqr/presets";
+import type { Options } from "qr-code-styling";
+
 import {
   buildEngineOptions,
   createQrEngine,
@@ -45,8 +48,6 @@ import { cn } from "@/lib/utils";
 const DEBOUNCE_MS = 120;
 /** Settle time between an engine repaint and reading the canvas back. */
 const VERIFY_SETTLE_MS = 150;
-/** The engine README's logo anchor; past 0.4 the guard speaks up. */
-const LOGO_IMAGE_SIZE = 0.4;
 
 const KINDS: { id: PayloadKind; label: string }[] = [
   { id: "link", label: "link & text" },
@@ -164,9 +165,13 @@ export function CapyQR() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoName, setLogoName] = useState("");
   const [ready, setReady] = useState(false);
-  const [verify, setVerify] = useState<VerifyResult | null>(null);
+  // Both stamped with what they describe, so neither outlives its subject:
+  // the scan is only a proof of the options it actually read off the canvas,
+  // and the status note only applies to the file it named.
+  const [verify, setVerify] = useState<{ result: VerifyResult; of: Options } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState({ text: "", file: "" });
 
   const engineRef = useRef<QrEngine | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -208,7 +213,10 @@ export function CapyQR() {
         setReady(true);
       })
       .catch(() =>
-        setStatus("the qr engine failed to load — refresh the page to try again."),
+        setStatus({
+        text: "the qr engine failed to load — refresh the page to try again.",
+        file: "",
+      }),
       );
     return () => {
       cancelled = true;
@@ -233,7 +241,9 @@ export function CapyQR() {
       engineRef.current?.update(engineOptions);
       verifyTimer = window.setTimeout(() => {
         const canvas = stageRef.current?.querySelector("canvas");
-        if (canvas instanceof HTMLCanvasElement) setVerify(verifyCanvas(canvas));
+        if (canvas instanceof HTMLCanvasElement) {
+          setVerify({ result: verifyCanvas(canvas), of: engineOptions });
+        }
       }, VERIFY_SETTLE_MS);
     }, DEBOUNCE_MS);
     return () => {
@@ -266,46 +276,58 @@ export function CapyQR() {
     setLogoName(file.name);
     // A logo covers data modules; H recovers about 30% of the codewords.
     setStyle((prev) => (prev.ecc === "H" ? prev : { ...prev, ecc: "H" }));
-    setStatus("logo set — error correction raised to H so the covered modules still decode.");
+    setStatus({
+      text: "logo set — error correction raised to H so the covered modules still decode.",
+      file: "",
+    });
   }, []);
 
   const handleDownload = useCallback(async () => {
     const engine = engineRef.current;
-    if (!engine || !engineOptions) return;
+    if (!engine || !engineOptions || busy) return;
     const name = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
-    const blob = await engine.exportBlob(format);
-    if (!blob) {
-      setStatus("nothing to save yet — compose the payload first.");
-      return;
+    setBusy(true);
+    try {
+      const blob = await engine.exportBlob(format);
+      if (!blob) {
+        setStatus({ text: "nothing to save yet — compose the payload first.", file: name });
+        return;
+      }
+      saveBlob(blob, name);
+      setStatus({
+        text:
+          format === "jpeg" && jpegFillNeeded(style.bg)
+            ? `saved ${name} — jpeg has no transparency, so it sits on white.`
+            : `saved ${name}.`,
+        file: name,
+      });
+    } finally {
+      setBusy(false);
     }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
-    setStatus(
-      format === "jpeg" && jpegFillNeeded(style.bg)
-        ? `saved ${name} — jpeg has no transparency, so it sits on white.`
-        : `saved ${name}.`,
-    );
-  }, [engineOptions, format, kind, size, style.bg]);
+  }, [engineOptions, format, kind, size, style.bg, busy]);
 
   const handleCopy = useCallback(async () => {
     const engine = engineRef.current;
-    if (!engine || !engineOptions) return;
+    if (!engine || !engineOptions || busy) return;
+    const name = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
+    setBusy(true);
     try {
       if (typeof ClipboardItem === "undefined") throw new Error("clipboard unsupported");
       const blob = await engine.exportBlob("png");
       if (!blob) throw new Error("no blob");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setCopied(true);
-      setStatus("copied — paste it straight into your composer.");
+      setStatus({ text: "copied — paste it straight into your composer.", file: name });
       window.setTimeout(() => setCopied(false), COPIED_MS);
     } catch {
-      setStatus("this browser blocked the image copy. download instead — same pixels.");
+      setStatus({
+        text: "this browser blocked the image copy. download instead — same pixels.",
+        file: name,
+      });
+    } finally {
+      setBusy(false);
     }
-  }, [engineOptions]);
+  }, [engineOptions, busy, kind, size, format]);
 
   // The guards read the composed style; transparent previews measure against
   // white, the surface a code is most likely to sit on.
@@ -313,7 +335,10 @@ export function CapyQR() {
   const surface = style.bg === "transparent" ? "#ffffff" : style.bg;
   const contrast = contrastBand(contrastRatio(fgColor, surface));
   const quiet = quietBand(style.quietModules);
-  const logoNotes = logoAdvice(Boolean(logoUrl), LOGO_IMAGE_SIZE, style.ecc);
+  const logoNotes = logoAdvice(Boolean(logoUrl), style.ecc);
+  // Only a scan of the render currently on screen proves anything about it.
+  const proof = verify && verify.of === engineOptions ? verify.result : null;
+  const downloadName = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
   const wifi = fields.wifi;
   const svgBlocked = svgExportBlocked(Boolean(logoUrl));
 
@@ -842,7 +867,10 @@ export function CapyQR() {
                 onClick={() => {
                   setLogoUrl(null);
                   setLogoName("");
-                  setStatus("logo removed — the pattern has the whole code again.");
+                  setStatus({
+                    text: "logo removed — the pattern has the whole code again.",
+                    file: "",
+                  });
                 }}
               >
                 remove
@@ -890,11 +918,16 @@ export function CapyQR() {
         />
 
         <div className="mt-4 text-center">
-          {payload.ok && verify?.ok ? (
+          {payload.ok && proof?.ok && !proof.inverted ? (
             <StageChip tone="sage">
-              verified scannable — decoded: {truncateForChip(verify.data)}
+              verified scannable — decoded: {truncateForChip(proof.data)}
             </StageChip>
-          ) : payload.ok && verify && !verify.ok ? (
+          ) : payload.ok && proof?.ok ? (
+            <StageChip tone="clay">
+              decoded here, but the modules are light on dark — scanners that only read
+              upright codes will refuse it. Swap the colours to be sure.
+            </StageChip>
+          ) : payload.ok && proof && !proof.ok ? (
             <StageChip tone="clay">
               the in-tab scan could not read this one — try higher contrast or a calmer dot style.
             </StageChip>
@@ -929,7 +962,12 @@ export function CapyQR() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <Button size="sm" className="min-w-[84px] rounded-full" onClick={handleDownload}>
+            <Button
+              size="sm"
+              className="min-w-[84px] rounded-full"
+              onClick={handleDownload}
+              disabled={busy}
+            >
               <Download className="mr-1.5 size-3.5" />
               Download
             </Button>
@@ -938,6 +976,7 @@ export function CapyQR() {
               variant="ghost"
               className="min-w-[84px] rounded-full"
               onClick={handleCopy}
+              disabled={busy}
             >
               {copied ? <Check className="mr-1.5 size-3.5" /> : <Copy className="mr-1.5 size-3.5" />}
               {copied ? "Copied" : "Copy image"}
@@ -952,10 +991,11 @@ export function CapyQR() {
         ) : null}
 
         <p aria-live="polite" className="mt-3 min-h-5 text-xs text-muted-foreground">
-          {status ||
-            (payload.ok
-              ? `next download: capyqr-${kind}-${size}.${fileExtensionFor(format)}`
-              : "compose the payload above — the code is waiting.")}
+          {status.text && status.file === downloadName
+            ? status.text
+            : payload.ok
+              ? `next download: ${downloadName}`
+              : "compose the payload above — the code is waiting."}
         </p>
       </StageCard>
     </div>
