@@ -5,6 +5,9 @@ import type { ReactElement } from "react";
 import CapyCreatorPage from "@/app/capycreator/page";
 import CapyExpensePage from "@/app/capyexpense/page";
 import CapyImaginePage from "@/app/capyimagine/page";
+import CapyOGPage from "@/app/capyog/page";
+import CapyQRPage from "@/app/capyqr/page";
+import CapyResizePage from "@/app/capyresize/page";
 import CapyStripPage from "@/app/capystrip/page";
 import CapyWrappedPage from "@/app/capywrapped/page";
 import { Header } from "@/components/header";
@@ -15,11 +18,14 @@ const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
 
 describe("tool pages — editorial shell", () => {
   const pages = [
-    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 05"],
-    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 05"],
-    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 05"],
-    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 05"],
-    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 05"],
+    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 08"],
+    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 08"],
+    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 08"],
+    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 08"],
+    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 08"],
+    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 08"],
+    [CapyQRPage, "CapyQR · tool no. 7", "scanning", "Nº 07 / 08"],
+    [CapyResizePage, "CapyResize · tool no. 8", "needs to be", "Nº 08 / 08"],
   ] as const;
 
   for (const [Page, eyebrow, headline, index] of pages) {
@@ -113,6 +119,9 @@ describe("tool pages — editorial shell", () => {
       CapyCreatorPage,
       CapyStripPage,
       CapyExpensePage,
+      CapyOGPage,
+      CapyQRPage,
+      CapyResizePage,
     ]) {
       expect(markup(<Page />)).toContain("lp-corner-tl");
     }
@@ -131,6 +140,9 @@ describe("copy register", () => {
     ["CapyCreator", CapyCreatorPage],
     ["CapyStrip", CapyStripPage],
     ["CapyExpense", CapyExpensePage],
+    ["CapyOG", CapyOGPage],
+    ["CapyQR", CapyQRPage],
+    ["CapyResize", CapyResizePage],
   ] as const;
 
   for (const [name, Page] of pages) {

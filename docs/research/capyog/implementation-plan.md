@@ -6,6 +6,11 @@ Read §1–§4 before writing any code. Citation keys `[n]` resolve to
 [`./sources.json`](./sources.json). Positioning research:
 [`../expansion/roadmap.md`](../expansion/roadmap.md).*
 
+*Updated 2026-09-13 at implementation time (PR #14): registration sections (§4, §8, §9.5) were
+rewritten for the suite-registry structure (`SUITE` in `src/lib/capytools/suite.ts`) that
+replaced the old `TOOLS` arrays, the mono font stack was corrected to Albert Sans, and the
+Satori single-child `-webkit-box` constraint learned from the smoke test was recorded (§6.1).*
+
 ---
 
 ## 1. Mission & scope
@@ -29,7 +34,7 @@ CapyWrapped's cards, minus the GitHub data.
   per-platform notes from verified primary sources.
 - Light/dark variant (follows site theme) × 4 accents (sage, clay, water, gold).
 - Export: PNG 1×/2×/3×, JPEG with quality slider, copy-image-to-clipboard, `min-w-[84px]` buttons.
-- Full tool registration (landing + header + README) per the Capytools recipe. **Tool no. 5.**
+- Full tool registration per the Capytools recipe. **Tool no. 6.**
 - A Satori-compatibility smoke test that keeps the card subset future-proof (§4, §9).
 
 ### Out of scope (v1 — do NOT build)
@@ -144,23 +149,26 @@ tests/capyog.test.ts
 tests/capyog-render.test.tsx      # Satori smoke (§9)
 ```
 
-Register in: `src/app/page.tsx` (`TOOLS` array, eyebrow `tool no. 6`; hero count sentence —
-currently "Five of them so far." — becomes "Six of them so far.") and
-`src/components/header.tsx` (`TOOLS` nav: `{ href: "/capyog", label: "OG" }`). Add a numbered
-section to `README.md`.
+Register via the **suite registry**: append a `SuiteTool` row to `SUITE` in
+`src/lib/capytools/suite.ts` (`name: "CapyOG"`, `short: "OG"`, `href: "/capyog"`,
+`cat: "browser"`, `plate: { src: "/plates/lab-6.webp", width: 896, height: 1200 }`). The
+masthead's switcher, the landing's Labs catalog, the footer, the notes page, the sitemap and
+every count ("Nº 06", "Six") all derive from that one row — nothing else carries a tool list.
+Then: add `"lab-6"` to `PLATES` in `src/lib/capytools/landing.ts` and ship
+`public/plates/lab-6.webp` (896×1200; `tests/landing.test.tsx` enforces the asset), add a
+numbered README section, update the README's first-line count ("Five so far." → "Six so
+far.") and mirror that string in `landing.ts`'s `COLOPHON.quote` (the sync test asserts the
+two stay verbatim-equal), and bump the five existing tool pages' sign-off `index`
+denominators (`Nº 0X / 05` → `/ 06`) together with their rows in `tests/tool-pages.test.tsx`.
 
 **Dependency changes: none.** Everything needed is already installed.
 
-### ⚠️ Parallel-session note (registration commits)
+### ⚠️ Parallel-session note (registration commits) — resolved
 
-A CapyStrip session may still have uncommitted edits in `src/app/page.tsx` and
-`src/components/header.tsx` (its own registration). Check `git status` before committing:
-
-- If those files carry uncommitted **CapyStrip** changes: create your tool files and commit them
-  first (`feat(capyog): …`), make your registration edits in the working tree, and **stop** — report
-  that page/header registration edits are staged but uncommitted and await orchestrator sequencing.
-  Do NOT commit the files with someone else's edits inside, and do NOT revert them.
-- If the tree is clean except your files: proceed with a normal registration commit.
+When this plan was written, a CapyStrip session held uncommitted edits in the registration
+files. CapyStrip has since shipped (tool no. 4) and registration lives in `suite.ts`, so the
+conflict window is gone. The standing rule remains: check `git status` before committing and
+never commit another session's uncommitted work inside your files.
 
 ---
 
@@ -236,8 +244,8 @@ unchanged). If you'd rather not touch the shared file, implement `exportCard` st
 
 ### 5.5 `demo.ts`
 
-`DEMO_CARD: OgCardData` — a plausible, brand-flavored fixture (e.g. eyebrow "CAPYTOOLS · TOOL NO. 5",
-title "Make the internet a little calmer", titleEm "calmer", attribution "@capytools"). Seeds the
+`DEMO_CARD: OgCardData` — a plausible, brand-flavored fixture (e.g. eyebrow "CAPYTOOLS · TOOL NO. 6",
+title "Make the internet a little", titleEm "calmer", attribution "@capytools"). Seeds the
 editor defaults so the preview is never empty.
 
 ---
@@ -249,13 +257,19 @@ editor defaults so the preview is never empty.
 Props: `{ data: OgCardData; template: OgTemplateId; accent: OgAccent; variant: OgVariant; width: number; height: number }`. Rules (lifted from CardArt):
 
 - Inline styles only — **no Tailwind classes inside the card** (Satori subset + export parity).
-- Font stacks as constants: `'Fraunces', Georgia, serif` / `'Plus Jakarta Sans', system-ui, sans-serif` /
-  `'IBM Plex Mono', ui-monospace, monospace`.
+- Font stacks as constants, mirroring CardArt's current constants: `'Fraunces', Georgia, serif` /
+  `'Plus Jakarta Sans', system-ui, sans-serif` / `'Albert Sans', 'Plus Jakarta Sans', system-ui,
+  sans-serif` (the label voice moved IBM Plex Mono → Albert Sans on 2026-09-09; the `--font-mono`
+  token kept its name).
 - Only font weights CardArt already uses (400/500) — no new weight without adding it to any future
   Satori font loader.
 - Any icon/quote-glyph is an inline `<svg viewBox fill="currentColor" style={{ display: "flex" }}>`.
 - Title clamps at 2 lines; long words wrap via `wordBreak: "break-word"`; the layout must fully
   contain content at every size preset (check the 1080×1920 tall frame and the 1000×1500 pin).
+- `-webkit-box` line-clamp containers must hold **exactly one child** — Satori rejects a
+  `-webkit-box` div with multiple children (verified 2026-09-13 by the Satori smoke). Render the
+  italic `titleEm` segment as its own block line (the house headline pattern), not as an inline
+  `<span>` inside the clamped title.
 - Padding scales with the preset's shorter edge (~6%), not fixed px.
 
 ### 6.2 `OgScaled.tsx` — mirror CardScaled, parameterized
@@ -308,14 +322,19 @@ you add a failure path (export failure → inline note is enough).
 
 ---
 
-## 8. Registration recipe (per AGENTS.md §5)
+## 8. Registration recipe (suite registry)
 
-1. `TOOLS` in `src/app/page.tsx` — `{ href: "/capyog", eyebrow: "tool no. 6", name: "CapyOG",
-   line: "social cards & og images, composed in your browser." }`; bump the hero sentence to
-   "Six of them so far."; grid already `lg:grid-cols-3` (fits 5–6 tools without change).
-2. `TOOLS` in `src/components/header.tsx` — `{ href: "/capyog", label: "OG" }`.
-3. `README.md` — numbered tool section (match the existing entries' voice).
-4. Respect the parallel-session rule in §4 for committing page/header.
+1. Append the `SuiteTool` row to `SUITE` in `src/lib/capytools/suite.ts` — `href: "/capyog"`,
+   `short: "OG"`, `cat: "browser"`, plate `/plates/lab-6.webp` (896×1200). The header nav,
+   landing catalog/footer/counts, notes page, sitemap and hero copy all derive from it; add
+   `"lab-6"` to `PLATES` in `src/lib/capytools/landing.ts` and ship the asset (the
+   asset-existence test fails otherwise).
+2. `README.md` — numbered tool section ("## 6. CapyOG", match the existing entries' voice) and
+   the first-line count ("Six so far."), mirrored verbatim into `COLOPHON.quote` in
+   `src/lib/capytools/landing.ts` so the sync test stays green.
+3. Sign-off indexes — bump the five existing tool pages' `index` denominators (`Nº 0X / 05` →
+   `/ 06`) and the matching rows in `tests/tool-pages.test.tsx`; add CapyOG's own rows.
+4. Respect the parallel-session rule in §4 for committing shared registration files.
 
 ---
 
@@ -330,8 +349,9 @@ you add a failure path (export failure → inline note is enough).
 4. **export.ts** — `buildFileName` golden cases (`png`/`jpeg`, scale 1–3); the format→function
    mapping helper is pure and table-tested (png→toPng options shape incl. `pixelRatio`; jpeg→
    `quality` + `backgroundColor`). No DOM in these tests.
-5. **Registration parity** — assert `/capyog` appears in `TOOLS` in `src/app/page.tsx` and
-   `src/components/header.tsx` (cheap grep-style import or text assertions).
+5. **Registration parity** — assert `/capyog` is the sixth row of `SUITE` in
+   `src/lib/capytools/suite.ts` (the header and landing derive from it), and that `README.md`
+   carries "## 6. CapyOG" and the "Six so far" count (cheap import or text assertions).
 6. **Satori smoke** (`tests/capyog-render.test.tsx`) — mirror `tests/og-render.test.tsx`'s font
    loader; render each of the 4 templates at 1200×630 through `next/og` `ImageResponse` with a
    representative `OgCardData` and assert non-empty PNG bytes. This mechanically enforces the

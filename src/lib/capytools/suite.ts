@@ -97,6 +97,45 @@ export const SUITE: SuiteTool[] = [
     line: "The desktop one — writes only to your own disk.",
     plate: { src: "/plates/lab-5.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyOG",
+    short: "OG",
+    href: "/capyog",
+    cat: "browser",
+    badge: "OG",
+    year: "2026",
+    blurb:
+      "OG images and social cards worth sharing — templates, sizes and accents composed in a live preview, then downloaded or copied. Nothing uploads.",
+    note: "Cards, in-tab",
+    line: "OG images & social cards, composed in your browser.",
+    plate: { src: "/plates/lab-6.webp", width: 896, height: 1200 },
+  },
+  {
+    name: "CapyQR",
+    short: "QR",
+    href: "/capyqr",
+    cat: "browser",
+    badge: "QR",
+    year: "2026",
+    blurb:
+      "Styled QR codes that prove they scan — payloads, colors, a logo, and an in-tab decoder before you export.",
+    note: "Proof-scanned",
+    line: "Styled QR codes, proven scannable in-tab.",
+    plate: { src: "/plates/lab-7.webp", width: 896, height: 1200 },
+  },
+  {
+    name: "CapyResize",
+    short: "Resize",
+    href: "/capyresize",
+    cat: "browser",
+    badge: "Resize",
+    year: "2026",
+    blurb:
+      "Resize, convert and favicon-pack without uploading — progressive-halving quality, honest byte counts, and a 16-pixel proof strip before you ship.",
+    note: "Bytes, proven",
+    line: "Resize, convert and favicon-pack, entirely in-tab.",
+    plate: { src: "/plates/lab-8.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;

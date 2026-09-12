@@ -4,6 +4,7 @@ Whenever building or modifying components, routes, styles, or export cards in Ca
 
 ## 1. Satori & OG Social Card Generation
 - **CSS Property Subset**: Satori supports only `display: "flex" | "block" | "contents" | "none" | "-webkit-box"`. Never use `display: "inline-block"`.
+- **Single-Child Line Clamps**: A `display: "-webkit-box"` line-clamp container must hold exactly one child — Satori rejects it when text nodes and elements are mixed inside (render the italic display segment as its own block line instead of an inline `<span>` inside the clamped title).
 - **No Unicode Symbols in CardArt**: Never render Unicode glyphs/stars (e.g. `★`) as text in Satori templates. Always use an inline vector `<svg viewBox="..." fill="currentColor" style={{ display: "flex" }}>` to prevent dynamic font 400 download failures.
 - **Font Weight Parity**: Ensure any font weight referenced in CardArt (e.g. `fontWeight: 500`) is explicitly fetched in the `googleFont(...)` loader in `route.tsx`.
 

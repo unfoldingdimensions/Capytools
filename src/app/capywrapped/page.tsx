@@ -12,7 +12,6 @@ export default function CapyWrapped() {
     <ToolPageShell
       tool="CapyWrapped"
       eyebrow="CapyWrapped · tool no. 1"
-      index="Nº 01 / 05"
       headline={[
         { text: "Your GitHub year," },
         { text: "in a calm little card", em: true, dot: true },
