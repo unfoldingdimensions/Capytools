@@ -153,8 +153,11 @@
   background: var(--lp-accent-ink);
 }
 
+/* The index mark beside an eyebrow. It was the muted token at 70% alpha, which
+   measures 2.88:1 on the cream canvas at 11px — under AA's 4.5:1. The quiet
+   register is the muted token itself, not a faded one. */
 .lp-ix {
-  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  color: var(--muted-foreground);
 }
 
 .lp-display {
@@ -1086,7 +1089,9 @@ a.lp-wire-item .lp-wire-name {
   transition: transform var(--dur-move) var(--lp-ease-ui);
 }
 
-.lp-arrow-mark:hover svg {
+.lp-arrow-mark:hover svg,
+.lp-lab:hover .lp-arrow-mark svg,
+.lp-lab:focus-within .lp-arrow-mark svg {
   transform: translate(2px, -2px);
 }
 
@@ -1636,7 +1641,10 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-testimonial h2 {
-  font-weight: 700;
+  /* The display face, like the other seven section headlines. This one alone
+     was set in the UI face at weight 700 — a pull-quote voice nobody chose. */
+  font-family: var(--font-display);
+  font-weight: 300;
   font-size: clamp(30px, 3.6vw, 46px);
   line-height: 1.16;
   letter-spacing: -0.02em;
@@ -1646,7 +1654,7 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-testimonial h2 em {
   font-style: italic;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .lp-author {
@@ -1978,6 +1986,27 @@ a.lp-wire-item .lp-wire-name {
   color: var(--clay);
 }
 
+/* Content that replaces other content in place — a photo swapped for its
+   cleaned copy. Fades and settles rather than cutting.
+
+   Nothing hides the element at rest: the animation is the only place opacity
+   drops, so a reader with animations disabled or `prefers-reduced-motion` set
+   sees the finished state immediately rather than a blank frame. */
+@keyframes lp-swap-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lp-swap-in {
+  animation: lp-swap-in var(--dur-move) var(--ease-ui) both;
+}
+
 /* ------------------------------ tool pages -------------------------------- */
 /* The five /capy* pages share ToolPageShell and this stylesheet's vocabulary
    (.lp-label, .lp-display, .lp-dot, .lp-lead, .lp-read-more). These are the
@@ -2038,7 +2067,8 @@ a.lp-wire-item .lp-wire-name {
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  /* Same 2.88:1 problem as `.lp-ix` — see the note there. */
+  color: var(--muted-foreground);
 }
 
 /* ------------------------------ breakpoints ------------------------------ */
@@ -2076,12 +2106,15 @@ a.lp-wire-item .lp-wire-name {
     row-gap: 18px;
   }
 
+  /* The brand takes its own row instead of the fourth column being hidden.
+     `:nth-child(4) { display: none }` silently dropped the whole Colophon
+     column — the three links under it — on every tablet from 560px to 1080px. */
   .lp-foot-grid {
-    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .lp-foot-grid .lp-foot-col:nth-child(4) {
-    display: none;
+  .lp-foot-brand {
+    grid-column: 1 / -1;
   }
 }
 

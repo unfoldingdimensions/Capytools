@@ -87,7 +87,15 @@ export function Labs() {
               key={`${filter}-${tool.name}`}
               delay={Math.min(i, 5) * 0.045}
             >
-              <article className="lp-lab">
+              {/* The whole card is the link. It used to be an <article> whose
+                  only clickable part was the arrow, while the Selected Tools
+                  cards below it were clickable end to end — two affordances
+                  for the same idea on one page. */}
+              <TransitionLink
+                href={tool.href}
+                className="lp-lab"
+                aria-label={`Open ${tool.name}`}
+              >
                 <div className="lp-lab-img">
                   <span className="lp-lab-badge">{tool.badge}</span>
                   <Image
@@ -105,14 +113,10 @@ export function Labs() {
                 </div>
                 <h4>{tool.name}</h4>
                 <p>{tool.blurb}</p>
-                <TransitionLink
-                  href={tool.href}
-                  className="lp-arrow-mark"
-                  aria-label={`Open ${tool.name}`}
-                >
+                <span className="lp-arrow-mark" aria-hidden="true">
                   <ArrowUpRight />
-                </TransitionLink>
-              </article>
+                </span>
+              </TransitionLink>
             </ScrollReveal>
           ))}
         </div>

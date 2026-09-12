@@ -103,12 +103,19 @@ describe("tool pages — editorial shell", () => {
     expect(html).toContain('data-slot="textarea"');
   });
 
-  it("corner marks frame the hero artifacts", () => {
-    // Strip's drop card, Wrapped's demo card and the Expense showcase carry
-    // the landing's plate crop marks.
-    expect(markup(<CapyStripPage />)).toContain("lp-corner-tl");
-    expect(markup(<CapyWrappedPage />)).toContain("lp-corner-tl");
-    expect(markup(<CapyExpensePage />)).toContain("lp-corner-tl");
+  it("corner marks frame the tool's own surface on every tool page", () => {
+    // The landing frames every plate with crop marks; the tool-page analogue is
+    // the tool's first stage. Three of five carried them and two did not, which
+    // made the framing language look arbitrary.
+    for (const Page of [
+      CapyWrappedPage,
+      CapyImaginePage,
+      CapyCreatorPage,
+      CapyStripPage,
+      CapyExpensePage,
+    ]) {
+      expect(markup(<Page />)).toContain("lp-corner-tl");
+    }
   });
 });
 
