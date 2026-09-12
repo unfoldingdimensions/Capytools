@@ -88,7 +88,11 @@ export function CapyOG() {
   const [scale, setScale] = useState<ExportScale>(2);
   const [quality, setQuality] = useState(0.92);
   const [copied, setCopied] = useState(false);
-  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  // Stamped with the filename it describes: change size, scale or format and
+  // the note stops applying, so it steps aside for the next-download hint
+  // instead of standing there stale.
+  const [status, setStatus] = useState({ text: "", file: "" });
 
   const captureRef = useRef<HTMLDivElement>(null);
 
@@ -114,8 +118,9 @@ export function CapyOG() {
 
   const handleDownload = useCallback(async () => {
     const node = captureRef.current;
-    if (!node) return;
-    setStatus("Rendering…");
+    if (!node || busy) return;
+    setBusy(true);
+    setStatus({ text: "Rendering…", file: filename });
     try {
       await exportCard(node, {
         width: size.width,
@@ -126,25 +131,41 @@ export function CapyOG() {
         background: theme.bg,
         filename,
       });
-      setStatus(`Saved ${filename}.`);
+      setStatus({ text: `Saved ${filename}.`, file: filename });
     } catch {
       // A 1080×1920 at 3× is ~18.7 MP of canvas; some mobile browsers refuse.
-      setStatus("That was a lot of canvas for one image — try 2×.");
+      setStatus({
+        text: "That was a lot of canvas for one image — try 2×.",
+        file: filename,
+      });
+    } finally {
+      setBusy(false);
     }
-  }, [size.width, size.height, scale, format, quality, theme.bg, filename]);
+  }, [size.width, size.height, scale, format, quality, theme.bg, filename, busy]);
 
   const handleCopy = useCallback(async () => {
     const node = captureRef.current;
-    if (!node) return;
-    const ok = await copyCardImage(node, size.width, size.height);
-    if (ok) {
-      setCopied(true);
-      setStatus("Copied — paste it straight into your composer.");
-      window.setTimeout(() => setCopied(false), COPIED_MS);
-    } else {
-      setStatus("Your browser blocked the image copy. Download instead — same pixels.");
+    if (!node || busy) return;
+    setBusy(true);
+    try {
+      const ok = await copyCardImage(node, size.width, size.height, scale);
+      if (ok) {
+        setCopied(true);
+        setStatus({
+          text: `Copied at ${scale}× — paste it straight into your composer.`,
+          file: filename,
+        });
+        window.setTimeout(() => setCopied(false), COPIED_MS);
+      } else {
+        setStatus({
+          text: "Your browser blocked the image copy. Download instead — same pixels.",
+          file: filename,
+        });
+      }
+    } finally {
+      setBusy(false);
     }
-  }, [size.width, size.height]);
+  }, [size.width, size.height, scale, filename, busy]);
 
   return (
     <div className="flex w-full flex-col gap-5">
@@ -332,7 +353,12 @@ export function CapyOG() {
           )}
 
           <div className="ml-auto flex items-center gap-2">
-            <Button size="sm" className="min-w-[84px] rounded-full" onClick={handleDownload}>
+            <Button
+              size="sm"
+              className="min-w-[84px] rounded-full"
+              onClick={handleDownload}
+              disabled={busy}
+            >
               <Download className="mr-1.5 size-3.5" />
               Download
             </Button>
@@ -341,6 +367,7 @@ export function CapyOG() {
               variant="ghost"
               className="min-w-[84px] rounded-full"
               onClick={handleCopy}
+              disabled={busy}
             >
               {copied ? <Check className="mr-1.5 size-3.5" /> : <Copy className="mr-1.5 size-3.5" />}
               {copied ? "Copied!" : "Copy image"}
@@ -349,7 +376,7 @@ export function CapyOG() {
         </div>
 
         <p aria-live="polite" className="mt-3 min-h-5 text-xs text-muted-foreground">
-          {status || `Next download: ${filename}`}
+          {status.file === filename ? status.text : `Next download: ${filename}`}
         </p>
       </StageCard>
 
