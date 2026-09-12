@@ -22,11 +22,13 @@ import type {
   RawMetadata,
 } from "@/lib/capystrip/types";
 import { CapyScene } from "@/components/mascot/CapyScene";
+import { ErrorCard } from "@/components/tool/ErrorCard";
 import { StageCard, StageChip } from "@/components/stage-card";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { TerminalLoader, type LoadStep } from "@/components/tool/TerminalLoader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { COPIED_MS } from "@/lib/capytools/feedback";
 
 /**
  * CapyStrip — the drop, the report, the clean copy. Every byte the tool sees
@@ -287,7 +289,7 @@ export function CapyStrip() {
     try {
       await navigator.clipboard.writeText(payload);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => setCopied(false), COPIED_MS);
     } catch {
       // clipboard denied — nothing to do, the card is readable as-is
     }
@@ -351,9 +353,7 @@ export function CapyStrip() {
       {/* Loading state — REAL progress: each line flips when its stage finishes. */}
       {loading && <TerminalLoader username={pendingName} steps={steps} />}
 
-      {error && (
-        <StripErrorCard title={error.title} body={error.body} />
-      )}
+      {error && <ErrorCard title={error.title} body={error.body} />}
 
       {/* CARD 2 — THE REPORT */}
       <ScrollReveal direction="up">
@@ -573,17 +573,3 @@ function FieldRow({ item }: { item: MetadataField }) {
   );
 }
 
-/**
- * Calm error state. (ErrorCard itself is wired to GitHub error kinds — its
- * copy would read "We couldn't find this GitHub username" under a photo, so
- * this mirrors its structure with CapyStrip's own words instead.)
- */
-function StripErrorCard({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="mx-auto flex w-full flex-col items-center gap-4 rounded-2xl border border-border bg-card px-8 py-10 text-center">
-      <CapyScene pose="nap" className="w-20 text-foreground/70" title="Napping capybara" />
-      <h3 className="font-display text-xl text-foreground">{title}</h3>
-      <p className="text-sm text-muted-foreground">{body}</p>
-    </div>
-  );
-}

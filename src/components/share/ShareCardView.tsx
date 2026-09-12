@@ -6,7 +6,7 @@ import { fetchWrapped, WRAP_STEPS } from "@/lib/github/wrap";
 import { GithubError } from "@/lib/github/types";
 import type { WrappedStats } from "@/lib/github/types";
 import { CardComposer } from "@/components/card/CardComposer";
-import { ErrorCard } from "@/components/tool/ErrorCard";
+import { ErrorCard, githubErrorNotice } from "@/components/tool/ErrorCard";
 import { TerminalLoader } from "@/components/tool/TerminalLoader";
 import type { LoadStep } from "@/components/tool/TerminalLoader";
 import { readWrappedCache, writeWrappedCache } from "@/lib/capytools/cache";
@@ -52,7 +52,16 @@ export function ShareCardView({ username }: { username: string }) {
     }
   }, [cached, remoteStats, fetchRemote]);
 
-  if (error) return <ErrorCard error={error} onRetry={fetchRemote} />;
+  if (error) {
+    const notice = githubErrorNotice(error.kind);
+    return (
+      <ErrorCard
+        title={notice.title}
+        body={notice.body}
+        onRetry={notice.retry ? fetchRemote : undefined}
+      />
+    );
+  }
   if (!stats) return <TerminalLoader username={username} steps={steps} />;
 
   return (

@@ -14,8 +14,8 @@ export default function CapyStripPage() {
       eyebrow="CapyStrip · tool no. 4"
       index="Nº 04 / 05"
       headline={[
-        { text: "your photos talk." },
-        { text: "this one helps them forget", em: true, dot: true },
+        { text: "Your photos talk." },
+        { text: "This one helps them forget", em: true, dot: true },
       ]}
       lead="see what a photo carries — gps, device, ai fingerprints — then download a clean copy. all local."
       align="left"

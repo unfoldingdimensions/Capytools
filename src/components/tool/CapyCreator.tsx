@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { CONFIRMED_MS, COPIED_MS } from "@/lib/capytools/feedback";
 
 const TIER_OPTIONS = [
   { id: "auto", label: "Auto (Default)" },
@@ -181,7 +182,7 @@ export function CapyCreator() {
   const handleSaveSettings = () => {
     saveStoredSettings(polishSettings);
     setTestResult({ ok: true, note: "Settings saved to browser storage." });
-    setTimeout(() => setTestResult(null), 3000);
+    setTimeout(() => setTestResult(null), CONFIRMED_MS);
   };
 
   const handleTestConnection = async () => {
@@ -198,7 +199,7 @@ export function CapyCreator() {
     try {
       await navigator.clipboard.writeText(assembledPrompt);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setTimeout(() => setCopied(false), COPIED_MS);
     } catch {
       // Fallback handled by selectable text
     }

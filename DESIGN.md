@@ -186,6 +186,26 @@ at base weight 500. Albert Sans (a geometric sans, serving as the
 
 Headings `h1–h4` default to weight 700 unless a display style overrides them.
 
+## Register
+
+Two voices, and the line between them is *who is speaking*:
+
+- **UI copy is lowercase.** Leads, hints, placeholders, empty states, status
+  lines, button labels — a tool talking to you in its own voice — are written
+  in lowercase sentences: "no signup. no cookies. nothing stored.", "every
+  control re-words this scene". A tool page is an app surface, and the
+  register is what makes five of them sound like one house.
+- **Titles are not.** Tool headlines, section headings, card titles, eyebrows,
+  tags and badges take sentence case, or the uppercase label style where they
+  are labels. "Your photos talk. This one helps them forget." — never "your
+  photos talk."
+- **Quotations and metadata are neither.** The README line in the Colophon is
+  quoted verbatim and keeps the README's own case; `<title>` and description
+  strings are written for a search result rather than for a UI.
+
+`tests/tool-pages.test.tsx` enforces the mechanical half: on every tool page
+ the headline starts uppercase and the lead starts lowercase.
+
 ## Layout
 
 4px baseline scale: `xs` intra-chip gaps, `md` (16px) intra-component,

@@ -31,7 +31,7 @@ export default function CapyExpensePage() {
         { text: "You already have the data." },
         { text: "It just never talks back", em: true, dot: true },
       ]}
-      lead="A desktop expense dashboard that reads a spreadsheet you type into yourself. No account, no bank login, no cloud, nothing uploaded."
+      lead="a desktop expense dashboard that reads a spreadsheet you type into yourself. no account, no bank login, no cloud, nothing uploaded."
     >
       <p className="mb-6 flex justify-center">
         {/* A state chip, not an alert — clay is for the notice below, which is
