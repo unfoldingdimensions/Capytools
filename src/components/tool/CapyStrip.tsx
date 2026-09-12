@@ -515,7 +515,7 @@ export function CapyStrip() {
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <Button className="rounded-full" onClick={downloadClean}>
+                  <Button size="lg" className="rounded-full" onClick={downloadClean}>
                     <Download className="mr-1.5 size-4" />
                     Download clean copy
                   </Button>
@@ -580,7 +580,7 @@ function FieldRow({ item }: { item: MetadataField }) {
  */
 function StripErrorCard({ title, body }: { title: string; body: string }) {
   return (
-    <div className="mx-auto flex w-full flex-col items-center gap-4 rounded-[20px] border border-border bg-card px-8 py-10 text-center">
+    <div className="mx-auto flex w-full flex-col items-center gap-4 rounded-2xl border border-border bg-card px-8 py-10 text-center">
       <CapyScene pose="nap" className="w-20 text-foreground/70" title="Napping capybara" />
       <h3 className="font-display text-xl text-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground">{body}</p>

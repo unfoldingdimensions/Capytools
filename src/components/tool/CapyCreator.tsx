@@ -474,6 +474,7 @@ export function CapyCreator() {
             Task detected: <strong className="text-foreground">{taskType.replace(/_/g, " ")}</strong>
           </span>
           <Button
+            size="lg"
             className="rounded-full font-medium"
             onClick={handleGenerateQuestions}
           >
@@ -556,7 +557,7 @@ export function CapyCreator() {
             </div>
 
             <div className="mt-5 flex justify-end border-t border-border pt-4">
-              <Button className="rounded-full font-medium" onClick={handleAssemble}>
+              <Button size="lg" className="rounded-full font-medium" onClick={handleAssemble}>
                 Assemble prompt
                 <ArrowRight className="ml-1.5 size-4" />
               </Button>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CapyExpenseDemo } from "./CapyExpenseDemo";
 import { CapyExpenseHeroChart, HERO_CHART_TOTAL } from "./CapyExpenseHeroChart";
+import { Button } from "@/components/ui/button";
 
 /**
  * The landing page's centrepiece.
@@ -21,7 +22,7 @@ export function CapyExpenseShowcase() {
       <span aria-hidden className="lp-corner lp-corner-tr" />
       <span aria-hidden className="lp-corner lp-corner-bl" />
       <span aria-hidden className="lp-corner lp-corner-br" />
-      <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.10)]">
+      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-12px_rgba(0,0,0,0.10)]">
         {!open ? (
           <div className="px-6 pt-8 sm:px-10 sm:pt-10">
             <div className="flex flex-wrap items-end justify-between gap-4">
@@ -46,15 +47,15 @@ export function CapyExpenseShowcase() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-border bg-muted/30 px-6 py-5 sm:px-10">
-          <button
-            type="button"
+          <Button
+            size="lg"
+            className="rounded-full"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="capyexpense-demo"
-            className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.98]"
           >
             {open ? "Hide the dashboard" : "Show the whole dashboard"}
-          </button>
+          </Button>
           <p className="text-sm text-muted-foreground">
             {open
               ? "Every control works. Change the range and the numbers follow."

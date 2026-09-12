@@ -88,7 +88,7 @@ export function CardScaled({
             <div
               /* mx-auto: in square format the frame is narrower than the column,
                  so without it the card sits left of centre. */
-              className="relative mx-auto overflow-hidden rounded-[20px] shadow-[0_1px_2px_rgba(26,26,26,0.05),0_24px_70px_-28px_rgba(26,26,26,0.45)] ring-1 ring-black/[0.04] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_24px_70px_-24px_rgba(0,0,0,0.6)] dark:ring-white/[0.06]"
+              className="relative mx-auto overflow-hidden rounded-2xl shadow-[0_1px_2px_rgba(26,26,26,0.05),0_24px_70px_-28px_rgba(26,26,26,0.45)] ring-1 ring-black/[0.04] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_24px_70px_-24px_rgba(0,0,0,0.6)] dark:ring-white/[0.06]"
               style={{
                 // Before measuring, hold the slot with an aspect ratio so there is
                 // no layout shift on first paint.

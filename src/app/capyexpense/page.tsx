@@ -34,7 +34,9 @@ export default function CapyExpensePage() {
       lead="A desktop expense dashboard that reads a spreadsheet you type into yourself. No account, no bank login, no cloud, nothing uploaded."
     >
       <p className="mb-6 flex justify-center">
-        <span className="rounded-full border border-[var(--clay)]/35 bg-[var(--clay)]/[0.08] px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--lp-accent-ink)]">
+        {/* A state chip, not an alert — clay is for the notice below, which is
+            the thing that actually needs to be read twice. */}
+        <span className="rounded-full border border-border bg-muted/60 px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
           Coming soon · Windows &amp; Linux
         </span>
       </p>

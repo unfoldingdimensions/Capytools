@@ -30,6 +30,15 @@
    * overhang instead of letting the page slide sideways.
    */
   overflow-x: clip;
+  /*
+   * The deep-clay ink for small text. It exists for the two jobs the palette
+   * gives clay that are NOT "the loudest thing on the page": the landing's
+   * numbering (section numerals, card numbers, method steps, the eyebrow dash)
+   * and the terminal period on a headline. Everything clay-coloured here is one
+   * of those. Anything that is a LINK is `--water`, per DESIGN.md, and anything
+   * that is a passing state — a chip, a badge, a "coming soon" — is muted.
+   * Clay on a link was what made it read as a second primary colour.
+   */
   --lp-accent-ink: #a05e3c;
   --lp-line-soft: color-mix(in oklab, var(--foreground) 8%, transparent);
   --lp-line-faint: color-mix(in oklab, var(--foreground) 5%, transparent);
@@ -186,7 +195,10 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 22px;
+  /* An explicit height, so the landing's primary action and a tool's
+     `Button size="lg"` are the same 48px. They were 51 and 36. */
+  height: 48px;
+  padding: 0 22px;
   border-radius: 999px;
   border: 1px solid transparent;
   font-size: 14px;
@@ -204,7 +216,8 @@
 }
 
 .lp-btn-sm {
-  padding: 10px 18px;
+  height: 40px;
+  padding: 0 18px;
   font-size: 13px;
 }
 
@@ -1051,7 +1064,8 @@ a.lp-wire-item .lp-wire-name {
   height: 32px;
   margin-top: auto;
   position: relative;
-  color: var(--lp-accent-ink);
+  /* An affordance, not a celebration — the palette's link colour. */
+  color: var(--water);
 }
 
 .lp-arrow-mark::before {
@@ -1299,7 +1313,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-labs-foot .lp-meta a {
-  color: var(--lp-accent-ink);
+  color: var(--water);
 }
 
 /* --------------------------------- method -------------------------------- */
@@ -1729,13 +1743,17 @@ a.lp-wire-item .lp-wire-name {
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--lp-accent-ink);
-  border-bottom: 1px solid color-mix(in oklab, var(--lp-accent-ink) 40%, transparent);
+  color: var(--water);
+  border-bottom: 1px solid color-mix(in oklab, var(--water) 40%, transparent);
   padding-bottom: 3px;
 }
 
 .lp-read-more:hover {
-  color: var(--clay);
+  color: var(--sage-deep);
+}
+
+.dark .lp-read-more:hover {
+  color: var(--primary);
 }
 
 /* ----------------------------------- cta --------------------------------- */
@@ -1784,7 +1802,9 @@ a.lp-wire-item .lp-wire-name {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 22px;
+  /* Matches `.lp-btn`: the two CTAs sit side by side and must be one height. */
+  height: 48px;
+  padding: 0 22px;
   border-radius: 999px;
   border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent);
   font-size: 14px;
@@ -1809,7 +1829,7 @@ a.lp-wire-item .lp-wire-name {
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 12px;
-  color: var(--lp-accent-ink);
+  color: var(--water);
 }
 
 .lp-cta-foot {
@@ -1881,7 +1901,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-foot-cta:hover .lp-foot-cta-sub {
-  color: var(--lp-accent-ink);
+  color: var(--water);
 }
 
 .lp-foot-col h5 {
