@@ -40,6 +40,7 @@ import {
 } from "@/lib/capycreator/types";
 
 import { Button } from "@/components/ui/button";
+import { StageCard, StageChip } from "@/components/stage-card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -219,11 +220,10 @@ export function CapyCreator() {
   return (
     <div className="flex w-full flex-col gap-5">
       {/* CARD 1: THE ASK & MODEL FAMILY */}
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-            01 · The Ask &amp; Model Dialect
-          </span>
+      <StageCard
+        index="01"
+        title="The Ask & Model Dialect"
+        actions={
           <Button
             variant="ghost"
             size="sm"
@@ -233,7 +233,8 @@ export function CapyCreator() {
             <Settings className="mr-1.5 size-3.5" />
             Polish Settings
           </Button>
-        </div>
+        }
+      >
 
         {/* Collapsible Provider Settings Panel */}
         {showSettings && (
@@ -480,21 +481,17 @@ export function CapyCreator() {
             <ArrowRight className="ml-1.5 size-4" />
           </Button>
         </div>
-      </div>
+      </StageCard>
 
       {/* CARD 2: QUESTIONNAIRE */}
       <ScrollReveal direction="up">
         {questions.length > 0 && (
-          <div id="questionnaire-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                  02 · Intent Questionnaire
-                </span>
-                <span className="ml-2 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                  {taskType.replace(/_/g, " ")} · Tier {effectiveTier}
-                </span>
-              </div>
+          <StageCard
+            id="questionnaire-card"
+            index="02"
+            title="Intent Questionnaire"
+            chips={<StageChip>{taskType.replace(/_/g, " ")} · Tier {effectiveTier}</StageChip>}
+            actions={
               <Button
                 variant="ghost"
                 size="sm"
@@ -504,7 +501,8 @@ export function CapyCreator() {
                 <RotateCcw className="mr-1 size-3" />
                 Reset fields
               </Button>
-            </div>
+            }
+          >
 
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
               {effectiveTier <= 2
@@ -563,24 +561,19 @@ export function CapyCreator() {
                 <ArrowRight className="ml-1.5 size-4" />
               </Button>
             </div>
-          </div>
+          </StageCard>
         )}
       </ScrollReveal>
 
       {/* CARD 3: ASSEMBLED PROMPT OUTPUT */}
       <ScrollReveal direction="up">
         {assembledPrompt && (
-          <div id="output-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm transition-all">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                  03 · Engineered Prompt
-                </span>
-                <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                  {activeProfile.family} · Tier {effectiveTier}
-                </span>
-              </div>
-
+          <StageCard
+            id="output-card"
+            index="03"
+            title="Engineered Prompt"
+            chips={<StageChip>{activeProfile.family} · Tier {effectiveTier}</StageChip>}
+            actions={
               <div className="flex flex-wrap items-center gap-2">
                 {/* Polish Switch */}
                 <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs">
@@ -616,10 +609,11 @@ export function CapyCreator() {
                   .md
                 </Button>
               </div>
-            </div>
+            }
+          >
 
             {/* Inset Output Well */}
-            <pre className="mt-4 min-h-36 select-all whitespace-pre-wrap break-words rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed text-foreground">
+            <pre className="min-h-36 select-all whitespace-pre-wrap break-words rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed text-foreground">
               {assembledPrompt}
             </pre>
 
@@ -635,7 +629,7 @@ export function CapyCreator() {
               <span className="font-semibold text-foreground">{activeProfile.family} Guidance: </span>
               {activeProfile.prompt_principles.do.slice(0, 2).join(" ")}
             </div>
-          </div>
+          </StageCard>
         )}
       </ScrollReveal>
     </div>

@@ -22,6 +22,7 @@ import type {
   RawMetadata,
 } from "@/lib/capystrip/types";
 import { CapyScene } from "@/components/mascot/CapyScene";
+import { StageCard, StageChip } from "@/components/stage-card";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { TerminalLoader, type LoadStep } from "@/components/tool/TerminalLoader";
 import { Button } from "@/components/ui/button";
@@ -302,15 +303,7 @@ export function CapyStrip() {
   return (
     <div className="flex w-full flex-col gap-5">
       {/* CARD 1 — THE DROP */}
-      <div className="relative rounded-3xl border border-border bg-card p-6 shadow-sm">
-        <span aria-hidden className="lp-corner lp-corner-tl" />
-        <span aria-hidden className="lp-corner lp-corner-tr" />
-        <span aria-hidden className="lp-corner lp-corner-bl" />
-        <span aria-hidden className="lp-corner lp-corner-br" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-          01 · The drop
-        </span>
-
+      <StageCard index="01" title="The drop" marks>
         <input
           ref={fileInput}
           type="file"
@@ -353,7 +346,7 @@ export function CapyStrip() {
           <ClipboardPaste className="size-3" aria-hidden />
           ctrl/⌘+V works too
         </p>
-      </div>
+      </StageCard>
 
       {/* Loading state — REAL progress: each line flips when its stage finishes. */}
       {loading && <TerminalLoader username={pendingName} steps={steps} />}
@@ -365,31 +358,29 @@ export function CapyStrip() {
       {/* CARD 2 — THE REPORT */}
       <ScrollReveal direction="up">
         {report && !loading && !error && (
-          <div id="report-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm" aria-live="polite">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                  02 · The report
-                </span>
-                {isDemo && (
-                  <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-                    demo
-                  </span>
-                )}
-                <span className="rounded-full border border-border bg-muted/60 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+          <StageCard
+            id="report-card"
+            index="02"
+            title="The report"
+            ariaLive="polite"
+            chips={
+              <>
+                {isDemo && <StageChip>demo</StageChip>}
+                <StageChip>
                   {KIND_LABELS[report.kind]} · {formatBytes(report.byteSize)}
-                </span>
-              </div>
-
-              {!isDemo && (
+                </StageChip>
+              </>
+            }
+            actions={
+              !isDemo ? (
                 <Button variant="ghost" size="sm" className="min-w-[84px] rounded-full" onClick={copyReport}>
                   {copied ? <Check className="mr-1 size-3.5" /> : <Copy className="mr-1 size-3.5" />}
                   {copied ? "Copied" : "Copy report as JSON"}
                 </Button>
-              )}
-            </div>
-
-            <h3 className="mt-3 font-display text-2xl font-light text-foreground">
+              ) : null
+            }
+          >
+            <h3 className="font-display text-2xl font-light text-foreground">
               {VERDICT_COPY[report.verdict]}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -463,30 +454,26 @@ export function CapyStrip() {
                 No readable metadata — {VERDICT_COPY[report.verdict].toLowerCase()}
               </p>
             )}
-          </div>
+          </StageCard>
         )}
       </ScrollReveal>
 
       {/* CARD 3 — THE CLEAN COPY */}
       <ScrollReveal direction="up">
         {report && !isDemo && !loading && !error && clean && (
-          <div id="clean-card" className="scroll-mt-24 rounded-3xl border border-border bg-card p-6 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--lp-accent-ink)]">
-                03 · The clean copy
-              </span>
-              {clean.verified ? (
-                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-foreground">
-                  re-scanned — clean
-                </span>
+          <StageCard
+            id="clean-card"
+            index="03"
+            title="The clean copy"
+            chips={
+              clean.verified ? (
+                <StageChip tone="sage">re-scanned — clean</StageChip>
               ) : (
-                <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
-                  couldn&apos;t verify
-                </span>
-              )}
-            </div>
-
-            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+                <StageChip tone="clay">couldn&apos;t verify</StageChip>
+              )
+            }
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
               {cleanUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -550,7 +537,7 @@ export function CapyStrip() {
               redrawn from scratch through a canvas — the copy carries none of the metadata above. your
               photo never left this tab.
             </p>
-          </div>
+          </StageCard>
         )}
       </ScrollReveal>
 

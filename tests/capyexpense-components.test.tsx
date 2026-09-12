@@ -2,6 +2,9 @@ import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ExpenseDashboard } from "../src/components/capyexpense/ExpenseDashboard";
+import { Header } from "../src/components/header";
+import { HERO, LABS } from "../src/lib/capytools/landing";
+import { SUITE } from "../src/lib/capytools/suite";
 import { buildDashboard } from "../src/lib/capyexpense/aggregate";
 import type { RangeState } from "../src/lib/capyexpense/bucket";
 import { dataSpanOf, resolveRange } from "../src/lib/capyexpense/bucket";
@@ -119,17 +122,13 @@ describe("ExpenseDashboard renders", () => {
 describe("registration parity", () => {
   const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
 
-  it("is on the landing page with the hero count bumped", () => {
-    // The editorial landing registers tools in the landing data module.
-    const landing = read("../src/lib/capytools/landing.ts");
-    expect(landing).toContain('href: "/capyexpense"');
-    expect(landing).toContain('no: "Nº 05"');
-    expect(landing).toContain("Five small tools");
-  });
-
-  it("is in the header navigation", () => {
-    const header = read("../src/components/header.tsx");
-    expect(header).toContain('{ href: "/capyexpense", label: "Expense" }');
+  it("is on the landing page and in the masthead, via the one registry", () => {
+    expect(SUITE.some((tool) => tool.href === "/capyexpense")).toBe(true);
+    expect(LABS.tools.some((tool) => tool.href === "/capyexpense")).toBe(true);
+    // Derived copy, so the hero names every tool without a second list to keep.
+    expect(HERO.lead).toContain("CapyExpense");
+    // And the switcher is built from the registry, not hand-listed: render it.
+    expect(renderToStaticMarkup(<Header />)).toContain('href="/capyexpense"');
   });
 
   it("no longer claims every tool runs in the browser", () => {

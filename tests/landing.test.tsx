@@ -21,7 +21,14 @@ import { Landing } from "../src/components/landing/Landing";
 import DesignNotesPage from "../src/app/design/page";
 import LicensePage from "../src/app/license/page";
 import NotesPage from "../src/app/notes/page";
-import { EXTERNAL, LABS, PLATES } from "../src/lib/capytools/landing";
+import { EXTERNAL, LABS, PLATES, COLOPHON, HERO, LANDING_FOOTER } from "../src/lib/capytools/landing";
+import {
+  SUITE,
+  SUITE_INDEX,
+  SUITE_LIST,
+  SUITE_WORD,
+  gridColumns,
+} from "../src/lib/capytools/suite";
 
 const html = renderToStaticMarkup(<Landing />);
 const text = html.replace(/<[^>]+>/g, " ");
@@ -43,7 +50,35 @@ describe("Landing", () => {
     expect(html.match(/<h1/g)?.length).toBe(1);
   });
 
-  it('quotes the README as "Five so far" — verbatim means current', () => {
+  it("derives every count and list from the one registry", () => {
+    // These were literals in ~15 places before: "05", "05 of 05 shipped",
+    // "05 / 05 TOOLS", "Five small tools", "Suite of five", the hero's tool
+    // list, the footer's Suite column, the Colophon's partner row. A sixth tool
+    // made all of them wrong at once. They read the registry now.
+    expect(SUITE_INDEX).toBe(String(SUITE.length).padStart(2, "0"));
+    expect(HERO.ix).toContain(SUITE_INDEX);
+    expect(HERO.lead).toContain(SUITE_LIST);
+    expect(HERO.stats[0].value).toBe(SUITE_INDEX);
+    expect(LABS.meta[1]).toBe(`${SUITE_INDEX} of ${SUITE_INDEX} shipped`);
+    expect(LABS.foot).toBe(`${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`);
+    expect(LABS.residence.ring).toBe(SUITE_INDEX);
+    expect(LABS.pills[0].count).toBe(SUITE_INDEX);
+    expect(LABS.tools).toHaveLength(SUITE.length);
+    expect(LABS.tools.map((tool) => tool.href)).toEqual(SUITE.map((tool) => tool.href));
+    expect(COLOPHON.partners.map((partner) => partner.href)).toEqual(SUITE.map((tool) => tool.href));
+    expect(LANDING_FOOTER.columns[0].links.map((link) => link.href)).toEqual(
+      SUITE.map((tool) => tool.href),
+    );
+    expect(LANDING_FOOTER.blurb).toContain(`Suite of ${SUITE_WORD}`);
+    // The catalog's column count follows the suite's size, so a sixth tool does
+    // not tighten every card and strand one alone on the next row.
+    expect(gridColumns(3)).toBe(3);
+    expect(gridColumns(5)).toBe(5);
+    expect(gridColumns(6)).toBe(4);
+    expect(gridColumns(9)).toBe(4);
+  });
+
+  it("keeps the verbatim README quote out of the derivation", () => {
     expect(text).toContain("Five so far");
     expect(text).not.toContain("Four so far");
   });

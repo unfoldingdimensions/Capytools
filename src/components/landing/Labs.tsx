@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import { LABS, type LabCategory } from "@/lib/capytools/landing";
+import { gridColumns } from "@/lib/capytools/suite";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { ArrowUpRight } from "@/components/landing/icons";
@@ -74,7 +76,12 @@ export function Labs() {
           </div>
         </div>
 
-        <div className="lp-labs-grid">
+        <div
+          className="lp-labs-grid"
+          // Column count follows the suite's size, never the active filter — a
+          // filtered view must not resize the cards that remain.
+          style={{ "--lp-lab-cols": gridColumns(LABS.tools.length) } as CSSProperties}
+        >
           {shown.map((tool, i) => (
             <ScrollReveal
               key={`${filter}-${tool.name}`}

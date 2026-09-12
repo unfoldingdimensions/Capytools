@@ -1180,7 +1180,10 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-labs-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  /* The column count comes from the suite (see `gridColumns`), so adding a tool
+     is a data change and not a stylesheet change. 5 is only the fallback for a
+     grid rendered without the inline variable. */
+  grid-template-columns: repeat(var(--lp-lab-cols, 5), minmax(0, 1fr));
   gap: 22px;
 }
 
@@ -1675,7 +1678,8 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-partners {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  /* Same contract as the catalog grid — count from the suite, 5 as a fallback. */
+  grid-template-columns: repeat(var(--lp-partner-cols, 5), minmax(0, 1fr));
   gap: 14px;
   margin-top: 22px;
 }
@@ -1951,10 +1955,28 @@ a.lp-wire-item .lp-wire-name {
   color: var(--clay);
 }
 
-/* ------------------------------ tool pages ------------------------------- */
+/* ------------------------------ tool pages -------------------------------- */
 /* The five /capy* pages share ToolPageShell and this stylesheet's vocabulary
-   (.lp-label, .lp-display, .lp-dot, .lp-lead, .lp-read-more). This scope only
-   carries the pieces the landing never needed a class for. */
+   (.lp-label, .lp-display, .lp-dot, .lp-lead, .lp-read-more). These are the
+   pieces the landing never needed a class for. */
+
+/* The landing's surface arc, cut to the three surfaces a tool page has room
+   for: cream hero → white stage band → sage sign-off. Before this every tool
+   was one uninterrupted cream field from masthead to footer, so nothing but
+   the widget in the middle told them apart — the landing's white band and its
+   sage closing plate had no analogue here at all. */
+
+.lp-tool-band {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* The same sage mix as the landing's closing plate (`.lp-cta`). */
+.lp-tool-signoff {
+  background: color-mix(in srgb, var(--primary) 12%, var(--background));
+  border-top: 1px solid var(--border);
+}
 
 .lp-tool-display-lg {
   font-size: 2.6rem;
@@ -1974,13 +1996,14 @@ a.lp-wire-item .lp-wire-name {
   max-width: 52ch;
 }
 
-/* The editorial sign-off row under a tool: back-link left, index meta right. */
+/* The editorial sign-off row: back-link left, index meta right. */
 .lp-tool-foot {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 24px;
-  margin-top: 72px;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
 .lp-tool-foot .lp-read-more {
