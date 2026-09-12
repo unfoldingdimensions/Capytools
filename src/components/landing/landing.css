@@ -1986,6 +1986,27 @@ a.lp-wire-item .lp-wire-name {
   color: var(--clay);
 }
 
+/* Content that replaces other content in place — a photo swapped for its
+   cleaned copy. Fades and settles rather than cutting.
+
+   Nothing hides the element at rest: the animation is the only place opacity
+   drops, so a reader with animations disabled or `prefers-reduced-motion` set
+   sees the finished state immediately rather than a blank frame. */
+@keyframes lp-swap-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lp-swap-in {
+  animation: lp-swap-in var(--dur-move) var(--ease-ui) both;
+}
+
 /* ------------------------------ tool pages -------------------------------- */
 /* The five /capy* pages share ToolPageShell and this stylesheet's vocabulary
    (.lp-label, .lp-display, .lp-dot, .lp-lead, .lp-read-more). These are the

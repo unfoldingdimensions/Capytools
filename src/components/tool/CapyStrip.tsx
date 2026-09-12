@@ -477,9 +477,13 @@ export function CapyStrip() {
               {cleanUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
+                  // Keyed by the FILE, not the URL: a new photo fades in, while
+                  // dragging the quality slider re-encodes without remounting,
+                  // so the preview does not strobe during a drag.
+                  key={report.fileName}
                   src={cleanUrl}
                   alt={`Cleaned preview of ${report.fileName}`}
-                  className="h-28 w-28 shrink-0 rounded-2xl border border-border bg-muted/40 object-contain"
+                  className="lp-swap-in h-28 w-28 shrink-0 rounded-2xl border border-border bg-muted/40 object-contain"
                 />
               )}
 
