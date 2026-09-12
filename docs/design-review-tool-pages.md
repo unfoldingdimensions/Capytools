@@ -25,7 +25,8 @@ or four more tools, with CapyExpense about to launch.
 | [#5](https://github.com/unfoldingdimensions/Capytools/pull/5) | P1 #7, #8, #9 | merged to `main` |
 | [#6](https://github.com/unfoldingdimensions/Capytools/pull/6) | P1 #10, #11, #12 | merged to `main` |
 | [#7](https://github.com/unfoldingdimensions/Capytools/pull/7) | P1 #13, #14, #15 | merged to `main` |
-| this PR | P1 #16, #17, #18 | open, awaiting review |
+| [#8](https://github.com/unfoldingdimensions/Capytools/pull/8) | P1 #16, #17, #18 | merged to `main` |
+| this PR | P2 #19 - #26 (the whole P2 table) | open, awaiting review |
 
 | # | Change | Where |
 |---|---|---|
@@ -47,6 +48,14 @@ or four more tools, with CapyExpense about to launch.
 | 16 | The copy register applied and written down — tool headlines sentence case, tool leads lowercase | the CapyStrip and CapyExpense pages; `DESIGN.md`; `tests/tool-pages.test.tsx` |
 | 17 | One `ErrorCard` instead of two: `StripErrorCard` deleted, the GitHub wording a helper | `ErrorCard.tsx`, `WrappedFlow`, `ShareCardView`, `CapyStrip` |
 | 18 | Four copy-feedback timings collapsed onto three named constants | new `lib/capytools/feedback.ts`; `PromptGen`, `CapyCreator`, `CapyStrip`, `CardComposer` |
+| 19 | Crop marks on every tool page's first stage, not three of five | `PromptGen`, `CapyCreator`; `tests/tool-pages.test.tsx` |
+| 20 | The Colophon headline back in the display face | `landing.css` |
+| 21 | The footer's Colophon column no longer hidden below 1080px | `landing.css` |
+| 22 | The 11px index marks lifted from 2.88:1 to 5.21:1 | `landing.css` |
+| 23 | The catalogue card is clickable end to end | `Labs.tsx`, `landing.css` |
+| 24 | A mount-in-place entrance for after-a-click panels | new `components/mount-reveal.tsx`; `CapyCreator` |
+| 25 | The cleaned copy fades in rather than cutting | `landing.css`, `CapyStrip` |
+| 26 | One focus treatment instead of two | `ui/button`, `ui/input`, `ui/textarea`, `ui/select`, `ui/switch` |
 
 Verification as of #4: **484 tests pass**, ESLint clean, `tsc --noEmit` clean,
 `next build` green (14/14 static pages). The one failing test,
@@ -84,10 +93,13 @@ uppercase; the circle-`C` was a placeholder pending a real logotype.
   that names the upgrade path; unwrapping it needs an approved file delete.
   (`LandingMasthead.tsx`, the other passthrough, was deleted in #4 once the
   delete was approved.)
-- **The rest of P1 and P2** — the second footer, the missing section-rule
-  vocabulary on tool pages, the per-tool eyebrow and index still written by hand
-  in each `page.tsx`, and the motion gaps left in §6 (the filter replay, and the
-  missing "card mounts in place" transition). (#7 through #18 are done.)
+- **Every finding in this document's tables is now addressed** — P0 #1–#6, P1
+  #7–#18, P2 #19–#26. What is left is the residue of the *recommendations* list
+  rather than of the findings: the tool `SiteFooter` is still a one-line stub
+  that cross-sells nothing while the landing's footer sells the whole suite;
+  tool pages still lack the landing's section-rule vocabulary; and the per-tool
+  eyebrow and index are still hand-written in each `page.tsx` rather than
+  derived from the registry.
 
 ---
 
