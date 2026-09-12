@@ -1089,7 +1089,9 @@ a.lp-wire-item .lp-wire-name {
   transition: transform var(--dur-move) var(--lp-ease-ui);
 }
 
-.lp-arrow-mark:hover svg {
+.lp-arrow-mark:hover svg,
+.lp-lab:hover .lp-arrow-mark svg,
+.lp-lab:focus-within .lp-arrow-mark svg {
   transform: translate(2px, -2px);
 }
 
