@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Dices, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,14 @@ import {
   quietBand,
   quietZonePx,
 } from "@/lib/capyqr/guards";
-import { CAPY_PRESETS, DEFAULT_STYLE } from "@/lib/capyqr/presets";
+import {
+  BACKGROUND_SWATCHES,
+  CAPY_PRESETS,
+  CODE_SWATCHES,
+  DEFAULT_STYLE,
+  EYES_SWATCHES,
+  randomGuardPassingStyle,
+} from "@/lib/capyqr/presets";
 import type { Options } from "qr-code-styling";
 
 import {
@@ -159,6 +166,40 @@ function ColorField({
       <span className="font-mono text-[11px] uppercase tabular-nums text-muted-foreground">
         {value}
       </span>
+    </div>
+  );
+}
+
+function Swatches({
+  label,
+  colors,
+  value,
+  onPick,
+}: {
+  label: string;
+  colors: readonly string[];
+  value: string;
+  onPick: (hex: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className={labelClass}>{label}</span>
+      {colors.map((hex) => (
+        <button
+          key={hex}
+          type="button"
+          aria-label={`${label}: ${hex}`}
+          aria-pressed={value.toLowerCase() === hex}
+          onClick={() => onPick(hex)}
+          className={cn(
+            "size-5 rounded-full border transition-colors",
+            value.toLowerCase() === hex
+              ? "border-foreground ring-2 ring-[var(--primary)]/40"
+              : "border-border hover:border-foreground/50",
+          )}
+          style={{ background: hex }}
+        />
+      ))}
     </div>
   );
 }
@@ -354,6 +395,12 @@ export function CapyQR() {
   const fgColor = style.fg.mode === "solid" ? style.fg.color : style.fg.from;
   const surface = style.bg === "transparent" ? "#ffffff" : style.bg;
   const contrast = contrastBand(contrastRatio(fgColor, surface));
+  // The eyes carry the finder pattern — the modules a scanner looks for
+  // first — so a custom eyes color gets its own guard line when it drifts
+  // low-contrast. Eyes that follow the module color inherit its verdict.
+  const eyesColor = style.cornerColor ?? fgColor;
+  const eyesGuarded =
+    style.cornerColor !== null && contrastBand(contrastRatio(eyesColor, surface)) !== "ok";
   const quiet = quietBand(style.quietModules);
   const logoNotes = logoAdvice(Boolean(logoUrl), style.ecc);
   // Only a scan of the render currently on screen proves anything about it.
@@ -719,6 +766,14 @@ export function CapyQR() {
               {preset.label}
             </Pill>
           ))}
+          <Pill
+            active={false}
+            onClick={() => setStyle(randomGuardPassingStyle(Math.random))}
+            label="Randomize style within the guards"
+          >
+            <Dices aria-hidden className="mr-1.5 inline size-3" />
+            random
+          </Pill>
         </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -834,12 +889,20 @@ export function CapyQR() {
           </div>
 
           {style.fg.mode === "solid" ? (
-            <ColorField
-              id="capyqr-fg-color"
-              label="module color"
-              value={style.fg.color}
-              onChange={(hex) => setStylePatch({ fg: { mode: "solid", color: hex } })}
-            />
+            <>
+              <ColorField
+                id="capyqr-fg-color"
+                label="module color"
+                value={style.fg.color}
+                onChange={(hex) => setStylePatch({ fg: { mode: "solid", color: hex } })}
+              />
+              <Swatches
+                label="code swatches"
+                colors={CODE_SWATCHES}
+                value={style.fg.color}
+                onPick={(hex) => setStylePatch({ fg: { mode: "solid", color: hex } })}
+              />
+            </>
           ) : (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <ColorField
@@ -900,12 +963,34 @@ export function CapyQR() {
             disabled={style.bg === "transparent"}
             onChange={(hex) => setStylePatch({ bg: hex })}
           />
+          <Swatches
+            label="background swatches"
+            colors={BACKGROUND_SWATCHES}
+            value={style.bg === "transparent" ? "#ffffff" : style.bg}
+            onPick={(hex) => setStylePatch({ bg: hex })}
+          />
           <Pill
             active={style.bg === "transparent"}
             onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
             label="Transparent background"
           >
             transparent
+          </Pill>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Swatches
+            label="eyes color"
+            colors={EYES_SWATCHES}
+            value={style.cornerColor ?? fgColor}
+            onPick={(hex) => setStylePatch({ cornerColor: hex })}
+          />
+          <Pill
+            active={style.cornerColor === null}
+            onClick={() => setStylePatch({ cornerColor: null })}
+            label="Eyes follow the module color"
+          >
+            eyes match code
           </Pill>
         </div>
 
@@ -1012,6 +1097,12 @@ export function CapyQR() {
             <li className={contrast === "ok" ? "text-muted-foreground" : "text-[var(--clay)]"}>
               contrast · {CONTRAST_COPY[contrast]}
             </li>
+            {eyesGuarded ? (
+              <li className="text-[var(--clay)]">
+                eyes · the corner eyes are low-contrast and they carry the finder pattern —
+                darken them or let them match the code.
+              </li>
+            ) : null}
             <li className={quiet === "ok" ? "text-muted-foreground" : "text-[var(--clay)]"}>
               quiet zone · {QUIET_COPY[quiet]}
             </li>

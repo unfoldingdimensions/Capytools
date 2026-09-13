@@ -17,7 +17,13 @@ import qrcode from "qrcode-generator";
 
 import { capacityNote, exportSpecLine, moduleCountFor, versionForModuleCount } from "../src/lib/capyqr/matrix";
 import { buildPayload, escapeWifiValue, toIcalStamp } from "../src/lib/capyqr/payloads";
-import { CAPY_PRESETS } from "../src/lib/capyqr/presets";
+import {
+  BACKGROUND_SWATCHES,
+  CAPY_PRESETS,
+  CODE_SWATCHES,
+  EYES_SWATCHES,
+  randomGuardPassingStyle,
+} from "../src/lib/capyqr/presets";
 import type { PayloadFields, PayloadKind } from "../src/lib/capyqr/types";
 import { toEngineByteString } from "../src/lib/capyqr/utf8";
 import { verifyPixels } from "../src/lib/capyqr/verify";
@@ -361,6 +367,44 @@ describe("CapyQR presets — scannable by construction", () => {
       expect(quietModules, `${preset.id} quiet zone`).toBe(4);
       expect(["Q", "H"]).toContain(ecc);
     }
+  });
+});
+
+describe("CapyQR swatches + randomize", () => {
+  it("ships hex-shaped, non-empty swatch rows on house tokens", () => {
+    for (const row of [CODE_SWATCHES, EYES_SWATCHES, BACKGROUND_SWATCHES]) {
+      expect(row.length).toBeGreaterThanOrEqual(5);
+      for (const hex of row) expect(hex).toMatch(/^#[0-9a-f]{6}$/);
+    }
+    // Personality colors live in the eyes row too — gold on cream is only
+    // ~2.1:1 — and that is exactly what the eyes guard line is for: the
+    // component measures cornerColor against the surface and flags anything
+    // outside the "ok" band. The contract: every weak pairing is catchable.
+    expect(contrastBand(contrastRatio("#d9a441", "#f9f9f7"))).toBe("soft");
+    expect(contrastBand(contrastRatio("#1a1a1a", "#f9f9f7"))).toBe("ok");
+  });
+
+  it("randomize only ever lands on guard-passing styles", () => {
+    // Deterministic LCG so the property holds run over run.
+    let seed = 42;
+    const rng = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    const pairs = new Set<string>();
+    for (let draw = 0; draw < 200; draw++) {
+      const style = randomGuardPassingStyle(rng);
+      expect(style.fg.mode).toBe("solid");
+      expect(style.quietModules).toBe(4);
+      expect(style.ecc).toBe("Q");
+      expect(style.cornerColor).toBeNull();
+      if (style.fg.mode !== "solid") continue;
+      expect(contrastBand(contrastRatio(style.fg.color, style.bg))).toBe("ok");
+      expect(contrastRatio(style.fg.color, style.bg)).toBeGreaterThanOrEqual(4.5);
+      pairs.add(`${style.fg.color}/${style.bg}`);
+    }
+    // Variety: the sampler must not quietly collapse onto one combination.
+    expect(pairs.size).toBeGreaterThanOrEqual(10);
   });
 });
 

@@ -8,6 +8,7 @@
  * under 3:1 on cream and cannot carry the dark modules of a scannable code.
  */
 
+import { contrastRatio } from "./guards";
 import type { QrStyleState } from "./types";
 
 export interface CapyPreset {
@@ -91,3 +92,79 @@ export const CAPY_PRESETS: CapyPreset[] = [
 
 /** The style the editor opens with — the sage preset. */
 export const DEFAULT_STYLE: QrStyleState = CAPY_PRESETS[0].style;
+
+/**
+ * The curated swatch rows, all on house tokens — sage-deep carries the dark
+ * modules (mid sage cannot, see the header note), the rest are the palette
+ * the design system already owns. A swatch is a starting point, not a
+ * guarantee: the guards still judge the combination it lands in.
+ */
+export const CODE_SWATCHES: readonly string[] = [
+  "#1a1a1a",
+  "#4a6741",
+  "#5f7a72",
+  "#c07952",
+  "#d9a441",
+  "#7a8e6e",
+];
+
+export const EYES_SWATCHES: readonly string[] = [
+  "#1a1a1a",
+  "#4a6741",
+  "#5f7a72",
+  "#c07952",
+  "#d9a441",
+];
+
+export const BACKGROUND_SWATCHES: readonly string[] = [
+  "#f9f9f7",
+  "#ffffff",
+  "#f1efea",
+  "#dfe5d6",
+  "#1e1e1e",
+  "#c07952",
+];
+
+const RANDOM_DOT_TYPES: QrStyleState["dotType"][] = [
+  "square",
+  "rounded",
+  "dots",
+  "classy",
+  "classy-rounded",
+  "extra-rounded",
+];
+const RANDOM_CORNER_SQUARES: QrStyleState["cornerSquareType"][] = [
+  "square",
+  "dot",
+  "extra-rounded",
+];
+const RANDOM_CORNER_DOTS: QrStyleState["cornerDotType"][] = ["square", "dot"];
+
+const pick = <T,>(list: readonly T[], rng: () => number): T =>
+  list[Math.floor(rng() * list.length)];
+
+/**
+ * A random style that always scans: rejection-sample module/background pairs
+ * from the curated swatches until they clear 4.5:1, sprinkle a random shape,
+ * keep the quiet zone at the spec's four modules. Deterministic under a
+ * seeded rng, so the property test can hold it to all of that. Falls back to
+ * the sage preset after 40 tries — a preset is always a valid answer.
+ */
+export function randomGuardPassingStyle(rng: () => number): QrStyleState {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const color = pick(CODE_SWATCHES, rng);
+    const bg = pick(BACKGROUND_SWATCHES, rng);
+    if (contrastRatio(color, bg) < 4.5) continue;
+    return {
+      dotType: pick(RANDOM_DOT_TYPES, rng),
+      cornerSquareType: pick(RANDOM_CORNER_SQUARES, rng),
+      cornerDotType: pick(RANDOM_CORNER_DOTS, rng),
+      fg: { mode: "solid", color },
+      bg,
+      quietModules: 4,
+      ecc: "Q",
+      cornerColor: null,
+    };
+  }
+  return CAPY_PRESETS[0].style;
+}
