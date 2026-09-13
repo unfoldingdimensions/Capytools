@@ -16,7 +16,7 @@ import {
 import qrcode from "qrcode-generator";
 
 import { capacityNote, moduleCountFor, versionForModuleCount } from "../src/lib/capyqr/matrix";
-import { buildPayload, escapeWifiValue } from "../src/lib/capyqr/payloads";
+import { buildPayload, escapeWifiValue, toIcalStamp } from "../src/lib/capyqr/payloads";
 import { CAPY_PRESETS } from "../src/lib/capyqr/presets";
 import type { PayloadFields, PayloadKind } from "../src/lib/capyqr/types";
 import { toEngineByteString } from "../src/lib/capyqr/utf8";
@@ -136,6 +136,88 @@ describe("CapyQR payloads — email and link", () => {
 
   it("refuses an empty link", () => {
     expect(!payloadFor("link", { link: { text: "  " } }).ok).toBe(true);
+  });
+});
+
+describe("CapyQR payloads — phone, location, event", () => {
+  it("builds tel: with whitespace stripped, everything else intact", () => {
+    expect(payloadFor("tel", { tel: { phone: "+61 2 8374 4000" } })).toEqual({
+      ok: true,
+      value: "tel:+61283744000",
+    });
+  });
+
+  it("refuses an empty phone code with the fix in the sentence", () => {
+    const result = payloadFor("tel", { tel: { phone: "   " } });
+    expect(!result.ok && result.error).toContain("add who it dials");
+  });
+
+  it("builds geo: from the coordinates as typed", () => {
+    expect(payloadFor("geo", { geo: { lat: "-33.8688", long: "151.2093" } })).toEqual({
+      ok: true,
+      value: "geo:-33.8688,151.2093",
+    });
+  });
+
+  it("refuses missing, non-numeric and out-of-range coordinates", () => {
+    expect(!payloadFor("geo", { geo: { lat: "", long: "" } }).ok).toBe(true);
+    expect(!payloadFor("geo", { geo: { lat: "north", long: "1" } }).ok).toBe(true);
+    const outOfRange = payloadFor("geo", { geo: { lat: "95", long: "0" } });
+    expect(!outOfRange.ok && outOfRange.error).toContain("±90");
+    expect(!payloadFor("geo", { geo: { lat: "0", long: "-181" } }).ok).toBe(true);
+  });
+
+  it("builds the plain VEVENT with floating-local stamps and omits an empty location", () => {
+    expect(
+      payloadFor("event", {
+        event: { title: "Quiet hours", start: "2026-10-04T18:30", end: "2026-10-04T20:00" },
+      }),
+    ).toEqual({
+      ok: true,
+      value: [
+        "BEGIN:VEVENT",
+        "SUMMARY:Quiet hours",
+        "DTSTART:20261004T183000",
+        "DTEND:20261004T200000",
+        "END:VEVENT",
+      ].join("\n"),
+    });
+  });
+
+  it("carries a location line when the event has one", () => {
+    const result = payloadFor("event", {
+      event: {
+        title: "Café meetup",
+        start: "2026-10-04T09:00:00",
+        end: "2026-10-04T11:00:00",
+        location: "the warm pond",
+      },
+    });
+    expect(result.ok && result.value.includes("LOCATION:the warm pond")).toBe(true);
+    expect(result.ok && result.value.includes("DTSTART:20261004T090000")).toBe(true);
+  });
+
+  it("refuses a titleless event, missing times, and an end before the start", () => {
+    expect(!payloadFor("event", { event: { title: "  ", start: "", end: "" } }).ok).toBe(true);
+    const noTimes = payloadFor("event", {
+      event: { title: "Quiet hours", start: "not-a-time", end: "2026-10-04T20:00" },
+    });
+    expect(!noTimes.ok && noTimes.error).toContain("fill both times");
+    const backwards = payloadFor("event", {
+      event: { title: "Quiet hours", start: "2026-10-04T20:00", end: "2026-10-04T18:30" },
+    });
+    expect(!backwards.ok && backwards.error).toContain("before the start");
+  });
+
+  it("toIcalStamp handles seconds, refuses garbage and impossible dates", () => {
+    expect(toIcalStamp("2026-10-04T18:30")).toBe("20261004T183000");
+    expect(toIcalStamp("2026-10-04T18:30:45")).toBe("20261004T183045");
+    expect(toIcalStamp("  2026-10-04T18:30  ")).toBe("20261004T183000");
+    expect(toIcalStamp("not-a-time")).toBeNull();
+    expect(toIcalStamp("2026-13-04T18:30")).toBeNull();
+    expect(toIcalStamp("2026-10-32T18:30")).toBeNull();
+    expect(toIcalStamp("2026-10-04T25:30")).toBeNull();
+    expect(toIcalStamp("2026-10-04")).toBeNull();
   });
 });
 

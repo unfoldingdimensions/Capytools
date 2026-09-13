@@ -54,6 +54,9 @@ const KINDS: { id: PayloadKind; label: string }[] = [
   { id: "wifi", label: "Wi-Fi" },
   { id: "contact", label: "contact" },
   { id: "email", label: "email" },
+  { id: "tel", label: "phone" },
+  { id: "geo", label: "location" },
+  { id: "event", label: "event" },
 ];
 
 const DOT_TYPES: QrStyleState["dotType"][] = [
@@ -80,6 +83,9 @@ const DEFAULT_FIELDS: PayloadFields = {
   wifi: { ssid: "", password: "", encryption: "WPA", hidden: false },
   contact: { first: "", last: "" },
   email: { to: "" },
+  tel: { phone: "" },
+  geo: { lat: "", long: "" },
+  event: { title: "", start: "", end: "", location: "" },
 };
 
 const labelClass =
@@ -266,6 +272,15 @@ export function CapyQR() {
     }));
   const setEmail = (patch: Partial<NonNullable<PayloadFields["email"]>>) =>
     setFields((prev) => ({ ...prev, email: { to: "", ...prev.email, ...patch } }));
+  const setTel = (patch: Partial<NonNullable<PayloadFields["tel"]>>) =>
+    setFields((prev) => ({ ...prev, tel: { phone: "", ...prev.tel, ...patch } }));
+  const setGeo = (patch: Partial<NonNullable<PayloadFields["geo"]>>) =>
+    setFields((prev) => ({ ...prev, geo: { lat: "", long: "", ...prev.geo, ...patch } }));
+  const setEvent = (patch: Partial<NonNullable<PayloadFields["event"]>>) =>
+    setFields((prev) => ({
+      ...prev,
+      event: { title: "", start: "", end: "", location: "", ...prev.event, ...patch },
+    }));
 
   const setStylePatch = (patch: Partial<QrStyleState>) =>
     setStyle((prev) => ({ ...prev, ...patch }));
@@ -554,6 +569,109 @@ export function CapyQR() {
                   rows={2}
                   value={fields.email?.body ?? ""}
                   onChange={(e) => setEmail({ body: e.target.value })}
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+            </>
+          )}
+
+          {kind === "tel" && (
+            <div className="sm:col-span-2">
+              <label htmlFor="capyqr-tel-phone" className={labelClass}>
+                phone number
+              </label>
+              <Input
+                id="capyqr-tel-phone"
+                type="tel"
+                value={fields.tel?.phone ?? ""}
+                onChange={(e) => setTel({ phone: e.target.value })}
+                placeholder="+61 2 8374 4000 — country code and all"
+                className="mt-1.5 bg-muted/40 font-sans"
+              />
+            </div>
+          )}
+
+          {kind === "geo" && (
+            <>
+              <div>
+                <label htmlFor="capyqr-geo-lat" className={labelClass}>
+                  latitude
+                </label>
+                <Input
+                  id="capyqr-geo-lat"
+                  type="text"
+                  inputMode="decimal"
+                  value={fields.geo?.lat ?? ""}
+                  onChange={(e) => setGeo({ lat: e.target.value })}
+                  placeholder="-33.8688"
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div>
+                <label htmlFor="capyqr-geo-long" className={labelClass}>
+                  longitude
+                </label>
+                <Input
+                  id="capyqr-geo-long"
+                  type="text"
+                  inputMode="decimal"
+                  value={fields.geo?.long ?? ""}
+                  onChange={(e) => setGeo({ long: e.target.value })}
+                  placeholder="151.2093"
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+            </>
+          )}
+
+          {kind === "event" && (
+            <>
+              <div className="sm:col-span-2">
+                <label htmlFor="capyqr-event-title" className={labelClass}>
+                  title
+                </label>
+                <Input
+                  id="capyqr-event-title"
+                  type="text"
+                  value={fields.event?.title ?? ""}
+                  onChange={(e) => setEvent({ title: e.target.value })}
+                  placeholder="what the phone will save"
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div>
+                <label htmlFor="capyqr-event-start" className={labelClass}>
+                  starts
+                </label>
+                <Input
+                  id="capyqr-event-start"
+                  type="datetime-local"
+                  value={fields.event?.start ?? ""}
+                  onChange={(e) => setEvent({ start: e.target.value })}
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div>
+                <label htmlFor="capyqr-event-end" className={labelClass}>
+                  ends
+                </label>
+                <Input
+                  id="capyqr-event-end"
+                  type="datetime-local"
+                  value={fields.event?.end ?? ""}
+                  onChange={(e) => setEvent({ end: e.target.value })}
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="capyqr-event-location" className={labelClass}>
+                  location (optional)
+                </label>
+                <Input
+                  id="capyqr-event-location"
+                  type="text"
+                  value={fields.event?.location ?? ""}
+                  onChange={(e) => setEvent({ location: e.target.value })}
                   className="mt-1.5 bg-muted/40 font-sans"
                 />
               </div>

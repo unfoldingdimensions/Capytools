@@ -6,13 +6,16 @@
  * builder, the guards and the tests can all import it from anywhere.
  */
 
-export type PayloadKind = "link" | "wifi" | "contact" | "email";
+export type PayloadKind = "link" | "wifi" | "contact" | "email" | "tel" | "geo" | "event";
 
 export interface PayloadFields {
   link?: { text: string };
   wifi?: { ssid: string; password: string; encryption: "WPA" | "WEP" | "nopass"; hidden: boolean };
   contact?: { first: string; last: string; org?: string; phone?: string; email?: string; url?: string };
   email?: { to: string; subject?: string; body?: string };
+  tel?: { phone: string };
+  geo?: { lat: string; long: string };
+  event?: { title: string; start: string; end: string; location?: string };
 }
 
 export type EccLevel = "L" | "M" | "Q" | "H";
