@@ -18,7 +18,8 @@
 
 import type { Gradient, Options } from "qr-code-styling";
 
-import type { EccLevel, QrStyleState } from "./types";
+import type { FrameLayout } from "./frame";
+import type { EccLevel, FrameState, QrStyleState } from "./types";
 import { toEngineByteString } from "./utf8";
 
 export type ExportFormat = "png" | "jpeg" | "svg";
@@ -27,8 +28,8 @@ export interface QrEngine {
   mount(container: HTMLElement): void;
   /** One debounced call per change — `update()` clears and re-appends. */
   update(options: Options): void;
-  /** `getRawData` under the hood — never the library's `download()`. */
-  exportBlob(ext: ExportFormat): Promise<Blob | null>;
+  /** The vector copy, from the offscreen svg instance — never `download()`. */
+  svgBlob(): Promise<Blob | null>;
 }
 
 /** The flattening color for JPEG, which has no alpha channel. */
@@ -41,11 +42,11 @@ export function jpegFillNeeded(bg: string | undefined): boolean {
 
 /**
  * SVG export keeps vector purity: the engine embeds a logo as a URL reference
- * that many SVG applications refuse to render, so the format is offered
- * without a logo only.
+ * that many SVG applications refuse to render, and a frame is drawn pixels,
+ * not vectors — so the format is offered only without either.
  */
-export function svgExportBlocked(hasLogo: boolean): boolean {
-  return hasLogo;
+export function svgExportBlocked(hasLogo: boolean, hasFrame: boolean): boolean {
+  return hasLogo || hasFrame;
 }
 
 /** The "download lands as" extension — JPEG's is the shorter .jpg. */
@@ -56,6 +57,96 @@ export function fileExtensionFor(format: ExportFormat): string {
 /** The honest file-size figure for the status line — a measured blob, not an estimate. */
 export function formatKb(bytes: number): string {
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+function stage2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas refused");
+  return ctx;
+}
+
+/**
+ * Draw the composed export onto the stage canvas: the code's own background
+ * (or transparency), the frame bands, the engine's QR canvas, then the
+ * caption. The stage is what the preview shows, what the scan reads, and
+ * what exports — one canvas, three readers, zero drift.
+ */
+export function composeStage(
+  engineCanvas: HTMLCanvasElement,
+  stage: HTMLCanvasElement,
+  layout: FrameLayout,
+  style: QrStyleState,
+  frame: FrameState,
+): void {
+  const ctx = stage2d(stage);
+  ctx.clearRect(0, 0, stage.width, stage.height);
+  if (style.bg !== "transparent") {
+    ctx.fillStyle = style.bg;
+    ctx.fillRect(0, 0, stage.width, stage.height);
+  }
+  ctx.fillStyle = frame.color;
+  for (const band of layout.bands) {
+    if (band.radius > 0) {
+      ctx.beginPath();
+      ctx.roundRect(band.x, band.y, band.w, band.h, band.radius);
+      ctx.fill();
+    } else {
+      ctx.fillRect(band.x, band.y, band.w, band.h);
+    }
+  }
+  if (layout.ring) {
+    const { outer, inner } = layout.ring;
+    ctx.beginPath();
+    ctx.roundRect(outer.x, outer.y, outer.w, outer.h, outer.radius);
+    ctx.roundRect(inner.x, inner.y, inner.w, inner.h, inner.radius);
+    ctx.fill("evenodd");
+  }
+  ctx.drawImage(engineCanvas, layout.qrX, layout.qrY, layout.qrSize, layout.qrSize);
+  if (layout.caption && frame.label.trim()) {
+    const fg = style.fg.mode === "solid" ? style.fg.color : style.fg.from;
+    const cap = layout.caption;
+    let fontSize = cap.fontSize;
+    ctx.font = `500 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+    const measured = ctx.measureText(frame.label.trim()).width;
+    const floor = stage.width * 0.03;
+    if (measured > cap.maxWidth && measured > 0) {
+      fontSize = Math.max(fontSize * (cap.maxWidth / measured), floor);
+      ctx.font = `500 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+    }
+    ctx.fillStyle = fg;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(frame.label.trim(), cap.x, cap.y, cap.maxWidth);
+  }
+}
+
+/**
+ * The raster export: PNG keeps the stage's alpha, JPEG is flattened onto
+ * paper first. This — not the engine's `getRawData`, which only knows the
+ * QR canvas — is what a framed export hands to the browser.
+ */
+export async function exportStage(
+  stage: HTMLCanvasElement,
+  format: "png" | "jpeg",
+  bg: string | undefined,
+): Promise<Blob | null> {
+  if (format === "jpeg" && jpegFillNeeded(bg)) {
+    const flat = document.createElement("canvas");
+    flat.width = stage.width;
+    flat.height = stage.height;
+    const ctx = stage2d(flat);
+    ctx.fillStyle = PAPER_COLOR;
+    ctx.fillRect(0, 0, flat.width, flat.height);
+    ctx.drawImage(stage, 0, 0);
+    return await toBlob(flat, "jpeg");
+  }
+  return await toBlob(stage, format);
+}
+
+function toBlob(canvas: HTMLCanvasElement, format: string): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), `image/${format}`);
+  });
 }
 
 /** Solid color → the engine's fill shape. */
@@ -122,30 +213,17 @@ export async function createQrEngine(): Promise<QrEngine> {
   const { default: QRCodeStyling } = await import("qr-code-styling");
   const canvas = new QRCodeStyling({ type: "canvas" });
   const svg = new QRCodeStyling({ type: "svg" });
-  let current: Options = {};
 
   return {
     mount(container: HTMLElement) {
       canvas.append(container);
     },
     update(options: Options) {
-      current = options;
       canvas.update(options);
       svg.update(options);
     },
-    async exportBlob(ext: ExportFormat): Promise<Blob | null> {
-      if (ext === "svg") {
-        return (await svg.getRawData("svg")) as Blob | null;
-      }
-      if (ext === "jpeg" && jpegFillNeeded(current.backgroundOptions?.color as string)) {
-        // Flatten onto paper for the format, then put the user's background
-        // straight back so the preview never changes.
-        canvas.update({ ...current, backgroundOptions: { color: PAPER_COLOR } });
-        const blob = (await canvas.getRawData("jpeg")) as Blob | null;
-        canvas.update(current);
-        return blob;
-      }
-      return (await canvas.getRawData(ext)) as Blob | null;
+    async svgBlob(): Promise<Blob | null> {
+      return (await svg.getRawData("svg")) as Blob | null;
     },
   };
 }

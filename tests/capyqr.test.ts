@@ -17,13 +17,13 @@ import qrcode from "qrcode-generator";
 
 import { capacityNote, exportSpecLine, moduleCountFor, versionForModuleCount } from "../src/lib/capyqr/matrix";
 import { buildPayload, escapeWifiValue, toIcalStamp } from "../src/lib/capyqr/payloads";
+import { frameLayout, type FrameLayout } from "../src/lib/capyqr/frame";
 import {
   BACKGROUND_SWATCHES,
-  CAPY_PRESETS,
   CODE_SWATCHES,
   EYES_SWATCHES,
-  randomGuardPassingStyle,
 } from "../src/lib/capyqr/presets";
+import { CAPY_PRESETS, randomGuardPassingStyle } from "../src/lib/capyqr/presets";
 import type { PayloadFields, PayloadKind } from "../src/lib/capyqr/types";
 import { toEngineByteString } from "../src/lib/capyqr/utf8";
 import { verifyPixels } from "../src/lib/capyqr/verify";
@@ -417,8 +417,10 @@ describe("CapyQR render decision helpers — pure, table-tested", () => {
   });
 
   it("blocks SVG export exactly when a logo is set", () => {
-    expect(svgExportBlocked(true)).toBe(true);
-    expect(svgExportBlocked(false)).toBe(false);
+    expect(svgExportBlocked(true, false)).toBe(true);
+    expect(svgExportBlocked(false, true)).toBe(true);
+    expect(svgExportBlocked(true, true)).toBe(true);
+    expect(svgExportBlocked(false, false)).toBe(false);
   });
 
   it("translates the gradient state into engine shape, degrees into radians", () => {
@@ -513,6 +515,96 @@ describe("CapyQR utf8 bridge", () => {
   it("refuses oversized multibyte payloads calmly — null, never a throw", () => {
     // 2,000 emoji are 8,000 UTF-8 bytes; version 40-Q tops out far below.
     expect(moduleCountFor("🐴".repeat(2000), "Q")).toBeNull();
+  });
+});
+
+describe("CapyQR frame layout", () => {
+  const SIZE = 1024;
+  const base = {
+    size: SIZE,
+    moduleCount: 29,
+    on: true,
+    shape: "band" as const,
+    color: "#f9f9f7",
+    label: "SCAN ME",
+    position: "bottom" as const,
+  };
+
+  /** The one invariant that matters: no band touches the QR canvas. */
+  const bandsClearOfQr = (layout: FrameLayout) => {
+    const qr = { x: layout.qrX, y: layout.qrY, s: layout.qrSize };
+    for (const band of layout.bands) {
+      const overlap =
+        band.x < qr.x + qr.s && band.x + band.w > qr.x && band.y < qr.y + qr.s && band.y + band.h > qr.y;
+      expect(overlap, `band at ${band.x},${band.y} overlaps the QR canvas`).toBe(false);
+    }
+    if (layout.ring) {
+      expect(layout.ring.inner.x).toBeLessThanOrEqual(layout.qrX);
+      expect(layout.ring.inner.y).toBeLessThanOrEqual(layout.qrY);
+      expect(layout.ring.inner.x + layout.ring.inner.w).toBeGreaterThanOrEqual(layout.qrX + layout.qrSize);
+      expect(layout.ring.inner.y + layout.ring.inner.h).toBeGreaterThanOrEqual(layout.qrY + layout.qrSize);
+    }
+  };
+
+  it("is the identity when the frame is off", () => {
+    const layout = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, on: false } });
+    expect(layout).toEqual({
+      qrSize: SIZE,
+      qrX: 0,
+      qrY: 0,
+      bands: [],
+      ring: null,
+      caption: null,
+    });
+  });
+
+  it("degenerates calmly on impossible sizes", () => {
+    expect(frameLayout({ size: 0, moduleCount: 29, frame: { ...base } }).qrSize).toBe(0);
+    expect(frameLayout({ size: SIZE, moduleCount: 0, frame: { ...base } }).bands).toEqual([]);
+  });
+
+  it("band: four bands clear of the code, caption inside its band", () => {
+    const layout = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, shape: "band" } });
+    expect(layout.bands).toHaveLength(4);
+    bandsClearOfQr(layout);
+    expect(layout.qrSize).toBeLessThan(SIZE);
+    expect(layout.caption).not.toBeNull();
+    expect(layout.caption?.fontSize).toBeGreaterThan(0);
+  });
+
+  it("banner: one band on the caption side only", () => {
+    const top = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, shape: "banner", position: "top" } });
+    expect(top.bands).toHaveLength(1);
+    expect(top.bands[0].y).toBe(0);
+    expect(top.qrY).toBeGreaterThanOrEqual(top.bands[0].h);
+    bandsClearOfQr(top);
+
+    const bottom = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, shape: "banner" } });
+    expect(bottom.bands[0].y).toBe(SIZE - bottom.bands[0].h);
+    expect(bottom.qrY + bottom.qrSize).toBeLessThanOrEqual(bottom.bands[0].y);
+  });
+
+  it("card: an even-odd ring that hugs the code", () => {
+    const layout = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, shape: "card" } });
+    expect(layout.bands).toEqual([]);
+    expect(layout.ring).not.toBeNull();
+    bandsClearOfQr(layout);
+    expect(layout.ring?.outer.radius).toBeGreaterThan(0);
+  });
+
+  it("tab: a centered ribbon, wider than its caption", () => {
+    const layout = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, shape: "tab" } });
+    expect(layout.bands).toHaveLength(1);
+    bandsClearOfQr(layout);
+    expect(layout.bands[0].w).toBeLessThan(SIZE);
+    expect(layout.bands[0].w).toBeGreaterThan((layout.caption?.maxWidth ?? 0) as number);
+  });
+
+  it("an empty caption drops the caption but keeps the shape", () => {
+    const layout = frameLayout({ size: SIZE, moduleCount: 29, frame: { ...base, shape: "band", label: "   " } });
+    expect(layout.caption).toBeNull();
+    expect(layout.bands).toHaveLength(4);
+    bandsClearOfQr(layout);
   });
 });
 

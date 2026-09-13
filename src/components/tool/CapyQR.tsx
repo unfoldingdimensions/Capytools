@@ -18,6 +18,7 @@ import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { saveBlob } from "@/lib/download";
 import { buildPayload } from "@/lib/capyqr/payloads";
+import { frameLayout } from "@/lib/capyqr/frame";
 import {
   capacityNote,
   exportSpecLine,
@@ -44,7 +45,9 @@ import type { Options } from "qr-code-styling";
 
 import {
   buildEngineOptions,
+  composeStage,
   createQrEngine,
+  exportStage,
   fileExtensionFor,
   formatKb,
   jpegFillNeeded,
@@ -53,8 +56,12 @@ import {
   type QrEngine,
 } from "@/lib/capyqr/render";
 import { verifyCanvas, type VerifyResult } from "@/lib/capyqr/verify";
-import type { EccLevel, PayloadFields, PayloadKind, QrStyleState } from "@/lib/capyqr/types";
+import type { EccLevel, FrameState, FrameShape, PayloadFields, PayloadKind, QrStyleState } from "@/lib/capyqr/types";
+import { DEFAULT_FRAME } from "@/lib/capyqr/types";
 import { cn } from "@/lib/utils";
+
+/** The frame shapes the style card offers, in display order. */
+const FRAME_SHAPES: FrameShape[] = ["band", "banner", "card", "tab"];
 
 /** Style updates funnel into one engine `update()` — the flicker guard. */
 const DEBOUNCE_MS = 120;
@@ -220,6 +227,7 @@ export function CapyQR() {
   // Card 2's disclosure level. Deliberately not persisted — the tool stores
   // nothing, and "simple" is the calm default every visit settles into.
   const [detail, setDetail] = useState<"simple" | "full">("simple");
+  const [frame, setFrame] = useState<FrameState>(DEFAULT_FRAME);
   // Both stamped with what they describe, so neither outlives its subject:
   // the scan is only a proof of the options it actually read off the canvas,
   // and the status note only applies to the file it named.
@@ -229,17 +237,27 @@ export function CapyQR() {
   const [status, setStatus] = useState({ text: "", file: "" });
 
   const engineRef = useRef<QrEngine | null>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  // The engine's own canvas lives in a hidden host (frames are composed over
+  // it); the stage canvas is what the preview shows, the scan reads, and the
+  // export hands to the browser.
+  const engineHostRef = useRef<HTMLDivElement>(null);
+  const stageCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const payload = useMemo(() => buildPayload(kind, fields), [kind, fields]);
   const moduleCount = useMemo(
     () => (payload.ok ? moduleCountFor(payload.value, style.ecc) : null),
     [payload, style.ecc],
   );
+  const layout = useMemo(
+    () => frameLayout({ size, moduleCount: moduleCount ?? 0, frame }),
+    [size, moduleCount, frame],
+  );
   const quietPx = useMemo(
     () =>
-      moduleCount !== null ? quietZonePx(size, moduleCount, style.quietModules) : 0,
-    [moduleCount, size, style.quietModules],
+      moduleCount !== null
+        ? quietZonePx(layout.qrSize, moduleCount, style.quietModules)
+        : 0,
+    [moduleCount, layout.qrSize, style.quietModules],
   );
 
   const engineOptions = useMemo(
@@ -247,24 +265,30 @@ export function CapyQR() {
       payload.ok && moduleCount !== null
         ? buildEngineOptions({
             value: payload.value,
-            size,
+            size: layout.qrSize,
             style,
             quietPx,
             logoUrl,
           })
         : null,
-    [payload, moduleCount, size, style, quietPx, logoUrl],
+    [payload, moduleCount, layout, style, quietPx, logoUrl],
   );
 
   // The engine loads client-side only — the library touches browser globals
-  // at import time, so nothing above this effect may reach for it.
+  // at import time, so nothing above this effect may reach for it. Fonts
+  // settle first so framed captions measure and draw in the house face.
   useEffect(() => {
     let cancelled = false;
     createQrEngine()
-      .then((engine) => {
+      .then(async (engine) => {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // font availability is a nicety here, not a requirement
+        }
         if (cancelled) return;
         engineRef.current = engine;
-        if (stageRef.current) engine.mount(stageRef.current);
+        if (engineHostRef.current) engine.mount(engineHostRef.current);
         setReady(true);
       })
       .catch(() =>
@@ -287,17 +311,20 @@ export function CapyQR() {
     };
   }, [logoUrl]);
 
-  // One debounced engine update per change, then read the render back —
-  // the proof scan runs on the same pixels the preview shows.
+  // One debounced engine update per change, then compose the stage and read
+  // it back — the proof scan runs on the exact pixels the preview shows and
+  // the export saves.
   useEffect(() => {
     if (!ready || !engineOptions) return;
     let verifyTimer = 0;
     const timer = window.setTimeout(() => {
       engineRef.current?.update(engineOptions);
       verifyTimer = window.setTimeout(() => {
-        const canvas = stageRef.current?.querySelector("canvas");
-        if (canvas instanceof HTMLCanvasElement) {
-          setVerify({ result: verifyCanvas(canvas), of: engineOptions });
+        const engineCanvas = engineHostRef.current?.querySelector("canvas");
+        const stage = stageCanvasRef.current;
+        if (engineCanvas instanceof HTMLCanvasElement && stage) {
+          composeStage(engineCanvas, stage, layout, style, frame);
+          setVerify({ result: verifyCanvas(stage), of: engineOptions });
         }
       }, VERIFY_SETTLE_MS);
     }, DEBOUNCE_MS);
@@ -305,7 +332,7 @@ export function CapyQR() {
       window.clearTimeout(timer);
       window.clearTimeout(verifyTimer);
     };
-  }, [ready, engineOptions]);
+  }, [ready, engineOptions, layout, style, frame]);
 
   const setLink = (patch: Partial<NonNullable<PayloadFields["link"]>>) =>
     setFields((prev) => ({ ...prev, link: { text: "", ...prev.link, ...patch } }));
@@ -348,11 +375,15 @@ export function CapyQR() {
 
   const handleDownload = useCallback(async () => {
     const engine = engineRef.current;
-    if (!engine || !engineOptions || busy) return;
+    const stage = stageCanvasRef.current;
+    if (!engine || !engineOptions || !stage || busy) return;
     const name = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
     setBusy(true);
     try {
-      const blob = await engine.exportBlob(format);
+      const blob =
+        format === "svg"
+          ? await engine.svgBlob()
+          : await exportStage(stage, format, style.bg);
       if (!blob) {
         setStatus({ text: "nothing to save yet — compose the payload first.", file: name });
         return;
@@ -371,13 +402,13 @@ export function CapyQR() {
   }, [engineOptions, format, kind, size, style.bg, busy]);
 
   const handleCopy = useCallback(async () => {
-    const engine = engineRef.current;
-    if (!engine || !engineOptions || busy) return;
+    const stage = stageCanvasRef.current;
+    if (!engineOptions || !stage || busy) return;
     const name = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
     setBusy(true);
     try {
       if (typeof ClipboardItem === "undefined") throw new Error("clipboard unsupported");
-      const blob = await engine.exportBlob("png");
+      const blob = await exportStage(stage, "png", style.bg);
       if (!blob) throw new Error("no blob");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setCopied(true);
@@ -391,7 +422,7 @@ export function CapyQR() {
     } finally {
       setBusy(false);
     }
-  }, [engineOptions, busy, kind, size, format]);
+  }, [engineOptions, busy, kind, size, format, style.bg]);
 
   // The guards read the composed style; transparent previews measure against
   // white, the surface a code is most likely to sit on.
@@ -410,7 +441,7 @@ export function CapyQR() {
   const proof = verify && verify.of === engineOptions ? verify.result : null;
   const downloadName = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
   const wifi = fields.wifi;
-  const svgBlocked = svgExportBlocked(Boolean(logoUrl));
+  const svgBlocked = svgExportBlocked(Boolean(logoUrl), frame.on);
 
   return (
     <div className="flex w-full flex-col gap-5">
@@ -1129,6 +1160,72 @@ export function CapyQR() {
           )}
         </div>
 
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Pill
+            active={frame.on}
+            onClick={() => setFrame((prev) => ({ ...prev, on: !prev.on }))}
+            label="Frame around the code"
+          >
+            frame
+          </Pill>
+          {frame.on && detail === "full" ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <span className={labelClass}>shape</span>
+                {FRAME_SHAPES.map((shape) => (
+                  <Pill
+                    key={shape}
+                    active={frame.shape === shape}
+                    onClick={() => setFrame((prev) => ({ ...prev, shape }))}
+                    label={`Frame shape ${shape}`}
+                  >
+                    {shape}
+                  </Pill>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={labelClass}>position</span>
+                <Pill
+                  active={frame.position === "top"}
+                  onClick={() => setFrame((prev) => ({ ...prev, position: "top" }))}
+                  label="Caption position top"
+                >
+                  top
+                </Pill>
+                <Pill
+                  active={frame.position === "bottom"}
+                  onClick={() => setFrame((prev) => ({ ...prev, position: "bottom" }))}
+                  label="Caption position bottom"
+                >
+                  bottom
+                </Pill>
+              </div>
+              <Swatches
+                label="frame color"
+                colors={BACKGROUND_SWATCHES}
+                value={frame.color}
+                onPick={(hex) => setFrame((prev) => ({ ...prev, color: hex }))}
+              />
+            </>
+          ) : null}
+          {frame.on ? (
+            <div className="flex items-center gap-2">
+              <label htmlFor="capyqr-frame-label" className={labelClass}>
+                caption
+              </label>
+              <Input
+                id="capyqr-frame-label"
+                type="text"
+                maxLength={40}
+                value={frame.label}
+                onChange={(e) => setFrame((prev) => ({ ...prev, label: e.target.value }))}
+                placeholder="SCAN ME"
+                className="w-44 bg-muted/40 font-sans"
+              />
+            </div>
+          ) : null}
+        </div>
+
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <span className={labelClass}>the guards</span>
           <ul className="mt-2 space-y-1.5 text-[13px] leading-relaxed">
@@ -1162,11 +1259,17 @@ export function CapyQR() {
 
       {/* CARD 3: THE CODE */}
       <StageCard index="03" title="The code">
-        <div
-          ref={stageRef}
+        {/* The engine's own canvas — the QR alone — renders here, hidden;
+            the composed stage below is the visible, scannable, exportable
+            surface. */}
+        <div ref={engineHostRef} aria-hidden className="pointer-events-none absolute size-0 overflow-hidden opacity-0" />
+        <canvas
+          ref={stageCanvasRef}
           role="img"
           aria-label="live QR preview — the exact pixels that export"
-          className="mx-auto aspect-square w-full max-w-[320px] rounded-2xl border border-border bg-muted/30 [&>canvas]:h-full [&>canvas]:w-full [&>canvas]:rounded-2xl"
+          width={size}
+          height={size}
+          className="mx-auto block aspect-square w-full max-w-[320px] rounded-2xl border border-border"
         />
 
         <div className="mt-4 text-center">
@@ -1257,7 +1360,9 @@ export function CapyQR() {
 
         {svgBlocked ? (
           <p className="mt-2 text-[11px] text-muted-foreground">
-            SVG keeps vector purity — export the logo version as PNG.
+            {frame.on
+              ? "SVG keeps vector purity — export the framed version as PNG."
+              : "SVG keeps vector purity — export the logo version as PNG."}
           </p>
         ) : null}
 

@@ -20,6 +20,25 @@ export interface PayloadFields {
 
 export type EccLevel = "L" | "M" | "Q" | "H";
 
+export type FrameShape = "band" | "banner" | "card" | "tab";
+
+export interface FrameState {
+  on: boolean;
+  shape: FrameShape;
+  /** The frame band's fill; the caption renders in the foreground color. */
+  color: string;
+  label: string;
+  position: "top" | "bottom";
+}
+
+export const DEFAULT_FRAME: FrameState = {
+  on: false,
+  shape: "band",
+  color: "#f9f9f7",
+  label: "SCAN ME",
+  position: "bottom",
+};
+
 export interface QrStyleState {
   dotType: "square" | "rounded" | "dots" | "classy" | "classy-rounded" | "extra-rounded";
   cornerSquareType: "square" | "dot" | "extra-rounded";
