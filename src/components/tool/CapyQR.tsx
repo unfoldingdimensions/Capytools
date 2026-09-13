@@ -217,6 +217,9 @@ export function CapyQR() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoName, setLogoName] = useState("");
   const [ready, setReady] = useState(false);
+  // Card 2's disclosure level. Deliberately not persisted — the tool stores
+  // nothing, and "simple" is the calm default every visit settles into.
+  const [detail, setDetail] = useState<"simple" | "full">("simple");
   // Both stamped with what they describe, so neither outlives its subject:
   // the scan is only a proof of the options it actually read off the canvas,
   // and the status note only applies to the file it named.
@@ -749,7 +752,20 @@ export function CapyQR() {
       </StageCard>
 
       {/* CARD 2: THE STYLE */}
-      <StageCard index="02" title="The style">
+      <StageCard
+        index="02"
+        title="The style"
+        actions={
+          <div className="flex items-center gap-1.5" role="group" aria-label="Settings detail">
+            <Pill active={detail === "simple"} onClick={() => setDetail("simple")} label="Simple settings">
+              simple
+            </Pill>
+            <Pill active={detail === "full"} onClick={() => setDetail("full")} label="Full settings">
+              full
+            </Pill>
+          </div>
+        }
+      >
         <div className="mt-4 flex flex-wrap items-center gap-1.5">
           {CAPY_PRESETS.map((preset) => (
             <Pill
@@ -776,7 +792,7 @@ export function CapyQR() {
           </Pill>
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className={cn("mt-4 grid gap-4", detail === "full" ? "sm:grid-cols-3" : "sm:grid-cols-1")}>
           <div>
             <label htmlFor="capyqr-dot-type" className={labelClass}>
               dot type
@@ -801,106 +817,124 @@ export function CapyQR() {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label htmlFor="capyqr-corner-square" className={labelClass}>
-              corner squares
-            </label>
-            <Select
-              value={style.cornerSquareType}
-              onValueChange={(v) =>
-                setStylePatch({ cornerSquareType: v as QrStyleState["cornerSquareType"] })
-              }
-            >
-              <SelectTrigger
-                id="capyqr-corner-square"
-                className="mt-1.5 w-full rounded-2xl bg-muted/40"
-                aria-label="Corner square type"
+          {detail === "full" ? (
+            <div>
+              <label htmlFor="capyqr-corner-square" className={labelClass}>
+                corner squares
+              </label>
+              <Select
+                value={style.cornerSquareType}
+                onValueChange={(v) =>
+                  setStylePatch({ cornerSquareType: v as QrStyleState["cornerSquareType"] })
+                }
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CORNER_SQUARE_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label htmlFor="capyqr-corner-dot" className={labelClass}>
-              corner dots
-            </label>
-            <Select
-              value={style.cornerDotType}
-              onValueChange={(v) =>
-                setStylePatch({ cornerDotType: v as QrStyleState["cornerDotType"] })
-              }
-            >
-              <SelectTrigger
-                id="capyqr-corner-dot"
-                className="mt-1.5 w-full rounded-2xl bg-muted/40"
-                aria-label="Corner dot type"
+                <SelectTrigger
+                  id="capyqr-corner-square"
+                  className="mt-1.5 w-full rounded-2xl bg-muted/40"
+                  aria-label="Corner square type"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CORNER_SQUARE_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+          {detail === "full" ? (
+            <div>
+              <label htmlFor="capyqr-corner-dot" className={labelClass}>
+                corner dots
+              </label>
+              <Select
+                value={style.cornerDotType}
+                onValueChange={(v) =>
+                  setStylePatch({ cornerDotType: v as QrStyleState["cornerDotType"] })
+                }
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CORNER_DOT_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <SelectTrigger
+                  id="capyqr-corner-dot"
+                  className="mt-1.5 w-full rounded-2xl bg-muted/40"
+                  aria-label="Corner dot type"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CORNER_DOT_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <div className="flex items-center gap-1.5">
-            <span className={labelClass}>color</span>
-            <Pill
-              active={style.fg.mode === "solid"}
-              onClick={() =>
-                setStylePatch({
-                  fg: { mode: "solid", color: style.fg.mode === "solid" ? style.fg.color : style.fg.from },
-                })
-              }
-              label="Solid color"
-            >
-              solid
-            </Pill>
-            <Pill
-              active={style.fg.mode === "gradient"}
-              onClick={() =>
-                setStylePatch({
-                  fg: {
-                    mode: "gradient",
-                    gradientType: "linear",
-                    from: fgColor,
-                    to: surface === "#ffffff" ? "#5f7a72" : "#ffffff",
-                    rotation: 45,
-                  },
-                })
-              }
-              label="Gradient color"
-            >
-              gradient
-            </Pill>
-          </div>
+          {detail === "full" ? (
+            <div className="flex items-center gap-1.5">
+              <span className={labelClass}>color</span>
+              <Pill
+                active={style.fg.mode === "solid"}
+                onClick={() =>
+                  setStylePatch({
+                    fg: { mode: "solid", color: style.fg.mode === "solid" ? style.fg.color : style.fg.from },
+                  })
+                }
+                label="Solid color"
+              >
+                solid
+              </Pill>
+              <Pill
+                active={style.fg.mode === "gradient"}
+                onClick={() =>
+                  setStylePatch({
+                    fg: {
+                      mode: "gradient",
+                      gradientType: "linear",
+                      from: fgColor,
+                      to: surface === "#ffffff" ? "#5f7a72" : "#ffffff",
+                      rotation: 45,
+                    },
+                  })
+                }
+                label="Gradient color"
+              >
+                gradient
+              </Pill>
+            </div>
+          ) : null}
 
-          {style.fg.mode === "solid" ? (
+          {style.fg.mode === "solid" || detail === "simple" ? (
             <>
               <ColorField
                 id="capyqr-fg-color"
                 label="module color"
-                value={style.fg.color}
-                onChange={(hex) => setStylePatch({ fg: { mode: "solid", color: hex } })}
+                value={style.fg.mode === "solid" ? style.fg.color : style.fg.from}
+                onChange={(hex) =>
+                  setStyle((prev) =>
+                    prev.fg.mode === "solid"
+                      ? { ...prev, fg: { mode: "solid", color: hex } }
+                      : { ...prev, fg: { ...prev.fg, from: hex } },
+                  )
+                }
               />
               <Swatches
                 label="code swatches"
                 colors={CODE_SWATCHES}
-                value={style.fg.color}
-                onPick={(hex) => setStylePatch({ fg: { mode: "solid", color: hex } })}
+                value={style.fg.mode === "solid" ? style.fg.color : style.fg.from}
+                onPick={(hex) =>
+                  setStyle((prev) =>
+                    prev.fg.mode === "solid"
+                      ? { ...prev, fg: { mode: "solid", color: hex } }
+                      : { ...prev, fg: { ...prev.fg, from: hex } },
+                  )
+                }
               />
             </>
           ) : (
@@ -969,30 +1003,34 @@ export function CapyQR() {
             value={style.bg === "transparent" ? "#ffffff" : style.bg}
             onPick={(hex) => setStylePatch({ bg: hex })}
           />
-          <Pill
-            active={style.bg === "transparent"}
-            onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
-            label="Transparent background"
-          >
-            transparent
-          </Pill>
+          {detail === "full" ? (
+            <Pill
+              active={style.bg === "transparent"}
+              onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
+              label="Transparent background"
+            >
+              transparent
+            </Pill>
+          ) : null}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-          <Swatches
-            label="eyes color"
-            colors={EYES_SWATCHES}
-            value={style.cornerColor ?? fgColor}
-            onPick={(hex) => setStylePatch({ cornerColor: hex })}
-          />
-          <Pill
-            active={style.cornerColor === null}
-            onClick={() => setStylePatch({ cornerColor: null })}
-            label="Eyes follow the module color"
-          >
-            eyes match code
-          </Pill>
-        </div>
+        {detail === "full" ? (
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Swatches
+              label="eyes color"
+              colors={EYES_SWATCHES}
+              value={style.cornerColor ?? fgColor}
+              onPick={(hex) => setStylePatch({ cornerColor: hex })}
+            />
+            <Pill
+              active={style.cornerColor === null}
+              onClick={() => setStylePatch({ cornerColor: null })}
+              label="Eyes follow the module color"
+            >
+              eyes match code
+            </Pill>
+          </div>
+        ) : null}
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
