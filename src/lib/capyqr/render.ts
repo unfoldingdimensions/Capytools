@@ -19,6 +19,7 @@
 import type { Gradient, Options } from "qr-code-styling";
 
 import type { EccLevel, QrStyleState } from "./types";
+import { toEngineByteString } from "./utf8";
 
 export type ExportFormat = "png" | "jpeg" | "svg";
 
@@ -95,7 +96,9 @@ export function buildEngineOptions(input: {
     width: size,
     height: size,
     type: "canvas",
-    data: value,
+    // Multibyte payloads ride to the engine as their own UTF-8 bytes — see
+    // utf8.ts. ASCII is byte-identical, so this changes nothing for it.
+    data: toEngineByteString(value),
     margin: quietPx,
     image: logoUrl ?? undefined,
     qrOptions: { typeNumber: 0, mode: "Byte", errorCorrectionLevel: style.ecc as EccLevel },

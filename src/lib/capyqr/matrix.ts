@@ -14,12 +14,15 @@
 import qrcode from "qrcode-generator";
 
 import type { EccLevel } from "./types";
+import { toEngineByteString } from "./utf8";
 
 /** Module count for this payload at this correction level; null = too much data. */
 export function moduleCountFor(value: string, ec: EccLevel): number | null {
   try {
     const qr = qrcode(0, ec);
-    qr.addData(value, "Byte");
+    // The engine eats the UTF-8 byte-string (see utf8.ts) — the oracle must
+    // count the same bytes or the quiet-zone math disagrees with the drawing.
+    qr.addData(toEngineByteString(value), "Byte");
     qr.make();
     return qr.getModuleCount();
   } catch {

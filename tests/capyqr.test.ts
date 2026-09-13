@@ -19,6 +19,7 @@ import { capacityNote, moduleCountFor, versionForModuleCount } from "../src/lib/
 import { buildPayload, escapeWifiValue } from "../src/lib/capyqr/payloads";
 import { CAPY_PRESETS } from "../src/lib/capyqr/presets";
 import type { PayloadFields, PayloadKind } from "../src/lib/capyqr/types";
+import { toEngineByteString } from "../src/lib/capyqr/utf8";
 import { verifyPixels } from "../src/lib/capyqr/verify";
 import {
   PAPER_COLOR,
@@ -323,6 +324,39 @@ describe("CapyQR render decision helpers — pure, table-tested", () => {
   });
 });
 
+describe("CapyQR utf8 bridge", () => {
+  it("turns multibyte text into its own UTF-8 bytes, one Latin-1 char each", () => {
+    const acute = toEngineByteString("é");
+    expect([...acute].map((ch) => ch.charCodeAt(0))).toEqual([0xc3, 0xa9]);
+    // A surrogate pair becomes the standard 4 UTF-8 bytes.
+    const horse = toEngineByteString("🐴");
+    expect([...horse].map((ch) => ch.charCodeAt(0))).toEqual([0xf0, 0x9f, 0x90, 0xb4]);
+  });
+
+  it("passes ASCII through byte-identical", () => {
+    const ascii = "https://capytools.vercel.app/capyqr";
+    expect(toEngineByteString(ascii)).toBe(ascii);
+  });
+
+  it("makes the oracle count UTF-8 bytes, not characters", () => {
+    // 500 two-byte é characters occupy the same 1,000 bytes as 1,000 ASCII
+    // ones — and strictly more than 500 ASCII characters would.
+    const asUtf8 = moduleCountFor("é".repeat(500), "Q");
+    const ascii1000 = moduleCountFor("x".repeat(1000), "Q");
+    const ascii500 = moduleCountFor("x".repeat(500), "Q");
+    expect(asUtf8).not.toBeNull();
+    expect(ascii1000).not.toBeNull();
+    expect(ascii500).not.toBeNull();
+    expect(asUtf8).toBe(ascii1000);
+    expect(asUtf8).toBeGreaterThan(ascii500 as number);
+  });
+
+  it("refuses oversized multibyte payloads calmly — null, never a throw", () => {
+    // 2,000 emoji are 8,000 UTF-8 bytes; version 40-Q tops out far below.
+    expect(moduleCountFor("🐴".repeat(2000), "Q")).toBeNull();
+  });
+});
+
 describe("CapyQR proof scan", () => {
   /**
    * A real QR rendered to raw pixels, then decoded by the real jsQR — the
@@ -337,7 +371,9 @@ describe("CapyQR proof scan", () => {
 
   const render = (value: string, inverted: boolean) => {
     const qr = qrcode(0, "Q");
-    qr.addData(value, "Byte");
+    // The engine eats the UTF-8 byte-string (utf8.ts) — the test renders the
+    // exact bytes a phone will decode, not the raw text.
+    qr.addData(toEngineByteString(value), "Byte");
     qr.make();
     const modules = qr.getModuleCount();
     const side = (modules + QUIET * 2) * SCALE;
@@ -371,6 +407,18 @@ describe("CapyQR proof scan", () => {
     const { pixels, side } = render(URL_PAYLOAD, true);
     const result = verifyPixels(pixels, side, side);
     expect(result).toEqual({ ok: true, data: URL_PAYLOAD, inverted: true });
+  });
+
+  it("round-trips multibyte text: encode → render → decode returns the original", () => {
+    // The whole point of utf8.ts: what goes in comes back out, accents and
+    // emoji intact, because the code carries the UTF-8 bytes phones expect.
+    const multibyte = "café 🐴 wifi";
+    const { pixels, side } = render(multibyte, false);
+    expect(verifyPixels(pixels, side, side)).toEqual({
+      ok: true,
+      data: multibyte,
+      inverted: false,
+    });
   });
 
   it("says no, calmly, when there is no code in the pixels", () => {
