@@ -1150,6 +1150,12 @@ export function CapyQR() {
           ) : null}
         </div>
 
+        {payload.ok ? (
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            high contrast scans best — test at arm&rsquo;s length.
+          </p>
+        ) : null}
+
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex items-center gap-1.5">
             <span className={labelClass}>size</span>
