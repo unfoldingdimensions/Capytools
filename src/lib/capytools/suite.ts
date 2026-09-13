@@ -136,6 +136,19 @@ export const SUITE: SuiteTool[] = [
     line: "Resize, convert and favicon-pack, entirely in-tab.",
     plate: { src: "/plates/lab-8.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyToken",
+    short: "Token",
+    href: "/capytoken",
+    cat: "browser",
+    badge: "Token",
+    year: "2026",
+    blurb:
+      "Count tokens exactly, price them across every model that matters — offline, keyless, with a verified-date stamp on the rates.",
+    note: "Count, then cost",
+    line: "Exact token counts and model costs, offline.",
+    plate: { src: "/plates/lab-9.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
