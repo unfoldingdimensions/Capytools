@@ -18,7 +18,11 @@ import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { saveBlob } from "@/lib/download";
 import { buildPayload } from "@/lib/capyqr/payloads";
-import { capacityNote, moduleCountFor } from "@/lib/capyqr/matrix";
+import {
+  capacityNote,
+  exportSpecLine,
+  moduleCountFor,
+} from "@/lib/capyqr/matrix";
 import {
   CONTRAST_COPY,
   QUIET_COPY,
@@ -35,6 +39,7 @@ import {
   buildEngineOptions,
   createQrEngine,
   fileExtensionFor,
+  formatKb,
   jpegFillNeeded,
   svgExportBlocked,
   type ExportFormat,
@@ -309,11 +314,11 @@ export function CapyQR() {
         return;
       }
       saveBlob(blob, name);
+      const jpegNote = format === "jpeg" && jpegFillNeeded(style.bg);
       setStatus({
-        text:
-          format === "jpeg" && jpegFillNeeded(style.bg)
-            ? `saved ${name} — jpeg has no transparency, so it sits on white.`
-            : `saved ${name}.`,
+        text: jpegNote
+          ? `saved ${name} (${formatKb(blob.size)}) — jpeg has no transparency, so it sits on white.`
+          : `saved ${name} (${formatKb(blob.size)}).`,
         file: name,
       });
     } finally {
@@ -1101,6 +1106,19 @@ export function CapyQR() {
             </Button>
           </div>
         </div>
+
+        {moduleCount !== null && payload.ok ? (
+          <p className="mt-3 font-mono text-[11px] tabular-nums text-muted-foreground">
+            {exportSpecLine({
+              ecc: style.ecc,
+              moduleCount,
+              quietModules: style.quietModules,
+              quietPx,
+              size,
+              format,
+            })}
+          </p>
+        ) : null}
 
         {svgBlocked ? (
           <p className="mt-2 text-[11px] text-muted-foreground">

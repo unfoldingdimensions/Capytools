@@ -53,6 +53,11 @@ export function fileExtensionFor(format: ExportFormat): string {
   return format === "jpeg" ? "jpg" : format;
 }
 
+/** The honest file-size figure for the status line — a measured blob, not an estimate. */
+export function formatKb(bytes: number): string {
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
 /** Solid color → the engine's fill shape. */
 export function toFill(color: string): { color: string } {
   return { color };

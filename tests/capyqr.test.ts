@@ -15,7 +15,7 @@ import {
 } from "../src/lib/capyqr/guards";
 import qrcode from "qrcode-generator";
 
-import { capacityNote, moduleCountFor, versionForModuleCount } from "../src/lib/capyqr/matrix";
+import { capacityNote, exportSpecLine, moduleCountFor, versionForModuleCount } from "../src/lib/capyqr/matrix";
 import { buildPayload, escapeWifiValue, toIcalStamp } from "../src/lib/capyqr/payloads";
 import { CAPY_PRESETS } from "../src/lib/capyqr/presets";
 import type { PayloadFields, PayloadKind } from "../src/lib/capyqr/types";
@@ -25,6 +25,7 @@ import {
   PAPER_COLOR,
   buildEngineOptions,
   fileExtensionFor,
+  formatKb,
   jpegFillNeeded,
   svgExportBlocked,
   toFill,
@@ -252,6 +253,38 @@ describe("CapyQR matrix oracle", () => {
     expect(note).toContain("29 modules");
     expect(note).toContain("version 3");
     expect(capacityNote("a".repeat(3200), "L")).toContain("quieter style or shorter text");
+  });
+});
+
+describe("CapyQR export spec line", () => {
+  it("prints the whole spec sheet, quiet px rounded", () => {
+    expect(
+      exportSpecLine({
+        ecc: "Q",
+        moduleCount: 29,
+        quietModules: 4,
+        quietPx: (4 * 1024) / 29,
+        size: 1024,
+        format: "png",
+      }),
+    ).toBe("error correction Q · 29 modules · quiet zone 4 (≈141 px) · 1024×1024 png");
+  });
+
+  it("drops the quiet segment when the slider is at zero", () => {
+    expect(
+      exportSpecLine({ ecc: "H", moduleCount: 25, quietModules: 0, quietPx: 0, size: 512, format: "jpeg" }),
+    ).toBe("error correction H · 25 modules · 512×512 jpg");
+  });
+
+  it("names svg and copes with a zero module count", () => {
+    expect(
+      exportSpecLine({ ecc: "M", moduleCount: 0, quietModules: 2, quietPx: 20, size: 2048, format: "svg" }),
+    ).toBe("error correction M · quiet zone 2 (≈20 px) · 2048×2048 svg");
+  });
+
+  it("reports measured blob sizes, never estimates", () => {
+    expect(formatKb(421888)).toBe("412 KB");
+    expect(formatKb(512)).toBe("1 KB");
   });
 });
 
