@@ -17,6 +17,14 @@ implementer session — the handoff doc is the only channel between them.
 
 ## 0. Ground rules
 
+- **Always work off `main`** (owner rule, 2026-09-15): the orchestrator commits to `main`;
+  implementer sessions branch `feat/capy<name>` off fresh `main` and open their PR **to `main`** —
+  never stack on another open PR/branch, and verify with `git branch --show-current` before
+  committing.
+- **Plans, decisions and learnings are local-only** (owner rule, 2026-09-15): `docs/research/`,
+  experiment folders (e.g. `/capypixel/`) and scratch dirs are **gitignored** — write the handoff
+  doc to disk, never commit it. Kickoff prompts must tell implementer sessions both facts: read
+  the plan from the working tree, and do not commit it or the reference material.
 - **Truth discipline:** every architecture-shaping claim gets verified against a primary source
   *today*, and the verification date is written down. One stale assumption rots the whole plan
   (real examples: Safari silently fails WebP canvas encoding; exifr doesn't read PNG text chunks;
@@ -28,7 +36,8 @@ implementer session — the handoff doc is the only channel between them.
   `/api/languages`, `/api/og`). Monetization is deferred until traction; document Pro/batch *seams*
   in the plan but never build paywall code.
 - **Fold learnings back.** After an implementer session reports deviations, correct the plan doc —
-  it stays the source of truth for the next tool's handoff.
+  it stays the (local) source of truth for the next tool's handoff, and append durable,
+  generalizable lessons to this skill's "Lessons learned" section.
 
 ## 1. Read the repo law first (always, in this order)
 
@@ -119,9 +128,15 @@ names* in the title string — the ledger doubles as the fact record.
 **Kickoff prompt skeleton** (give this to the implementing session with the plan path):
 
 ```
-Read docs/research/<topic>/implementation-plan.md — that is your complete spec. Before writing
-code, also read AGENTS.md (including the Next.js warning), .agents/rules/production-invariants.md,
-and .agents/skills/capytools-dev/SKILL.md.
+Read docs/research/<topic>/implementation-plan.md — that is your complete spec. It and the
+reference material it cites are LOCAL-ONLY (gitignored): read them from the working tree and do
+NOT commit them. Before writing code, also read AGENTS.md (including the Next.js warning),
+.agents/rules/production-invariants.md, and .agents/skills/capytools-dev/SKILL.md.
+
+BRANCH DISCIPLINE: verify you are on a fresh branch off main
+(git fetch origin && git checkout main && git pull origin main && git checkout -b
+feat/capy<name>) and open the PR TO main (gh pr create --base main …). Never build on a branch
+another session left checked out; never stack on another open PR.
 
 Rules:
 1. Implement exactly what the plan says. If you find the plan is wrong or impossible somewhere,
