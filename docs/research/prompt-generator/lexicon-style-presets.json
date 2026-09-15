@@ -1,0 +1,314 @@
+{
+  "presets": [
+    {
+      "id": "photorealistic",
+      "label": "Photorealistic",
+      "bundles": [
+        "medium:35mm photograph",
+        "lighting:studio strobe",
+        "texture_detail:polished chrome",
+        "color_grade:bleach bypass",
+        "negative:painterly, illustration"
+      ]
+    },
+    {
+      "id": "monochrome",
+      "label": "Monochrome",
+      "bundles": [
+        "color_palette:high-contrast monochrome",
+        "color_grade:monochrome with one accent",
+        "negative:color, painterly, saturated"
+      ]
+    },
+    {
+      "id": "cinematic",
+      "label": "Cinematic",
+      "bundles": [
+        "lighting:volumetric light",
+        "camera_lens:anamorphic",
+        "color_grade:teal and orange",
+        "composition:establishing shot",
+        "negative:flat, illustration, static"
+      ]
+    },
+    {
+      "id": "aesthetic",
+      "label": "Aesthetic (Soft Pastel Dreamy)",
+      "bundles": [
+        "medium:pastel",
+        "lighting:soft box",
+        "color_palette:pastel dream",
+        "color_grade:pastel wash",
+        "mood:dreamlike",
+        "negative:harsh shadows, high contrast, gritty"
+      ]
+    },
+    {
+      "id": "anime-manga",
+      "label": "Anime / Manga",
+      "bundles": [
+        "art_movement:cel shading",
+        "artist_reference:in the style of Makoto Shinkai",
+        "negative:photorealistic, 3d render, live-action"
+      ]
+    },
+    {
+      "id": "oil-painting-classic",
+      "label": "Classic Oil Painting",
+      "bundles": [
+        "medium:oil painting",
+        "art_movement:baroque",
+        "artist_reference:in the style of Caravaggio",
+        "lighting:chiaroscuro",
+        "negative:digital render, photograph, flat"
+      ]
+    },
+    {
+      "id": "watercolor",
+      "label": "Watercolor",
+      "bundles": [
+        "medium:watercolor",
+        "color_palette:muted earth tones",
+        "artist_reference:in the style of Eyvind Earle",
+        "mood:serene",
+        "negative:photorealistic, hard edges, digital"
+      ]
+    },
+    {
+      "id": "cyberpunk-neon",
+      "label": "Cyberpunk Neon",
+      "bundles": [
+        "lighting:neon rim light",
+        "color_palette:neon cyber",
+        "artist_reference:in the style of Syd Mead",
+        "texture_detail:polished chrome",
+        "negative:pastel, natural light, rustic"
+      ]
+    },
+    {
+      "id": "vintage-film",
+      "label": "Vintage Film",
+      "bundles": [
+        "film_stock:KodakGold 200",
+        "color_grade:warm vintage",
+        "camera_lens:35mm",
+        "texture_detail:weathered",
+        "negative:digital, clean, modern"
+      ]
+    },
+    {
+      "id": "minimalist-flat",
+      "label": "Minimalist Flat",
+      "bundles": [
+        "art_movement:flat design",
+        "color_palette:desaturated",
+        "composition:negative-space lead",
+        "negative:detailed, photorealistic, texture, 3d"
+      ]
+    },
+    {
+      "id": "double-exposure",
+      "label": "Double Exposure",
+      "bundles": [
+        "lighting:double-exposure glow",
+        "composition:diptych",
+        "color_palette:duotone cyan",
+        "negative:single subject, flat, solid background"
+      ]
+    },
+    {
+      "id": "surreal-dreamcore",
+      "label": "Surreal Dreamcore",
+      "bundles": [
+        "art_movement:surrealism",
+        "mood:dreamlike",
+        "artist_reference:in the style of Dalí",
+        "color_grade:low-contrast dreamy",
+        "negative:realistic, photorealistic, mundane"
+      ]
+    },
+    {
+      "id": "low-poly-3d",
+      "label": "Low Poly 3D",
+      "bundles": [
+        "art_movement:low poly",
+        "render_engine:Blender Eevee",
+        "color_palette:candy pop",
+        "negative:photorealistic, smooth shading, realistic"
+      ]
+    },
+    {
+      "id": "charcoal-sketch",
+      "label": "Charcoal Sketch",
+      "bundles": [
+        "medium:charcoal sketch",
+        "color_palette:black and white",
+        "negative:color, photograph, digital render"
+      ]
+    },
+    {
+      "id": "ukiyo-e-print",
+      "label": "Ukiyo-e Print",
+      "bundles": [
+        "medium:ukiyo-e print",
+        "art_movement:ukiyo-e",
+        "artist_reference:in the style of Hokusai",
+        "color_palette:ink and vermillion",
+        "negative:photorealistic, 3d render, modern"
+      ]
+    },
+    {
+      "id": "hdr-photography",
+      "label": "HDR Photography",
+      "bundles": [
+        "medium:35mm photograph",
+        "color_grade:rich saturated",
+        "camera_lens:14mm ultra-wide",
+        "composition:panoramic",
+        "negative:flat, desaturated, blurry"
+      ]
+    },
+    {
+      "id": "golden-hour-portrait",
+      "label": "Golden Hour Portrait",
+      "bundles": [
+        "lighting:golden hour",
+        "camera_lens:85mm f/1.4",
+        "color_grade:warm vintage",
+        "composition:close-up",
+        "negative:flash, harsh, studio"
+      ]
+    },
+    {
+      "id": "noir",
+      "label": "Noir",
+      "bundles": [
+        "color_palette:black and white",
+        "color_grade:high contrast noir",
+        "lighting:low-key noir",
+        "mood:tense",
+        "negative:color, bright, cheerful"
+      ]
+    },
+    {
+      "id": "pixel-art",
+      "label": "Pixel Art",
+      "bundles": [
+        "medium:pixel art",
+        "art_movement:pixel art",
+        "color_palette:candy pop",
+        "negative:smooth gradients, photorealistic, 3d render"
+      ]
+    },
+    {
+      "id": "stained-glass",
+      "label": "Stained Glass",
+      "bundles": [
+        "medium:stained glass",
+        "lighting:backlit silhouette",
+        "color_palette:deep jewel tones",
+        "texture_detail:intricate filigree",
+        "negative:photorealistic, flat, matte"
+      ]
+    },
+    {
+      "id": "holographic",
+      "label": "Holographic",
+      "bundles": [
+        "medium:holographic print",
+        "color_palette:iridescent",
+        "lighting:prismatic",
+        "texture_detail:glassy",
+        "negative:matte, flat, monochrome"
+      ]
+    },
+    {
+      "id": "dark-academia",
+      "label": "Dark Academia",
+      "bundles": [
+        "art_movement:dark academia",
+        "mood:melancholic",
+        "lighting:candlelit",
+        "texture_detail:worn leather",
+        "color_palette:muted earth tones",
+        "negative:bright, modern, neon, pastel"
+      ]
+    },
+    {
+      "id": "cottagecore",
+      "label": "Cottagecore",
+      "bundles": [
+        "art_movement:cottagecore",
+        "mood:cozy",
+        "color_palette:cream and ochre",
+        "lighting:dappled sunlight",
+        "weather:morning dew",
+        "negative:urban, neon, industrial"
+      ]
+    },
+    {
+      "id": "vaporwave",
+      "label": "Vaporwave",
+      "bundles": [
+        "art_movement:vaporwave",
+        "color_palette:magenta and teal",
+        "mood:nostalgic",
+        "lighting:neon wash",
+        "negative:realistic, natural, muted"
+      ]
+    },
+    {
+      "id": "blueprint-technical",
+      "label": "Blueprint Technical",
+      "bundles": [
+        "medium:cyanotype",
+        "color_palette:duotone cyan",
+        "composition:perfect symmetry",
+        "negative:color, painterly, organic, warm"
+      ]
+    },
+    {
+      "id": "gothic-horror",
+      "label": "Gothic Horror",
+      "bundles": [
+        "art_movement:gothic",
+        "mood:haunting",
+        "lighting:candlelit",
+        "color_palette:slate and amber",
+        "negative:bright, cheerful, pastel, modern"
+      ]
+    },
+    {
+      "id": "art-deco-glamour",
+      "label": "Art Deco Glamour",
+      "bundles": [
+        "art_movement:art deco",
+        "color_palette:emerald and gold",
+        "texture_detail:gilded",
+        "negative:rustic, minimal, matte"
+      ]
+    },
+    {
+      "id": "impressionist-plein-air",
+      "label": "Impressionist Plein Air",
+      "bundles": [
+        "art_movement:impressionism",
+        "medium:oil painting",
+        "color_palette:pastel dream",
+        "lighting:dappled sunlight",
+        "negative:photorealistic, sharp, digital"
+      ]
+    },
+    {
+      "id": "liminal-space",
+      "label": "Liminal Space",
+      "bundles": [
+        "art_movement:liminal",
+        "mood:uncanny",
+        "lighting:practical lamps",
+        "color_palette:desaturated",
+        "negative:people, cozy, warm, detailed"
+      ]
+    }
+  ]
+}
