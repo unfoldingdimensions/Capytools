@@ -217,7 +217,7 @@ describe("format — money the prompt can actually cost", () => {
 
 describe("registration — the suite knows CapyToken", () => {
   it("SUITE row 9 is CapyToken at /capytoken, with its plate", () => {
-    expect(SUITE).toHaveLength(10);
+    expect(SUITE).toHaveLength(11);
     const row = SUITE[8];
     expect(row.name).toBe("CapyToken");
     expect(row.href).toBe("/capytoken");

@@ -242,6 +242,6 @@ describe("CapyOG registration", () => {
   it("the README carries the tool's section and the count", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
     expect(readme).toContain("## 6. CapyOG");
-    expect(readme).toContain("Ten so far");
+    expect(readme).toContain("Eleven so far");
   });
 });
