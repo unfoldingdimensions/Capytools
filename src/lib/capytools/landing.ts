@@ -278,7 +278,7 @@ export const COLOPHON = {
   quote: [
     { text: "“A home for " },
     { text: "small, quiet tools.", em: true },
-    { text: " Nine so far. All run in your browser and keep nothing.”" },
+    { text: " Ten so far. All run in your browser and keep nothing.”" },
   ] as Headline,
   author: {
     initial: "C",
