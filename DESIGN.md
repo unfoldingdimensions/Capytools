@@ -258,6 +258,37 @@ transitions so blurred text never pulses mid-wipe.
   `useCallback` + `useEffect` hydrate pattern (see AGENTS.md §3) — never
   during render.
 
+## Plates
+
+Every tool carries one **lab plate** — the portrait image in the landing catalogue —
+stored as `public/plates/lab-N.webp` at **896 × 1200 (3:4 portrait)** and referenced
+from the tool's `SUITE` row (`plate.src`). All plates share one design language, the
+editorial-collage formula from the prompt pack
+(`Capytools-Editorial-Landing-OpenDesign/assets/imagegen-prompts.md`; lab-6 onward in
+`docs/research/plates/lab-prompts.md`, local-only):
+
+- **One self-contained formula per plate**: the shared style anchor (Swiss/Bauhaus
+  digital collage on warm handmade paper `#f9f9f7`, house palette rebound — clay
+  `#c07952` the single loudest accent, sage `#8e9b7e` planes, rare gold `#d9a441`,
+  ink `#1a1a1a`, hairline drafting marks) plus one per-tool "portrait composition"
+  paragraph. Paste the whole block, generate at 3:4, encode WebP.
+- **Analog, not UI**: a plate is a still-life of real objects that metaphorically maps
+  the tool's function — a letterpress announcement card for CapyOG, a printing block
+  with a checkerboard matrix for CapyQR, descending paper sheets and a caliper for
+  CapyResize, an abacus and ledger for CapyToken. **One object group, photographed on
+  the paper ground** — never a web-page composition: no navigation, headline, body
+  copy, buttons or browser chrome anywhere in the frame, and never a screenshot or UI
+  mockup of the tool itself.
+- **Almost no text**: the only typography on a lab plate is the tiny mono annotation
+  carrying the tool's position — `Nº 06`, `Nº 07`. Headlines, captions and UI chrome
+  live in the HTML around the plate, never inside the image.
+- **Lab motifs**: one sage plane behind the subject, one gold disc, dotted matrices
+  and hairline coordinate lines drawn on the paper. (The small capybara figure belongs
+  to the hero, about, method and work plates — lab plates keep the object alone.)
+
+Every new tool ships its plate in the same commit as the tool, generated from the
+formula — the formula is the invariant, the composition is the variable.
+
 ## Do's and Don'ts
 
 - **Do** use token references (`{colors.primary}`) in components, never
@@ -268,12 +299,16 @@ transitions so blurred text never pulses mid-wipe.
   tool a `Capy<Name>` name, `tool no. X` eyebrow, page, component, and test.
 - **Do** write component variants as sibling keys (`card-hover`), never nested
   (`card.hover`).
+- **Do** generate every new lab plate from the plate formula (§Plates): 896 × 1200,
+  analog still-life, one `Nº` annotation and no other text.
 - **Do** quote hex colors and `letterSpacing` values in YAML front matter.
 - **Don't** introduce colors outside the palette — extend the palette first.
 - **Don't** put white text on sage, clay, or gold — use dark ink.
 - **Don't** use clay or gold for routine UI; they are celebration accents.
 - **Don't** animate layout properties or use `transition-all` for color-only
   changes; don't add `motion` or storage imports to shared desktop-tool UI.
+- **Don't** render tool UI, headlines or marketing copy inside a plate image — the
+  image is the metaphor, the HTML around it carries the words.
 - **Don't** store anything outside `localStorage`, and never API keys anywhere
   else. Desktop tools state their own promise ("stored on your machine, never
   ours"), never "nothing stored".
