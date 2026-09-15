@@ -13,13 +13,17 @@
 
 import qrcode from "qrcode-generator";
 
+import { fileExtensionFor, type ExportFormat } from "./render";
 import type { EccLevel } from "./types";
+import { toEngineByteString } from "./utf8";
 
 /** Module count for this payload at this correction level; null = too much data. */
 export function moduleCountFor(value: string, ec: EccLevel): number | null {
   try {
     const qr = qrcode(0, ec);
-    qr.addData(value, "Byte");
+    // The engine eats the UTF-8 byte-string (see utf8.ts) — the oracle must
+    // count the same bytes or the quiet-zone math disagrees with the drawing.
+    qr.addData(toEngineByteString(value), "Byte");
     qr.make();
     return qr.getModuleCount();
   } catch {
@@ -46,4 +50,27 @@ export function capacityNote(value: string, ec: EccLevel): string {
   const version = versionForModuleCount(count);
   const suffix = version ? ` · version ${version}` : "";
   return `about ${count} modules wide${suffix}`;
+}
+
+/**
+ * The export's spec sheet, printed beside the download: correction level,
+ * width in modules, quiet zone in modules and the pixels it costs, and the
+ * output size. Every number is a fact of the current render — nothing here
+ * is an estimate.
+ */
+export function exportSpecLine(input: {
+  ecc: EccLevel;
+  moduleCount: number;
+  quietModules: number;
+  quietPx: number;
+  size: number;
+  format: ExportFormat;
+}): string {
+  const parts = [`error correction ${input.ecc}`];
+  if (input.moduleCount > 0) parts.push(`${input.moduleCount} modules`);
+  if (input.quietModules > 0) {
+    parts.push(`quiet zone ${input.quietModules} (≈${Math.round(input.quietPx)} px)`);
+  }
+  parts.push(`${input.size}×${input.size} ${fileExtensionFor(input.format)}`);
+  return parts.join(" · ");
 }

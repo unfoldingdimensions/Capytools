@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Dices, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,12 @@ import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { saveBlob } from "@/lib/download";
 import { buildPayload } from "@/lib/capyqr/payloads";
-import { capacityNote, moduleCountFor } from "@/lib/capyqr/matrix";
+import { frameLayout } from "@/lib/capyqr/frame";
+import {
+  capacityNote,
+  exportSpecLine,
+  moduleCountFor,
+} from "@/lib/capyqr/matrix";
 import {
   CONTRAST_COPY,
   QUIET_COPY,
@@ -28,21 +33,35 @@ import {
   quietBand,
   quietZonePx,
 } from "@/lib/capyqr/guards";
-import { CAPY_PRESETS, DEFAULT_STYLE } from "@/lib/capyqr/presets";
+import {
+  BACKGROUND_SWATCHES,
+  CAPY_PRESETS,
+  CODE_SWATCHES,
+  DEFAULT_STYLE,
+  EYES_SWATCHES,
+  randomGuardPassingStyle,
+} from "@/lib/capyqr/presets";
 import type { Options } from "qr-code-styling";
 
 import {
   buildEngineOptions,
+  composeStage,
   createQrEngine,
+  exportStage,
   fileExtensionFor,
+  formatKb,
   jpegFillNeeded,
   svgExportBlocked,
   type ExportFormat,
   type QrEngine,
 } from "@/lib/capyqr/render";
 import { verifyCanvas, type VerifyResult } from "@/lib/capyqr/verify";
-import type { EccLevel, PayloadFields, PayloadKind, QrStyleState } from "@/lib/capyqr/types";
+import type { EccLevel, FrameState, FrameShape, PayloadFields, PayloadKind, QrStyleState } from "@/lib/capyqr/types";
+import { DEFAULT_FRAME } from "@/lib/capyqr/types";
 import { cn } from "@/lib/utils";
+
+/** The frame shapes the style card offers, in display order. */
+const FRAME_SHAPES: FrameShape[] = ["band", "banner", "card", "tab"];
 
 /** Style updates funnel into one engine `update()` — the flicker guard. */
 const DEBOUNCE_MS = 120;
@@ -54,6 +73,9 @@ const KINDS: { id: PayloadKind; label: string }[] = [
   { id: "wifi", label: "Wi-Fi" },
   { id: "contact", label: "contact" },
   { id: "email", label: "email" },
+  { id: "tel", label: "phone" },
+  { id: "geo", label: "location" },
+  { id: "event", label: "event" },
 ];
 
 const DOT_TYPES: QrStyleState["dotType"][] = [
@@ -80,6 +102,9 @@ const DEFAULT_FIELDS: PayloadFields = {
   wifi: { ssid: "", password: "", encryption: "WPA", hidden: false },
   contact: { first: "", last: "" },
   email: { to: "" },
+  tel: { phone: "" },
+  geo: { lat: "", long: "" },
+  event: { title: "", start: "", end: "", location: "" },
 };
 
 const labelClass =
@@ -152,6 +177,40 @@ function ColorField({
   );
 }
 
+function Swatches({
+  label,
+  colors,
+  value,
+  onPick,
+}: {
+  label: string;
+  colors: readonly string[];
+  value: string;
+  onPick: (hex: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className={labelClass}>{label}</span>
+      {colors.map((hex) => (
+        <button
+          key={hex}
+          type="button"
+          aria-label={`${label}: ${hex}`}
+          aria-pressed={value.toLowerCase() === hex}
+          onClick={() => onPick(hex)}
+          className={cn(
+            "size-5 rounded-full border transition-colors",
+            value.toLowerCase() === hex
+              ? "border-foreground ring-2 ring-[var(--primary)]/40"
+              : "border-border hover:border-foreground/50",
+          )}
+          style={{ background: hex }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function truncateForChip(data: string): string {
   return data.length > 40 ? `${data.slice(0, 40)}…` : data;
 }
@@ -165,6 +224,10 @@ export function CapyQR() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoName, setLogoName] = useState("");
   const [ready, setReady] = useState(false);
+  // Card 2's disclosure level. Deliberately not persisted — the tool stores
+  // nothing, and "simple" is the calm default every visit settles into.
+  const [detail, setDetail] = useState<"simple" | "full">("simple");
+  const [frame, setFrame] = useState<FrameState>(DEFAULT_FRAME);
   // Both stamped with what they describe, so neither outlives its subject:
   // the scan is only a proof of the options it actually read off the canvas,
   // and the status note only applies to the file it named.
@@ -174,17 +237,27 @@ export function CapyQR() {
   const [status, setStatus] = useState({ text: "", file: "" });
 
   const engineRef = useRef<QrEngine | null>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  // The engine's own canvas lives in a hidden host (frames are composed over
+  // it); the stage canvas is what the preview shows, the scan reads, and the
+  // export hands to the browser.
+  const engineHostRef = useRef<HTMLDivElement>(null);
+  const stageCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const payload = useMemo(() => buildPayload(kind, fields), [kind, fields]);
   const moduleCount = useMemo(
     () => (payload.ok ? moduleCountFor(payload.value, style.ecc) : null),
     [payload, style.ecc],
   );
+  const layout = useMemo(
+    () => frameLayout({ size, moduleCount: moduleCount ?? 0, frame }),
+    [size, moduleCount, frame],
+  );
   const quietPx = useMemo(
     () =>
-      moduleCount !== null ? quietZonePx(size, moduleCount, style.quietModules) : 0,
-    [moduleCount, size, style.quietModules],
+      moduleCount !== null
+        ? quietZonePx(layout.qrSize, moduleCount, style.quietModules)
+        : 0,
+    [moduleCount, layout.qrSize, style.quietModules],
   );
 
   const engineOptions = useMemo(
@@ -192,24 +265,30 @@ export function CapyQR() {
       payload.ok && moduleCount !== null
         ? buildEngineOptions({
             value: payload.value,
-            size,
+            size: layout.qrSize,
             style,
             quietPx,
             logoUrl,
           })
         : null,
-    [payload, moduleCount, size, style, quietPx, logoUrl],
+    [payload, moduleCount, layout, style, quietPx, logoUrl],
   );
 
   // The engine loads client-side only — the library touches browser globals
-  // at import time, so nothing above this effect may reach for it.
+  // at import time, so nothing above this effect may reach for it. Fonts
+  // settle first so framed captions measure and draw in the house face.
   useEffect(() => {
     let cancelled = false;
     createQrEngine()
-      .then((engine) => {
+      .then(async (engine) => {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // font availability is a nicety here, not a requirement
+        }
         if (cancelled) return;
         engineRef.current = engine;
-        if (stageRef.current) engine.mount(stageRef.current);
+        if (engineHostRef.current) engine.mount(engineHostRef.current);
         setReady(true);
       })
       .catch(() =>
@@ -232,17 +311,20 @@ export function CapyQR() {
     };
   }, [logoUrl]);
 
-  // One debounced engine update per change, then read the render back —
-  // the proof scan runs on the same pixels the preview shows.
+  // One debounced engine update per change, then compose the stage and read
+  // it back — the proof scan runs on the exact pixels the preview shows and
+  // the export saves.
   useEffect(() => {
     if (!ready || !engineOptions) return;
     let verifyTimer = 0;
     const timer = window.setTimeout(() => {
       engineRef.current?.update(engineOptions);
       verifyTimer = window.setTimeout(() => {
-        const canvas = stageRef.current?.querySelector("canvas");
-        if (canvas instanceof HTMLCanvasElement) {
-          setVerify({ result: verifyCanvas(canvas), of: engineOptions });
+        const engineCanvas = engineHostRef.current?.querySelector("canvas");
+        const stage = stageCanvasRef.current;
+        if (engineCanvas instanceof HTMLCanvasElement && stage) {
+          composeStage(engineCanvas, stage, layout, style, frame);
+          setVerify({ result: verifyCanvas(stage), of: engineOptions });
         }
       }, VERIFY_SETTLE_MS);
     }, DEBOUNCE_MS);
@@ -250,7 +332,7 @@ export function CapyQR() {
       window.clearTimeout(timer);
       window.clearTimeout(verifyTimer);
     };
-  }, [ready, engineOptions]);
+  }, [ready, engineOptions, layout, style, frame]);
 
   const setLink = (patch: Partial<NonNullable<PayloadFields["link"]>>) =>
     setFields((prev) => ({ ...prev, link: { text: "", ...prev.link, ...patch } }));
@@ -266,6 +348,15 @@ export function CapyQR() {
     }));
   const setEmail = (patch: Partial<NonNullable<PayloadFields["email"]>>) =>
     setFields((prev) => ({ ...prev, email: { to: "", ...prev.email, ...patch } }));
+  const setTel = (patch: Partial<NonNullable<PayloadFields["tel"]>>) =>
+    setFields((prev) => ({ ...prev, tel: { phone: "", ...prev.tel, ...patch } }));
+  const setGeo = (patch: Partial<NonNullable<PayloadFields["geo"]>>) =>
+    setFields((prev) => ({ ...prev, geo: { lat: "", long: "", ...prev.geo, ...patch } }));
+  const setEvent = (patch: Partial<NonNullable<PayloadFields["event"]>>) =>
+    setFields((prev) => ({
+      ...prev,
+      event: { title: "", start: "", end: "", location: "", ...prev.event, ...patch },
+    }));
 
   const setStylePatch = (patch: Partial<QrStyleState>) =>
     setStyle((prev) => ({ ...prev, ...patch }));
@@ -284,21 +375,25 @@ export function CapyQR() {
 
   const handleDownload = useCallback(async () => {
     const engine = engineRef.current;
-    if (!engine || !engineOptions || busy) return;
+    const stage = stageCanvasRef.current;
+    if (!engine || !engineOptions || !stage || busy) return;
     const name = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
     setBusy(true);
     try {
-      const blob = await engine.exportBlob(format);
+      const blob =
+        format === "svg"
+          ? await engine.svgBlob()
+          : await exportStage(stage, format, style.bg);
       if (!blob) {
         setStatus({ text: "nothing to save yet — compose the payload first.", file: name });
         return;
       }
       saveBlob(blob, name);
+      const jpegNote = format === "jpeg" && jpegFillNeeded(style.bg);
       setStatus({
-        text:
-          format === "jpeg" && jpegFillNeeded(style.bg)
-            ? `saved ${name} — jpeg has no transparency, so it sits on white.`
-            : `saved ${name}.`,
+        text: jpegNote
+          ? `saved ${name} (${formatKb(blob.size)}) — jpeg has no transparency, so it sits on white.`
+          : `saved ${name} (${formatKb(blob.size)}).`,
         file: name,
       });
     } finally {
@@ -307,13 +402,13 @@ export function CapyQR() {
   }, [engineOptions, format, kind, size, style.bg, busy]);
 
   const handleCopy = useCallback(async () => {
-    const engine = engineRef.current;
-    if (!engine || !engineOptions || busy) return;
+    const stage = stageCanvasRef.current;
+    if (!engineOptions || !stage || busy) return;
     const name = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
     setBusy(true);
     try {
       if (typeof ClipboardItem === "undefined") throw new Error("clipboard unsupported");
-      const blob = await engine.exportBlob("png");
+      const blob = await exportStage(stage, "png", style.bg);
       if (!blob) throw new Error("no blob");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setCopied(true);
@@ -327,20 +422,26 @@ export function CapyQR() {
     } finally {
       setBusy(false);
     }
-  }, [engineOptions, busy, kind, size, format]);
+  }, [engineOptions, busy, kind, size, format, style.bg]);
 
   // The guards read the composed style; transparent previews measure against
   // white, the surface a code is most likely to sit on.
   const fgColor = style.fg.mode === "solid" ? style.fg.color : style.fg.from;
   const surface = style.bg === "transparent" ? "#ffffff" : style.bg;
   const contrast = contrastBand(contrastRatio(fgColor, surface));
+  // The eyes carry the finder pattern — the modules a scanner looks for
+  // first — so a custom eyes color gets its own guard line when it drifts
+  // low-contrast. Eyes that follow the module color inherit its verdict.
+  const eyesColor = style.cornerColor ?? fgColor;
+  const eyesGuarded =
+    style.cornerColor !== null && contrastBand(contrastRatio(eyesColor, surface)) !== "ok";
   const quiet = quietBand(style.quietModules);
   const logoNotes = logoAdvice(Boolean(logoUrl), style.ecc);
   // Only a scan of the render currently on screen proves anything about it.
   const proof = verify && verify.of === engineOptions ? verify.result : null;
   const downloadName = `capyqr-${kind}-${size}.${fileExtensionFor(format)}`;
   const wifi = fields.wifi;
-  const svgBlocked = svgExportBlocked(Boolean(logoUrl));
+  const svgBlocked = svgExportBlocked(Boolean(logoUrl), frame.on);
 
   return (
     <div className="flex w-full flex-col gap-5">
@@ -559,6 +660,109 @@ export function CapyQR() {
               </div>
             </>
           )}
+
+          {kind === "tel" && (
+            <div className="sm:col-span-2">
+              <label htmlFor="capyqr-tel-phone" className={labelClass}>
+                phone number
+              </label>
+              <Input
+                id="capyqr-tel-phone"
+                type="tel"
+                value={fields.tel?.phone ?? ""}
+                onChange={(e) => setTel({ phone: e.target.value })}
+                placeholder="+61 2 8374 4000 — country code and all"
+                className="mt-1.5 bg-muted/40 font-sans"
+              />
+            </div>
+          )}
+
+          {kind === "geo" && (
+            <>
+              <div>
+                <label htmlFor="capyqr-geo-lat" className={labelClass}>
+                  latitude
+                </label>
+                <Input
+                  id="capyqr-geo-lat"
+                  type="text"
+                  inputMode="decimal"
+                  value={fields.geo?.lat ?? ""}
+                  onChange={(e) => setGeo({ lat: e.target.value })}
+                  placeholder="-33.8688"
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div>
+                <label htmlFor="capyqr-geo-long" className={labelClass}>
+                  longitude
+                </label>
+                <Input
+                  id="capyqr-geo-long"
+                  type="text"
+                  inputMode="decimal"
+                  value={fields.geo?.long ?? ""}
+                  onChange={(e) => setGeo({ long: e.target.value })}
+                  placeholder="151.2093"
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+            </>
+          )}
+
+          {kind === "event" && (
+            <>
+              <div className="sm:col-span-2">
+                <label htmlFor="capyqr-event-title" className={labelClass}>
+                  title
+                </label>
+                <Input
+                  id="capyqr-event-title"
+                  type="text"
+                  value={fields.event?.title ?? ""}
+                  onChange={(e) => setEvent({ title: e.target.value })}
+                  placeholder="what the phone will save"
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div>
+                <label htmlFor="capyqr-event-start" className={labelClass}>
+                  starts
+                </label>
+                <Input
+                  id="capyqr-event-start"
+                  type="datetime-local"
+                  value={fields.event?.start ?? ""}
+                  onChange={(e) => setEvent({ start: e.target.value })}
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div>
+                <label htmlFor="capyqr-event-end" className={labelClass}>
+                  ends
+                </label>
+                <Input
+                  id="capyqr-event-end"
+                  type="datetime-local"
+                  value={fields.event?.end ?? ""}
+                  onChange={(e) => setEvent({ end: e.target.value })}
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="capyqr-event-location" className={labelClass}>
+                  location (optional)
+                </label>
+                <Input
+                  id="capyqr-event-location"
+                  type="text"
+                  value={fields.event?.location ?? ""}
+                  onChange={(e) => setEvent({ location: e.target.value })}
+                  className="mt-1.5 bg-muted/40 font-sans"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <div className="mt-4">
@@ -579,7 +783,20 @@ export function CapyQR() {
       </StageCard>
 
       {/* CARD 2: THE STYLE */}
-      <StageCard index="02" title="The style">
+      <StageCard
+        index="02"
+        title="The style"
+        actions={
+          <div className="flex items-center gap-1.5" role="group" aria-label="Settings detail">
+            <Pill active={detail === "simple"} onClick={() => setDetail("simple")} label="Simple settings">
+              simple
+            </Pill>
+            <Pill active={detail === "full"} onClick={() => setDetail("full")} label="Full settings">
+              full
+            </Pill>
+          </div>
+        }
+      >
         <div className="mt-4 flex flex-wrap items-center gap-1.5">
           {CAPY_PRESETS.map((preset) => (
             <Pill
@@ -596,9 +813,17 @@ export function CapyQR() {
               {preset.label}
             </Pill>
           ))}
+          <Pill
+            active={false}
+            onClick={() => setStyle(randomGuardPassingStyle(Math.random))}
+            label="Randomize style within the guards"
+          >
+            <Dices aria-hidden className="mr-1.5 inline size-3" />
+            random
+          </Pill>
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className={cn("mt-4 grid gap-4", detail === "full" ? "sm:grid-cols-3" : "sm:grid-cols-1")}>
           <div>
             <label htmlFor="capyqr-dot-type" className={labelClass}>
               dot type
@@ -623,100 +848,126 @@ export function CapyQR() {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label htmlFor="capyqr-corner-square" className={labelClass}>
-              corner squares
-            </label>
-            <Select
-              value={style.cornerSquareType}
-              onValueChange={(v) =>
-                setStylePatch({ cornerSquareType: v as QrStyleState["cornerSquareType"] })
-              }
-            >
-              <SelectTrigger
-                id="capyqr-corner-square"
-                className="mt-1.5 w-full rounded-2xl bg-muted/40"
-                aria-label="Corner square type"
+          {detail === "full" ? (
+            <div>
+              <label htmlFor="capyqr-corner-square" className={labelClass}>
+                corner squares
+              </label>
+              <Select
+                value={style.cornerSquareType}
+                onValueChange={(v) =>
+                  setStylePatch({ cornerSquareType: v as QrStyleState["cornerSquareType"] })
+                }
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CORNER_SQUARE_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label htmlFor="capyqr-corner-dot" className={labelClass}>
-              corner dots
-            </label>
-            <Select
-              value={style.cornerDotType}
-              onValueChange={(v) =>
-                setStylePatch({ cornerDotType: v as QrStyleState["cornerDotType"] })
-              }
-            >
-              <SelectTrigger
-                id="capyqr-corner-dot"
-                className="mt-1.5 w-full rounded-2xl bg-muted/40"
-                aria-label="Corner dot type"
+                <SelectTrigger
+                  id="capyqr-corner-square"
+                  className="mt-1.5 w-full rounded-2xl bg-muted/40"
+                  aria-label="Corner square type"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CORNER_SQUARE_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+          {detail === "full" ? (
+            <div>
+              <label htmlFor="capyqr-corner-dot" className={labelClass}>
+                corner dots
+              </label>
+              <Select
+                value={style.cornerDotType}
+                onValueChange={(v) =>
+                  setStylePatch({ cornerDotType: v as QrStyleState["cornerDotType"] })
+                }
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CORNER_DOT_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <SelectTrigger
+                  id="capyqr-corner-dot"
+                  className="mt-1.5 w-full rounded-2xl bg-muted/40"
+                  aria-label="Corner dot type"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CORNER_DOT_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <div className="flex items-center gap-1.5">
-            <span className={labelClass}>color</span>
-            <Pill
-              active={style.fg.mode === "solid"}
-              onClick={() =>
-                setStylePatch({
-                  fg: { mode: "solid", color: style.fg.mode === "solid" ? style.fg.color : style.fg.from },
-                })
-              }
-              label="Solid color"
-            >
-              solid
-            </Pill>
-            <Pill
-              active={style.fg.mode === "gradient"}
-              onClick={() =>
-                setStylePatch({
-                  fg: {
-                    mode: "gradient",
-                    gradientType: "linear",
-                    from: fgColor,
-                    to: surface === "#ffffff" ? "#5f7a72" : "#ffffff",
-                    rotation: 45,
-                  },
-                })
-              }
-              label="Gradient color"
-            >
-              gradient
-            </Pill>
-          </div>
+          {detail === "full" ? (
+            <div className="flex items-center gap-1.5">
+              <span className={labelClass}>color</span>
+              <Pill
+                active={style.fg.mode === "solid"}
+                onClick={() =>
+                  setStylePatch({
+                    fg: { mode: "solid", color: style.fg.mode === "solid" ? style.fg.color : style.fg.from },
+                  })
+                }
+                label="Solid color"
+              >
+                solid
+              </Pill>
+              <Pill
+                active={style.fg.mode === "gradient"}
+                onClick={() =>
+                  setStylePatch({
+                    fg: {
+                      mode: "gradient",
+                      gradientType: "linear",
+                      from: fgColor,
+                      to: surface === "#ffffff" ? "#5f7a72" : "#ffffff",
+                      rotation: 45,
+                    },
+                  })
+                }
+                label="Gradient color"
+              >
+                gradient
+              </Pill>
+            </div>
+          ) : null}
 
-          {style.fg.mode === "solid" ? (
-            <ColorField
-              id="capyqr-fg-color"
-              label="module color"
-              value={style.fg.color}
-              onChange={(hex) => setStylePatch({ fg: { mode: "solid", color: hex } })}
-            />
+          {style.fg.mode === "solid" || detail === "simple" ? (
+            <>
+              <ColorField
+                id="capyqr-fg-color"
+                label="module color"
+                value={style.fg.mode === "solid" ? style.fg.color : style.fg.from}
+                onChange={(hex) =>
+                  setStyle((prev) =>
+                    prev.fg.mode === "solid"
+                      ? { ...prev, fg: { mode: "solid", color: hex } }
+                      : { ...prev, fg: { ...prev.fg, from: hex } },
+                  )
+                }
+              />
+              <Swatches
+                label="code swatches"
+                colors={CODE_SWATCHES}
+                value={style.fg.mode === "solid" ? style.fg.color : style.fg.from}
+                onPick={(hex) =>
+                  setStyle((prev) =>
+                    prev.fg.mode === "solid"
+                      ? { ...prev, fg: { mode: "solid", color: hex } }
+                      : { ...prev, fg: { ...prev.fg, from: hex } },
+                  )
+                }
+              />
+            </>
           ) : (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <ColorField
@@ -777,14 +1028,40 @@ export function CapyQR() {
             disabled={style.bg === "transparent"}
             onChange={(hex) => setStylePatch({ bg: hex })}
           />
-          <Pill
-            active={style.bg === "transparent"}
-            onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
-            label="Transparent background"
-          >
-            transparent
-          </Pill>
+          <Swatches
+            label="background swatches"
+            colors={BACKGROUND_SWATCHES}
+            value={style.bg === "transparent" ? "#ffffff" : style.bg}
+            onPick={(hex) => setStylePatch({ bg: hex })}
+          />
+          {detail === "full" ? (
+            <Pill
+              active={style.bg === "transparent"}
+              onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
+              label="Transparent background"
+            >
+              transparent
+            </Pill>
+          ) : null}
         </div>
+
+        {detail === "full" ? (
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Swatches
+              label="eyes color"
+              colors={EYES_SWATCHES}
+              value={style.cornerColor ?? fgColor}
+              onPick={(hex) => setStylePatch({ cornerColor: hex })}
+            />
+            <Pill
+              active={style.cornerColor === null}
+              onClick={() => setStylePatch({ cornerColor: null })}
+              label="Eyes follow the module color"
+            >
+              eyes match code
+            </Pill>
+          </div>
+        ) : null}
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
@@ -883,12 +1160,84 @@ export function CapyQR() {
           )}
         </div>
 
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Pill
+            active={frame.on}
+            onClick={() => setFrame((prev) => ({ ...prev, on: !prev.on }))}
+            label="Frame around the code"
+          >
+            frame
+          </Pill>
+          {frame.on && detail === "full" ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <span className={labelClass}>shape</span>
+                {FRAME_SHAPES.map((shape) => (
+                  <Pill
+                    key={shape}
+                    active={frame.shape === shape}
+                    onClick={() => setFrame((prev) => ({ ...prev, shape }))}
+                    label={`Frame shape ${shape}`}
+                  >
+                    {shape}
+                  </Pill>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={labelClass}>position</span>
+                <Pill
+                  active={frame.position === "top"}
+                  onClick={() => setFrame((prev) => ({ ...prev, position: "top" }))}
+                  label="Caption position top"
+                >
+                  top
+                </Pill>
+                <Pill
+                  active={frame.position === "bottom"}
+                  onClick={() => setFrame((prev) => ({ ...prev, position: "bottom" }))}
+                  label="Caption position bottom"
+                >
+                  bottom
+                </Pill>
+              </div>
+              <Swatches
+                label="frame color"
+                colors={BACKGROUND_SWATCHES}
+                value={frame.color}
+                onPick={(hex) => setFrame((prev) => ({ ...prev, color: hex }))}
+              />
+            </>
+          ) : null}
+          {frame.on ? (
+            <div className="flex items-center gap-2">
+              <label htmlFor="capyqr-frame-label" className={labelClass}>
+                caption
+              </label>
+              <Input
+                id="capyqr-frame-label"
+                type="text"
+                maxLength={40}
+                value={frame.label}
+                onChange={(e) => setFrame((prev) => ({ ...prev, label: e.target.value }))}
+                placeholder="SCAN ME"
+                className="w-44 bg-muted/40 font-sans"
+              />
+            </div>
+          ) : null}
+        </div>
+
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <span className={labelClass}>the guards</span>
           <ul className="mt-2 space-y-1.5 text-[13px] leading-relaxed">
             <li className={contrast === "ok" ? "text-muted-foreground" : "text-[var(--clay)]"}>
               contrast · {CONTRAST_COPY[contrast]}
             </li>
+            {eyesGuarded ? (
+              <li className="text-[var(--clay)]">
+                eyes · the corner eyes are low-contrast and they carry the finder pattern —
+                darken them or let them match the code.
+              </li>
+            ) : null}
             <li className={quiet === "ok" ? "text-muted-foreground" : "text-[var(--clay)]"}>
               quiet zone · {QUIET_COPY[quiet]}
             </li>
@@ -910,11 +1259,17 @@ export function CapyQR() {
 
       {/* CARD 3: THE CODE */}
       <StageCard index="03" title="The code">
-        <div
-          ref={stageRef}
+        {/* The engine's own canvas — the QR alone — renders here, hidden;
+            the composed stage below is the visible, scannable, exportable
+            surface. */}
+        <div ref={engineHostRef} aria-hidden className="pointer-events-none absolute size-0 overflow-hidden opacity-0" />
+        <canvas
+          ref={stageCanvasRef}
           role="img"
           aria-label="live QR preview — the exact pixels that export"
-          className="mx-auto aspect-square w-full max-w-[320px] rounded-2xl border border-border bg-muted/30 [&>canvas]:h-full [&>canvas]:w-full [&>canvas]:rounded-2xl"
+          width={size}
+          height={size}
+          className="mx-auto block aspect-square w-full max-w-[320px] rounded-2xl border border-border"
         />
 
         <div className="mt-4 text-center">
@@ -935,6 +1290,12 @@ export function CapyQR() {
             <StageChip>scanning the render…</StageChip>
           ) : null}
         </div>
+
+        {payload.ok ? (
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            high contrast scans best — test at arm&rsquo;s length.
+          </p>
+        ) : null}
 
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex items-center gap-1.5">
@@ -984,9 +1345,24 @@ export function CapyQR() {
           </div>
         </div>
 
+        {moduleCount !== null && payload.ok ? (
+          <p className="mt-3 font-mono text-[11px] tabular-nums text-muted-foreground">
+            {exportSpecLine({
+              ecc: style.ecc,
+              moduleCount,
+              quietModules: style.quietModules,
+              quietPx,
+              size,
+              format,
+            })}
+          </p>
+        ) : null}
+
         {svgBlocked ? (
           <p className="mt-2 text-[11px] text-muted-foreground">
-            SVG keeps vector purity — export the logo version as PNG.
+            {frame.on
+              ? "SVG keeps vector purity — export the framed version as PNG."
+              : "SVG keeps vector purity — export the logo version as PNG."}
           </p>
         ) : null}
 
