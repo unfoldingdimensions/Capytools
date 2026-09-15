@@ -30,6 +30,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "//": "desktop/ is a separate Vite + Tauri package with its own tsconfig and its own node_modules. Without excluding it here, `next build` type-checks it, fails to resolve @tauri-apps and @vitejs packages that are not installed at the root, and the Vercel deploy dies.",
-  "exclude": ["node_modules", "desktop"]
+  "//": "desktop/ is a separate Vite + Tauri package and capytone/ a separate Next app, each with its own tsconfig and node_modules. Without excluding them here, `next build` type-checks them, fails to resolve their @/ aliases and packages, and the Vercel deploy dies.",
+  "exclude": ["node_modules", "desktop", "capytone"]
 }
