@@ -600,13 +600,13 @@ describe("render decision helpers", () => {
 // ---------------------------------------------------------------------------
 
 describe("CapyPixel registration", () => {
-  it("sits ninth in the SUITE with its plate", () => {
-    expect(SUITE).toHaveLength(9);
-    const row = SUITE[8];
+  it("sits tenth in the SUITE with its plate", () => {
+    expect(SUITE).toHaveLength(10);
+    const row = SUITE[9];
     expect(row.name).toBe("CapyPixel");
     expect(row.href).toBe("/capypixel");
     expect(row.cat).toBe("browser");
-    expect(row.plate).toEqual({ src: "/plates/lab-9.webp", width: 896, height: 1200 });
+    expect(row.plate).toEqual({ src: "/plates/lab-10.webp", width: 896, height: 1200 });
   });
 
   it("has a page exporting the metadata the suite expects", () => {
@@ -615,12 +615,12 @@ describe("CapyPixel registration", () => {
   });
 
   it("ships its lab plate", () => {
-    expect(existsSync(join(process.cwd(), "public", "plates", "lab-9.webp"))).toBe(true);
+    expect(existsSync(join(process.cwd(), "public", "plates", "lab-10.webp"))).toBe(true);
   });
 
   it("the README carries the tool's section and the count", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
-    expect(readme).toContain("## 9. CapyPixel");
-    expect(readme).toContain("Nine so far");
+    expect(readme).toContain("## 10. CapyPixel");
+    expect(readme).toContain("Ten so far");
   });
 });

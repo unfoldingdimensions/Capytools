@@ -1,7 +1,7 @@
 {
   "name": "capytools",
   "version": "0.1.0",
-  "description": "A home for small, quiet tools. Nine so far — all run in your browser and keep nothing.",
+  "description": "A home for small, quiet tools. Ten so far — all run in your browser and keep nothing.",
   "keywords": [
     "browser-tools",
     "client-side",
@@ -44,6 +44,7 @@
     "clsx": "^2.1.1",
     "exifr": "^7.1.3",
     "html-to-image": "^1.11.13",
+    "js-tiktoken": "^1.0.21",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.33.0",
     "motion": "^13.1.0",

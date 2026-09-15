@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Nine so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Ten so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -80,7 +80,17 @@ Every size it needs to be. Drop one image and either dial a target width or gene
 
 No server route resizes anything, nothing is uploaded, nothing is stored.
 
-## 9. CapyPixel
+## 9. CapyToken
+
+Count before you spend. Paste the prompt you are about to send and CapyToken counts it exactly under both OpenAI encodings — `o200k_base` (GPT-5/4o era) and `cl100k_base` (GPT-4 era) — then prices it across a curated rate card of chat models: GPT-5.x and o-series, Claude, Gemini, Grok, DeepSeek, Llama 4, Qwen and Mistral.
+
+- **Exact where exact exists**: the counts come from real BPE ranks, loaded lazily on first count; OpenAI's own rule-of-thumb (chars ÷ 4, words × ¾) sits beside them as the cross-check, and an optional +6 toggle adds per-message chat framing.
+- **Honest where nothing is exact**: Claude, Gemini and the other non-OpenAI rows wear their label in plain sight — "estimate — OpenAI-tokenizer equivalent, not verified" — with Claude's own docs' ~+30% era note as the only quoted multiplier. Never a folklore number.
+- **Costed like you'll be billed**: per-1M rates, input and planned-output costs, a calls-per-dollar read, and context-window bars that turn clay past 80% and name the model when your input won't fit.
+- **Dated on purpose**: the rate card carries a "prices verified 2026-09" stamp and the LiteLLM commit it was snapped from — a snapshot you can check, not a promise it can't keep.
+
+No server route counts or prices anything, no key is asked for, nothing is uploaded, nothing is stored.
+## 10. CapyPixel
 
 Pictures, in chunks. Drop a photo or an SVG logo and one of six measured styles turns it into pixel art, right in the tab.
 
