@@ -77,3 +77,9 @@ evolution-drafts/
 /HEARTBEAT.md
 /TOOLS.md
 /USER.md
+
+# personal skill tooling (grill-me etc., local-only)
+.agents/skills/grill-me/
+/agent/
+/.claude/
+/skills-lock.json
