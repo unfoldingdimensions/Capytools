@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Eight so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Nine so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -79,6 +79,16 @@ Every size it needs to be. Drop one image and either dial a target width or gene
 - **Proof before you ship**: honest before/after byte counts that only appear after real encoding, a 16/32 px strip showing whether your logo survives the tab, and notes that say what actually happened — animated GIFs take their first frame, and Safari's silent WebP-to-PNG fallback is named, not hidden.
 
 No server route resizes anything, nothing is uploaded, nothing is stored.
+
+## 9. CapyPixel
+
+Pictures, in chunks. Drop a photo or an SVG logo and one of six measured styles turns it into pixel art, right in the tab.
+
+- **Six styles, measured presets**: faithful (the image's own colours), portrait (subject separations with dither off, palette bins and an outline), whale (the seven-blue brand ramp with tile gaps), Game Boy (the four greens), 1-bit (solid areas, dither only in transitions) and 1-bit halftone — honestly labelled a halftone, not 1-bit drawing.
+- **Honest levers**: grid width, colour count, dither band, black/white points, gamma, outline and auto-levels — each with its explanation on the page. Live preview is capped for interactivity and says so; export always runs your full grid at integer scale, so tiles stay crisp.
+- **The maths is ported, not invented**: palette matching in Oklab, contrast-modulated dither, percentile levels and an outline pass — every default benchmarked against a research prototype, with determinism asserted by tests (same image, same bytes, every run).
+
+No server route quantizes anything, nothing is uploaded, nothing is stored.
 
 ## Privacy
 

@@ -392,7 +392,7 @@ describe("CapyQR proof scan", () => {
 
 describe("CapyQR registration", () => {
   it("sits seventh in the SUITE with its plate", () => {
-    expect(SUITE).toHaveLength(8);
+    expect(SUITE).toHaveLength(9);
     const row = SUITE[6];
     expect(row.name).toBe("CapyQR");
     expect(row.href).toBe("/capyqr");

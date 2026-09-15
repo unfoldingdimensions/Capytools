@@ -136,6 +136,19 @@ export const SUITE: SuiteTool[] = [
     line: "Resize, convert and favicon-pack, entirely in-tab.",
     plate: { src: "/plates/lab-8.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyPixel",
+    short: "Pixel",
+    href: "/capypixel",
+    cat: "browser",
+    badge: "Pixel",
+    year: "2026",
+    blurb:
+      "Photos and logos into pixel art — six measured styles from Game Boy to a seven-blue brand ramp, live preview, crisp export. Nothing uploads.",
+    note: "Chunky, honest",
+    line: "Pixel-art photos and logos, entirely in-tab.",
+    plate: { src: "/plates/lab-9.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
