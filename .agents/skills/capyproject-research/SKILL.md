@@ -177,3 +177,10 @@ Rules:
   write a still-life anchor (one object group, no brand text, "avoid web page layouts"
   stated explicitly) and eyeball the output against a shipped plate before accepting it
   (2026-09-16: v1 plates came back as landing-page mockups; caught by the owner, not me).
+- Untracking a research folder can break shipped builds: `src/` may import data assets
+  that happen to live there (CapyImagine's criteria.ts imported
+  docs/research/prompt-generator/lexicon-style-presets.json — every Vercel deploy died
+  on clean checkouts while local builds stayed green because the untracked files
+  remained on disk). Before gitignoring a folder, grep `src/` for imports of it and
+  re-track or relocate any build-time dependency (2026-09-16). A clean-clone
+  `npm ci && npm run build` is the faithful pre-merge check for deploy health.
