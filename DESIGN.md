@@ -275,13 +275,16 @@ editorial-collage formula from the prompt pack
 - **Analog, not UI**: a plate is a still-life of real objects that metaphorically maps
   the tool's function — a letterpress announcement card for CapyOG, a printing block
   with a checkerboard matrix for CapyQR, descending paper sheets and a caliper for
-  CapyResize, an abacus and ledger for CapyToken. Never a screenshot or UI mockup of
-  the tool itself.
+  CapyResize, an abacus and ledger for CapyToken. **One object group, photographed on
+  the paper ground** — never a web-page composition: no navigation, headline, body
+  copy, buttons or browser chrome anywhere in the frame, and never a screenshot or UI
+  mockup of the tool itself.
 - **Almost no text**: the only typography on a lab plate is the tiny mono annotation
   carrying the tool's position — `Nº 06`, `Nº 07`. Headlines, captions and UI chrome
   live in the HTML around the plate, never inside the image.
-- **Recurring motifs, used sparingly**: the small capybara for scale, one sage plane,
-  one gold disc, dotted matrices and hairline coordinate lines.
+- **Lab motifs**: one sage plane behind the subject, one gold disc, dotted matrices
+  and hairline coordinate lines drawn on the paper. (The small capybara figure belongs
+  to the hero, about, method and work plates — lab plates keep the object alone.)
 
 Every new tool ships its plate in the same commit as the tool, generated from the
 formula — the formula is the invariant, the composition is the variable.
