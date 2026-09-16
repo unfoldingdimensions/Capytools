@@ -147,7 +147,7 @@ export function isReservedIp(ip: IpAddress): boolean {
   if (prefix(12)) return true;
   // 64:ff9b::/96 — well-known NAT64 synthesis. Nothing on a serverless
   // network translates it, and an attacker's DNS has no business serving it.
-  if (b[0] === 0x64 && b[1] === 0xff && b[2] === 0x9b) return true;
+  if (b[1] === 0x64 && b[2] === 0xff && b[3] === 0x9b) return true;
   return false;
 }
 
