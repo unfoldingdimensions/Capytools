@@ -679,6 +679,28 @@ describe("scanHtml + extractFromHtml — meta, manifest, ≤5 stylesheets", () =
     );
     expect(scan.stylesheetHrefs).toEqual(["https://example.com/ok.css"]);
   });
+
+  it("stays correct on unclosed-tag floods — the shapes that made the old tag regexes O(n²)", () => {
+    const flood = "<style ".repeat(50_000) + `<link rel="stylesheet" href="/ok.css">`;
+    const scan = scanHtml(flood, "https://example.com/");
+    expect(scan.styleBodies).toEqual([]);
+    expect(scan.stylesheetHrefs).toEqual(["https://example.com/ok.css"]);
+  });
+
+  it("reads a style body across interleaved markup to the first closer, like the lazy regex did", () => {
+    const scan = scanHtml(`<style>a{color:red}<p>x</style>`, "https://example.com/");
+    expect(scan.styleBodies).toEqual(["a{color:red}<p>x"]);
+  });
+
+  it("ignores lookalike tags the old word-boundary rejected too", () => {
+    const scan = scanHtml(
+      `<stylex>a</stylex><metan name="theme-color" content="red"><linkified rel="stylesheet" href="/no.css">`,
+      "https://example.com/",
+    );
+    expect(scan.styleBodies).toEqual([]);
+    expect(scan.metaThemeColors).toEqual([]);
+    expect(scan.stylesheetHrefs).toEqual([]);
+  });
 });
 
 describe("rankPalette — frequency, CIEDE2000 clustering, the cap", () => {

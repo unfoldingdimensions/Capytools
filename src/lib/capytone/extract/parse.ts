@@ -199,6 +199,40 @@ function getAttr(tag: string, name: string): string | null {
   return hit[1] ?? hit[2] ?? hit[3] ?? "";
 }
 
+/**
+ * Every `<name …>` open tag as [start, end) offsets into the original html,
+ * found with indexOf probes. The `[^>]*` regexes this replaces rescan the
+ * whole document tail once per unclosed tag, so a page of a million
+ * `<style `s costs O(n²) — minutes of synchronous, unabortable CPU on a
+ * 3MB fetch — where this walk is linear. Case-insensitive via a lowercased
+ * copy; slices always come from the original, attributes and all.
+ */
+function* openTags(
+  html: string,
+  lower: string,
+  names: readonly string[],
+): Generator<[number, number]> {
+  let at = 0;
+  while ((at = lower.indexOf("<", at)) !== -1) {
+    const after = at + 1;
+    const name = names.find((candidate) => lower.startsWith(candidate, after));
+    if (name !== undefined) {
+      const boundary = lower[after + name.length];
+      // The old \b: `<stylesheet` is not a `<style` tag.
+      if (boundary === undefined || !/[a-z0-9_-]/.test(boundary)) {
+        const tagEnd = lower.indexOf(">", after + name.length);
+        if (tagEnd !== -1) {
+          yield [at, tagEnd + 1];
+          at = tagEnd + 1;
+          continue;
+        }
+        return; // unterminated tag — nothing later can close either
+      }
+    }
+    at = after;
+  }
+}
+
 /** The pure half of the HTML extraction: locate signals, fetch nothing. */
 export function scanHtml(
   html: string,
@@ -210,9 +244,15 @@ export function scanHtml(
   manifestHref: string | null;
   metaThemeColors: ThemeColour[];
 } {
+  const lower = html.toLowerCase();
   const styleBodies: string[] = [];
-  for (const hit of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
-    styleBodies.push(hit[1]);
+  for (const [, tagEnd] of openTags(html, lower, ["style"])) {
+    // The lazy regex ran to the first `</style>` anywhere ahead, across any
+    // interleaved markup — so does the probe; a block with no closer yields
+    // no body, exactly as before.
+    const close = lower.indexOf("</style", tagEnd);
+    if (close === -1) break;
+    styleBodies.push(html.slice(tagEnd, close));
   }
 
   const inlineStyles: string[] = [];
@@ -223,9 +263,10 @@ export function scanHtml(
 
   const stylesheetHrefs: string[] = [];
   let manifestHref: string | null = null;
-  for (const tag of html.matchAll(/<link\b[^>]*>/gi)) {
-    const rel = (getAttr(tag[0], "rel") ?? "").toLowerCase();
-    const href = getAttr(tag[0], "href");
+  for (const [start, end] of openTags(html, lower, ["link"])) {
+    const tag = html.slice(start, end);
+    const rel = (getAttr(tag, "rel") ?? "").toLowerCase();
+    const href = getAttr(tag, "href");
     if (!href || rel === "") continue;
     const rels = rel.split(/\s+/);
     const resolved = resolvableHref(href, baseUrl);
@@ -235,16 +276,17 @@ export function scanHtml(
   }
 
   const metaThemeColors: ThemeColour[] = [];
-  for (const tag of html.matchAll(/<meta\b[^>]*>/gi)) {
-    const name = (getAttr(tag[0], "name") ?? getAttr(tag[0], "property") ?? "").trim().toLowerCase();
+  for (const [start, end] of openTags(html, lower, ["meta"])) {
+    const tag = html.slice(start, end);
+    const name = (getAttr(tag, "name") ?? getAttr(tag, "property") ?? "").trim().toLowerCase();
     if (name !== "theme-color") continue;
-    const content = getAttr(tag[0], "content");
+    const content = getAttr(tag, "content");
     if (!content) continue;
     const colour = parseColour(content.trim());
     if (!colour || (colour.alpha ?? 1) < 0.01) continue;
     const hex = formatHex(colour);
     if (!hex) continue;
-    const media = (getAttr(tag[0], "media") ?? "").trim();
+    const media = (getAttr(tag, "media") ?? "").trim();
     metaThemeColors.push({ hex, media: media === "" ? null : media, from: "meta" });
   }
 
