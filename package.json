@@ -39,6 +39,7 @@
     "@vercel/analytics": "^1.4.1",
     "@vercel/og": "^1.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "apca-w3": "0.1.9",
     "class-variance-authority": "^0.7.1",
     "client-zip": "^2.5.0",
     "clsx": "^2.1.1",

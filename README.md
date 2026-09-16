@@ -108,6 +108,11 @@ Type a feeling, get a poster. Pick a mood pill — or land from a shared link �
 - **Honest about its brain**: there is no AI here. 31 hand-tuned mood anchors, six synonyms and 30 start-colour stops across six families — unmatched phrases say so and improvise inside the guardrails instead of pretending to understand.
 - **Start from a colour**: "start from warm orange" pins the palette to a real hex — the generated field lands on the tapped colour (±20° hue, ±0.14 lightness, asserted by tests), not merely in its neighbourhood.
 - **Posters worth keeping**: two layouts (editorial poster, album-cover minimal), wide and square formats, retina preview and 2× export, seeded film grain, and copy-outs for CSS variables, Tailwind tokens and share text.
+- **Generate mode, a second palette family**: pick a base colour and a harmony — complementary, split-complementary, analogous, triadic, tetradic or monochromatic — and hues land exactly on the rule's offsets, chroma is clamped per lightness and hue (culori's CSS-Color-4 gamut search), and the ink still clears 4.5:1. Same base, same rule, same variation, every time. The mood engine's ±30° spread rule deliberately does not apply here: a complementary pair is 180° apart by definition.
+- **Check mode, both rulers**: the WCAG 2.x ratio — the conformance standard, with AA/AAA verdicts per text size — beside APCA 0.1.9 Lc, which is guidance, a candidate standard, not a law; the labels say exactly that, polarity included. The card's own ink-on-field pair is one tap away.
+- **Blend mode, gradients that say how they blend**: two or three stops in linear, radial or conic shape, interpolated in oklab, oklch, oklch with the longer hue arc, or srgb — emitted as the modern `in`-syntax string plus a dense hex-stop fallback that samples the same ramp for engines that would drop the declaration.
+
+Colour math runs on [culori](https://github.com/Evercoder/culori) (ISC); contrast guidance uses [apca-w3](https://github.com/Myndex/apca-w3) 0.1.9 (Andrew Somers, Limited W3 License — used for web-content accessibility guidance, polarity preserved as its license requires).
 
 No server route resolves a mood, nothing is uploaded, nothing is stored.
 
