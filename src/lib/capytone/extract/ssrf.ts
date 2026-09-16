@@ -141,6 +141,13 @@ export function isReservedIp(ip: IpAddress): boolean {
     const v4 = ((b[12] << 24) | (b[13] << 16) | (b[14] << 8) | b[15]) >>> 0;
     return isReservedIp({ kind: 4, v4 });
   }
+  // ::/96 — the deprecated IPv4-compatible form: ::7f00:1 is ::127.0.0.1
+  // written without the ffff prefix. Nothing legitimate has used this range
+  // in decades, so the whole prefix fails closed regardless of the tail.
+  if (prefix(12)) return true;
+  // 64:ff9b::/96 — well-known NAT64 synthesis. Nothing on a serverless
+  // network translates it, and an attacker's DNS has no business serving it.
+  if (b[0] === 0x64 && b[1] === 0xff && b[2] === 0x9b) return true;
   return false;
 }
 

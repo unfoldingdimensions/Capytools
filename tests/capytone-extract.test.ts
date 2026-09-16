@@ -134,6 +134,14 @@ describe("the reserved-range table (§3.5) — isReservedIp, one place", () => {
     expect(isReservedIp({ kind: 4, v4: ipv4ToInt("223.255.255.255")! })).toBe(false);
   });
 
+  it("blocks the deprecated ::/96 compatible form and NAT64 synthesis (review hardening)", () => {
+    expect(isReservedIp({ kind: 6, v6: ipv6ToBytes("::7f00:1")! })).toBe(true); // ::127.0.0.1, no ffff
+    expect(isReservedIp({ kind: 6, v6: ipv6ToBytes("::a9fe:809")! })).toBe(true); // ::169.254.8.9
+    expect(isReservedIp({ kind: 6, v6: ipv6ToBytes("64:ff9b::7f00:1")! })).toBe(true);
+    // even a public tail fails closed — the whole deprecated range is dead
+    expect(isReservedIp({ kind: 6, v6: ipv6ToBytes("::808:808")! })).toBe(true); // ::8.8.8.8
+  });
+
   it("treats the IPv4-mapped forms as their embedded v4 address", () => {
     const mapped = (v6: string) => {
       const bytes = ipv6ToBytes(v6);
