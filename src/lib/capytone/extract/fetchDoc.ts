@@ -126,6 +126,15 @@ async function readCapped(
   return { ok: true, text: parts.join(""), bytes: total };
 }
 
+/** Tear a response down without reading it. A body that is never consumed
+ * holds its socket open — and against an upstream that sends headers and
+ * then stalls, "until the response ends" means forever. The shared deadline
+ * cannot help: the per-hop abort listener is gone by the time these
+ * early returns happen. */
+function discard<TMeta>(reply: HttpReply<TMeta>): void {
+  (reply.body as { destroy?: (error?: Error) => void }).destroy?.();
+}
+
 /**
  * The ordered stack, per hop: parse (validateTarget) → DNS + blocklist
  * (resolveAndCheck) → one transport call. Redirects loop back through all of
@@ -174,7 +183,7 @@ export async function fetchWithGuards<TMeta = unknown>(
     if (REDIRECT_STATUSES.has(reply.status) && reply.location) {
       // The redirect body is never read — tear the response down so the
       // socket cannot linger for the next hop.
-      (reply.body as { destroy?: (error?: Error) => void }).destroy?.();
+      discard(reply);
       if (hop >= guards.maxRedirects) {
         return { ok: false, failure: "too_many_redirects" };
       }
@@ -187,15 +196,18 @@ export async function fetchWithGuards<TMeta = unknown>(
     }
 
     if (reply.status < 200 || reply.status > 299) {
+      discard(reply);
       return { ok: false, failure: "upstream" };
     }
     const contentType = (reply.contentType ?? "").split(";")[0].trim().toLowerCase();
     if (!guards.accept.some((prefix) => contentType.startsWith(prefix))) {
+      discard(reply);
       return { ok: false, failure: "not_html" };
     }
     if (reply.contentEncoding && reply.contentEncoding.trim().toLowerCase() !== "identity") {
       // We asked for identity; an encoded body would be unreadable bytes to
       // the parser, and decompressing it would open a bomb we capped away.
+      discard(reply);
       return { ok: false, failure: "upstream" };
     }
 

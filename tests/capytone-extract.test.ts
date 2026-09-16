@@ -44,11 +44,16 @@ const okResolver: HostResolver = {
   resolve6: async () => ["2606:2800:220:1:248:1893:25c8:1946"],
 };
 
-/** A transport serving one response, recording every URL it was asked for. */
+/** A transport serving one response, recording every URL it was asked for —
+ * and every body it handed back, so teardown can be asserted. */
 function fakeTransport(
-  responses: Map<string, { status: number; contentType?: string; location?: string; chunks?: Uint8Array[] }>,
+  responses: Map<
+    string,
+    { status: number; contentType?: string; contentEncoding?: string; location?: string; chunks?: Uint8Array[] }
+  >,
 ) {
   const requested: string[] = [];
+  const bodies: { destroyed: boolean }[] = [];
   const transport: Transport = (url) => {
     requested.push(url.href);
     const hit =
@@ -60,12 +65,17 @@ function fakeTransport(
     const encoder = new TextEncoder();
     const chunks = hit.chunks ?? [encoder.encode("hello")];
     let sent = false;
+    const record = { destroyed: false };
+    bodies.push(record);
     return Promise.resolve({
       status: hit.status,
       contentType: hit.contentType ?? null,
-      contentEncoding: null,
+      contentEncoding: hit.contentEncoding ?? null,
       location: hit.location ?? null,
       body: {
+        destroy() {
+          record.destroyed = true;
+        },
         async *[Symbol.asyncIterator]() {
           if (sent) return;
           sent = true;
@@ -75,7 +85,7 @@ function fakeTransport(
       meta: undefined,
     });
   };
-  return { transport, requested };
+  return { transport, requested, bodies };
 }
 
 function guards(
@@ -448,6 +458,32 @@ describe("the guarded fetch — redirects, caps, content types (all fake-transpo
       }),
     );
     expect(outcome).toEqual({ ok: false, failure: "blocked_host" });
+  });
+
+  it("tears down the body it refuses — a non-2xx never lingers", async () => {
+    const { transport, bodies } = fakeTransport(
+      new Map([["https://example.com/gone", { status: 404, contentType: "text/html" }]]),
+    );
+    const outcome = await fetchWithGuards(new URL("https://example.com/gone"), guards(transport));
+    expect(outcome).toEqual({ ok: false, failure: "upstream" });
+    expect(bodies[0]?.destroyed).toBe(true);
+  });
+
+  it("tears down bodies refused for content type and for lying about identity encoding", async () => {
+    const { transport, bodies } = fakeTransport(
+      new Map([
+        ["https://example.com/plain", { status: 200, contentType: "text/plain" }],
+        [
+          "https://example.com/gzip",
+          { status: 200, contentType: "text/html", contentEncoding: "gzip" },
+        ],
+      ]),
+    );
+    const notHtml = await fetchWithGuards(new URL("https://example.com/plain"), guards(transport));
+    const encoded = await fetchWithGuards(new URL("https://example.com/gzip"), guards(transport));
+    expect(notHtml).toEqual({ ok: false, failure: "not_html" });
+    expect(encoded).toEqual({ ok: false, failure: "upstream" });
+    expect(bodies.map((b) => b.destroyed)).toEqual([true, true]);
   });
 
   it("refuses to redirect past the hop limit (3 redirects → ok, 4 → failure)", async () => {
