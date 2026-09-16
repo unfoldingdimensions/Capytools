@@ -85,7 +85,9 @@ export async function GET(
     );
   } catch (err) {
     const notFound = err instanceof GithubError && err.kind === "not_found";
-    console.error(`og: ${username} failed`, err);
+    // Log the sanitized name, never the raw param — the raw value can carry
+    // newlines and control characters while `clean` is a validated login.
+    console.error(`og: ${clean} failed`, err);
     return new Response(notFound ? "Not found" : "OG render failed", {
       status: notFound ? 404 : 500,
     });

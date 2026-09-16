@@ -51,7 +51,7 @@
     "jsqr": "^1.4.0",
     "lucide-react": "^1.33.0",
     "motion": "^13.1.0",
-    "next": "16.3.1",
+    "next": "16.3.5",
     "next-themes": "^0.4.6",
     "qr-code-styling": "^1.9.2",
     "qrcode-generator": "^1.5.2",
@@ -69,7 +69,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.1",
+    "eslint-config-next": "16.3.5",
     "exceljs": "^4.4.0",
     "shadcn": "^4.18.0",
     "tailwindcss": "^4",
@@ -79,5 +79,8 @@
   },
   "allowScripts": {
     "esbuild@0.28.2": true
+  },
+  "overrides": {
+    "sharp": "^0.35.4"
   }
 }

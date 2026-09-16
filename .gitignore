@@ -70,6 +70,7 @@ evolution-drafts/
 # handoffs, decisions and experiments stay on the machine, never in the repo
 /docs/research/
 /capypixel/
+/capytone/
 /.scratch-*/
 /SOUL.md
 /IDENTITY.md

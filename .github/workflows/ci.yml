@@ -1,0 +1,24 @@
+# The suite carries the security tables (SSRF blocklist, request gates,
+# sanitizer contracts) — they only protect the site if they actually run.
+# Prod dependencies are audited at high; dev-only advisory chains (shadcn,
+# eslint tooling) are tracked but do not gate.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm test
+      - run: npm audit --omit=dev --audit-level=high

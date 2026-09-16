@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractPalette,
   ExtractError,
+  isExtractRequest,
   MAX_RESPONSE_BYTES,
 } from "@/lib/capytone/extract";
 import {
@@ -44,11 +45,16 @@ const okResolver: HostResolver = {
   resolve6: async () => ["2606:2800:220:1:248:1893:25c8:1946"],
 };
 
-/** A transport serving one response, recording every URL it was asked for. */
+/** A transport serving one response, recording every URL it was asked for —
+ * and every body it handed back, so teardown can be asserted. */
 function fakeTransport(
-  responses: Map<string, { status: number; contentType?: string; location?: string; chunks?: Uint8Array[] }>,
+  responses: Map<
+    string,
+    { status: number; contentType?: string; contentEncoding?: string; location?: string; chunks?: Uint8Array[] }
+  >,
 ) {
   const requested: string[] = [];
+  const bodies: { destroyed: boolean }[] = [];
   const transport: Transport = (url) => {
     requested.push(url.href);
     const hit =
@@ -60,12 +66,17 @@ function fakeTransport(
     const encoder = new TextEncoder();
     const chunks = hit.chunks ?? [encoder.encode("hello")];
     let sent = false;
+    const record = { destroyed: false };
+    bodies.push(record);
     return Promise.resolve({
       status: hit.status,
       contentType: hit.contentType ?? null,
-      contentEncoding: null,
+      contentEncoding: hit.contentEncoding ?? null,
       location: hit.location ?? null,
       body: {
+        destroy() {
+          record.destroyed = true;
+        },
         async *[Symbol.asyncIterator]() {
           if (sent) return;
           sent = true;
@@ -75,7 +86,7 @@ function fakeTransport(
       meta: undefined,
     });
   };
-  return { transport, requested };
+  return { transport, requested, bodies };
 }
 
 function guards(
@@ -96,24 +107,66 @@ function guards(
 const encoder = new TextEncoder();
 const text = (s: string) => [encoder.encode(s)];
 
+describe("the route's request shape — isExtractRequest", () => {
+  it("accepts exactly what the app's own client sends", () => {
+    expect(isExtractRequest("application/json", "38")).toBe(true);
+    expect(isExtractRequest("application/json; charset=utf-8", "38")).toBe(true);
+    expect(isExtractRequest("APPLICATION/JSON", null)).toBe(true);
+    expect(isExtractRequest("application/json", null)).toBe(true); // chunked: no length header
+  });
+
+  it.each([
+    ["text/plain", "38"], // the cross-origin simple request — the whole point
+    ["text/plain; charset=utf-8", "38"],
+    ["", "38"],
+    [null, "38"],
+    ["multipart/form-data", "38"],
+  ])("refuses non-JSON bodies (%s)", (contentType, length) => {
+    expect(isExtractRequest(contentType, length)).toBe(false);
+  });
+
+  it.each(["999999", "abc", "-1"])("refuses implausible content-length %s", (length) => {
+    expect(isExtractRequest("application/json", length)).toBe(false);
+  });
+});
+
 describe("the reserved-range table (§3.5) — isReservedIp, one place", () => {
   const BLOCKED_V4 = [
     "0.0.0.0",
     "0.1.2.3",
     "10.0.0.1",
     "10.255.255.255",
+    "100.64.0.1", // CGNAT (RFC 6598) — audit review addition
+    "100.127.255.255",
     "127.0.0.1",
     "127.254.9.9",
     "169.254.169.254", // the cloud metadata endpoint, by name
     "169.254.1.1",
     "172.16.0.1",
     "172.31.255.254",
+    "192.0.0.1", // IETF protocol assignments — audit review addition
+    "192.0.2.1", // TEST-NET-1
     "192.168.1.254",
+    "198.18.0.1", // benchmarking (RFC 2544) — passed BOTH gates before the fix
+    "198.19.255.255",
+    "198.51.100.1", // TEST-NET-2
+    "203.0.113.1", // TEST-NET-3
     "224.0.0.1",
     "239.255.255.255",
     "255.255.255.255", // beyond 224/4 — refused, not guessed
   ];
-  const PUBLIC_V4 = ["8.8.8.8", "1.1.1.1", "93.184.216.34", "172.32.0.1", "192.169.1.1"];
+  const PUBLIC_V4 = [
+    "8.8.8.8",
+    "1.1.1.1",
+    "93.184.216.34",
+    "172.32.0.1",
+    "192.169.1.1",
+    "100.0.0.1", // below CGNAT
+    "100.128.0.1", // above CGNAT
+    "192.0.1.1", // between 192.0.0/24 and TEST-NET-1
+    "198.20.0.1", // above 198.18/15
+    "203.0.114.1", // past TEST-NET-3
+  ];
 
   it.each(BLOCKED_V4.map((ip) => [ip] as const))("blocks %s", (ip) => {
     expect(isReservedIp({ kind: 4, v4: ipv4ToInt(ip)! })).toBe(true);
@@ -154,8 +207,20 @@ describe("the reserved-range table (§3.5) — isReservedIp, one place", () => {
     expect(mapped("::ffff:8.8.8.8")).toBe(false);
   });
 
-  const BLOCKED_V6 = ["::1", "::", "fc00::1", "fd12:3456::1", "fe80::1", "febf::1", "ff02::1"];
-  const PUBLIC_V6 = ["2606:4700::6810:84e5", "2001:db8::1", "2620:fe::fe"];
+  const BLOCKED_V6 = [
+    "::1",
+    "::",
+    "fc00::1",
+    "fd12:3456::1",
+    "fe80::1",
+    "febf::1",
+    "ff02::1",
+    "2002::1", // 6to4 (deprecated) — audit review addition
+    "2002:7f00:1::", // 6to4-wrapped loopback — the prefix fails closed
+    "2001::1", // Teredo (deprecated)
+    "2001::dead:beef",
+  ];
+  const PUBLIC_V6 = ["2606:4700::6810:84e5", "2001:db8::1", "2620:fe::fe", "2001:4860::1"];
   it.each(BLOCKED_V6.map((ip) => [ip] as const))("blocks %s", (ip) => {
     const bytes = ipv6ToBytes(ip);
     expect(bytes).not.toBeNull();
@@ -200,6 +265,14 @@ describe("gate 1 — validateTarget, the §7b.4 blocklist table", () => {
     "http://192.168.0.1/",
     "http://169.254.169.254/latest/meta-data/",
     "http://0.0.0.0/",
+    // audit review additions: the ranges 198.18/15 and friends that passed
+    // BOTH gates (table + agent) before the table caught up
+    "http://198.18.0.1/",
+    "http://100.64.0.1/",
+    "http://192.0.2.1/",
+    "http://203.0.113.9/",
+    "http://[2002::1]/",
+    "http://[2001::1]/",
     "http://[::1]/",
     "http://[::]/",
     "http://[fc00::1]/",
@@ -411,6 +484,32 @@ describe("the guarded fetch — redirects, caps, content types (all fake-transpo
     expect(outcome).toEqual({ ok: false, failure: "blocked_host" });
   });
 
+  it("tears down the body it refuses — a non-2xx never lingers", async () => {
+    const { transport, bodies } = fakeTransport(
+      new Map([["https://example.com/gone", { status: 404, contentType: "text/html" }]]),
+    );
+    const outcome = await fetchWithGuards(new URL("https://example.com/gone"), guards(transport));
+    expect(outcome).toEqual({ ok: false, failure: "upstream" });
+    expect(bodies[0]?.destroyed).toBe(true);
+  });
+
+  it("tears down bodies refused for content type and for lying about identity encoding", async () => {
+    const { transport, bodies } = fakeTransport(
+      new Map([
+        ["https://example.com/plain", { status: 200, contentType: "text/plain" }],
+        [
+          "https://example.com/gzip",
+          { status: 200, contentType: "text/html", contentEncoding: "gzip" },
+        ],
+      ]),
+    );
+    const notHtml = await fetchWithGuards(new URL("https://example.com/plain"), guards(transport));
+    const encoded = await fetchWithGuards(new URL("https://example.com/gzip"), guards(transport));
+    expect(notHtml).toEqual({ ok: false, failure: "not_html" });
+    expect(encoded).toEqual({ ok: false, failure: "upstream" });
+    expect(bodies.map((b) => b.destroyed)).toEqual([true, true]);
+  });
+
   it("refuses to redirect past the hop limit (3 redirects → ok, 4 → failure)", async () => {
     const chain = (n: number) => {
       const responses = new Map<string, { status: number; location?: string; contentType?: string }>();
@@ -584,6 +683,13 @@ a { color: currentColor; text-decoration-color: #5f7a7255 }
     expect(extractFromCss("body { color: ", "stylesheet")).toEqual([]);
     expect(extractFromCss("{{{{{", "stylesheet")).toEqual([]);
   });
+
+  it("degrades to a partial list when a pathological AST overflows the walk", () => {
+    // Deep at-rule nesting css-tree's own parser survives — the old code
+    // escaped as a RangeError and turned into a route 500.
+    const deep = "@media all{".repeat(6_000) + "}".repeat(6_000);
+    expect(() => extractFromCss(deep, "stylesheet")).not.toThrow();
+  });
 });
 
 describe("scanHtml + extractFromHtml — meta, manifest, ≤5 stylesheets", () => {
@@ -626,6 +732,12 @@ describe("scanHtml + extractFromHtml — meta, manifest, ≤5 stylesheets", () =
     expect(scan.manifestHref).toBe("https://example.com/manifest.json");
     expect(scan.styleBodies).toEqual(["body { background: #abcdef; }"]);
     expect(scan.inlineStyles).toEqual(["color:#c07952;background-image:linear-gradient(red, blue)"]);
+  });
+
+  it("drops inline style values past the byte cap instead of parsing garbage for minutes", () => {
+    const giant = `style="color:red" style=${"x".repeat(40_000)} style="color:blue"`;
+    const scan = scanHtml(`<body ${giant}>`, "https://example.com/");
+    expect(scan.inlineStyles).toEqual(["color:red", "color:blue"]);
   });
 
   it("fetches only the top five stylesheets and tolerates a failed one", async () => {
@@ -678,6 +790,28 @@ describe("scanHtml + extractFromHtml — meta, manifest, ≤5 stylesheets", () =
       "https://example.com/",
     );
     expect(scan.stylesheetHrefs).toEqual(["https://example.com/ok.css"]);
+  });
+
+  it("stays correct on unclosed-tag floods — the shapes that made the old tag regexes O(n²)", () => {
+    const flood = "<style ".repeat(50_000) + `<link rel="stylesheet" href="/ok.css">`;
+    const scan = scanHtml(flood, "https://example.com/");
+    expect(scan.styleBodies).toEqual([]);
+    expect(scan.stylesheetHrefs).toEqual(["https://example.com/ok.css"]);
+  });
+
+  it("reads a style body across interleaved markup to the first closer, like the lazy regex did", () => {
+    const scan = scanHtml(`<style>a{color:red}<p>x</style>`, "https://example.com/");
+    expect(scan.styleBodies).toEqual(["a{color:red}<p>x"]);
+  });
+
+  it("ignores lookalike tags the old word-boundary rejected too", () => {
+    const scan = scanHtml(
+      `<stylex>a</stylex><metan name="theme-color" content="red"><linkified rel="stylesheet" href="/no.css">`,
+      "https://example.com/",
+    );
+    expect(scan.styleBodies).toEqual([]);
+    expect(scan.metaThemeColors).toEqual([]);
+    expect(scan.stylesheetHrefs).toEqual([]);
   });
 });
 
