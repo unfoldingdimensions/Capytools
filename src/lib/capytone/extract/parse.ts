@@ -143,11 +143,19 @@ export function extractFromCss(
     return [];
   }
   const out: ColourOccurrence[] = [];
-  walk(ast, (node) => {
-    if (node.type !== "Declaration") return;
-    if (typeof node.value === "string" || !isNode(node.value)) return;
-    collectColours(node.value, cssText, source, out);
-  });
+  // The walk is recursive, so a pathological AST (at-rule nesting css-tree
+  // itself survives) can overflow the stack. That degrades to whatever was
+  // collected before the throw — the contract is "never a throw", and the
+  // old behaviour was an uncaught RangeError turning into a route 500.
+  try {
+    walk(ast, (node) => {
+      if (node.type !== "Declaration") return;
+      if (typeof node.value === "string" || !isNode(node.value)) return;
+      collectColours(node.value, cssText, source, out);
+    });
+  } catch {
+    // keep the partial result
+  }
   return out;
 }
 

@@ -584,6 +584,13 @@ a { color: currentColor; text-decoration-color: #5f7a7255 }
     expect(extractFromCss("body { color: ", "stylesheet")).toEqual([]);
     expect(extractFromCss("{{{{{", "stylesheet")).toEqual([]);
   });
+
+  it("degrades to a partial list when a pathological AST overflows the walk", () => {
+    // Deep at-rule nesting css-tree's own parser survives — the old code
+    // escaped as a RangeError and turned into a route 500.
+    const deep = "@media all{".repeat(6_000) + "}".repeat(6_000);
+    expect(() => extractFromCss(deep, "stylesheet")).not.toThrow();
+  });
 });
 
 describe("scanHtml + extractFromHtml — meta, manifest, ≤5 stylesheets", () => {
