@@ -102,18 +102,37 @@ describe("the reserved-range table (§3.5) — isReservedIp, one place", () => {
     "0.1.2.3",
     "10.0.0.1",
     "10.255.255.255",
+    "100.64.0.1", // CGNAT (RFC 6598) — audit review addition
+    "100.127.255.255",
     "127.0.0.1",
     "127.254.9.9",
     "169.254.169.254", // the cloud metadata endpoint, by name
     "169.254.1.1",
     "172.16.0.1",
     "172.31.255.254",
+    "192.0.0.1", // IETF protocol assignments — audit review addition
+    "192.0.2.1", // TEST-NET-1
     "192.168.1.254",
+    "198.18.0.1", // benchmarking (RFC 2544) — passed BOTH gates before the fix
+    "198.19.255.255",
+    "198.51.100.1", // TEST-NET-2
+    "203.0.113.1", // TEST-NET-3
     "224.0.0.1",
     "239.255.255.255",
     "255.255.255.255", // beyond 224/4 — refused, not guessed
   ];
-  const PUBLIC_V4 = ["8.8.8.8", "1.1.1.1", "93.184.216.34", "172.32.0.1", "192.169.1.1"];
+  const PUBLIC_V4 = [
+    "8.8.8.8",
+    "1.1.1.1",
+    "93.184.216.34",
+    "172.32.0.1",
+    "192.169.1.1",
+    "100.0.0.1", // below CGNAT
+    "100.128.0.1", // above CGNAT
+    "192.0.1.1", // between 192.0.0/24 and TEST-NET-1
+    "198.20.0.1", // above 198.18/15
+    "203.0.114.1", // past TEST-NET-3
+  ];
 
   it.each(BLOCKED_V4.map((ip) => [ip] as const))("blocks %s", (ip) => {
     expect(isReservedIp({ kind: 4, v4: ipv4ToInt(ip)! })).toBe(true);
@@ -154,8 +173,20 @@ describe("the reserved-range table (§3.5) — isReservedIp, one place", () => {
     expect(mapped("::ffff:8.8.8.8")).toBe(false);
   });
 
-  const BLOCKED_V6 = ["::1", "::", "fc00::1", "fd12:3456::1", "fe80::1", "febf::1", "ff02::1"];
-  const PUBLIC_V6 = ["2606:4700::6810:84e5", "2001:db8::1", "2620:fe::fe"];
+  const BLOCKED_V6 = [
+    "::1",
+    "::",
+    "fc00::1",
+    "fd12:3456::1",
+    "fe80::1",
+    "febf::1",
+    "ff02::1",
+    "2002::1", // 6to4 (deprecated) — audit review addition
+    "2002:7f00:1::", // 6to4-wrapped loopback — the prefix fails closed
+    "2001::1", // Teredo (deprecated)
+    "2001::dead:beef",
+  ];
+  const PUBLIC_V6 = ["2606:4700::6810:84e5", "2001:db8::1", "2620:fe::fe", "2001:4860::1"];
   it.each(BLOCKED_V6.map((ip) => [ip] as const))("blocks %s", (ip) => {
     const bytes = ipv6ToBytes(ip);
     expect(bytes).not.toBeNull();
@@ -200,6 +231,14 @@ describe("gate 1 — validateTarget, the §7b.4 blocklist table", () => {
     "http://192.168.0.1/",
     "http://169.254.169.254/latest/meta-data/",
     "http://0.0.0.0/",
+    // audit review additions: the ranges 198.18/15 and friends that passed
+    // BOTH gates (table + agent) before the table caught up
+    "http://198.18.0.1/",
+    "http://100.64.0.1/",
+    "http://192.0.2.1/",
+    "http://203.0.113.9/",
+    "http://[2002::1]/",
+    "http://[2001::1]/",
     "http://[::1]/",
     "http://[::]/",
     "http://[fc00::1]/",

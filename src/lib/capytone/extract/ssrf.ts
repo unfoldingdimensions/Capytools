@@ -14,7 +14,9 @@
  * metadata endpoint), fc00::/7, fe80::/10, ::1, the IPv4-mapped ::ffff:0:0/96
  * (unwrapped and re-checked against the v4 table), 224/4 and ff00::/8 — plus
  * the unspecified address ::, which fails closed like every address this
- * module cannot confidently parse.
+ * module cannot confidently parse. The Sep 2026 audit review added the
+ * ranges the plan's list predated: 100.64/10, 192.0.0/24, the three
+ * TEST-NETs, 198.18/15, and the deprecated 6to4/Teredo prefixes.
  */
 
 import { isIP } from "node:net";
@@ -118,10 +120,16 @@ export function isReservedIp(ip: IpAddress): boolean {
     return (
       v <= 0x00ffffff || // 0.0.0.0/8 — "this network" (incl. 0.0.0.0)
       (v >= 0x0a000000 && v <= 0x0affffff) || // 10/8 — private
+      (v >= 0x64400000 && v <= 0x647fffff) || // 100.64/10 — CGNAT (RFC 6598)
       (v >= 0x7f000000 && v <= 0x7fffffff) || // 127/8 — loopback
       (v >= 0xa9fe0000 && v <= 0xa9feffff) || // 169.254/16 — link-local, incl. 169.254.169.254
       (v >= 0xac100000 && v <= 0xac1fffff) || // 172.16/12 — private
+      (v >= 0xc0000000 && v <= 0xc00000ff) || // 192.0.0/24 — IETF protocol assignments
+      (v >= 0xc0000200 && v <= 0xc00002ff) || // 192.0.2/24 — TEST-NET-1
       (v >= 0xc0a80000 && v <= 0xc0a8ffff) || // 192.168/16 — private
+      (v >= 0xc6120000 && v <= 0xc613ffff) || // 198.18/15 — benchmarking (RFC 2544)
+      (v >= 0xc6336400 && v <= 0xc63364ff) || // 198.51.100/24 — TEST-NET-2
+      (v >= 0xcb007100 && v <= 0xcb0071ff) || // 203.0.113/24 — TEST-NET-3
       v >= 0xe0000000 // 224/4 — multicast and everything after (240/4, broadcast)
     );
   }
@@ -132,6 +140,12 @@ export function isReservedIp(ip: IpAddress): boolean {
   };
   if (prefix(16)) return true; // :: unspecified
   if (prefix(15) && b[15] === 1) return true; // ::1 loopback
+  if (b[0] === 0x20 && b[1] === 0x01 && b[2] === 0 && b[3] === 0) {
+    return true; // 2001::/32 — Teredo (deprecated). 2001:db8::/32 stays public
+    // here by design: documentation space routes nowhere, and the connect-time
+    // filter is the layer that judges it.
+  }
+  if (b[0] === 0x20 && b[1] === 0x02) return true; // 2002::/16 — 6to4 (deprecated)
   if (b[0] === 0xfc || b[0] === 0xfd) return true; // fc00::/7 unique-local
   if (b[0] === 0xfe && b[1] >= 0x80 && b[1] <= 0xbf) return true; // fe80::/10 link-local
   if (b[0] === 0xff) return true; // ff00::/8 multicast
