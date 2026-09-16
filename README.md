@@ -111,14 +111,17 @@ Type a feeling, get a poster. Pick a mood pill — or land from a shared link �
 - **Generate mode, a second palette family**: pick a base colour and a harmony — complementary, split-complementary, analogous, triadic, tetradic or monochromatic — and hues land exactly on the rule's offsets, chroma is clamped per lightness and hue (culori's CSS-Color-4 gamut search), and the ink still clears 4.5:1. Same base, same rule, same variation, every time. The mood engine's ±30° spread rule deliberately does not apply here: a complementary pair is 180° apart by definition.
 - **Check mode, both rulers**: the WCAG 2.x ratio — the conformance standard, with AA/AAA verdicts per text size — beside APCA 0.1.9 Lc, which is guidance, a candidate standard, not a law; the labels say exactly that, polarity included. The card's own ink-on-field pair is one tap away.
 - **Blend mode, gradients that say how they blend**: two or three stops in linear, radial or conic shape, interpolated in oklab, oklch, oklch with the longer hue arc, or srgb — emitted as the modern `in`-syntax string plus a dense hex-stop fallback that samples the same ramp for engines that would drop the declaration.
+- **Extract mode, a website's palette, read honestly**: paste a public page and CapyTone reads its static source — the html, up to five stylesheets, declared theme colours and manifest — ranks the colours it finds, and merges near-duplicates by CIEDE2000. The fetch is guarded end to end (DNS validated against reserved ranges on every redirect hop, byte-capped, time-boxed), nothing is stored, and the copy admits the gap: colours painted by JavaScript are invisible to it.
 
-Colour math runs on [culori](https://github.com/Evercoder/culori) (ISC); contrast guidance uses [apca-w3](https://github.com/Myndex/apca-w3) 0.1.9 (Andrew Somers, Limited W3 License — used for web-content accessibility guidance, polarity preserved as its license requires).
+Colour math runs on [culori](https://github.com/Evercoder/culori) (ISC); contrast guidance uses [apca-w3](https://github.com/Myndex/apca-w3) 0.1.9 (Andrew Somers, Limited W3 License — used for web-content accessibility guidance, polarity preserved as its license requires); extraction parses CSS with [css-tree](https://github.com/csstree/csstree) (MIT) and fetches through [request-filtering-agent](https://github.com/azu/request-filtering-agent) (MIT).
 
-No server route resolves a mood, nothing is uploaded, nothing is stored.
+No server route resolves a mood — the palette engine never touches a server. The one exception is Extract's `/api/extract-palette`, which fetches exactly the public URL you hand it, refuses private address ranges before and during the fetch, and returns counts and hexes while keeping nothing.
 
 ## Privacy
 
 Nothing you type, drop or upload into a tool leaves the tab. There is no account to make and no database to leak.
+
+The one documented exception is CapyTone's Extract mode: the address you paste is fetched by the site's server (through the guarded route described in CapyTone's section) so it can read the page's colours on your behalf. Only counts and hexes come back — the fetched content is never stored, logged, or echoed.
 
 Vercel's cookieless analytics counts page views and load times for the site itself. It sees none of your file.
 

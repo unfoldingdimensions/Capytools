@@ -11,10 +11,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { StageCard } from "@/components/stage-card";
-import { COPIED_MS } from "@/lib/capytools/feedback";
-import { copyText } from "@/lib/capytone/export";
 import {
   gradientCss,
   INTERP_SPACES,
@@ -23,7 +20,7 @@ import {
 } from "@/lib/capytone/blend";
 import type { MoodPalette } from "@/lib/capytone/types";
 
-import { ColorPick, Pill, labelClass } from "./controls";
+import { ColorPick, Pill, WellCopy, labelClass } from "./controls";
 
 const TYPES: readonly { id: GradientType; label: string }[] = [
   { id: "linear", label: "linear" },
@@ -32,28 +29,6 @@ const TYPES: readonly { id: GradientType; label: string }[] = [
 ];
 
 const THIRD_STOP_DEFAULT = "#d9a441";
-
-/** Copy button with the house fixed width — no layout shift on "Copied". */
-function WellCopy({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = useCallback(() => {
-    void copyText(text).then((ok) => {
-      setCopied(ok);
-      window.setTimeout(() => setCopied(false), COPIED_MS);
-    });
-  }, [text]);
-  return (
-    <Button
-      size="sm"
-      variant="outline"
-      className="min-w-[84px] rounded-full"
-      onClick={copy}
-      aria-label={copied ? "Copied" : "Copy the CSS"}
-    >
-      {copied ? "Copied" : "Copy"}
-    </Button>
-  );
-}
 
 export function BlendMode({ palette }: { palette: MoodPalette | null }) {
   // Client-only mount: seed from the current card when there is one.

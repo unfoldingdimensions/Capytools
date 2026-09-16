@@ -8,14 +8,41 @@
  * growing a fourth and fifth duplicate.
  */
 
+import { useCallback, useState } from "react";
 import { formatHex, parse } from "culori";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { COPIED_MS } from "@/lib/capytools/feedback";
+import { copyText } from "@/lib/capytone/export";
 import { toOklchOrNull } from "@/lib/capytone/engine/color";
 import { cn } from "@/lib/utils";
 
 export const labelClass =
   "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+
+/** Copy button with the house fixed width — no layout shift on "Copied".
+ * Shared by the hub modes (Blend's css, Extract's hexes). */
+export function WellCopy({ text, label = "Copy" }: { text: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = useCallback(() => {
+    void copyText(text).then((ok) => {
+      setCopied(ok);
+      window.setTimeout(() => setCopied(false), COPIED_MS);
+    });
+  }, [text]);
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      className="min-w-[84px] rounded-full"
+      onClick={copy}
+      aria-label={copied ? "Copied" : label}
+    >
+      {copied ? "Copied" : "Copy"}
+    </Button>
+  );
+}
 
 export function Pill({
   active,
