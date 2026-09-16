@@ -162,6 +162,19 @@ export const SUITE: SuiteTool[] = [
     line: "Pixel-art photos and logos, entirely in-tab.",
     plate: { src: "/plates/lab-10.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyTone",
+    short: "Tone",
+    href: "/capytone",
+    cat: "browser",
+    badge: "Tone",
+    year: "2026",
+    blurb:
+      "Type a feeling, get a poster — a hand-tuned lexicon builds a deterministic five-role palette and a shareable card. No AI, nothing stored.",
+    note: "Moods, in colour",
+    line: "Mood phrases into palette posters, deterministically.",
+    plate: { src: "/plates/lab-11.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
@@ -186,6 +199,7 @@ const WORDS = [
   "eight",
   "nine",
   "ten",
+  "eleven",
 ] as const;
 
 /** "five" — the spelled-out count, for copy that reads as prose. */

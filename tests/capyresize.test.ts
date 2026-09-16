@@ -270,7 +270,7 @@ describe("render — the decision helpers", () => {
 
 describe("CapyResize registration", () => {
   it("sits eighth in the SUITE with its plate", () => {
-    expect(SUITE).toHaveLength(10);
+    expect(SUITE).toHaveLength(11);
     const row = SUITE[7];
     expect(row.name).toBe("CapyResize");
     expect(row.href).toBe("/capyresize");

@@ -282,9 +282,10 @@ editorial-collage formula from the prompt pack
 - **Almost no text**: the only typography on a lab plate is the tiny mono annotation
   carrying the tool's position — `Nº 06`, `Nº 07`. Headlines, captions and UI chrome
   live in the HTML around the plate, never inside the image.
-- **Lab motifs**: one sage plane behind the subject, one gold disc, dotted matrices
-  and hairline coordinate lines drawn on the paper. (The small capybara figure belongs
-  to the hero, about, method and work plates — lab plates keep the object alone.)
+- **Lab motifs**: a flat sheet of sage-green paper standing behind the subject, one gold
+  disc, dotted matrices and hairline coordinate lines drawn on the paper. (The small
+  capybara figure belongs to the hero, about, method and work plates — lab plates keep
+  the object alone.)
 
 Every new tool ships its plate in the same commit as the tool, generated from the
 formula — the formula is the invariant, the composition is the variable.

@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Ten so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Eleven so far. All run in your browser and keep nothing.
 
 **[capytools.vercel.app](https://capytools.vercel.app)**
 
@@ -99,6 +99,17 @@ Pictures, in chunks. Drop a photo or an SVG logo and one of six measured styles 
 - **The maths is ported, not invented**: palette matching in Oklab, contrast-modulated dither, percentile levels and an outline pass — every default benchmarked against a research prototype, with determinism asserted by tests (same image, same bytes, every run).
 
 No server route quantizes anything, nothing is uploaded, nothing is stored.
+
+## 11. CapyTone
+
+Type a feeling, get a poster. Pick a mood pill — or land from a shared link — and a hand-tuned lexicon builds a deterministic five-role palette (field, mid, accent, surface, ink), then renders it as a poster card you can download, copy or tokenise.
+
+- **Constructed, not filtered**: every palette is built to pass the guardrails — WCAG-AA ink-on-field contrast, capped chroma, hue harmony within ±30° — before a pixel is drawn. Same phrase, same seed, same card, forever (FNV-1a seed + mulberry32; no `Math.random()` anywhere in a render path).
+- **Honest about its brain**: there is no AI here. 31 hand-tuned mood anchors, six synonyms and 30 start-colour stops across six families — unmatched phrases say so and improvise inside the guardrails instead of pretending to understand.
+- **Start from a colour**: "start from warm orange" pins the palette to a real hex — the generated field lands on the tapped colour (±20° hue, ±0.14 lightness, asserted by tests), not merely in its neighbourhood.
+- **Posters worth keeping**: two layouts (editorial poster, album-cover minimal), wide and square formats, retina preview and 2× export, seeded film grain, and copy-outs for CSS variables, Tailwind tokens and share text.
+
+No server route resolves a mood, nothing is uploaded, nothing is stored.
 
 ## Privacy
 
