@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractPalette,
   ExtractError,
+  isExtractRequest,
   MAX_RESPONSE_BYTES,
 } from "@/lib/capytone/extract";
 import {
@@ -105,6 +106,29 @@ function guards(
 
 const encoder = new TextEncoder();
 const text = (s: string) => [encoder.encode(s)];
+
+describe("the route's request shape — isExtractRequest", () => {
+  it("accepts exactly what the app's own client sends", () => {
+    expect(isExtractRequest("application/json", "38")).toBe(true);
+    expect(isExtractRequest("application/json; charset=utf-8", "38")).toBe(true);
+    expect(isExtractRequest("APPLICATION/JSON", null)).toBe(true);
+    expect(isExtractRequest("application/json", null)).toBe(true); // chunked: no length header
+  });
+
+  it.each([
+    ["text/plain", "38"], // the cross-origin simple request — the whole point
+    ["text/plain; charset=utf-8", "38"],
+    ["", "38"],
+    [null, "38"],
+    ["multipart/form-data", "38"],
+  ])("refuses non-JSON bodies (%s)", (contentType, length) => {
+    expect(isExtractRequest(contentType, length)).toBe(false);
+  });
+
+  it.each(["999999", "abc", "-1"])("refuses implausible content-length %s", (length) => {
+    expect(isExtractRequest("application/json", length)).toBe(false);
+  });
+});
 
 describe("the reserved-range table (§3.5) — isReservedIp, one place", () => {
   const BLOCKED_V4 = [

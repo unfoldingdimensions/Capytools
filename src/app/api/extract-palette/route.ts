@@ -4,6 +4,7 @@ import { promises as dns } from "node:dns";
 import {
   extractPalette,
   ExtractError,
+  isExtractRequest,
   type ExtractFailureKind,
 } from "@/lib/capytone/extract";
 import { nodeTransport } from "@/lib/capytone/extract/nodeTransport";
@@ -42,6 +43,9 @@ const FAILURE_STATUS: Record<ExtractFailureKind, number> = {
 };
 
 export async function POST(request: Request) {
+  if (!isExtractRequest(request.headers.get("content-type"), request.headers.get("content-length"))) {
+    return NextResponse.json({ error: "unsupported_media_type" }, { status: 415 });
+  }
   const body = (await request.json().catch(() => null)) as { url?: unknown } | null;
   if (typeof body?.url !== "string") {
     return NextResponse.json({ error: "bad_url" }, { status: 400 });

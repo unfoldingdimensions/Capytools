@@ -28,6 +28,30 @@ export const EXTRACT_TIMEOUT_MS = 10_000;
 export const MAX_RESPONSE_BYTES = 3_000_000;
 /** Redirects followed after the initial request. */
 export const MAX_REDIRECTS = 3;
+/** A request body carries one URL — anything past this is not one. */
+export const MAX_REQUEST_BYTES = 4_096;
+
+/**
+ * Shape check for the route's request, kept pure so it is table-tested:
+ * only application/json bodies, and only small ones. The app's own client
+ * sends exactly that (ExtractMode); refusing `text/plain` simple requests
+ * means a third-party page cannot drive server fetches from its visitors'
+ * browsers without a preflight — those requests would burn the visitors'
+ * rate buckets and launder the page's origin through this server.
+ */
+export function isExtractRequest(
+  contentType: string | null,
+  contentLength: string | null,
+): boolean {
+  const type = (contentType ?? "").split(";")[0].trim().toLowerCase();
+  if (type !== "application/json") return false;
+  if (contentLength !== null && contentLength !== "") {
+    const length = Number(contentLength);
+    // A length header is non-negative decimal digits or it is a lie.
+    if (!Number.isFinite(length) || length < 0 || length > MAX_REQUEST_BYTES) return false;
+  }
+  return true;
+}
 
 export type ExtractFailureKind = ExtractError["kind"];
 
