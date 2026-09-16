@@ -628,6 +628,12 @@ describe("scanHtml + extractFromHtml — meta, manifest, ≤5 stylesheets", () =
     expect(scan.inlineStyles).toEqual(["color:#c07952;background-image:linear-gradient(red, blue)"]);
   });
 
+  it("drops inline style values past the byte cap instead of parsing garbage for minutes", () => {
+    const giant = `style="color:red" style=${"x".repeat(40_000)} style="color:blue"`;
+    const scan = scanHtml(`<body ${giant}>`, "https://example.com/");
+    expect(scan.inlineStyles).toEqual(["color:red", "color:blue"]);
+  });
+
   it("fetches only the top five stylesheets and tolerates a failed one", async () => {
     const fetched: string[] = [];
     const page = await extractFromHtml(FIXTURE_HTML, "https://example.com/pages/one", {

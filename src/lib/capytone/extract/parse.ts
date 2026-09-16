@@ -177,6 +177,12 @@ export interface PageExtraction {
 
 export const MAX_STYLESHEETS = 5;
 
+/** One inline style= value longer than this is css-tree error-recovery
+ * fodder, not a declaration list — a single multi-megabyte unquoted value
+ * can parse for tens of seconds. Real inline styles are bytes; this cap is
+ * generous by orders of magnitude. */
+export const MAX_INLINE_STYLE_CHARS = 8_192;
+
 /** An href that points back over http(s) and can be guarded; everything
  * else (data:, javascript:, fragment-only) is out of fetch scope. */
 function resolvableHref(href: string, baseUrl: string): string | null {
@@ -258,7 +264,7 @@ export function scanHtml(
   const inlineStyles: string[] = [];
   for (const hit of html.matchAll(/style\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
     const body = hit[1] ?? hit[2] ?? hit[3];
-    if (body) inlineStyles.push(body);
+    if (body && body.length <= MAX_INLINE_STYLE_CHARS) inlineStyles.push(body);
   }
 
   const stylesheetHrefs: string[] = [];
