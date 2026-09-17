@@ -141,9 +141,9 @@ export default function NotesPage() {
         <section className="mt-12">
           <span className="lp-label">Running your own copy</span>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            The three GitHub-backed API routes are rate limited to 30 requests a
-            minute per visitor. That is enforced by a Cloudflare rule at the edge,
-            before any of this code runs &mdash; the in-app limiter in{" "}
+            The three GitHub-backed API routes are rate limited to 10 requests
+            every ten seconds per visitor. That is enforced by a Cloudflare rule at
+            the edge, before any of this code runs &mdash; the in-app limiter in{" "}
             <code className="font-mono text-[13px]">src/proxy.ts</code> keeps its
             counts in memory, and on Workers that memory is per isolate, so it
             damps bursts rather than enforcing a limit. Run this anywhere else and
