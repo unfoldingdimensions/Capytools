@@ -12,6 +12,10 @@
  * cannot exercise it without tripping it for everyone sharing the runner's
  * egress IP. Verify that one from the dashboard.
  *
+ * The API section is paced for the same reason — see API_SPACING_MS. This file
+ * once passed 50/50 and then left the site returning 429 to everything, which
+ * is how the interaction was found.
+ *
  * Exits non-zero on the first failure count, and prints every result either
  * way so a CI log shows what passed, not just what broke.
  */
@@ -37,6 +41,25 @@ function check(name, actual, expected) {
 }
 
 const get = (path, init) => fetch(`${base}${path}`, { redirect: "manual", ...init });
+
+/**
+ * Space out the /api/* calls.
+ *
+ * The live site is rate limited at the edge to 10 requests per 10 seconds per
+ * IP, and this file makes about a dozen API calls — enough to trip the rule it
+ * is meant to be verifying, which would fail the deploy for the wrong reason.
+ * Pages and assets are exempt (the rule matches /api/ only), so only this
+ * section pays the wait.
+ *
+ * Deliberately pacing rather than exempting CI: a bypass header would be a hole
+ * in the limit for anyone who guessed it, to save about fifteen seconds.
+ */
+const API_SPACING_MS = 1_200;
+const pace = () => new Promise((resolve) => setTimeout(resolve, API_SPACING_MS));
+const apiGet = async (path, init) => {
+  await pace();
+  return get(path, init);
+};
 
 /** Pages that must exist. The tool list is the SUITE, plus the site's furniture. */
 const PAGES = [
@@ -104,15 +127,15 @@ async function main() {
   check("sitemap has no vercel.app", sitemap.includes("vercel.app"), false);
 
   console.log("\nAPI surface");
-  const languages = await get("/api/languages/torvalds");
+  const languages = await apiGet("/api/languages/torvalds");
   check("languages 200", languages.status, 200);
   // Real data, not an empty 200: proves the Worker's GITHUB_TOKEN resolved and
   // that the User-Agent header is present (without it GitHub answers 403).
   check("languages returns real shares",
     (await languages.json()).languages?.length > 0, true);
-  check("contributions 200", (await get("/api/contributions/torvalds")).status, 200);
+  check("contributions 200", (await apiGet("/api/contributions/torvalds")).status, 200);
 
-  const og = await get("/api/og/torvalds");
+  const og = await apiGet("/api/og/torvalds");
   check("og 200", og.status, 200);
   const png = new Uint8Array(await og.arrayBuffer());
   const isPng = png[0] === 0x89 && png[1] === 0x50 && png[2] === 0x4e && png[3] === 0x47;
@@ -123,7 +146,7 @@ async function main() {
 
   console.log("\nextract route — the SSRF gate, on the deployed runtime");
   const extract = (url) =>
-    get("/api/extract-palette", {
+    apiGet("/api/extract-palette", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
@@ -146,7 +169,7 @@ async function main() {
     const res = await extract(url);
     check(`blocked: ${name}`, (await res.json()).error, "blocked_host");
   }
-  check("non-JSON body refused", (await get("/api/extract-palette", {
+  check("non-JSON body refused", (await apiGet("/api/extract-palette", {
     method: "POST",
     headers: { "Content-Type": "text/plain" },
     body: "{}",
