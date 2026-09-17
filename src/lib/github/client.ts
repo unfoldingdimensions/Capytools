@@ -13,9 +13,18 @@ function isGithubApi(url: string): boolean {
   }
 }
 
+/**
+ * GitHub's API refuses any request without a User-Agent ("Request forbidden by
+ * administrative rules"). Node's fetch sends one of its own, so this was
+ * invisible on Vercel — workerd sends none, and every API-backed route 403s on
+ * Cloudflare without it. Constant and honest, matching CAPYTONE_USER_AGENT.
+ */
+export const GITHUB_USER_AGENT = "Capytools/1.0 (+https://capytools.app)";
+
 const API_HEADERS = {
   Accept: "application/vnd.github+json",
   "X-GitHub-Api-Version": "2022-11-28",
+  "User-Agent": GITHUB_USER_AGENT,
 } as const;
 
 /**
@@ -38,6 +47,7 @@ export async function fetchPage<T>(
     const headers = new Headers(init?.headers);
     headers.set("Accept", API_HEADERS.Accept);
     headers.set("X-GitHub-Api-Version", API_HEADERS["X-GitHub-Api-Version"]);
+    headers.set("User-Agent", API_HEADERS["User-Agent"]);
     // The token goes to GitHub's API host and nowhere else. This function is
     // also handed URLs parsed out of an upstream `Link` RESPONSE header
     // (see extractNextPage), so without the host check the rule would be
