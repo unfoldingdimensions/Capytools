@@ -14,16 +14,30 @@
  *
  * ── What moved, and what it costs ──────────────────────────────────────────
  *
- * 1. CONNECT-TIME ADDRESS CHECKING — replaced, not lost.
+ * 1. CONNECT-TIME ADDRESS CHECKING — replaced, not lost. MEASURED.
  *    Node re-resolved the host at connect time and refused private addresses
  *    on the wire, so a DNS-rebinding window between our check and the socket
- *    met a second, independent gate. Workers has no such hook. The
- *    replacement is the platform's `global_fetch_strictly_public` compatibility
- *    flag (set in wrangler.jsonc — it is load-bearing, not decoration): the
- *    runtime itself refuses to open a subrequest to a private or reserved
- *    address. It is a stronger guarantee than the agent gave, but it is the
- *    platform's, so `wrangler.jsonc` is now part of this file's security
- *    surface. Removing that flag silently removes this defence.
+ *    met a second, independent gate. Workers has no such hook. The replacement
+ *    is the platform's `global_fetch_strictly_public` compatibility flag (set
+ *    in wrangler.jsonc — it is load-bearing, not decoration).
+ *
+ *    Verified rather than assumed, by fetching private addresses directly from
+ *    a staged Worker with every app-level gate bypassed:
+ *      http://127.0.0.1/        -> 403, destination not reached
+ *      http://169.254.169.254/  -> 403, destination not reached
+ *      http://10.0.0.1/         -> 403, destination not reached
+ *
+ *    Note the SHAPE, because it decides how this file behaves if the app gates
+ *    ever fail: the platform does NOT throw and does not refuse to open the
+ *    subrequest. It answers with a 403 Response. So a private destination
+ *    arrives here as an ordinary non-2xx reply, and fetchDoc's status gate
+ *    turns it into an `upstream` failure — the body is discarded unread and
+ *    nothing reaches the parser. Safe, but by a different route than "the
+ *    fetch explodes", which is what a reader would otherwise assume.
+ *
+ *    `wrangler.jsonc` is therefore part of this file's security surface.
+ *    Removing that flag silently removes this defence, and no test here would
+ *    notice — the app-level gates would keep the suite green.
  *
  * 2. THE RESOLVE→CONNECT TOCTOU WINDOW — accepted, and smaller than it looks.
  *    `dohResolver` checks the records, then `fetch` resolves again on its own;
