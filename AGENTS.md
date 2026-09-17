@@ -59,4 +59,58 @@ cannot drift from the code the way this list did. In short: a page on
 and no grid to adjust — the landing, masthead, footer, notes page, sitemap,
 every count and the `Nº 06 / 08` sign-off all derive from that one row.
 
+### 6. Hosting & Runtime — Cloudflare Workers
+The site runs on **Cloudflare Workers** via `@opennextjs/cloudflare`, not Vercel
+and not a Node server. `runtime = "nodejs"` in a route selects the
+Node-compatible build under the `nodejs_compat` flag; it does **not** give you a
+Node server. The rules below are each a bug that already happened.
+
+- **No filesystem. Ever, including at module scope.** `readFileSync` in a route
+  or page is evaluated when the worker imports that module — at request time —
+  and there is no disk: the page 500s with `ENOENT`. Read files at build time
+  instead (see `scripts/generate-license-text.mjs`, run from `prebuild`).
+- **In-memory state does not accumulate.** Module-level Maps are per isolate,
+  and isolates are per request far more often than per caller — 60 parallel
+  requests were spread across ~17 of them. Never use one for counting,
+  rate limiting, or anything that must be shared. Rate limiting is a
+  **Cloudflare rule on the zone**, configured in the dashboard, not code.
+- **`s-maxage` and `revalidate` are inert** (no incremental cache configured).
+  A route whose response should be reused must go through
+  `withEdgeCache` (`src/lib/capytools/edge-cache.ts`). Only 200s are stored.
+- **Outbound `fetch` sends no `User-Agent`.** GitHub's API answers `403 Request
+  forbidden by administrative rules` without one — Node's fetch sent one for
+  free, workerd does not. See `GITHUB_USER_AGENT` in `src/lib/github/client.ts`.
+- **`Accept-Encoding: identity` is not honoured.** Workers manages content
+  encoding itself, so a byte cap counts *decoded* bytes. Do not claim a
+  compression-bomb guarantee based on that header.
+- **`NEXT_PUBLIC_SITE_URL` is inlined at BUILD time.** It must be set in the
+  build environment (it is, at workflow level in `ci.yml`). Setting it as a
+  Worker secret does nothing, and the failure is silent — wrong share URLs.
+- **`public/_headers` carries the security headers for `/_next/static/*`.** The
+  assets binding serves those before the Worker runs, so `headers()` in
+  `next.config.ts` never sees them. Change one, change both.
+- **`wrangler.jsonc` is part of the security surface.** `nodejs_compat` carries
+  `node:net`'s `isIP` in `ssrf.ts`, and `global_fetch_strictly_public` is what
+  refuses private destinations now that `request-filtering-agent` is gone
+  (it answers **403**, it does not throw). No test would catch either flag
+  being removed.
+- Adding a `routes` entry silently disables `workers_dev` and `preview_urls`;
+  both are set explicitly because CI needs them.
+
+**Deploying.** `npm run deploy`. The account is pinned (`account_id` in
+`wrangler.jsonc`) and the token is read from a gitignored `.env.cloudflare` —
+see `.env.cloudflare.example`. Pushes to `main` deploy through CI and then run
+`scripts/smoke.mjs`, which walks every page, not only the ones a diff touched;
+that is what catches a page broken by the platform rather than by the change.
+Worker version history is the only rollback (`wrangler rollback`).
+
+**On Windows**, orphaned `workerd` processes hold `.open-next` and fail the next
+build with `EPERM`. `npm run cf-clean` clears them.
+
+The migration's full record — 30 findings and every deviation — is in
+`docs/research/cloudflare-migration/implementation-plan.md`, which is
+**gitignored and local to the owner's machine**: it will not be in your
+checkout, so treat the rules above as the portable version rather than going
+looking for it.
+
 <!-- END:capytools-architecture-rules -->
