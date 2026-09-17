@@ -141,15 +141,21 @@ export default function NotesPage() {
         <section className="mt-12">
           <span className="lp-label">Running your own copy</span>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            The three GitHub-backed API routes are rate limited per visitor, keyed
-            on the address Cloudflare writes at its edge. Off Cloudflare that
-            header is
-            absent and every visitor shares one bucket of 30 calls a minute, so
-            point <code className="font-mono text-[13px]">clientKey</code> in{" "}
-            <code className="font-mono text-[13px]">src/proxy.ts</code> at whatever
-            header your platform sets. Set{" "}
-            <code className="font-mono text-[13px]">GITHUB_TOKEN</code> too, or the
-            card routes run on GitHub&rsquo;s 60-an-hour anonymous quota.
+            The three GitHub-backed API routes are rate limited to 30 requests a
+            minute per visitor. That is enforced by a Cloudflare rule at the edge,
+            before any of this code runs &mdash; the in-app limiter in{" "}
+            <code className="font-mono text-[13px]">src/proxy.ts</code> keeps its
+            counts in memory, and on Workers that memory is per isolate, so it
+            damps bursts rather than enforcing a limit. Run this anywhere else and
+            you will want your platform&rsquo;s own equivalent; do not rely on the
+            code alone.
+          </p>
+          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            What actually protects the upstream quota is caching: repeat requests
+            for the same profile are answered from the edge without the server
+            calling GitHub at all. Set{" "}
+            <code className="font-mono text-[13px]">GITHUB_TOKEN</code> as well, or
+            the card routes run on GitHub&rsquo;s 60-an-hour anonymous quota.
           </p>
         </section>
 
