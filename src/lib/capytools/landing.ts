@@ -8,7 +8,7 @@
  *   "quoted verbatim" framing stays true.
  * - The wire's CapyCreator row includes @gemini (the export omitted it;
  *   src/lib/capycreator/profiles.ts has seven families).
- * - The export linked back to capytools.vercel.app from the site itself, and
+ * - The export linked back to capytools.app from the site itself, and
  *   out to GitHub for project meta; every link here now routes natively
  *   (/notes, /design, /license are real pages). The landing renders zero
  *   external hrefs — only the /notes page links out, for contributions.

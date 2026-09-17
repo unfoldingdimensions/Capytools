@@ -1,5 +1,7 @@
 import { deflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
+
+import { NAME_SHIM } from "../src/lib/capytools/theme-shim";
 import { sanitizeUsername } from "../src/lib/utils";
 import { safeBaseUrl, PROVIDER_PRESETS } from "../src/lib/capytools/llm";
 import { toCsv } from "../src/lib/capyexpense/csv";
@@ -171,5 +173,33 @@ describe("PNG text inflation is bounded", () => {
     const chunks = await readPngText(new Uint8Array(out));
     expect(chunks).toHaveLength(200);
     expect(Date.now() - started).toBeLessThan(2_000);
+  });
+});
+
+describe("the theme shim is the app's only HTML sink, and it is inert", () => {
+  // The site otherwise has zero dangerouslySetInnerHTML / innerHTML / eval.
+  // One exception now exists: a constant that defines esbuild's `__name`
+  // helper before next-themes' serialised anti-flash script runs on
+  // Cloudflare. It is worth pinning precisely because "we have no HTML sinks"
+  // stopped being true — the next person should find a test, not a surprise.
+  it("is a constant with no interpolation and no user input", () => {
+    expect(NAME_SHIM).toBe('window.__name=window.__name||function(f){return f};');
+    expect(NAME_SHIM).not.toContain("${");
+    expect(NAME_SHIM).not.toMatch(/document\.|fetch|eval|localStorage/);
+  });
+
+  it("only ever defines the helper — it never overwrites a real one", () => {
+    const win: { __name?: (f: unknown) => unknown } = {};
+    const run = new Function("window", NAME_SHIM);
+
+    run(win);
+    const identity = win.__name;
+    expect(identity?.("k")).toBe("k");
+
+    // A second run (or a real esbuild helper already present) must win.
+    const real = (f: unknown) => f;
+    win.__name = real;
+    run(win);
+    expect(win.__name).toBe(real);
   });
 });

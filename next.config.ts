@@ -39,15 +39,16 @@ const SECURITY_HEADERS = [
  */
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  // va.vercel-scripts.com is @vercel/analytics + @vercel/speed-insights. Report-only
-  // mode caught this one on the first page load. If those two components are ever
-  // dropped (see the privacy-copy question), this origin goes with them.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
+  // No third-party script origin at all. @vercel/analytics and
+  // @vercel/speed-insights were the only ones, and they went with the move off
+  // Vercel — so the privacy copy is now literally true rather than nearly true.
+  // Anything added back here is a claim on /notes that has to change with it.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://avatars.githubusercontent.com",
   "font-src 'self' data:",
-  // 'self' covers Vercel Analytics (/_vercel/insights); https: covers the
-  // user-configured LLM provider.
+  // https: covers the user-configured LLM provider, which is the only reason
+  // this cannot be tightened to 'self'.
   "connect-src 'self' https:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -56,6 +57,14 @@ const CSP_REPORT_ONLY = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  /**
+   * No image optimizer. The plates are hand-optimized WebP at their display
+   * size, so Cloudflare's IMAGES binding would re-encode already-final bytes
+   * and bill for the privilege. Without this, the default loader would look
+   * for an optimizer endpoint that does not exist on Workers.
+   */
+  images: { unoptimized: true },
+
   async headers() {
     return [
       {

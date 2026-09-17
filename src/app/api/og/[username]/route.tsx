@@ -6,6 +6,7 @@ import { GithubError } from "@/lib/github/types";
 import { computeWrapped } from "@/lib/github/stats";
 import { sanitizeUsername } from "@/lib/utils";
 import { CardArt } from "@/components/card/CardArt";
+import { withEdgeCache } from "@/lib/capytools/edge-cache";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // fans out to GitHub; do not inherit the short default // Next 16 deprecates edge — ImageResponse works on node too.
@@ -19,7 +20,7 @@ async function googleFont(family: string, weight: number): Promise<ArrayBuffer> 
   const hit = fontCache.get(key);
   if (hit) return hit;
   // Very-old UA (pre-woff/woff2 Netscape) makes Google serve .ttf —
-  // @vercel/og/Satori can only parse OpenType TTF/OTF, not woff/woff2.
+  // next/og's Satori can only parse OpenType TTF/OTF, not woff/woff2.
   const css = await fetch(
     `https://fonts.googleapis.com/css2?family=${family.split(" ").join("+")}:wght@${weight}&display=swap`,
     {
@@ -37,7 +38,7 @@ async function googleFont(family: string, weight: number): Promise<ArrayBuffer> 
 
 // Params are async (a Promise) in Next 15/16 route handlers.
 export async function GET(
-  _req: Request,
+  request: Request,
   { params }: { params: Promise<{ username: string }> },
 ) {
   const { username } = await params;
@@ -46,50 +47,55 @@ export async function GET(
   const clean = sanitizeUsername(username);
   if (!clean) return new Response("Not found", { status: 404 });
 
-  try {
-    const [user, repos, events, contributions, languages] = await Promise.all([
-      getUser(clean),
-      getRepos(clean),
-      getEvents(clean),
-      // Same chart and language sources as the page, so the social preview
-      // matches what the visitor saw.
-      fetchContributions(clean).catch(() => []),
-      fetchLanguageShares(clean).catch(() => []),
-    ]);
-    const stats = computeWrapped(user, repos, events, new Date(), contributions, languages);
+  // The single most expensive response on the site: a miss is up to ~55
+  // upstream calls on the server's token, and social crawlers re-request the
+  // same card repeatedly. This is the route the cache was written for.
+  return withEdgeCache(request, async () => {
+    try {
+      const [user, repos, events, contributions, languages] = await Promise.all([
+        getUser(clean),
+        getRepos(clean),
+        getEvents(clean),
+        // Same chart and language sources as the page, so the social preview
+        // matches what the visitor saw.
+        fetchContributions(clean).catch(() => []),
+        fetchLanguageShares(clean).catch(() => []),
+      ]);
+      const stats = computeWrapped(user, repos, events, new Date(), contributions, languages);
 
-    const [fraunces300, fraunces500, sans500, albert400, albert500] = await Promise.all([
-      googleFont("Fraunces", 300),
-      googleFont("Fraunces", 500),
-      googleFont("Plus Jakarta Sans", 500),
-      googleFont("Albert Sans", 400),
-      googleFont("Albert Sans", 500),
-    ]);
+      const [fraunces300, fraunces500, sans500, albert400, albert500] = await Promise.all([
+        googleFont("Fraunces", 300),
+        googleFont("Fraunces", 500),
+        googleFont("Plus Jakarta Sans", 500),
+        googleFont("Albert Sans", 400),
+        googleFont("Albert Sans", 500),
+      ]);
 
-    return new ImageResponse(
-      <CardArt stats={stats} variant="light" format="wide" />,
-      {
-        width: 1200,
-        height: 630,
-        fonts: [
-          { name: "Fraunces", data: fraunces300, weight: 300, style: "normal" },
-          { name: "Fraunces", data: fraunces500, weight: 500, style: "normal" },
-          { name: "Plus Jakarta Sans", data: sans500, weight: 500, style: "normal" },
-          { name: "Albert Sans", data: albert400, weight: 400, style: "normal" },
-          { name: "Albert Sans", data: albert500, weight: 500, style: "normal" },
-        ],
-        headers: {
-          "Cache-Control": "public, max-age=60, s-maxage=3600, stale-while-revalidate=600",
+      return new ImageResponse(
+        <CardArt stats={stats} variant="light" format="wide" />,
+        {
+          width: 1200,
+          height: 630,
+          fonts: [
+            { name: "Fraunces", data: fraunces300, weight: 300, style: "normal" },
+            { name: "Fraunces", data: fraunces500, weight: 500, style: "normal" },
+            { name: "Plus Jakarta Sans", data: sans500, weight: 500, style: "normal" },
+            { name: "Albert Sans", data: albert400, weight: 400, style: "normal" },
+            { name: "Albert Sans", data: albert500, weight: 500, style: "normal" },
+          ],
+          headers: {
+            "Cache-Control": "public, max-age=60, s-maxage=3600, stale-while-revalidate=600",
+          },
         },
-      },
-    );
-  } catch (err) {
-    const notFound = err instanceof GithubError && err.kind === "not_found";
-    // Log the sanitized name, never the raw param — the raw value can carry
-    // newlines and control characters while `clean` is a validated login.
-    console.error(`og: ${clean} failed`, err);
-    return new Response(notFound ? "Not found" : "OG render failed", {
-      status: notFound ? 404 : 500,
-    });
-  }
+      );
+    } catch (err) {
+      const notFound = err instanceof GithubError && err.kind === "not_found";
+      // Log the sanitized name, never the raw param — the raw value can carry
+      // newlines and control characters while `clean` is a validated login.
+      console.error(`og: ${clean} failed`, err);
+      return new Response(notFound ? "Not found" : "OG render failed", {
+        status: notFound ? 404 : 500,
+      });
+    }
+  });
 }

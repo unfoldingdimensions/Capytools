@@ -5,7 +5,7 @@
  *
  * Everything here is dependency-injected — a HostResolver and a Transport —
  * so the whole redirect/block/cap machinery is table-tested offline. The
- * only piece that touches a real socket lives in nodeTransport.ts.
+ * only piece that touches a real socket lives in workersTransport.ts.
  */
 
 import {
@@ -48,6 +48,13 @@ export interface HttpReply<TMeta = unknown> {
   /** The raw Location header, when the status is a redirect. */
   location: string | null;
   body: AsyncIterable<Uint8Array>;
+  /**
+   * Tear the body down without reading it, when the transport needs a
+   * different verb than a Node stream's `destroy()`. Web ReadableStreams
+   * cancel through their reader, and calling `destroy()` on one is a silent
+   * no-op — see `discard`.
+   */
+  cancel?: () => void;
   meta: TMeta;
 }
 
@@ -130,8 +137,18 @@ async function readCapped(
  * holds its socket open — and against an upstream that sends headers and
  * then stalls, "until the response ends" means forever. The shared deadline
  * cannot help: the per-hop abort listener is gone by the time these
- * early returns happen. */
+ * early returns happen.
+ *
+ * Two runtimes, two verbs. Node streams have `destroy()`; web
+ * ReadableStreams do not, and the optional-call form below would have found
+ * nothing and silently done nothing on Workers — leaving every redirect and
+ * every refused content-type holding its response open. A transport that
+ * needs the other verb supplies `cancel`, and it wins. */
 function discard<TMeta>(reply: HttpReply<TMeta>): void {
+  if (reply.cancel) {
+    reply.cancel();
+    return;
+  }
   (reply.body as { destroy?: (error?: Error) => void }).destroy?.();
 }
 

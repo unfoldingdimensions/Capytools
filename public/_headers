@@ -1,0 +1,16 @@
+# Static-asset headers for the Cloudflare assets binding.
+#
+# Why this file exists (plan A7): the assets binding serves /_next/static/*
+# directly, BEFORE the Worker runs, so next.config.ts `headers()` never sees
+# those requests. Without this file the hashed bundles ship with no security
+# headers at all — a silent parity regression against Vercel that no page-level
+# check would catch. Keep the values identical to SECURITY_HEADERS in
+# next.config.ts; if one side changes, change both.
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()

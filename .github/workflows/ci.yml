@@ -2,12 +2,26 @@
 # sanitizer contracts) — they only protect the site if they actually run.
 # Prod dependencies are audited at high; dev-only advisory chains (shadcn,
 # eslint tooling) are tracked but do not gate.
+#
+# Deploy jobs sit behind `test`, so a red suite cannot reach Cloudflare. Both
+# build steps set NEXT_PUBLIC_SITE_URL: it is inlined at BUILD time, and
+# leaving it unset silently ships share URLs pointing at the wrong host — a
+# Worker secret cannot fix that after the fact.
 name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
+
+# A second push to the same branch makes the first deploy irrelevant. Let it go
+# rather than racing it to Cloudflare.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_PUBLIC_SITE_URL: https://capytools.app
 
 jobs:
   test:
@@ -21,4 +35,50 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm test
+      # `LayoutProps` and friends are generated into .next/types, so a clean
+      # checkout has to generate them before tsc can see them. typegen does
+      # that without paying for a full build.
+      - run: npx next typegen
+      - run: npx tsc --noEmit
       - run: npm audit --omit=dev --audit-level=high
+
+  # Every PR gets a real Worker on a versioned URL. `versions upload` stages a
+  # version WITHOUT moving production to it, so main keeps serving whatever it
+  # was serving.
+  preview:
+    needs: test
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx opennextjs-cloudflare build
+      # No --env-file here: .env.cloudflare is a local-only convenience and does
+      # not exist in CI. The token arrives as an environment variable instead.
+      - run: npx wrangler versions upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx opennextjs-cloudflare build
+      - run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # The gate that matters: a green build that serves a broken site is still
+      # a broken site. This is what caught /license returning 500 on Workers.
+      - name: Smoke the deployment
+        run: node scripts/smoke.mjs "${{ vars.DEPLOY_URL || 'https://capytools.app' }}"

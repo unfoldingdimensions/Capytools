@@ -24,18 +24,19 @@ const hits = new Map<string, { count: number; resetAt: number }>();
  *
  * `x-forwarded-for` arrives attacker-controlled: trusting its leftmost value
  * lets anyone mint a fresh identity per request and walk straight past this.
- * Vercel overwrites `x-vercel-forwarded-for` at its edge with the real peer,
- * so that is the one worth keying on.
+ * Cloudflare overwrites `cf-connecting-ip` at its edge with the real peer, so
+ * that is the one worth keying on. It is a single address, not a list — but
+ * the split is kept so a proxy that appends cannot smuggle a second value in.
  *
- * When the header is absent — local dev, or a host that is not Vercel —
+ * When the header is absent — local dev, or a host that is not Cloudflare —
  * everyone shares one bucket. That fails CLOSED (stricter, not looser), which
  * is the right direction for a fallback to lean, but it does mean a self-hosted
  * deploy limits ALL visitors to 30 API calls a minute between them: swap
- * `x-vercel-forwarded-for` for whatever header that platform sets at its edge.
+ * `cf-connecting-ip` for whatever header that platform sets at its edge.
  * Documented for self-hosters on /notes.
  */
 function clientKey(request: NextRequest): string {
-  const platform = request.headers.get("x-vercel-forwarded-for");
+  const platform = request.headers.get("cf-connecting-ip");
   return platform ? platform.split(",")[0].trim() : "unattributed";
 }
 
@@ -76,10 +77,22 @@ export function proxy(request: NextRequest) {
  * `/api/languages`, `/api/contributions`). The rest of the site is static and
  * cheap, and counting it here would just spend budget on page views.
  *
- * ponytail: in-memory, so the budget is per serverless instance rather than
- * global — a scaled-out deploy allows proportionally more. It still turns an
- * unbounded drain into a bounded one, which is the point; swap the Map for a
- * shared store if the quota still moves.
+ * MEASURED, not assumed: this does NOT rate limit on Cloudflare. The Map is
+ * per isolate, and isolates are per request far more often than per caller —
+ * 60 parallel requests from one machine spread across ~17 of them, the busiest
+ * bucket reaching 7. Cloudflare adds isolates under load, so the threshold of
+ * 30 is never reached and no 429 is ever returned. It behaves correctly under
+ * `wrangler dev`, which is exactly why that was not enough evidence.
+ *
+ * So the real per-IP limit is a **Cloudflare Rate Limiting rule on the zone**,
+ * enforced at the edge before this Worker runs (plan decision, phase 7b). What
+ * survives here is burst damping within a single isolate — cheap, honest, and
+ * not something to describe as rate limiting on its own.
+ *
+ * The GitHub quota, meanwhile, is protected by caching, not by this: the edge
+ * cache in front (CF-Cache-Status: HIT, no Worker invocation) and the Cache API
+ * within (lib/capytools/edge-cache.ts). If those ever go, the exposure is real
+ * and a Durable Object becomes the answer, not a bigger number here.
  */
 export const config = {
   matcher: ["/api/:path*"],

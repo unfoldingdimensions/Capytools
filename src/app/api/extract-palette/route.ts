@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { promises as dns } from "node:dns";
 
 import {
   extractPalette,
@@ -7,7 +6,8 @@ import {
   isExtractRequest,
   type ExtractFailureKind,
 } from "@/lib/capytone/extract";
-import { nodeTransport } from "@/lib/capytone/extract/nodeTransport";
+import { createDohResolver } from "@/lib/capytone/extract/dohResolver";
+import { workersTransport } from "@/lib/capytone/extract/workersTransport";
 
 export const runtime = "nodejs";
 
@@ -21,9 +21,18 @@ export const runtime = "nodejs";
  * or echoed; DNS is validated against the reserved ranges before every
  * request and every redirect hop (see lib/capytone/extract/ssrf.ts).
  *
- * Cloudflare migration note (plan §7b.1): Workers has no dns.promises and
- * no IP pinning — swap the resolver for a DoH pre-check there and carry the
- * documented TOCTOU as accepted risk. Node runtime today by design.
+ * Runtime: Cloudflare Workers. There is no `node:dns` and no `http.Agent`
+ * here, so the two injected dependencies are the DoH resolver and the
+ * fetch-based transport. The ordered stack, the reserved-range table and
+ * every refusal are unchanged — only the lookup and the socket moved. What
+ * that cost, and what the platform gives back in exchange, is stated in full
+ * at the top of `workersTransport.ts`; the short version is that
+ * `global_fetch_strictly_public` in wrangler.jsonc is now doing the job
+ * `request-filtering-agent` used to, which makes that flag part of this
+ * route's security surface.
+ *
+ * `runtime = "nodejs"` stays: it selects the Node-compatible build under
+ * `nodejs_compat` (ssrf.ts reads `node:net`'s isIP), not a Node server.
  */
 
 const FAILURE_STATUS: Record<ExtractFailureKind, number> = {
@@ -53,11 +62,8 @@ export async function POST(request: Request) {
 
   try {
     const result = await extractPalette(body.url, {
-      resolver: {
-        resolve4: (hostname) => dns.resolve4(hostname),
-        resolve6: (hostname) => dns.resolve6(hostname),
-      },
-      transport: nodeTransport,
+      resolver: createDohResolver(),
+      transport: workersTransport,
     });
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },

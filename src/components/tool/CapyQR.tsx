@@ -98,7 +98,7 @@ const SIZES = [512, 1024, 2048];
 const FORMATS: ExportFormat[] = ["png", "jpeg", "svg"];
 
 const DEFAULT_FIELDS: PayloadFields = {
-  link: { text: "https://capytools.vercel.app" },
+  link: { text: "https://capytools.app" },
   wifi: { ssid: "", password: "", encryption: "WPA", hidden: false },
   contact: { first: "", last: "" },
   email: { to: "" },

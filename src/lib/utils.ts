@@ -58,5 +58,5 @@ export const SITE_URL = (
   // purpose: Next inlines it by textual match, and rewriting it (optional
   // chaining, destructuring) would silently stop that working.
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL) ||
-  "https://capytools.vercel.app"
+  "https://capytools.app"
 ).replace(/\/+$/, "");
