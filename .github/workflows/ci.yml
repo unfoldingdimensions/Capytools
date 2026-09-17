@@ -35,6 +35,10 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm test
+      # `LayoutProps` and friends are generated into .next/types, so a clean
+      # checkout has to generate them before tsc can see them. typegen does
+      # that without paying for a full build.
+      - run: npx next typegen
       - run: npx tsc --noEmit
       - run: npm audit --omit=dev --audit-level=high
 
