@@ -1,5 +1,5 @@
 import { ToolPageShell } from "@/components/tool/ToolPageShell";
-import { CapyToken } from "@/components/tool/CapyToken";
+import { CapyTokenClient } from "@/components/tool/CapyTokenClient";
 
 export const metadata = {
   title: "CapyToken — free LLM token counter & API cost calculator (offline)",
@@ -16,7 +16,7 @@ export default function CapyTokenPage() {
       lead="exact token counts and model costs, computed entirely in your browser. all local."
       align="left"
     >
-      <CapyToken />
+      <CapyTokenClient />
     </ToolPageShell>
   );
 }
