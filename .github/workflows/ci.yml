@@ -81,4 +81,4 @@ jobs:
       # The gate that matters: a green build that serves a broken site is still
       # a broken site. This is what caught /license returning 500 on Workers.
       - name: Smoke the deployment
-        run: node scripts/smoke.mjs "${{ vars.DEPLOY_URL || 'https://capytools.capytools.workers.dev' }}"
+        run: node scripts/smoke.mjs "${{ vars.DEPLOY_URL || 'https://capytools.app' }}"

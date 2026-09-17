@@ -14,6 +14,16 @@
   // global_fetch_strictly_public: replaces request-filtering-agent's
   // connect-time private-address refusal for the extract route (§7.1).
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // The live domain. `custom_domain` makes Cloudflare create the proxied DNS
+  // record and provision the certificate; the zone is already in this account.
+  // capytools.app is an HSTS-preloaded TLD, so the certificate has to be valid
+  // on the FIRST response — there is no http:// fallback to degrade to.
+  "routes": [{ "pattern": "capytools.app", "custom_domain": true }],
+  // Adding a route turns both of these OFF by default. Keep them: `workers_dev`
+  // is the URL to exercise a deploy without pointing the live domain at it, and
+  // `preview_urls` is what makes `wrangler versions upload` useful on PRs.
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
