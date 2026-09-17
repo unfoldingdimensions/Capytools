@@ -9,10 +9,12 @@
  * text a guard fetched dies inside the parser that consumed it. Failures
  * are typed ExtractErrors so the route stays thin and the UI stays calm.
  *
- * Cloudflare note (§7b.1): on Workers there is no IP pinning and dns.promises
- * does not exist — the migration swaps HostResolver for a DoH pre-check and
- * documents the residual resolve-then-fetch TOCTOU as accepted risk (edge
- * egress cannot reach RFC1918; no metadata endpoint). Node now; CF later.
+ * Runtime (Cloudflare Workers): there is no IP pinning and no dns.promises,
+ * so HostResolver is satisfied by a DoH pre-check and Transport by fetch under
+ * `global_fetch_strictly_public`. The gate order, the reserved-range table and
+ * every refusal are unchanged — this module did not have to move, because both
+ * moving parts were always injected. The residual resolve-then-fetch TOCTOU is
+ * accepted risk and stated in full at the top of workersTransport.ts.
  */
 
 import { fetchWithGuards, type FetchFailure, type Transport } from "./fetchDoc";
