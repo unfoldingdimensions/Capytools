@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import "@/components/landing/landing.css";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { TransitionLink } from "@/components/TransitionLink";
+import { LICENSE_TEXT } from "@/lib/capytools/license-text";
 
 export const metadata: Metadata = {
   title: "Apache License 2.0 — Capytools",
@@ -13,8 +12,14 @@ export const metadata: Metadata = {
     "Capytools is Apache-2.0 licensed. Use it, fork it, ship it — just keep the notice.",
 };
 
-/** Read from the repo's LICENSE at build time — one canonical text, no drift. */
-const LICENSE_TEXT = readFileSync(join(process.cwd(), "LICENSE"), "utf8");
+/**
+ * One canonical text, no drift — but generated at build time rather than read
+ * at runtime. `readFileSync(process.cwd() + "/LICENSE")` at module scope is
+ * evaluated when the worker imports this route, and Workers has no
+ * filesystem: the page 500d with ENOENT /bundle/LICENSE. scripts/
+ * generate-license-text.mjs runs on `prebuild` and emits the module below
+ * straight from the repo's LICENSE.
+ */
 
 export default function LicensePage() {
   return (
