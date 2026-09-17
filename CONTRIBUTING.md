@@ -54,7 +54,7 @@ cd desktop && npm install && npx tsc --noEmit
 otherwise silent until something expensive breaks:
 
 1. **`exceljs` or a Tauri plugin reached from `src/app` or `src/components`.**
-   `exceljs` is a dev dependency here, so this breaks the Vercel deploy — after
+   `exceljs` is a dev dependency here, so this breaks the production build — after
    a push, not before one.
 2. **A shared dashboard component importing `next/*`, `motion`, or storage.**
    Anything under `src/components/capyexpense/` renders in both the Next site

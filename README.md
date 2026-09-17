@@ -113,7 +113,7 @@ Type a feeling, get a poster. Pick a mood pill — or land from a shared link �
 - **Blend mode, gradients that say how they blend**: two or three stops in linear, radial or conic shape, interpolated in oklab, oklch, oklch with the longer hue arc, or srgb — emitted as the modern `in`-syntax string plus a dense hex-stop fallback that samples the same ramp for engines that would drop the declaration.
 - **Extract mode, a website's palette, read honestly**: paste a public page and CapyTone reads its static source — the html, up to five stylesheets, declared theme colours and manifest — ranks the colours it finds, and merges near-duplicates by CIEDE2000. The fetch is guarded end to end (DNS validated against reserved ranges on every redirect hop, byte-capped, time-boxed), nothing is stored, and the copy admits the gap: colours painted by JavaScript are invisible to it.
 
-Colour math runs on [culori](https://github.com/Evercoder/culori) (ISC); contrast guidance uses [apca-w3](https://github.com/Myndex/apca-w3) 0.1.9 (Andrew Somers, Limited W3 License — used for web-content accessibility guidance, polarity preserved as its license requires); extraction parses CSS with [css-tree](https://github.com/csstree/csstree) (MIT) and fetches through [request-filtering-agent](https://github.com/azu/request-filtering-agent) (MIT).
+Colour math runs on [culori](https://github.com/Evercoder/culori) (ISC); contrast guidance uses [apca-w3](https://github.com/Myndex/apca-w3) 0.1.9 (Andrew Somers, Limited W3 License — used for web-content accessibility guidance, polarity preserved as its license requires); extraction parses CSS with [css-tree](https://github.com/csstree/csstree) (MIT).
 
 No server route resolves a mood — the palette engine never touches a server. The one exception is Extract's `/api/extract-palette`, which fetches exactly the public URL you hand it, refuses private address ranges before and during the fetch, and returns counts and hexes while keeping nothing.
 
@@ -124,6 +124,18 @@ Nothing you type, drop or upload into a tool leaves the tab. There is no account
 The one documented exception is CapyTone's Extract mode: the address you paste is fetched by the site's server (through the guarded route described in CapyTone's section) so it can read the page's colours on your behalf. Only counts and hexes come back — the fetched content is never stored, logged, or echoed.
 
 There is no analytics script and no third-party script of any kind. Nothing counts your visit, and nothing sees your file.
+
+## Hosting
+
+The site runs on [Cloudflare Workers](https://workers.cloudflare.com/), deployed
+from `main`. Pages and assets come off Cloudflare's edge; the only server code
+in the whole suite is four small API routes — three that read public GitHub data
+for CapyWrapped's cards, and CapyTone's Extract fetch. Every other tool computes
+in your tab and never asks a server for anything.
+
+The API routes are rate limited at the edge and their responses are cached, so a
+repeated request for the same public profile is answered without calling GitHub
+again. None of that involves you: no cookie, no identifier, nothing stored.
 
 ## Contributing
 
