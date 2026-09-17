@@ -248,14 +248,14 @@ describe("CapyQR matrix oracle", () => {
 
   it("matches the engine's byte-mode sizes for a real-world payload", () => {
     // A v3-M code is 29 modules; this URL is its textbook size.
-    expect(moduleCountFor("https://capytools.vercel.app/capyqr", "M")).toBe(29);
+    expect(moduleCountFor("https://capytools.app/capyqr", "M")).toBe(29);
   });
 
   it("reads the version off the module count and says so friendly", () => {
     expect(versionForModuleCount(21)).toBe(1);
     expect(versionForModuleCount(29)).toBe(3);
     expect(versionForModuleCount(25)).toBe(2);
-    const note = capacityNote("https://capytools.vercel.app/capyqr", "M");
+    const note = capacityNote("https://capytools.app/capyqr", "M");
     expect(note).toContain("29 modules");
     expect(note).toContain("version 3");
     expect(capacityNote("a".repeat(3200), "L")).toContain("quieter style or shorter text");
@@ -495,7 +495,7 @@ describe("CapyQR utf8 bridge", () => {
   });
 
   it("passes ASCII through byte-identical", () => {
-    const ascii = "https://capytools.vercel.app/capyqr";
+    const ascii = "https://capytools.app/capyqr";
     expect(toEngineByteString(ascii)).toBe(ascii);
   });
 
@@ -646,7 +646,7 @@ describe("CapyQR proof scan", () => {
     return { pixels, side };
   };
 
-  const URL_PAYLOAD = "https://capytools.vercel.app";
+  const URL_PAYLOAD = "https://capytools.app";
 
   it("reads an upright code and does not call it inverted", () => {
     const { pixels, side } = render(URL_PAYLOAD, false);

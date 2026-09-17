@@ -4,8 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MotionProvider } from "@/components/motion-provider";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { NAME_SHIM } from "@/lib/capytools/theme-shim";
 
 const sans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -45,13 +44,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "font-sans",
       )}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: NAME_SHIM }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* One reduced-motion contract for every motion.* in the app. */}
           <MotionProvider>{children}</MotionProvider>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );

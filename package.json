@@ -1,7 +1,7 @@
 {
   "name": "capytools",
   "version": "0.1.0",
-  "description": "A home for small, quiet tools. Eleven so far \u2014 all run in your browser and keep nothing.",
+  "description": "A home for small, quiet tools. Eleven so far — all run in your browser and keep nothing.",
   "keywords": [
     "browser-tools",
     "client-side",
@@ -19,7 +19,7 @@
     "tailwindcss"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://capytools.vercel.app",
+  "homepage": "https://capytools.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/unfoldingdimensions/Capytools.git"
@@ -40,9 +40,6 @@
     "cf-clean": "powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\"Name='node.exe'\\\" | Where-Object { $_.CommandLine -match 'wrangler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Get-Process -Name workerd,esbuild -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue\""
   },
   "dependencies": {
-    "@vercel/analytics": "^1.4.1",
-    "@vercel/og": "^1.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "apca-w3": "0.1.9",
     "class-variance-authority": "^0.7.1",
     "client-zip": "^2.5.0",

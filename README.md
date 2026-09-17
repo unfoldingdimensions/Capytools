@@ -2,7 +2,7 @@
 
 A home for small, quiet tools. Eleven so far. All run in your browser and keep nothing.
 
-**[capytools.vercel.app](https://capytools.vercel.app)**
+**[capytools.app](https://capytools.app)**
 
 No signup, no cookie banner, no onboarding tour. Open a tool, use it, close the tab.
 
@@ -123,7 +123,7 @@ Nothing you type, drop or upload into a tool leaves the tab. There is no account
 
 The one documented exception is CapyTone's Extract mode: the address you paste is fetched by the site's server (through the guarded route described in CapyTone's section) so it can read the page's colours on your behalf. Only counts and hexes come back — the fetched content is never stored, logged, or echoed.
 
-Vercel's cookieless analytics counts page views and load times for the site itself. It sees none of your file.
+There is no analytics script and no third-party script of any kind. Nothing counts your visit, and nothing sees your file.
 
 ## Contributing
 

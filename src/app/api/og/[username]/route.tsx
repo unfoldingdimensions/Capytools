@@ -19,7 +19,7 @@ async function googleFont(family: string, weight: number): Promise<ArrayBuffer> 
   const hit = fontCache.get(key);
   if (hit) return hit;
   // Very-old UA (pre-woff/woff2 Netscape) makes Google serve .ttf —
-  // @vercel/og/Satori can only parse OpenType TTF/OTF, not woff/woff2.
+  // next/og's Satori can only parse OpenType TTF/OTF, not woff/woff2.
   const css = await fetch(
     `https://fonts.googleapis.com/css2?family=${family.split(" ").join("+")}:wght@${weight}&display=swap`,
     {

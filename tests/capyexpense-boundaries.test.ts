@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
  *
  * 1. exceljs or a Tauri plugin reached from `src/app` or `src/components` gets
  *    bundled into the Next build. exceljs is a DEV dependency here, so the
- *    Vercel deploy fails — after a push, not before one.
+ *    production build fails — after a push, not before one.
  * 2. A shared dashboard component reaching for `next/*`, `motion`, or
  *    `localStorage` compiles fine on the web and breaks the desktop build,
  *    which is a separate Vite bundle that has no Next in it at all.

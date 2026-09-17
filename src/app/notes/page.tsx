@@ -122,7 +122,8 @@ export default function NotesPage() {
         <section className="mt-12">
           <span className="lp-label">Colophon</span>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Built as a Next.js app, deployed on Vercel, Apache-2.0-licensed, version
+            Built as a Next.js app, deployed on Cloudflare Workers,
+            Apache-2.0-licensed, version
             0.1.0. Set in Fraunces, Plus Jakarta Sans and Albert Sans. The
             editorial collage plates were generated from{" "}
             <TransitionLink href="/design" className="underline decoration-border underline-offset-4">
@@ -131,9 +132,9 @@ export default function NotesPage() {
             .
           </p>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Vercel&rsquo;s cookieless analytics counts page views and load times for
-            this site. Nothing you type, drop or upload into a tool is part of
-            that &mdash; it never leaves the tab.
+            There is no analytics script, and no third-party script of any kind.
+            Nothing counts your visit. Nothing you type, drop or upload into a
+            tool leaves the tab.
           </p>
         </section>
 
@@ -141,7 +142,8 @@ export default function NotesPage() {
           <span className="lp-label">Running your own copy</span>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
             The three GitHub-backed API routes are rate limited per visitor, keyed
-            on the address Vercel writes at its edge. Off Vercel that header is
+            on the address Cloudflare writes at its edge. Off Cloudflare that
+            header is
             absent and every visitor shares one bucket of 30 calls a minute, so
             point <code className="font-mono text-[13px]">clientKey</code> in{" "}
             <code className="font-mono text-[13px]">src/proxy.ts</code> at whatever
