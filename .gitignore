@@ -84,3 +84,8 @@ evolution-drafts/
 /agent/
 /.claude/
 /skills-lock.json
+
+# cloudflare
+.open-next/
+.wrangler/
+.dev.vars

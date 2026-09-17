@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "capytools",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-17",
+  // nodejs_compat: node:net.isIP in ssrf.ts rides this (A6) — do not drop.
+  // global_fetch_strictly_public: replaces request-filtering-agent's
+  // connect-time private-address refusal for the extract route (§7.1).
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    { "binding": "WORKER_SELF_REFERENCE", "service": "capytools" }
+  ],
+  "observability": { "enabled": true }
+}
