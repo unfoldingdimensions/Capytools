@@ -1,6 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "capytools",
+  // Pinned deliberately. This project has two Cloudflare accounts under one
+  // login, and `capytools.app` is a zone in THIS one. A Worker custom domain
+  // requires the zone and the Worker in the same account, so a deploy that
+  // lands in the other account can never serve the domain — and wrangler will
+  // happily pick whichever account the current OAuth token covers. Pinning it
+  // turns that silent mistake into a loud one.
+  "account_id": "534618100df145137ec40616857d2055",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-17",
   // nodejs_compat: node:net.isIP in ssrf.ts rides this (A6) — do not drop.

@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the template carries no secret and is how the next person learns
+# which Cloudflare account this project deploys to.
+!.env.cloudflare.example
 
 # vercel
 .vercel

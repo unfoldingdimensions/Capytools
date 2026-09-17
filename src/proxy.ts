@@ -77,13 +77,22 @@ export function proxy(request: NextRequest) {
  * `/api/languages`, `/api/contributions`). The rest of the site is static and
  * cheap, and counting it here would just spend budget on page views.
  *
- * ponytail: in-memory, so the budget is per isolate rather than global. On
- * Workers that means per colo, and isolates are recycled aggressively, so a
- * determined caller spread across colos gets proportionally more than 30/min
- * and an evicted bucket starts over. It still turns an unbounded drain into a
- * bounded one, which is the point — but the real protection for the GitHub
- * quota is the response cache in front of these routes, not this. Swap the Map
- * for a Durable Object if the quota still moves.
+ * MEASURED, not assumed: this does NOT rate limit on Cloudflare. The Map is
+ * per isolate, and isolates are per request far more often than per caller —
+ * 60 parallel requests from one machine spread across ~17 of them, the busiest
+ * bucket reaching 7. Cloudflare adds isolates under load, so the threshold of
+ * 30 is never reached and no 429 is ever returned. It behaves correctly under
+ * `wrangler dev`, which is exactly why that was not enough evidence.
+ *
+ * So the real per-IP limit is a **Cloudflare Rate Limiting rule on the zone**,
+ * enforced at the edge before this Worker runs (plan decision, phase 7b). What
+ * survives here is burst damping within a single isolate — cheap, honest, and
+ * not something to describe as rate limiting on its own.
+ *
+ * The GitHub quota, meanwhile, is protected by caching, not by this: the edge
+ * cache in front (CF-Cache-Status: HIT, no Worker invocation) and the Cache API
+ * within (lib/capytools/edge-cache.ts). If those ever go, the exposure is real
+ * and a Durable Object becomes the answer, not a bigger number here.
  */
 export const config = {
   matcher: ["/api/:path*"],

@@ -36,8 +36,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "preview": "opennextjs-cloudflare build && wrangler dev",
-    "deploy": "opennextjs-cloudflare build && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "deploy": "opennextjs-cloudflare build && wrangler deploy --env-file .env.cloudflare",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts --env-file .env.cloudflare",
     "cf-clean": "powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\"Name='node.exe'\\\" | Where-Object { $_.CommandLine -match 'wrangler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Get-Process -Name workerd,esbuild -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue\""
   },
   "dependencies": {
