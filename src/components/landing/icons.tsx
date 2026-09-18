@@ -96,7 +96,55 @@ export function PartnerGlyph({ name }: { name: string }) {
           <path d="M17 9h6M17 14h6" />
         </svg>
       );
+    case "CapyOG":
+      return (
+        <svg {...common}>
+          <rect x="7" y="6" width="26" height="18" rx="3" />
+          <path d="M12 19l5-6 4 5 3-3 4 4" />
+        </svg>
+      );
+    case "CapyQR":
+      return (
+        <svg {...common}>
+          <rect x="7" y="5" width="8" height="8" />
+          <rect x="25" y="5" width="8" height="8" />
+          <rect x="7" y="17" width="8" height="8" />
+          <path d="M25 18v3M30 21v4M25 25h2" />
+        </svg>
+      );
+    case "CapyResize":
+      return (
+        <svg {...common}>
+          <path d="M8 22V8h14" />
+          <path d="M32 12v14H18" />
+        </svg>
+      );
+    case "CapyToken":
+      return (
+        <svg {...common}>
+          <circle cx="14" cy="15" r="7" />
+          <path d="M26 10h8M26 15h8M26 20h6" />
+        </svg>
+      );
+    case "CapyPixel":
+      return (
+        <svg {...common}>
+          <path d="M7 25h7v-7h7v-7h7V4h6" />
+        </svg>
+      );
+    case "CapyTone":
+      return (
+        <svg {...common}>
+          <path d="M7 15c4-9 8-9 12 0s8 9 13 0" />
+        </svg>
+      );
+    // A tool with no mark of its own still gets one, rather than the blank
+    // cell that eleven tools and five cases left in the partner row.
     default:
-      return null;
+      return (
+        <svg {...common}>
+          <circle cx="20" cy="15" r="8" />
+        </svg>
+      );
   }
 }

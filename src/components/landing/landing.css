@@ -57,7 +57,8 @@
 /* ---------------------------------- base --------------------------------- */
 
 .lp-section {
-  padding: 130px 0;
+  --lp-pad-y: 130px;
+  padding: var(--lp-pad-y) 0;
 }
 
 /*
@@ -78,8 +79,15 @@
   padding: 0 64px;
 }
 
+/* Where a `#section` link comes to rest.
+   A flat 108px landed the section's padding BOX under the masthead, so how
+   much dead space you got depended on that section's own top padding: 90px on
+   the catalog (the one that looked right), 130 on most, 160 on the colophon
+   and 186 on the work slab — 96px deeper, which pushed the heading off the
+   fold on a laptop. Cancelling the padding lands every section's rule in the
+   same place. The vars SET that padding below, so they cannot drift from it. */
 .lp section[id] {
-  scroll-margin-top: 108px;
+  scroll-margin-top: calc(198px - var(--lp-pad-y, 130px) - var(--lp-slab-pad, 0px));
 }
 
 .lp-skip-link {
@@ -1100,7 +1108,7 @@ a.lp-wire-item .lp-wire-name {
 /* The dense catalog breathes tighter than the rest of the page — dense then
    airy is the rhythm. */
 .lp-labs {
-  padding: 90px 0;
+  --lp-pad-y: 90px;
 }
 
 .lp-labs-head {
@@ -1487,7 +1495,11 @@ a.lp-wire-item .lp-wire-name {
 /* ------------------------------- work (dark) ------------------------------ */
 
 .lp-work-outer {
-  padding: 90px 0;
+  --lp-pad-y: 90px;
+  /* The slab's own inset counts too: the first readable line sits this much
+     further down again, inside the dark box. */
+  --lp-slab-pad: 96px;
+  padding: var(--lp-pad-y) 0;
 }
 
 .lp-work {
@@ -1500,7 +1512,7 @@ a.lp-wire-item .lp-wire-name {
   color: var(--slab-fg);
   border-radius: 32px;
   margin: 0 64px;
-  padding: 96px 64px;
+  padding: var(--lp-slab-pad) 64px;
 }
 
 .dark .lp-work {
@@ -1630,7 +1642,7 @@ a.lp-wire-item .lp-wire-name {
 /* The palate-cleanser before the closing accent — the most expansive
    section on the page. */
 .lp-testimonial {
-  padding: 160px 0;
+  --lp-pad-y: 160px;
 }
 
 .lp-testimonial-grid {
@@ -2078,9 +2090,13 @@ a.lp-wire-item .lp-wire-name {
     padding: 0 44px;
   }
 
+  .lp-work-outer {
+    --lp-slab-pad: 90px;
+  }
+
   .lp-work {
     margin: 0 44px;
-    padding: 90px 44px;
+    padding: var(--lp-slab-pad) 44px;
   }
 
   .lp-nav-inner {
@@ -2156,9 +2172,13 @@ a.lp-wire-item .lp-wire-name {
     display: none;
   }
 
+  .lp-work-outer {
+    --lp-slab-pad: 60px;
+  }
+
   .lp-work {
     margin: 0 12px;
-    padding: 60px 24px;
+    padding: var(--lp-slab-pad) 24px;
   }
 
   .lp-work-grid {
@@ -2202,7 +2222,7 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-section {
-    padding: 80px 0;
+    --lp-pad-y: 80px;
   }
 
   .lp-hero h1 {
@@ -2214,9 +2234,13 @@ a.lp-wire-item .lp-wire-name {
     grid-template-columns: 1fr;
   }
 
+  .lp-work-outer {
+    --lp-slab-pad: 48px;
+  }
+
   .lp-work {
     margin: 0 6px;
-    padding: 48px 20px;
+    padding: var(--lp-slab-pad) 20px;
     border-radius: 24px;
   }
 
