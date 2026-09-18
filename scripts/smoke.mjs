@@ -66,7 +66,7 @@ const PAGES = [
   "/", "/capywrapped", "/capyimagine", "/capycreator", "/capystrip",
   "/capyexpense", "/capyog", "/capyqr", "/capyresize", "/capytoken",
   "/capypixel", "/capytone", "/notes", "/design", "/license",
-  "/sitemap.xml", "/robots.txt",
+  "/sitemap.xml", "/robots.txt", "/llms.txt",
 ];
 
 /** Byte-for-byte parity with SECURITY_HEADERS in next.config.ts. */
@@ -89,6 +89,11 @@ async function main() {
   // failure mode the generator exists to prevent.
   check("/license carries the licence text",
     (await (await get("/license")).text()).includes("Apache License"), true);
+  // llms.txt is generated from SUITE; a body that lost its tools still
+  // answers 200, which is exactly the failure a status check cannot see.
+  const llms = await (await get("/llms.txt")).text();
+  check("/llms.txt lists every tool",
+    (llms.match(/^## Capy/gm) ?? []).length, 11);
 
   console.log("\nsecurity headers (page)");
   const page = await get("/");
