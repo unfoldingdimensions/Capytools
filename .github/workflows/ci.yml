@@ -78,6 +78,15 @@ jobs:
       - run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Pages carry s-maxage=31536000, so once a zone Cache Rule caches them a
+      # deploy would keep serving stale HTML behind a green build. Pages only —
+      # the reasoning for not purging everything is in the script.
+      - name: Purge cached HTML
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID || '93dabe3930d1f3b65ce353a68c63e311' }}
+        run: node scripts/purge-cache.mjs "${{ vars.DEPLOY_URL || 'https://capytools.app' }}"
+
       # The gate that matters: a green build that serves a broken site is still
       # a broken site. This is what caught /license returning 500 on Workers.
       - name: Smoke the deployment
