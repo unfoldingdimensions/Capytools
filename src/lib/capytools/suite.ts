@@ -21,6 +21,14 @@ export type SuiteTool = {
   cat: ToolCategory;
   /** The catalog card's corner badge. */
   badge: string;
+  /**
+   * schema.org `applicationCategory` for this tool's SoftwareApplication
+   * JSON-LD (`src/lib/capytools/structured-data.ts`). The vocabulary is coarse
+   * — pick the closest of DeveloperApplication / DesignApplication /
+   * MultimediaApplication / SecurityApplication / FinanceApplication /
+   * UtilitiesApplication rather than inventing a value.
+   */
+  appCategory: string;
   year: string;
   /** The catalog card's sentence. */
   blurb: string;
@@ -38,6 +46,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capywrapped",
     cat: "browser",
     badge: "Wrapped",
+    appCategory: "DeveloperApplication",
     year: "2026",
     blurb:
       "Your GitHub year in a calm little card — contributions, a month-by-month trendline, stars and top languages.",
@@ -51,6 +60,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capyimagine",
     cat: "browser",
     badge: "Imagine",
+    appCategory: "DesignApplication",
     year: "2026",
     blurb:
       "Random image and video prompts, tuned in your engine's dialect — ratios, frames and negative clauses included.",
@@ -64,6 +74,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capycreator",
     cat: "browser",
     badge: "Create",
+    appCategory: "DeveloperApplication",
     year: "2026",
     blurb:
       "Model-aware prompt engineering scaled from flash to frontier — intent elucidation, assembly, optional polish.",
@@ -77,6 +88,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capystrip",
     cat: "browser",
     badge: "Strip",
+    appCategory: "SecurityApplication",
     year: "2026",
     blurb:
       "Photos talk; this helps them forget. Reads every metadata trail, strips it in-tab, then proves the strip.",
@@ -90,6 +102,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capyexpense",
     cat: "desktop",
     badge: "Desktop · soon",
+    appCategory: "FinanceApplication",
     year: "2026",
     blurb:
       "The one that will live on your machine — a Tauri desktop app writing only to your own disk. Builds are not out yet.",
@@ -103,6 +116,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capyog",
     cat: "browser",
     badge: "OG",
+    appCategory: "DesignApplication",
     year: "2026",
     blurb:
       "OG images and social cards worth sharing — templates, sizes and accents composed in a live preview, then downloaded or copied. Nothing uploads.",
@@ -116,6 +130,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capyqr",
     cat: "browser",
     badge: "QR",
+    appCategory: "UtilitiesApplication",
     year: "2026",
     blurb:
       "Styled QR codes that prove they scan — payloads, colors, a logo, and an in-tab decoder before you export.",
@@ -129,6 +144,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capyresize",
     cat: "browser",
     badge: "Resize",
+    appCategory: "MultimediaApplication",
     year: "2026",
     blurb:
       "Resize, convert and favicon-pack without uploading — progressive-halving quality, honest byte counts, and a 16-pixel proof strip before you ship.",
@@ -142,6 +158,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capytoken",
     cat: "browser",
     badge: "Token",
+    appCategory: "DeveloperApplication",
     year: "2026",
     blurb:
       "Count tokens exactly, price them across every model that matters — offline, keyless, with a verified-date stamp on the rates.",
@@ -155,6 +172,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capypixel",
     cat: "browser",
     badge: "Pixel",
+    appCategory: "MultimediaApplication",
     year: "2026",
     blurb:
       "Photos and logos into pixel art — six measured styles from Game Boy to a seven-blue brand ramp, live preview, crisp export. Nothing uploads.",
@@ -168,6 +186,7 @@ export const SUITE: SuiteTool[] = [
     href: "/capytone",
     cat: "browser",
     badge: "Tone",
+    appCategory: "DesignApplication",
     year: "2026",
     blurb:
       "Type a feeling, get a poster — a hand-tuned lexicon builds a deterministic five-role palette and a shareable card. No AI, nothing stored.",
