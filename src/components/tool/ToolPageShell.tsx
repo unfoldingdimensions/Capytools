@@ -3,9 +3,11 @@ import { Fragment } from "react";
 
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { Header } from "@/components/header";
+import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
+import { softwareApplicationLd } from "@/lib/capytools/structured-data";
 import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
 import { cn } from "@/lib/utils";
 // The whole editorial stylesheet, on every tool page — deliberately. Turbopack
@@ -75,6 +77,11 @@ export function ToolPageShell({
       <a className="lp-skip-link" href="#main">
         Skip to content
       </a>
+
+      {/* Every tool page describes ITS tool, from the same registry row that
+          named it above — so a twelfth tool is described without touching a
+          page, and none of them can drift from the catalog. */}
+      <JsonLd data={softwareApplicationLd(tool)} />
 
       <AmbientBackground />
       <Header tool={tool} />
