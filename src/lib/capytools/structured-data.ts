@@ -36,29 +36,53 @@ export const SITE_DESCRIPTION =
  */
 const SAME_AS = [EXTERNAL.repo];
 
-export function organizationLd() {
+/**
+ * The homepage's two entities in ONE block.
+ *
+ * MEASURED, not assumed: shipped as two sibling `<script>` tags, the schema.org
+ * validator parsed `numObjects: 1` — it reported the WebSite and dropped both
+ * the Organization and the WebSite's own `publisher` reference to it. Nothing
+ * was invalid (0 errors, 0 warnings) and nothing looked wrong in the HTML;
+ * the entity simply was not there afterwards. `@graph` is the canonical way to
+ * state several related entities, it keeps the `@id` reference resolvable
+ * inside one document, and it is what every SEO plugin emits for exactly this
+ * reason.
+ *
+ * The two builders stay separate so each entity can still be read and tested
+ * on its own.
+ */
+export function homepageGraphLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${SITE_URL}/#organization`,
-    name: SITE_NAME,
-    url: `${SITE_URL}/`,
-    description: SITE_DESCRIPTION,
-    sameAs: SAME_AS,
+    "@graph": [ORGANIZATION, WEB_SITE],
   };
 }
 
+const ORGANIZATION = {
+  "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
+  name: SITE_NAME,
+  url: `${SITE_URL}/`,
+  description: SITE_DESCRIPTION,
+  sameAs: SAME_AS,
+} as const;
+
+const WEB_SITE = {
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  name: SITE_NAME,
+  url: `${SITE_URL}/`,
+  description: SITE_DESCRIPTION,
+  inLanguage: "en",
+  publisher: { "@id": ORGANIZATION["@id"] },
+} as const;
+
+export function organizationLd() {
+  return { "@context": "https://schema.org", ...ORGANIZATION };
+}
+
 export function webSiteLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${SITE_URL}/#website`,
-    name: SITE_NAME,
-    url: `${SITE_URL}/`,
-    description: SITE_DESCRIPTION,
-    inLanguage: "en",
-    publisher: { "@id": `${SITE_URL}/#organization` },
-  };
+  return { "@context": "https://schema.org", ...WEB_SITE };
 }
 
 /**
