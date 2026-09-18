@@ -123,8 +123,6 @@ Nothing you type, drop or upload into a tool leaves the tab. There is no account
 
 The one documented exception is CapyTone's Extract mode: the address you paste is fetched by the site's server (through the guarded route described in CapyTone's section) so it can read the page's colours on your behalf. Only counts and hexes come back — the fetched content is never stored, logged, or echoed.
 
-There is no analytics script and no third-party script of any kind. Nothing counts your visit, and nothing sees your file.
-
 ## Hosting
 
 The site runs on [Cloudflare Workers](https://workers.cloudflare.com/), deployed

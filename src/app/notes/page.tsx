@@ -132,9 +132,7 @@ export default function NotesPage() {
             .
           </p>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            There is no analytics script, and no third-party script of any kind.
-            Nothing counts your visit. Nothing you type, drop or upload into a
-            tool leaves the tab.
+            Nothing you type, drop or upload into a tool leaves the tab.
           </p>
         </section>
 
