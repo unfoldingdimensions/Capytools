@@ -22,8 +22,9 @@ export function Hero() {
     reduced
       ? {}
       : {
-          initial: { opacity: 0, y: 18 },
-          animate: { opacity: 1, y: 0 },
+          // Rise without a fade — see Reveal.tsx.
+          initial: { y: 18 },
+          animate: { y: 0 },
           transition: { duration: 0.9, ease: EASE, delay },
         };
 
@@ -57,8 +58,10 @@ export function Hero() {
               seg.em ? (
                 <motion.em
                   key={i}
-                  initial={reduced ? undefined : { opacity: 0, filter: "blur(6px)" }}
-                  animate={reduced ? undefined : { opacity: 1, filter: "blur(0px)" }}
+                  // The h1 is the LCP element. Blur only — a blurred word is
+                  // painted, a transparent one is not, and LCP was waiting on it.
+                  initial={reduced ? undefined : { filter: "blur(6px)" }}
+                  animate={reduced ? undefined : { filter: "blur(0px)" }}
                   transition={{ duration: 0.9, ease: EASE, delay: 0.1 + i * 0.09 }}
                 >
                   {seg.text}
@@ -111,8 +114,8 @@ export function Hero() {
 
         <motion.div
           className="lp-hero-art"
-          initial={reduced ? undefined : { opacity: 0, scale: 0.96 }}
-          animate={reduced ? undefined : { opacity: 1, scale: 1 }}
+          initial={reduced ? undefined : { scale: 0.96 }}
+          animate={reduced ? undefined : { scale: 1 }}
           transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
         >
           <div className="lp-plate">

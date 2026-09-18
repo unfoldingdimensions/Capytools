@@ -30,8 +30,11 @@ export function Reveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
+      // No opacity here: LCP ignores an element at opacity 0, so fading the
+      // above-fold content in gated the metric on hydration. The rise still
+      // animates and the element paints on the first frame.
+      initial={{ y: 18 }}
+      animate={{ y: 0 }}
       transition={{ duration: dur.heroReveal / 1000, delay, ease: ease.slowOut }}
     >
       {children}
