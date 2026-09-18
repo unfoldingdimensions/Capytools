@@ -77,6 +77,13 @@ Node server. The rules below are each a bug that already happened.
 - **`s-maxage` and `revalidate` are inert** (no incremental cache configured).
   A route whose response should be reused must go through
   `withEdgeCache` (`src/lib/capytools/edge-cache.ts`). Only 200s are stored.
+- **A Cloudflare Cache Rule cannot fix that, so do not reach for one.** Cache
+  Rules act on requests Cloudflare proxies to an origin, and a Worker on a
+  custom domain runs *ahead* of that cache — its output never enters it. Proven
+  on the live zone with a rule active: `/_next/static/…js` (assets layer, ahead
+  of the Worker) returns `CF-Cache-Status: HIT`, while a Worker-rendered page
+  returns **no such header at all**. Caching Worker output means the Cache API
+  inside the Worker, which is exactly what `withEdgeCache` is.
 - **Outbound `fetch` sends no `User-Agent`.** GitHub's API answers `403 Request
   forbidden by administrative rules` without one — Node's fetch sent one for
   free, workerd does not. See `GITHUB_USER_AGENT` in `src/lib/github/client.ts`.
