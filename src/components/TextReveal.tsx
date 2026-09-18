@@ -59,8 +59,11 @@ export function TextReveal({
             <motion.span
               key={i}
               className="inline-block"
-              initial={{ opacity: 0, y: "0.35em", filter: "blur(6px)" }}
-              animate={{ opacity: 1, y: "0em", filter: "blur(0px)" }}
+              // Blur and rise, no fade — see Reveal.tsx. A blurred word still
+              // counts as painted; a transparent one does not, and this is the
+              // h1 that LCP was waiting on.
+              initial={{ y: "0.35em", filter: "blur(6px)" }}
+              animate={{ y: "0em", filter: "blur(0px)" }}
               transition={{
                 duration: dur.heroReveal / 1000,
                 delay: delay + (i * stagger) / 1000,

@@ -35,8 +35,9 @@ export function MountReveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, scale: 0.99 }}
-      animate={{ opacity: 1, scale: 1 }}
+      // Scale only — see Reveal.tsx for why the fade went.
+      initial={{ scale: 0.99 }}
+      animate={{ scale: 1 }}
       transition={{ duration: dur.entrance / 1000, delay, ease: ease.slowOut }}
     >
       {children}

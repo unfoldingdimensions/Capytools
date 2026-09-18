@@ -213,3 +213,31 @@ describe("Crawl surface", () => {
     expect(sitemapUrl).toMatch(/^https?:\/\/.+\/sitemap\.xml$/);
   });
 });
+
+describe("above-the-fold paint (LCP)", () => {
+  // LCP ignores an element rendered at opacity 0. The hero used to ship its
+  // headline, lead and plate invisible and fade them in after hydration, which
+  // meant the metric could not fire until JS had downloaded, hydrated and run a
+  // 0.25s-delayed animation — measured at 2.5s p50, 3.7s p75 in the field.
+  //
+  // The entrances still animate; they animate transform and blur, which a
+  // painted element can do. If someone reintroduces an opacity fade up here,
+  // the number silently regresses and nothing else would catch it.
+  // The hero is the first <section>; everything after it is below the fold and
+  // may still fade on scroll, which costs nothing because LCP has already fired.
+  const heroMarkup = () => {
+    const rendered = renderToStaticMarkup(<Landing />);
+    const end = rendered.indexOf("</section>");
+    expect(end).toBeGreaterThan(0);
+    return rendered.slice(0, end);
+  };
+
+  it("renders nothing above the fold at opacity 0", () => {
+    expect(heroMarkup()).not.toContain("opacity:0");
+  });
+
+  it("still animates the headline — blur, not fade", () => {
+    // The feel is kept: the words unblur. Only the property LCP punishes is gone.
+    expect(heroMarkup()).toContain("filter:blur(6px)");
+  });
+});
