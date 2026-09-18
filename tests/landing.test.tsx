@@ -18,6 +18,7 @@ vi.mock("next/image", async () => {
 });
 
 import { Landing } from "../src/components/landing/Landing";
+import { PartnerGlyph } from "../src/components/landing/icons";
 import DesignNotesPage from "../src/app/design/page";
 import LicensePage from "../src/app/license/page";
 import NotesPage from "../src/app/notes/page";
@@ -67,6 +68,11 @@ describe("Landing", () => {
     expect(LABS.tools).toHaveLength(SUITE.length);
     expect(LABS.tools.map((tool) => tool.href)).toEqual(SUITE.map((tool) => tool.href));
     expect(COLOPHON.partners.map((partner) => partner.href)).toEqual(SUITE.map((tool) => tool.href));
+    // Every partner needs a MARK, not just a row. The glyph switch had five
+    // cases against eleven tools, so six cells rendered an empty span.
+    for (const partner of COLOPHON.partners) {
+      expect(renderToStaticMarkup(<PartnerGlyph name={partner.name} />)).toContain("<svg");
+    }
     expect(LANDING_FOOTER.columns[0].links.map((link) => link.href)).toEqual(
       SUITE.map((tool) => tool.href),
     );
