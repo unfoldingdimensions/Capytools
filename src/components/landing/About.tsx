@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ABOUT } from "@/lib/capytools/landing";
 import { BrandMark } from "@/components/brand-mark";
+import { CapyLottie } from "@/components/mascot/CapyLottie";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { ArrowUpRight } from "@/components/landing/icons";
@@ -29,6 +30,8 @@ export function About() {
               {ABOUT.cta.label}
               <ArrowUpRight />
             </TransitionLink>
+            {/* SPIKE: measuring the animated mascot's cost. */}
+            <CapyLottie className="max-w-[180px]" />
             <div className="lp-about-foot">
               <BrandMark className="lp-about-mark" />
               <span>{ABOUT.footer}</span>
