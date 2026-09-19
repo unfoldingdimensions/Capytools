@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  homepageGraphLd,
   organizationLd,
   softwareApplicationLd,
   webSiteLd,
@@ -29,6 +30,31 @@ describe("homepage graph", () => {
     const site = webSiteLd();
     expect(site["@type"]).toBe("WebSite");
     expect(site.publisher).toEqual({ "@id": organizationLd()["@id"] });
+  });
+});
+
+describe("the homepage ships ONE block", () => {
+  // Two sibling <script> blocks validated clean and still lost the
+  // Organization: the validator reported numObjects 1. @graph is what keeps
+  // both entities, and the publisher reference between them, in the document.
+  it("carries both entities in a single @graph", () => {
+    const graph = homepageGraphLd();
+    expect(graph["@context"]).toBe("https://schema.org");
+    expect(graph["@graph"].map((node) => node["@type"])).toEqual([
+      "Organization",
+      "WebSite",
+    ]);
+  });
+
+  it("drops the inner @context, which is only legal at the top", () => {
+    for (const node of homepageGraphLd()["@graph"]) {
+      expect(node).not.toHaveProperty("@context");
+    }
+  });
+
+  it("keeps the publisher reference resolvable inside the graph", () => {
+    const ids = new Set(homepageGraphLd()["@graph"].map((node) => node["@id"]));
+    expect(ids.has(webSiteLd().publisher["@id"])).toBe(true);
   });
 });
 
