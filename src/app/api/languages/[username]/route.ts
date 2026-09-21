@@ -30,6 +30,8 @@ export async function GET(
   const clean = sanitizeUsername(username);
   if (!clean) return NextResponse.json({ error: "bad_username" }, { status: 400 });
 
+  // The canonical key: /api/languages/<lowercased login>, so one account is
+  // one entry however the caller spelled it.
   return withEdgeCache(request, async () => {
     try {
       return NextResponse.json(
@@ -43,5 +45,5 @@ export async function GET(
         { status: notFound ? 404 : 502 },
       );
     }
-  });
+  }, `/api/languages/${clean}`);
 }
