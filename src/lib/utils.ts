@@ -20,6 +20,14 @@ const GITHUB_LOGIN = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
  * - Strips trailing query params or slashes
  * - Returns "" for anything that is not a valid login
  *
+ * Returned lowercase. GitHub logins are unique case-insensitively and
+ * github.com resolves any spelling to the same account, but this string
+ * becomes an edge-cache key — so `/api/og/Torvalds` and `/api/og/torvalds`
+ * were two entries, each buying its own ~55-request fan-out on the server's
+ * token. The card's displayed handle is unaffected: that comes from the
+ * API's own `user.login` (see lib/github/stats.ts), which keeps GitHub's
+ * canonical casing.
+ *
  * The empty return is the contract callers already rely on — both API routes
  * do `if (!clean) return 400`. Rejecting here rather than at each call site is
  * what stops a 5,000-character "username" becoming a cache key and a
@@ -33,11 +41,11 @@ export function sanitizeUsername(input: string): string {
   // Extract username if URL is provided (e.g. https://github.com/torvalds, github.com/torvalds)
   const match = clean.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)/i);
   if (match?.[1]) {
-    return GITHUB_LOGIN.test(match[1]) ? match[1] : "";
+    return GITHUB_LOGIN.test(match[1]) ? match[1].toLowerCase() : "";
   }
   // Strip trailing slashes or queries if formatted as a path
   clean = clean.replace(/[/?#].*$/, "");
-  return GITHUB_LOGIN.test(clean) ? clean : "";
+  return GITHUB_LOGIN.test(clean) ? clean.toLowerCase() : "";
 }
 
 /**

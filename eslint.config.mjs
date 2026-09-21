@@ -14,6 +14,16 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Separate package with its own toolchain; linted by its own build.
     "desktop/**",
+    // Build output and scratch space. All gitignored, so a clean checkout —
+    // and therefore CI — never had them; locally they buried the 7 real
+    // findings under 175,757 problems and made `npm run lint` unusable.
+    ".open-next/**",
+    ".wrangler/**",
+    ".openclaw/**",
+    ".scratch-*/**",
+    // A sibling port with its own node_modules and its own "@/" alias, the
+    // same one vitest.config.mts already excludes for the same reason.
+    "capytone/**",
   ]),
 ]);
 

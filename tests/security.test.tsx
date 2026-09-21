@@ -1,5 +1,8 @@
 import { deflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+
+import { JsonLd } from "../src/components/JsonLd";
 
 import { NAME_SHIM } from "../src/lib/capytools/theme-shim";
 import { sanitizeUsername } from "../src/lib/utils";
@@ -23,6 +26,16 @@ describe("sanitizeUsername rejects what cannot be a GitHub login", () => {
     expect(sanitizeUsername("github.com/torvalds/some-repo")).toBe("torvalds");
     expect(sanitizeUsername("a-b-c")).toBe("a-b-c");
     expect(sanitizeUsername("a".repeat(39))).toBe("a".repeat(39));
+  });
+
+  // One spelling, one cache key. Mixed case used to buy a second ~55-request
+  // fan-out on the server's GitHub token for the same account.
+  it("folds case, so one account is one cache key", () => {
+    expect(sanitizeUsername("ThePrimeagen")).toBe("theprimeagen");
+    expect(sanitizeUsername("@TorValds")).toBe("torvalds");
+    expect(sanitizeUsername("https://github.com/UnfoldingDimensions")).toBe(
+      "unfoldingdimensions",
+    );
   });
 
   it.each([
@@ -176,7 +189,7 @@ describe("PNG text inflation is bounded", () => {
   });
 });
 
-describe("the theme shim is the app's only HTML sink, and it is inert", () => {
+describe("the theme shim is an HTML sink, and it is inert", () => {
   // The site otherwise has zero dangerouslySetInnerHTML / innerHTML / eval.
   // One exception now exists: a constant that defines esbuild's `__name`
   // helper before next-themes' serialised anti-flash script runs on
@@ -201,5 +214,28 @@ describe("the theme shim is the app's only HTML sink, and it is inert", () => {
     win.__name = real;
     run(win);
     expect(win.__name).toBe(real);
+  });
+});
+
+describe("JsonLd cannot be closed early by a `</script>` in the payload", () => {
+  /**
+   * The escape was written `"\u003c"`, which in JS source IS the character
+   * `<` — so the replace was `<` → `<`, a no-op, and the comment above it
+   * described a guard that did not exist. Nothing user-supplied reaches this
+   * component today; this test is what keeps the guard real for the day a
+   * registry blurb, a tool name or a future dynamic value does.
+   */
+  it("emits the \u003c escape, not a literal `<`", () => {
+    const html = renderToStaticMarkup(
+      <JsonLd data={{ name: "</script><img src=x onerror=alert(1)>" }} />,
+    );
+    expect(html).not.toContain("</script><img");
+    expect(html).toContain("\u003c/script");
+  });
+
+  it("still produces parseable JSON-LD", () => {
+    const html = renderToStaticMarkup(<JsonLd data={{ "@type": "Thing", name: "a < b" }} />);
+    const json = html.slice(html.indexOf(">") + 1, html.lastIndexOf("</script>"));
+    expect(JSON.parse(json)).toEqual({ "@type": "Thing", name: "a < b" });
   });
 });
