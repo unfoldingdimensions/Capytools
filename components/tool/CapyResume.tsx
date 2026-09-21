@@ -11,6 +11,8 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { SITE } from '@/lib/site';
 import {
   saveResume,
   clearResume,
@@ -680,6 +682,21 @@ export function CapyResume() {
             </p>
           </section>
         </div>
+
+        <footer className="mt-12 border-t border-border pt-6 text-xs text-muted-foreground">
+          <p className="leading-relaxed">
+            {SITE.name} — free, open source, and yours. Your résumé stays in this browser.{' '}
+            <Link href="/privacy" className="underline underline-offset-4">
+              Privacy
+            </Link>{' '}
+            <Link href="/terms" className="underline underline-offset-4">
+              Terms
+            </Link>{' '}
+            <Link href="/cookies" className="underline underline-offset-4">
+              Cookies
+            </Link>
+          </p>
+        </footer>
       </main>
     </div>
   );

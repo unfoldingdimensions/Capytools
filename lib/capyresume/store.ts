@@ -19,8 +19,14 @@
 import { useSyncExternalStore } from 'react';
 import { RESUME_SCHEMA_VERSION, type ResumeDoc } from './types';
 import { emptyResume, migrate } from './schema';
+import { RESUME_STORAGE_KEY } from './keys';
 
-export const STORAGE_KEY = `capyresume.resume.v${RESUME_SCHEMA_VERSION}`;
+/**
+ * Re-exported so existing callers keep working. The canonical definition lives
+ * in `./keys.ts`, which is React-free on purpose — the legal pages quote this
+ * key name and are server components. See that file for why.
+ */
+export const STORAGE_KEY = RESUME_STORAGE_KEY;
 
 /** Thrown when the browser refuses to persist (disabled storage, quota). */
 export class StorageUnavailableError extends Error {
@@ -119,7 +125,7 @@ export function saveResume(doc: ResumeDoc): ResumeDoc {
 
   if (!hasWindow()) {
     throw new StorageUnavailableError(
-      'This browser has no local storage, so the résumé cannot be saved.',
+      'This browser has no local storage, so the résumé cannot be saved.'
     );
   }
 
@@ -128,7 +134,7 @@ export function saveResume(doc: ResumeDoc): ResumeDoc {
   } catch (cause) {
     throw new StorageUnavailableError(
       'The résumé could not be saved to this browser (storage may be full or disabled).',
-      { cause },
+      { cause }
     );
   }
 

@@ -1,149 +1,144 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  AI_SETTINGS_KEY,
+  RESUME_STORAGE_KEY as STORAGE_KEY,
+  THEME_STORAGE_KEY,
+} from '@/lib/capyresume/keys';
+import { LegalH3, LegalP, LegalPage, LegalSection, LegalUL } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
-    title: 'Cookie Policy | Handcraft Resume',
-    description: 'Cookie Policy for Handcraft Resume - Learn about how we use cookies and similar technologies.',
+  title: 'Cookie Policy | CapyResume',
+  description:
+    'CapyResume sets no cookies. This page lists the browser local storage entries it uses instead, and how to clear them.',
 };
 
+function Key({ children }: { children: string }) {
+  return (
+    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
+      {children}
+    </code>
+  );
+}
+
 export default function CookiePolicyPage() {
-    return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-4xl mx-auto px-6 py-16">
-                {/* Back Button */}
-                <Link href="/">
-                    <Button variant="ghost" className="mb-8 -ml-4">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Home
-                    </Button>
-                </Link>
+  return (
+    <LegalPage
+      current="cookies"
+      title="Cookie Policy"
+      lead="CapyResume sets no cookies. Not for functionality, not for analytics, not for advertising. This page exists to tell you that precisely, and to describe the browser storage the tool does use instead."
+    >
+      <LegalSection heading="1. The short version">
+        <LegalP>
+          There are no cookies to consent to. No cookie is set by CapyResume, no third-party cookie
+          is loaded, and no tracking or advertising technology is present. Nothing about you is sent
+          to us in a request header or a cookie, because there is no CapyResume server to send it
+          to.
+        </LegalP>
+      </LegalSection>
 
-                {/* Header */}
-                <header className="mb-12">
-                    <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">
-                        Cookie Policy
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Last updated: January 24, 2026
-                    </p>
-                </header>
+      <LegalSection heading="2. What we use instead">
+        <LegalP>
+          The tool needs to remember two things: your résumé, and your display preference. It keeps
+          them in your browser&apos;s <strong className="text-foreground">local storage</strong>,
+          which is a different mechanism from cookies. Local storage is never attached to HTTP
+          requests, so it is not transmitted anywhere as you browse — it is not visible to us, to a
+          CDN, or to any other site.
+        </LegalP>
+        <LegalP>Here is every entry CapyResume can write:</LegalP>
+        <LegalUL>
+          <li>
+            <Key>{STORAGE_KEY}</Key> — your résumé, as JSON. This is the tool&apos;s database. It
+            exists only in your browser and contains whatever you have typed.
+          </li>
+          <li>
+            <Key>{AI_SETTINGS_KEY}</Key> — the AI provider, model and API key you entered for the
+            optional AI features. Written only if you turn those on, and removed the moment you
+            remove your key from the tool. Nothing else in the app reads it. See section 4 of the
+            Privacy Policy.
+          </li>
+          <li>
+            <Key>{THEME_STORAGE_KEY}</Key> — whether you chose light or dark mode, or left it
+            following your system. Set by the theme switcher and nothing else.
+          </li>
+        </LegalUL>
+        <LegalP>
+          That is the complete list. None of these values leave your device, and none of them
+          identify you to us.
+        </LegalP>
+      </LegalSection>
 
-                {/* Content */}
-                <div className="prose prose-zinc dark:prose-invert max-w-none">
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">1. What Are Cookies?</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Cookies are small text files that are stored on your device when you visit a website. They help websites remember your preferences and improve your browsing experience.
-                        </p>
-                    </section>
+      <LegalSection heading="3. Why there is no consent banner">
+        <LegalP>
+          Consent banners exist to obtain permission for cookies that track you, particularly for
+          analytics and advertising. CapyResume runs neither, and stores nothing on your device that
+          is not strictly necessary to do the job you asked for. With no tracking and no
+          non-essential storage, there is nothing to ask consent for.
+        </LegalP>
+        <LegalP>
+          If that changes — if we ever add analytics, for example — this page and the banner will
+          appear together, before the tracking starts.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">2. How We Use Cookies</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Handcraft Resume uses cookies and similar technologies for the following purposes:
-                        </p>
+      <LegalSection heading="4. Server and CDN logs">
+        <LegalP>
+          Delivering a web page requires a server to receive a request, and like any web host the
+          CDN serving CapyResume will record ordinary request metadata such as your IP address and
+          user-agent. That is a server log, not a cookie, and it is a function of how the web works
+          rather than something CapyResume adds. We do not combine it with anything, and your résumé
+          is never part of a request.
+        </LegalP>
+        <LegalP>
+          Running the tool yourself avoids even this — CapyResume is open source and needs no
+          backend.
+        </LegalP>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">2.1 Essential Cookies</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            These cookies are necessary for the website to function properly:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li><strong>Authentication:</strong> To keep you logged in securely (via Clerk)</li>
-                            <li><strong>Session management:</strong> To maintain your session state</li>
-                            <li><strong>Security:</strong> To protect against cross-site request forgery</li>
-                        </ul>
+      <LegalSection heading="5. Third-party cookies">
+        <LegalH3>None from us</LegalH3>
+        <LegalP>
+          CapyResume loads no third-party scripts, fonts or widgets that would set a cookie on our
+          page.
+        </LegalP>
+        <LegalH3>The one case worth naming: AI providers</LegalH3>
+        <LegalP>
+          If you turn on the optional AI features and use your own key, your browser contacts your
+          chosen provider directly. Any cookie that provider sets belongs to <em>their</em> domain,
+          under <em>their</em> cookie policy, and is governed by your arrangements with them — not
+          by this page. You will typically have such a session cookie simply because you have an
+          account with them. We neither set it nor read it.
+        </LegalP>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">2.2 Functional Cookies</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            These cookies enhance your experience:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li><strong>Theme preference:</strong> To remember your light/dark mode selection</li>
-                            <li><strong>Language settings:</strong> To remember your language preference</li>
-                            <li><strong>User preferences:</strong> To remember your layout and display preferences</li>
-                        </ul>
+      <LegalSection heading="6. How to clear what is stored">
+        <LegalP>You are in control of all of it, and clearing it is immediate:</LegalP>
+        <LegalUL>
+          <li>
+            <strong className="text-foreground">In the tool</strong> — use the JSON export to keep a
+            backup, then the clear action to remove your résumé, and remove your API key to delete
+            that entry. Clearing also stops any AI feature from working until you add a key again.
+          </li>
+          <li>
+            <strong className="text-foreground">In your browser</strong> — your browser&apos;s
+            site-data settings let you view and delete local storage for this site, either
+            individually or all at once, exactly as you would clear cookies. Blocking storage
+            entirely will stop CapyResume from saving your work between visits, though you can still
+            edit and export within a session.
+          </li>
+        </LegalUL>
+        <LegalP>
+          Remember that clearing your browser data deletes your résumé, and we cannot restore it. If
+          it matters, export the JSON first.
+        </LegalP>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">2.3 Analytics Cookies</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            These cookies help us understand how visitors use our website:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li><strong>Usage analytics:</strong> To understand which features are most popular</li>
-                            <li><strong>Performance monitoring:</strong> To identify and fix issues</li>
-                            <li><strong>Visitor statistics:</strong> To count visitors and page views</li>
-                        </ul>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">3. Third-Party Cookies</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We use services from third parties that may set their own cookies:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li><strong>Clerk:</strong> For authentication and user management</li>
-                            <li><strong>Vercel:</strong> For hosting and performance analytics</li>
-                        </ul>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            These third parties have their own privacy and cookie policies. We encourage you to review them.
-                        </p>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">4. Cookie Duration</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Cookies can be either session cookies or persistent cookies:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li><strong>Session cookies:</strong> Deleted when you close your browser</li>
-                            <li><strong>Persistent cookies:</strong> Remain until they expire or you delete them (typically 30 days to 1 year)</li>
-                        </ul>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">5. Managing Cookies</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            You can control and manage cookies in several ways:
-                        </p>
-
-                        <h3 className="text-xl font-semibold mb-3">5.1 Browser Settings</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Most browsers allow you to:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>View cookies stored on your device</li>
-                            <li>Delete cookies individually or all at once</li>
-                            <li>Block cookies from specific or all websites</li>
-                            <li>Set preferences for first-party vs. third-party cookies</li>
-                        </ul>
-
-                        <h3 className="text-xl font-semibold mb-3">5.2 Impact of Disabling Cookies</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Please note that disabling essential cookies may affect the functionality of the Service. You may not be able to:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Stay logged in to your account</li>
-                            <li>Save your preferences and settings</li>
-                            <li>Use certain features of the Service</li>
-                        </ul>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">6. Updates to This Policy</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We may update this Cookie Policy from time to time to reflect changes in our practices or legal requirements. We will post the updated policy on this page with a new &quot;Last updated&quot; date.
-                        </p>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">7. Contact Us</h2>
-                        <p className="text-muted-foreground leading-relaxed">
-                            If you have questions about our use of cookies, please contact us at privacy@handcraftresume.com
-                        </p>
-                    </section>
-                </div>
-            </div>
-        </div>
-    );
+      <LegalSection heading="7. Changes and contact">
+        <LegalP>
+          If we ever add anything that stores data on your device, it will be listed on this page
+          before it ships, and the date at the top will change. Questions, corrections and reports
+          are welcome in the project&apos;s issue tracker.
+        </LegalP>
+      </LegalSection>
+    </LegalPage>
+  );
 }

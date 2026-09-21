@@ -1,139 +1,205 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AI_SETTINGS_KEY, RESUME_STORAGE_KEY as STORAGE_KEY } from '@/lib/capyresume/keys';
+import { LegalH3, LegalP, LegalPage, LegalSection, LegalUL } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy | Handcraft Resume',
-    description: 'Privacy Policy for Handcraft Resume - Learn how we collect, use, and protect your personal information.',
+  title: 'Privacy Policy | CapyResume',
+  description:
+    'CapyResume runs entirely in your browser. Your résumé is not uploaded, there is no account, and there is no server of ours holding your data.',
 };
 
 export default function PrivacyPolicyPage() {
-    return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-4xl mx-auto px-6 py-16">
-                {/* Back Button */}
-                <Link href="/">
-                    <Button variant="ghost" className="mb-8 -ml-4">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Home
-                    </Button>
-                </Link>
+  return (
+    <LegalPage
+      current="privacy"
+      title="Privacy Policy"
+      lead="CapyResume is a résumé builder that runs entirely in your browser. This page describes what happens to your data — which is, deliberately, almost nothing. It is written to be read, not to be skipped."
+    >
+      <LegalSection heading="1. The short version">
+        <LegalUL>
+          <li>
+            <strong className="text-foreground">There is no CapyResume account</strong> and no
+            signup. We never ask for your name or email to use the tool.
+          </li>
+          <li>
+            <strong className="text-foreground">Your résumé is never uploaded to us.</strong> It is
+            stored in your own browser and the PDF, DOCX and JSON files are generated on your own
+            device.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              We run no analytics, no advertising and no tracking of any kind.
+            </strong>
+          </li>
+          <li>
+            <strong className="text-foreground">
+              AI features are optional and use your own key,
+            </strong>{' '}
+            sent straight from your browser to the provider you pick. We are not in that
+            conversation.
+          </li>
+        </LegalUL>
+      </LegalSection>
 
-                {/* Header */}
-                <header className="mb-12">
-                    <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">
-                        Privacy Policy
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Last updated: January 24, 2026
-                    </p>
-                </header>
+      <LegalSection heading="2. Information we do not collect">
+        <LegalP>
+          Because there is no account and no server of ours handling your document, we do not
+          collect, receive, store or have access to any of the following:
+        </LegalP>
+        <LegalUL>
+          <li>
+            Your résumé content — your name, contact details, employment history, education or
+            skills
+          </li>
+          <li>Your name, email address, phone number or any contact information about you</li>
+          <li>Documents you might have imported from elsewhere</li>
+          <li>Your IP address, device fingerprint, browsing history or usage analytics</li>
+          <li>Any API key you enter for the optional AI features</li>
+        </LegalUL>
+        <LegalP>
+          We are not in a position to lose this data, sell it, or hand it over on request, because
+          we never have it.
+        </LegalP>
+      </LegalSection>
 
-                {/* Content */}
-                <div className="prose prose-zinc dark:prose-invert max-w-none">
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">1. Introduction</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Welcome to Handcraft Resume (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered resume builder service.
-                        </p>
-                    </section>
+      <LegalSection heading="3. Where your résumé actually lives">
+        <LegalP>
+          Your résumé is saved in your browser&apos;s local storage, under the key{' '}
+          <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
+            {STORAGE_KEY}
+          </code>
+          . It stays on your device. It is never transmitted anywhere.
+        </LegalP>
+        <LegalP>Three consequences worth understanding before you rely on the tool:</LegalP>
+        <LegalUL>
+          <li>
+            <strong className="text-foreground">
+              Clearing your site data deletes your résumé.
+            </strong>{' '}
+            So does using private/incognito mode, or clearing your cache. We cannot recover it,
+            because we never had a copy.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              Your résumé does not follow you between devices
+            </strong>{' '}
+            or browsers. It lives in one browser profile on one device.
+          </li>
+          <li>
+            <strong className="text-foreground">
+              The JSON export is your backup and your means of moving it.
+            </strong>{' '}
+            Download it and keep it somewhere you control. Importing that file restores your résumé
+            exactly, on any device.
+          </li>
+        </LegalUL>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">2. Information We Collect</h2>
-                        <h3 className="text-xl font-semibold mb-3">2.1 Personal Information</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            When you create an account or use our services, we may collect:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Name and contact information (email address)</li>
-                            <li>Account credentials (managed securely via Clerk authentication)</li>
-                            <li>Resume content you create (work experience, education, skills, etc.)</li>
-                            <li>Job descriptions you upload for tailoring purposes</li>
-                        </ul>
+      <LegalSection heading="4. Optional AI features (bring your own key)">
+        <LegalP>
+          CapyResume can help reword, tighten and format parts of your résumé. This is off unless
+          you deliberately turn it on. When you do, here is exactly what happens:
+        </LegalP>
+        <LegalUL>
+          <li>
+            You paste an API key you obtained yourself from an AI provider. It is stored in this
+            browser, under the key{' '}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
+              {AI_SETTINGS_KEY}
+            </code>
+            .
+          </li>
+          <li>
+            <strong className="text-foreground">
+              The request goes directly from your browser to that provider.
+            </strong>{' '}
+            There is no CapyResume server in the path — we cannot see your key, and we cannot see
+            the text you sent.
+          </li>
+          <li>
+            Only the text you explicitly ask to improve is transmitted, together with the
+            instruction. Your résumé is not uploaded wholesale.
+          </li>
+          <li>
+            That provider handles that text under <em>its own</em> privacy policy and terms, and
+            sees your IP address as it would for any direct API call. We do not control and cannot
+            speak for how they retain or use it — please read their policy before using a key.
+          </li>
+          <li>
+            Any charges the provider makes are between you and them. We have no billing relationship
+            with them on your behalf.
+          </li>
+          <li>
+            You can remove your key at any time from the tool, which deletes it from this browser
+            immediately.
+          </li>
+        </LegalUL>
+        <LegalP>
+          Because the key is stored locally and is readable by the page, treat it as you would a
+          password typed into a website: use a key you are willing to rotate, set a spending limit
+          with your provider, and remove it when you are done if you are on a shared computer.
+        </LegalP>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">2.2 Technical Information</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We automatically collect certain technical information:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Browser type and version</li>
-                            <li>Device information</li>
-                            <li>IP address</li>
-                            <li>Usage data and analytics</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="5. Hosting and server logs">
+        <LegalP>
+          CapyResume is a set of static files. They are served by a hosting provider or CDN, which —
+          like any web host — will see ordinary request information such as your IP address and
+          browser user-agent in order to deliver the page. We do not add analytics, we do not
+          correlate those logs with anything, and nothing about your résumé is ever part of a
+          request.
+        </LegalP>
+        <LegalP>
+          You are also free to avoid all of this by running CapyResume yourself: it is open source
+          and needs no backend.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">3. How We Use Your Information</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We use the information we collect to:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Provide and maintain our resume building services</li>
-                            <li>Process AI-powered resume enhancements using your provided API keys</li>
-                            <li>Generate PDF exports of your resumes</li>
-                            <li>Improve and personalize your experience</li>
-                            <li>Communicate with you about service updates</li>
-                            <li>Ensure security and prevent fraud</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="6. Cookies">
+        <LegalP>
+          CapyResume sets no cookies — not for functionality, not for analytics, not for
+          advertising. We use your browser&apos;s local storage instead, which is not transmitted
+          with requests. See the Cookie Policy for the full list of what is stored.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">4. BYOK (Bring Your Own Key) Policy</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Our service supports a &quot;Bring Your Own Key&quot; model for AI features:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Your API keys are encrypted and stored securely</li>
-                            <li>We never share your API keys with third parties</li>
-                            <li>API calls are made directly from our servers to the AI provider</li>
-                            <li>You maintain full control and can delete your keys at any time</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="7. Your rights">
+        <LegalP>
+          Data-protection laws such as the GDPR and CCPA give you rights to access, correct, export
+          and delete the personal data an organisation holds about you. We support those rights in
+          the simplest possible way: we hold no personal data about you, so there is nothing for us
+          to disclose, correct or erase.
+        </LegalP>
+        <LegalP>
+          Your control sits with you and is immediate — download a JSON export for a complete copy
+          of everything, or clear your browser&apos;s site data to erase it. If you believe we do
+          hold something of yours, write to us through the issue tracker and we will look into it.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">5. Data Security</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We implement industry-standard security measures including:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>SSL/TLS encryption for all data transmission</li>
-                            <li>Encrypted storage for sensitive data</li>
-                            <li>Regular security audits and updates</li>
-                            <li>Secure authentication via Clerk</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="8. Children">
+        <LegalP>
+          CapyResume is a general-purpose document tool, not a service directed at children. Since
+          we collect nothing at all, we hold no data about anyone of any age.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">6. Data Retention</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We retain your personal information for as long as your account is active or as needed to provide you services. You may request deletion of your data at any time by contacting us or deleting your account.
-                        </p>
-                    </section>
+      <LegalSection heading="9. Changes to this policy">
+        <LegalP>
+          If this policy changes — for example because we add an optional paid tier that requires an
+          account — we will update this page and its date before that change takes effect. Because
+          we hold no contact details, this page is the only place we can announce it.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">7. Your Rights</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Depending on your location, you may have the following rights:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Access your personal data</li>
-                            <li>Correct inaccurate data</li>
-                            <li>Request deletion of your data</li>
-                            <li>Export your data in a portable format</li>
-                            <li>Opt-out of marketing communications</li>
-                        </ul>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">8. Contact Us</h2>
-                        <p className="text-muted-foreground leading-relaxed">
-                            If you have questions about this Privacy Policy, please contact us at privacy@handcraftresume.com
-                        </p>
-                    </section>
-                </div>
-            </div>
-        </div>
-    );
+      <LegalSection heading="10. Contact">
+        <LegalH3>Questions, corrections and reports</LegalH3>
+        <LegalP>
+          CapyResume is an open-source project, so the issue tracker is the honest place to reach
+          the people who make it. Privacy questions, inaccuracies on this page and security reports
+          are all welcome there. The full policy history is visible in the repository.
+        </LegalP>
+      </LegalSection>
+    </LegalPage>
+  );
 }

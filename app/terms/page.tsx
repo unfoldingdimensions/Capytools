@@ -1,150 +1,190 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { LegalP, LegalPage, LegalSection, LegalUL } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
-    title: 'Terms of Service | Handcraft Resume',
-    description: 'Terms of Service for Handcraft Resume - Read about the terms and conditions governing your use of our service.',
+  title: 'Terms of Service | CapyResume',
+  description:
+    'Terms for using CapyResume, a free and open-source résumé builder that runs entirely in your browser.',
 };
 
 export default function TermsOfServicePage() {
-    return (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-4xl mx-auto px-6 py-16">
-                {/* Back Button */}
-                <Link href="/">
-                    <Button variant="ghost" className="mb-8 -ml-4">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Home
-                    </Button>
-                </Link>
+  return (
+    <LegalPage
+      current="terms"
+      title="Terms of Service"
+      lead="Plain terms for a small, free tool. CapyResume runs in your browser, keeps your résumé there, and charges nothing. These terms are short because there is very little for them to govern."
+    >
+      <LegalSection heading="1. Acceptance">
+        <LegalP>
+          By using CapyResume you agree to these terms. If you do not agree with them, please do not
+          use the tool — it is free, so there is nothing lost by walking away.
+        </LegalP>
+      </LegalSection>
 
-                {/* Header */}
-                <header className="mb-12">
-                    <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-4">
-                        Terms of Service
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Last updated: January 24, 2026
-                    </p>
-                </header>
+      <LegalSection heading="2. What CapyResume is">
+        <LegalP>
+          CapyResume is a client-side résumé and CV builder. You fill in a structured editor, and it
+          produces a PDF with real selectable text, a Word (.docx) file, and a JSON copy of your own
+          data. Everything — the editing, the rendering and the file generation — happens inside
+          your browser.
+        </LegalP>
+        <LegalUL>
+          <li>No account is required to use it, and none is offered.</li>
+          <li>Nothing you type is uploaded to us.</li>
+          <li>Your work is saved in your own browser, not on a server.</li>
+        </LegalUL>
+      </LegalSection>
 
-                {/* Content */}
-                <div className="prose prose-zinc dark:prose-invert max-w-none">
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">1. Acceptance of Terms</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            By accessing or using Handcraft Resume (&quot;the Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
-                        </p>
-                    </section>
+      <LegalSection heading="3. The free tier, and what we commit to">
+        <LegalP>
+          The free tier is the whole editor: every section type, the available templates, and
+          unlimited PDF, DOCX and JSON exports. There is no watermark and there is no export limit.
+        </LegalP>
+        <LegalP>
+          We state this as a commitment rather than a perk:{' '}
+          <strong className="text-foreground">
+            we will not put a watermark on your résumé, and we will not lock the export of your own
+            document behind a payment.
+          </strong>{' '}
+          It is your document. If we ever add paid features they will be additions, not a toll on
+          getting your résumé out.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">2. Description of Service</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Handcraft Resume is an AI-powered resume builder that allows users to:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>Create and edit professional resumes</li>
-                            <li>Use AI to enhance resume content (with your own API keys)</li>
-                            <li>Export resumes as high-quality PDF documents</li>
-                            <li>Tailor resumes to specific job descriptions</li>
-                            <li>Parse existing resume documents</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="4. Optional AI features (bring your own key)">
+        <LegalP>
+          The tool can offer optional help with wording and formatting, using an API key you supply
+          from a provider you choose. Requests go directly from your browser to that provider; we
+          are not in the request path and never see your key or your text.
+        </LegalP>
+        <LegalP>By using this feature you accept that:</LegalP>
+        <LegalUL>
+          <li>
+            <strong className="text-foreground">The key is yours.</strong> You are responsible for
+            obtaining it, keeping it valid, and for any charges your provider bills you.
+          </li>
+          <li>
+            The provider&apos;s own terms of service apply to your use of their API, in addition to
+            these terms. You must comply with them.
+          </li>
+          <li>
+            <strong className="text-foreground">You must review anything the AI produces.</strong>{' '}
+            Language models can be confidently wrong, can invent details, and can overstate what you
+            actually did. That risk is yours, and it lands on the document you send to employers.
+          </li>
+          <li>
+            We provide no warranty about the accuracy, tone or suitability of AI-generated text, and
+            we are not liable for content you chose to keep.
+          </li>
+        </LegalUL>
+        <LegalP>
+          Nothing generated by these features is legal, career or professional advice.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">3. User Accounts</h2>
-                        <h3 className="text-xl font-semibold mb-3">3.1 Registration</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            To use certain features of the Service, you must create an account. You agree to provide accurate and complete information during registration and to keep your account information up to date.
-                        </p>
+      <LegalSection heading="5. Your content">
+        <LegalP>
+          You own everything you write in CapyResume, entirely and without qualification. We claim
+          no licence over it — we could not, since we never receive it. You are free to use the
+          exported files for any purpose.
+        </LegalP>
+        <LegalP>
+          You are responsible for the accuracy of what you put in your résumé, and for how you use
+          it when applying for a role.
+        </LegalP>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">3.2 Account Security</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            You are responsible for maintaining the confidentiality of your account credentials. You agree to notify us immediately of any unauthorized use of your account.
-                        </p>
-                    </section>
+      <LegalSection heading="6. Fair use">
+        <LegalP>
+          Please do not use CapyResume to create fraudulent or deliberately misleading documents, or
+          to impersonate another person. This is a tool for describing your own experience; misusing
+          it in an application is likely to be a matter for the employer and possibly the law, and
+          it is not something we can help with.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">4. User Content</h2>
-                        <h3 className="text-xl font-semibold mb-3">4.1 Ownership</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            You retain full ownership of all content you create using the Service, including your resumes, personal information, and any other materials you submit.
-                        </p>
+      <LegalSection heading="7. No guarantee of outcomes">
+        <LegalP>
+          CapyResume produces a plain, single-column, text-based document — the layout that
+          applicant-tracking systems handle best, and DOCX is generally the safest format to submit.
+          But we cannot promise any particular result, and we do not claim otherwise:
+        </LegalP>
+        <LegalUL>
+          <li>
+            We do not guarantee that any employer or recruiter&apos;s system will parse your file
+            correctly. Parsers vary, and layout is only one of many inputs.
+          </li>
+          <li>We do not guarantee interviews, offers or any other outcome.</li>
+          <li>We do not guarantee that the tool will be uninterrupted or free of bugs.</li>
+        </LegalUL>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">4.2 License to Us</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            By using the Service, you grant us a limited license to store, process, and display your content solely for the purpose of providing the Service to you.
-                        </p>
+      <LegalSection heading="8. Keep your own backup">
+        <LegalP>
+          Your résumé is stored in your browser, which means it is yours to look after. Clearing
+          your browsing data, using incognito mode, uninstalling the browser or switching devices
+          will remove or hide it, and we cannot restore it because we never had a copy.
+        </LegalP>
+        <LegalP>
+          Use the JSON export as a backup. We are not liable for lost work that could have been
+          exported.
+        </LegalP>
+      </LegalSection>
 
-                        <h3 className="text-xl font-semibold mb-3">4.3 Prohibited Content</h3>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            You agree not to submit content that is illegal, fraudulent, defamatory, or infringes on the rights of others.
-                        </p>
-                    </section>
+      <LegalSection heading="9. Open source and licensing">
+        <LegalP>
+          The CapyResume source code is released under the Apache-2.0 licence, and the full history
+          of these pages is public in the same repository. That licence covers the code. Your use of
+          the hosted copy of the tool is governed by these terms, and nothing here restricts the
+          rights that licence grants you over the code itself.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">5. API Keys (BYOK)</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            Our Service supports a &quot;Bring Your Own Key&quot; model for AI features:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>You are responsible for obtaining and maintaining valid API keys</li>
-                            <li>You must comply with the terms of service of the API providers (e.g., OpenAI, Google)</li>
-                            <li>Any charges from API providers are your responsibility</li>
-                            <li>We are not responsible for any issues arising from your use of third-party APIs</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="10. Paid features">
+        <LegalP>
+          There are none today, and everything described in section 3 is free. If we introduce a
+          paid tier — for example extra template packs, a cover-letter bundle or bulk tailoring — it
+          will be optional, it will require creating an account, and these terms will be updated
+          before it launches to describe what that involves.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">6. Intellectual Property</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            The Service, including its design, features, and content (excluding user content), is owned by Handcraft Resume and is protected by intellectual property laws. You may not copy, modify, or distribute any part of the Service without our express written permission.
-                        </p>
-                    </section>
+      <LegalSection heading="11. Disclaimer of warranties">
+        <LegalP>
+          CapyResume is provided &quot;as is&quot; and &quot;as available&quot;, without warranties
+          of any kind, express or implied, including any implied warranty of merchantability,
+          fitness for a particular purpose or non-infringement. You use it at your own risk.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">7. Disclaimers</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND. We do not guarantee that:
-                        </p>
-                        <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-                            <li>The Service will be uninterrupted or error-free</li>
-                            <li>AI-generated content will be accurate or suitable for your needs</li>
-                            <li>Using our Service will result in job offers or interviews</li>
-                        </ul>
-                    </section>
+      <LegalSection heading="12. Limitation of liability">
+        <LegalP>
+          To the maximum extent permitted by law, CapyResume and its contributors are not liable for
+          any indirect, incidental, special, consequential or punitive damages, or for any lost
+          profits, lost data or lost opportunities, arising from your use of — or inability to use —
+          the tool. This includes lost résumé content and unsuccessful job applications.
+        </LegalP>
+        <LegalP>
+          Because the tool is provided free of charge, our total aggregate liability to you is
+          limited to the amount you have paid us, which is nothing.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">8. Limitation of Liability</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            To the maximum extent permitted by law, Handcraft Resume shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of the Service.
-                        </p>
-                    </section>
+      <LegalSection heading="13. Changes to these terms">
+        <LegalP>
+          We may update these terms as the tool changes. The &quot;last updated&quot; date at the
+          top of this page will change with them, and the previous versions remain visible in the
+          repository history. Continuing to use CapyResume after a change means you accept the
+          updated terms.
+        </LegalP>
+      </LegalSection>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">9. Termination</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We reserve the right to suspend or terminate your access to the Service at any time for violations of these Terms. You may also close your account at any time.
-                        </p>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">10. Changes to Terms</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-4">
-                            We may update these Terms from time to time. We will notify you of significant changes. Continued use of the Service after changes constitutes acceptance of the new Terms.
-                        </p>
-                    </section>
-
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-display font-bold mb-4">11. Contact Us</h2>
-                        <p className="text-muted-foreground leading-relaxed">
-                            If you have questions about these Terms, please contact us at legal@handcraftresume.com
-                        </p>
-                    </section>
-                </div>
-            </div>
-        </div>
-    );
+      <LegalSection heading="14. Contact">
+        <LegalP>
+          This is a small open-source project, so the issue tracker is the right place for
+          questions, corrections and bug reports.
+        </LegalP>
+      </LegalSection>
+    </LegalPage>
+  );
 }
