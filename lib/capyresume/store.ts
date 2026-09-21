@@ -166,6 +166,17 @@ export function useResume(): ResumeDoc {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
+/**
+ * React binding with a caller-supplied server snapshot.
+ *
+ * During hydration React uses this value, then switches to the real stored one,
+ * so the server can render something meaningful (the demo) without a hydration
+ * mismatch. Pass a stable reference (a module-level constant).
+ */
+export function useResumeWithServerSnapshot(serverSnapshot: ResumeDoc): ResumeDoc {
+  return useSyncExternalStore(subscribe, getSnapshot, () => serverSnapshot);
+}
+
 /** Test-only: forget the in-process cache without touching storage. */
 export function __resetStoreCache(): void {
   cachedRaw = null;

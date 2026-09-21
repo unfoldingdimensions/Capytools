@@ -95,7 +95,32 @@ ok('library compiled');
 const { buildResumePdf } = require(compiledPdf);
 const { DEMO_RESUME } = require(path.join(OUT_DIR, 'demo.js'));
 const { TEMPLATE_LIST } = require(path.join(OUT_DIR, 'templates.js'));
-const pdfParse = require('pdf-parse');
+const pdfParseModule = require('pdf-parse');
+
+/**
+ * Extract the text layer, tolerating both pdf-parse majors:
+ *   v1 — the module itself is `async (buffer) => ({ text })`
+ *   v2 — the module exports a `PDFParse` class with `getText()`
+ */
+async function extractText(buffer) {
+  if (typeof pdfParseModule === 'function') {
+    const parsed = await pdfParseModule(buffer);
+    return parsed.text || '';
+  }
+
+  const PDFParse = pdfParseModule.PDFParse;
+  if (typeof PDFParse === 'function') {
+    const parser = new PDFParse({ data: new Uint8Array(buffer) });
+    try {
+      const result = await parser.getText();
+      return result.text || '';
+    } finally {
+      if (typeof parser.destroy === 'function') await parser.destroy();
+    }
+  }
+
+  throw new Error('Unsupported pdf-parse module shape');
+}
 
 function blobToBuffer(blob) {
   // Node's Blob supports arrayBuffer().
@@ -132,8 +157,7 @@ function blobToBuffer(blob) {
 
   let text = '';
   try {
-    const parsed = await pdfParse(buffer);
-    text = parsed.text || '';
+    text = await extractText(buffer);
   } catch (error) {
     fail(`pdf-parse could not read the PDF: ${error && error.message ? error.message : error}`);
   }
@@ -179,8 +203,8 @@ function blobToBuffer(blob) {
     if (bytes.subarray(0, 5).toString('latin1') !== '%PDF-') {
       fail(`template "${spec.id}" did not render a PDF`);
     }
-    const parsed = await pdfParse(bytes);
-    if (!/maya okafor/i.test(parsed.text)) {
+    const parsedText = await extractText(bytes);
+    if (!/maya okafor/i.test(parsedText)) {
       fail(`template "${spec.id}" rendered a PDF with no extractable content`);
     }
     ok(`template "${spec.id}" -> ${bytes.length} bytes, text extractable`);

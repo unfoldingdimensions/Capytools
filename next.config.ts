@@ -12,9 +12,7 @@ const nextConfig: NextConfig = {
             'lucide-react',
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-select',
             '@radix-ui/react-tooltip',
-            '@radix-ui/react-toast',
             'framer-motion',
         ],
     },
@@ -32,7 +30,7 @@ const nextConfig: NextConfig = {
         minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     },
 
-    // Security headers + Resource hints
+    // Security headers
     async headers() {
         return [
             {
@@ -65,11 +63,6 @@ const nextConfig: NextConfig = {
                     {
                         key: 'Permissions-Policy',
                         value: 'camera=(), microphone=(), geolocation=()'
-                    },
-                    // Preconnect to external services for faster loads
-                    {
-                        key: 'Link',
-                        value: '<https://clerk.com>; rel=preconnect, <https://api.clerk.com>; rel=preconnect'
                     }
                 ]
             },
@@ -84,11 +77,6 @@ const nextConfig: NextConfig = {
                 ]
             }
         ];
-    },
-
-    // Environment variables validation
-    env: {
-        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     },
 };
 
