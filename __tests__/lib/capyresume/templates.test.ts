@@ -1,0 +1,75 @@
+import {
+  DEFAULT_TEMPLATE_ID,
+  TEMPLATE_LIST,
+  TEMPLATES,
+  getTemplate,
+  headingText,
+  isTemplateId,
+} from '@/lib/capyresume/templates';
+
+describe('capyresume/templates — registry', () => {
+  it('ships three templates in v1', () => {
+    expect(TEMPLATE_LIST).toHaveLength(3);
+  });
+
+  it('keys the registry by the spec id', () => {
+    for (const [key, spec] of Object.entries(TEMPLATES)) {
+      expect(spec.id).toBe(key);
+    }
+  });
+
+  it('gives every template a distinct id and label', () => {
+    const ids = TEMPLATE_LIST.map((spec) => spec.id);
+    const names = TEMPLATE_LIST.map((spec) => spec.name);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it.each(TEMPLATE_LIST)('$name is single-column and table-free', (spec) => {
+    // Property assertions, not snapshots: these two literals *are* the
+    // parse-friendliness guarantee.
+    expect(spec.columns).toBe(1);
+    expect(spec.usesTables).toBe(false);
+  });
+
+  it.each(TEMPLATE_LIST)('$name stays on a standard-14 PDF font', (spec) => {
+    // Nothing embedded => no font licence can be breached, and every reader can
+    // render the file.
+    expect(['Helvetica', 'Times-Roman']).toContain(spec.fontFamily);
+  });
+
+  it.each(TEMPLATE_LIST)('$name has a usable type scale and rhythm', (spec) => {
+    expect(spec.fontSize).toBeGreaterThanOrEqual(9);
+    expect(spec.fontSize).toBeLessThanOrEqual(12);
+    expect(spec.entryGap).toBeGreaterThan(0);
+    expect(spec.lineHeight).toBeGreaterThan(1);
+    expect(spec.bulletChar.length).toBeGreaterThan(0);
+    expect(spec.accent).toMatch(/^#[0-9a-f]{6}$/i);
+  });
+});
+
+describe('capyresume/templates — lookup', () => {
+  it('resolves a known id', () => {
+    expect(getTemplate('serif').id).toBe('serif');
+  });
+
+  it('falls back to the default for unknown, empty or missing ids', () => {
+    expect(getTemplate('nope').id).toBe(DEFAULT_TEMPLATE_ID);
+    expect(getTemplate('').id).toBe(DEFAULT_TEMPLATE_ID);
+    expect(getTemplate(null).id).toBe(DEFAULT_TEMPLATE_ID);
+    expect(getTemplate(undefined).id).toBe(DEFAULT_TEMPLATE_ID);
+  });
+
+  it('guards template ids', () => {
+    expect(isTemplateId('compact')).toBe(true);
+    expect(isTemplateId('toString')).toBe(false);
+    expect(isTemplateId(42)).toBe(false);
+  });
+});
+
+describe('capyresume/templates — heading casing', () => {
+  it('applies the template rule', () => {
+    expect(headingText(TEMPLATES.classic, 'Experience')).toBe('EXPERIENCE');
+    expect(headingText(TEMPLATES.serif, 'Experience')).toBe('Experience');
+  });
+});
