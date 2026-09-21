@@ -12,6 +12,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { AiAssist } from '@/components/tool/AiAssist';
+import { replaceTargetText } from '@/lib/capyresume/ai/targets';
 import { SITE } from '@/lib/site';
 import {
   saveResume,
@@ -560,6 +562,11 @@ export function CapyResume() {
                 </button>
               ))}
             </div>
+
+            <AiAssist
+              doc={doc}
+              onApply={(targetId, text) => edit((d) => replaceTargetText(d, targetId, text))}
+            />
           </section>
 
           {/* ---------------------------------------------------- card 2 */}
