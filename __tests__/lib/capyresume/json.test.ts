@@ -6,7 +6,12 @@ import {
 } from '@/lib/capyresume/json';
 import { emptyResume, isResumeDoc, migrate } from '@/lib/capyresume/schema';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
-import { RESUME_SCHEMA_VERSION } from '@/lib/capyresume/types';
+import { RESUME_SCHEMA_VERSION, type ResumeDoc } from '@/lib/capyresume/types';
+
+/** `JSON.parse` returns `any`; parse into an unknown-keyed record for the assertions. */
+function parseJson(text: string): Record<string, unknown> {
+  return JSON.parse(text) as Record<string, unknown>;
+}
 
 describe('capyresume/json — export', () => {
   it('pretty-prints so the user can read and hand-edit their own data', () => {
@@ -17,7 +22,7 @@ describe('capyresume/json — export', () => {
 
   it('stamps the current schema version', () => {
     const doc = { ...emptyResume(), version: 0 };
-    expect(JSON.parse(exportResumeJson(doc)).version).toBe(RESUME_SCHEMA_VERSION);
+    expect(parseJson(exportResumeJson(doc)).version).toBe(RESUME_SCHEMA_VERSION);
   });
 
   it('does not mutate the input document', () => {
@@ -33,7 +38,9 @@ describe('capyresume/json — export', () => {
       bullets: [{ id: 'b', text: 'Did a thing' }],
       tags: ['SQL'],
     });
-    expect(() => JSON.parse(exportResumeJson(doc))).not.toThrow();
+    expect(() => {
+      void parseJson(exportResumeJson(doc));
+    }).not.toThrow();
   });
 });
 
@@ -67,7 +74,7 @@ describe('capyresume/json — import is total', () => {
   const junk = ['', '   ', 'not json at all', '{ broken', '[]', 'null', '42', '<html></html>'];
 
   it.each(junk)('degrades %p to a valid document instead of throwing', (input) => {
-    let doc;
+    let doc: ResumeDoc | undefined;
     expect(() => {
       doc = importResumeJson(input);
     }).not.toThrow();

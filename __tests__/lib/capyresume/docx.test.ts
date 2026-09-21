@@ -16,7 +16,7 @@ async function firstBytes(blob: Blob, count = 2): Promise<string> {
       const bytes = new Uint8Array(reader.result as ArrayBuffer);
       resolve(String.fromCharCode(...bytes.slice(0, count)));
     };
-    reader.onerror = () => reject(reader.error);
+    reader.onerror = () => reject(new Error(reader.error?.message ?? 'FileReader failed'));
     reader.readAsArrayBuffer(blob);
   });
 }

@@ -10,7 +10,7 @@ import {
   subscribe,
 } from '@/lib/capyresume/store';
 import { emptyResume, emptyEntry } from '@/lib/capyresume/schema';
-import { RESUME_SCHEMA_VERSION } from '@/lib/capyresume/types';
+import { RESUME_SCHEMA_VERSION, type ResumeDoc } from '@/lib/capyresume/types';
 
 describe('capyresume/store — versioned key', () => {
   it('namespaces the key by schema version so a stale shape is never read back', () => {
@@ -19,7 +19,7 @@ describe('capyresume/store — versioned key', () => {
     // A document written by an older schema must be invisible to this reader.
     window.localStorage.setItem(
       'capyresume.resume.v0',
-      JSON.stringify({ version: 0, contact: { name: 'Stale Person' }, sections: [] }),
+      JSON.stringify({ version: 0, contact: { name: 'Stale Person' }, sections: [] })
     );
 
     expect(getSnapshot().contact.name).not.toBe('Stale Person');
@@ -110,7 +110,7 @@ describe('capyresume/store — persistence', () => {
     window.localStorage.setItem(STORAGE_KEY, '{ this is not json');
     __resetStoreCache();
 
-    let doc;
+    let doc: ResumeDoc | undefined;
     expect(() => {
       doc = getSnapshot();
     }).not.toThrow();

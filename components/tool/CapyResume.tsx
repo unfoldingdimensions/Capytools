@@ -24,13 +24,7 @@ import { composeDocument, type DocBlock } from '@/lib/capyresume/document';
 import { exportResumeJson, importResumeJson, resumeFileName } from '@/lib/capyresume/json';
 import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/download';
 import { formatBytes } from '@/lib/capyresume/format';
-import type {
-  Entry,
-  ResumeDoc,
-  Section,
-  SectionType,
-  TemplateId,
-} from '@/lib/capyresume/types';
+import type { Entry, ResumeDoc, Section, SectionType, TemplateId } from '@/lib/capyresume/types';
 
 type PaperSize = 'A4' | 'LETTER';
 
@@ -87,7 +81,10 @@ export function CapyResume() {
     edit((d) => ({ ...d, contact: { ...d.contact, [field]: value } }));
 
   const addLink = () =>
-    edit((d) => ({ ...d, contact: { ...d.contact, links: [...d.contact.links, { label: '', url: '' }] } }));
+    edit((d) => ({
+      ...d,
+      contact: { ...d.contact, links: [...d.contact.links, { label: '', url: '' }] },
+    }));
 
   const setLink = (index: number, field: 'label' | 'url', value: string) =>
     edit((d) => ({
@@ -99,7 +96,10 @@ export function CapyResume() {
     }));
 
   const removeLink = (index: number) =>
-    edit((d) => ({ ...d, contact: { ...d.contact, links: d.contact.links.filter((_, i) => i !== index) } }));
+    edit((d) => ({
+      ...d,
+      contact: { ...d.contact, links: d.contact.links.filter((_, i) => i !== index) },
+    }));
 
   // --------------------------------------------------------------- sections
   const mapSections = (d: ResumeDoc, fn: (section: Section) => Section): ResumeDoc => ({
@@ -131,14 +131,16 @@ export function CapyResume() {
 
   const addEntry = (sectionId: string) =>
     edit((d) =>
-      mapSections(d, (s) => (s.id === sectionId ? { ...s, entries: [...s.entries, emptyEntry()] } : s)),
+      mapSections(d, (s) =>
+        s.id === sectionId ? { ...s, entries: [...s.entries, emptyEntry()] } : s
+      )
     );
 
   const removeEntry = (sectionId: string, entryId: string) =>
     edit((d) =>
       mapSections(d, (s) =>
-        s.id === sectionId ? { ...s, entries: s.entries.filter((e) => e.id !== entryId) } : s,
-      ),
+        s.id === sectionId ? { ...s, entries: s.entries.filter((e) => e.id !== entryId) } : s
+      )
     );
 
   const moveEntry = (sectionId: string, entryId: string, delta: number) =>
@@ -152,7 +154,7 @@ export function CapyResume() {
         const [moved] = entries.splice(index, 1);
         entries.splice(target, 0, moved!);
         return { ...s, entries };
-      }),
+      })
     );
 
   const mapEntries = (d: ResumeDoc, sectionId: string, fn: (entry: Entry) => Entry): ResumeDoc =>
@@ -162,17 +164,15 @@ export function CapyResume() {
     sectionId: string,
     entryId: string,
     field: keyof Entry,
-    value: string | boolean,
+    value: string | boolean
   ) =>
-    edit((d) =>
-      mapEntries(d, sectionId, (e) => (e.id === entryId ? { ...e, [field]: value } : e)),
-    );
+    edit((d) => mapEntries(d, sectionId, (e) => (e.id === entryId ? { ...e, [field]: value } : e)));
 
   const addBullet = (sectionId: string, entryId: string) =>
     edit((d) =>
       mapEntries(d, sectionId, (e) =>
-        e.id === entryId ? { ...e, bullets: [...e.bullets, emptyBullet()] } : e,
-      ),
+        e.id === entryId ? { ...e, bullets: [...e.bullets, emptyBullet()] } : e
+      )
     );
 
   const setBullet = (sectionId: string, entryId: string, bulletId: string, text: string) =>
@@ -180,24 +180,30 @@ export function CapyResume() {
       mapEntries(d, sectionId, (e) =>
         e.id === entryId
           ? { ...e, bullets: e.bullets.map((b) => (b.id === bulletId ? { ...b, text } : b)) }
-          : e,
-      ),
+          : e
+      )
     );
 
   const removeBullet = (sectionId: string, entryId: string, bulletId: string) =>
     edit((d) =>
       mapEntries(d, sectionId, (e) =>
-        e.id === entryId ? { ...e, bullets: e.bullets.filter((b) => b.id !== bulletId) } : e,
-      ),
+        e.id === entryId ? { ...e, bullets: e.bullets.filter((b) => b.id !== bulletId) } : e
+      )
     );
 
   const setTags = (sectionId: string, entryId: string, raw: string) =>
     edit((d) =>
       mapEntries(d, sectionId, (e) =>
         e.id === entryId
-          ? { ...e, tags: raw.split(',').map((t) => t.trim()).filter((t) => t.length > 0) }
-          : e,
-      ),
+          ? {
+              ...e,
+              tags: raw
+                .split(',')
+                .map((t) => t.trim())
+                .filter((t) => t.length > 0),
+            }
+          : e
+      )
     );
 
   // ------------------------------------------------------------- exports
@@ -314,7 +320,7 @@ export function CapyResume() {
                   <span className="mb-1 block text-muted-foreground">{label}</span>
                   <input
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
-                    value={(doc.contact[field] as string | undefined) ?? ''}
+                    value={doc.contact[field] ?? ''}
                     onChange={(event) => setContact(field, event.target.value)}
                   />
                 </label>
@@ -528,7 +534,11 @@ export function CapyResume() {
                     </div>
                   ))}
 
-                  <button type="button" className="text-sm underline" onClick={() => addEntry(section.id)}>
+                  <button
+                    type="button"
+                    className="text-sm underline"
+                    onClick={() => addEntry(section.id)}
+                  >
                     Add entry
                   </button>
                 </div>
@@ -595,11 +605,20 @@ export function CapyResume() {
 
             <div
               className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
-              style={{ fontFamily: spec.fontFamily, fontSize: `${spec.fontSize}pt`, lineHeight: spec.lineHeight }}
+              style={{
+                fontFamily: spec.fontFamily,
+                fontSize: `${spec.fontSize}pt`,
+                lineHeight: spec.lineHeight,
+              }}
             >
               <div style={{ padding: '28pt 30pt' }}>
                 {blocks.map((block, index) => (
-                  <BlockView key={index} block={block} bulletChar={spec.bulletChar} rule={spec.headingRule} />
+                  <BlockView
+                    key={index}
+                    block={block}
+                    bulletChar={spec.bulletChar}
+                    rule={spec.headingRule}
+                  />
                 ))}
               </div>
             </div>
@@ -612,7 +631,9 @@ export function CapyResume() {
               <button
                 type="button"
                 className="min-w-[84px] rounded-md border border-border px-4 py-2"
-                onClick={exportPdf}
+                onClick={() => {
+                  void exportPdf();
+                }}
                 disabled={busy !== null}
               >
                 {busy === 'pdf' ? 'Making PDF…' : 'Download PDF'}
@@ -620,7 +641,9 @@ export function CapyResume() {
               <button
                 type="button"
                 className="min-w-[84px] rounded-md border border-border px-4 py-2"
-                onClick={exportDocx}
+                onClick={() => {
+                  void exportDocx();
+                }}
                 disabled={busy !== null}
               >
                 {busy === 'docx' ? 'Making DOCX…' : 'Download DOCX'}
@@ -652,7 +675,8 @@ export function CapyResume() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Free, unlimited, and unwatermarked: the résumé is yours, so the download always is too.
+              Free, unlimited, and unwatermarked: the résumé is yours, so the download always is
+              too.
             </p>
           </section>
         </div>

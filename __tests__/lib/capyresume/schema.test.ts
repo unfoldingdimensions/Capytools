@@ -6,7 +6,7 @@ import {
   migrate,
   uid,
 } from '@/lib/capyresume/schema';
-import { RESUME_SCHEMA_VERSION } from '@/lib/capyresume/types';
+import { RESUME_SCHEMA_VERSION, type ResumeDoc } from '@/lib/capyresume/types';
 
 describe('capyresume/schema — emptyResume', () => {
   it('produces a structurally valid, current-version document', () => {
@@ -33,7 +33,10 @@ describe('capyresume/schema — emptyResume', () => {
 
   it('gives every generated node a distinct id', () => {
     const doc = emptyResume();
-    const ids = [doc.sections.map((s) => s.id), [emptyEntry().id, emptyEntry().id, uid('x')]].flat();
+    const ids = [
+      doc.sections.map((s) => s.id),
+      [emptyEntry().id, emptyEntry().id, uid('x')],
+    ].flat();
     expect(new Set(ids).size).toBe(ids.length);
   });
 });
@@ -57,7 +60,7 @@ describe('capyresume/schema — migrate never throws and always yields a valid d
   ];
 
   it.each(junk)('returns a valid doc for %p', (input) => {
-    let doc;
+    let doc: ResumeDoc | undefined;
     expect(() => {
       doc = migrate(input);
     }).not.toThrow();
@@ -86,7 +89,18 @@ describe('capyresume/schema — migrate never throws and always yields a valid d
       templateId: 'not-a-template',
       contact: { name: 'Maya', links: [{ label: 'LinkedIn', url: 'example.com' }, null, 'junk'] },
       sections: [
-        { id: 'keep', type: 'experience', title: 'Experience', entries: [{ id: 'e1', title: 'Analyst', bullets: ['Led the migration', { id: 'b2', text: 'Cut costs' }, 99] }] },
+        {
+          id: 'keep',
+          type: 'experience',
+          title: 'Experience',
+          entries: [
+            {
+              id: 'e1',
+              title: 'Analyst',
+              bullets: ['Led the migration', { id: 'b2', text: 'Cut costs' }, 99],
+            },
+          ],
+        },
         null,
         { id: 'bad-type', type: 'nonsense', title: 'Weird', entries: 'nope' },
       ],
@@ -100,8 +114,13 @@ describe('capyresume/schema — migrate never throws and always yields a valid d
     const experience = doc.sections[0]!;
     expect(experience.entries[0]!.title).toBe('Analyst');
     // A legacy bare-string bullet is upgraded to the object shape.
-    expect(experience.entries[0]!.bullets.map((b) => b.text)).toEqual(['Led the migration', 'Cut costs']);
-    expect(experience.entries[0]!.bullets.every((b) => typeof b.id === 'string' && b.id.length > 0)).toBe(true);
+    expect(experience.entries[0]!.bullets.map((b) => b.text)).toEqual([
+      'Led the migration',
+      'Cut costs',
+    ]);
+    expect(
+      experience.entries[0]!.bullets.every((b) => typeof b.id === 'string' && b.id.length > 0)
+    ).toBe(true);
 
     // Unknown section types fall back to `custom`, and a bad entries value becomes [].
     expect(doc.sections[1]!.type).toBe('custom');
