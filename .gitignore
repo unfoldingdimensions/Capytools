@@ -14,5 +14,12 @@ PAT.txt
 GITHUB_PUSH.md
 .agent
 .gemini/
-.genubu_security/
+.gemini_security/
 graphify-out/
+
+# Local agent/tooling state - not part of the app (matches the Capytools convention:
+# plans, research and session scratch stay on the machine, never in the repo).
+.hermes/
+.opencode/
+dogfood-output/
+.mimosa/

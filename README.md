@@ -103,7 +103,7 @@ npm run dev
 
 ## 📝 License
 
-This project is private and proprietary to **Unfolding Dimensions**.
+Apache-2.0. See [LICENSE](./LICENSE).
 
 ---
 Built with ❤️ by the Handcraft Team
