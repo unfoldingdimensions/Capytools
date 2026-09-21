@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import {
   AI_SETTINGS_KEY,
+  PAPER_SIZE_KEY,
   RESUME_STORAGE_KEY as STORAGE_KEY,
   THEME_STORAGE_KEY,
 } from '@/lib/capyresume/keys';
@@ -55,6 +56,10 @@ export default function CookiePolicyPage() {
             optional AI features. Written only if you turn those on, and removed the moment you
             remove your key from the tool. Nothing else in the app reads it. See section 4 of the
             Privacy Policy.
+          </li>
+          <li>
+            <Key>{PAPER_SIZE_KEY}</Key> — whether you last exported A4 or US Letter, so a reload
+            does not quietly change the paper your next download is printed on.
           </li>
           <li>
             <Key>{THEME_STORAGE_KEY}</Key> — whether you chose light or dark mode, or left it

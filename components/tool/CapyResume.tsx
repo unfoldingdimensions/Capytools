@@ -26,12 +26,16 @@ import { emptyBullet, emptyEntry, emptySection } from '@/lib/capyresume/schema';
 import { lintResume } from '@/lib/capyresume/hints';
 import { TEMPLATE_LIST, getTemplate } from '@/lib/capyresume/templates';
 import { composeDocument, type DocBlock } from '@/lib/capyresume/document';
-import { exportResumeJson, importResumeJson, resumeFileName } from '@/lib/capyresume/json';
+import {
+  exportResumeJson,
+  importResumeJson,
+  resumeBackupFileName,
+  resumeFileName,
+} from '@/lib/capyresume/json';
+import { setPaperSize, usePaperSize } from '@/lib/capyresume/prefs';
 import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/download';
 import { formatBytes } from '@/lib/capyresume/format';
 import type { Entry, ResumeDoc, Section, SectionType, TemplateId } from '@/lib/capyresume/types';
-
-type PaperSize = 'A4' | 'LETTER';
 
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: 'summary', label: 'Summary' },
@@ -47,7 +51,7 @@ export function CapyResume() {
   // The demo is the server snapshot, so the first paint has real content and
   // hydration matches; React then swaps in whatever is actually stored.
   const stored = useResumeWithServerSnapshot(DEMO_RESUME);
-  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
+  const paperSize = usePaperSize();
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const seeded = useRef(false);
@@ -245,7 +249,7 @@ export function CapyResume() {
 
   const exportJson = () => {
     try {
-      downloadText(exportResumeJson(doc), resumeFileName(doc, 'json'));
+      downloadText(exportResumeJson(doc), resumeBackupFileName(doc));
       setNotice('JSON backup ready.');
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'JSON export failed.');
@@ -614,7 +618,9 @@ export function CapyResume() {
                 <select
                   className="rounded-md border border-border bg-background px-3 py-2"
                   value={paperSize}
-                  onChange={(event) => setPaperSize(event.target.value as PaperSize)}
+                  onChange={(event) => {
+                    setPaperSize(event.target.value === 'LETTER' ? 'LETTER' : 'A4');
+                  }}
                 >
                   <option value="A4">A4</option>
                   <option value="LETTER">US Letter</option>

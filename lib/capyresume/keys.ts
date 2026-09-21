@@ -22,3 +22,6 @@ export const AI_SETTINGS_KEY = 'capyresume.ai.v1';
  * not export the name. It is a `localStorage` entry, not a cookie.
  */
 export const THEME_STORAGE_KEY = 'theme';
+
+/** The editor's paper-size preference (see ./prefs.ts). */
+export const PAPER_SIZE_KEY = 'capyresume.papersize.v1';

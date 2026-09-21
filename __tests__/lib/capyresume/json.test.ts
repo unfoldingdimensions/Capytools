@@ -2,6 +2,7 @@ import {
   exportResumeJson,
   importResumeJson,
   looksLikeResumeJson,
+  resumeBackupFileName,
   resumeFileName,
 } from '@/lib/capyresume/json';
 import { emptyResume, isResumeDoc, migrate } from '@/lib/capyresume/schema';
@@ -84,14 +85,33 @@ describe('capyresume/json — import is total', () => {
 });
 
 describe('capyresume/json — filenames', () => {
-  it('names the backup after the person', () => {
+  it('names the document exports after the person, ready to attach', () => {
     expect(resumeFileName(DEMO_RESUME, 'pdf')).toBe('maya-okafor.pdf');
     expect(resumeFileName(DEMO_RESUME, '.docx')).toBe('maya-okafor.docx');
-    expect(resumeFileName(DEMO_RESUME, 'json')).toBe('maya-okafor.json');
   });
 
   it('falls back to "resume" when there is no name yet', () => {
     expect(resumeFileName(emptyResume(), 'pdf')).toBe('resume.pdf');
+  });
+
+  it('prefixes the JSON backup so it is identifiable among other downloads', () => {
+    expect(resumeBackupFileName(DEMO_RESUME)).toBe('resume-maya-okafor.json');
+  });
+
+  it('does not double the prefix for a nameless backup', () => {
+    // The naive `resume-${stem}.json` would produce "resume-resume.json".
+    expect(resumeBackupFileName(emptyResume())).toBe('resume-backup.json');
+  });
+
+  it('still produces a safe stem from a hostile name', () => {
+    const doc = {
+      ...emptyResume(),
+      contact: { name: '../../etc/passwd', links: [] },
+    };
+    const name = resumeBackupFileName(doc);
+    expect(name).not.toContain('/');
+    expect(name).not.toContain('..');
+    expect(name.endsWith('.json')).toBe(true);
   });
 });
 

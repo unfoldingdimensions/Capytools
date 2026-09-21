@@ -21,6 +21,19 @@ export function resumeFileName(doc: ResumeDoc, extension: string): string {
   return `${stem}.${ext}`;
 }
 
+/**
+ * The JSON backup is named differently on purpose (plan §5.5). It lands in a
+ * downloads folder alongside everything else, where a bare `maya-okafor.json`
+ * says nothing about what it is — whereas the PDF and DOCX keep the bare name,
+ * because those are the files a person actually attaches to an application.
+ *
+ * A nameless résumé becomes `resume-backup.json` rather than the double-prefixed
+ * `resume-resume.json`.
+ */
+export function resumeBackupFileName(doc: ResumeDoc): string {
+  return `resume-${fileNameSafe(doc.contact.name, 'backup')}.json`;
+}
+
 /** Pretty-printed so a user can open, read and hand-edit their own data. */
 export function exportResumeJson(doc: ResumeDoc): string {
   const stamped: ResumeDoc = { ...doc, version: RESUME_SCHEMA_VERSION };
