@@ -61,6 +61,8 @@ export async function GET(
   // The single most expensive response on the site: a miss is up to ~55
   // upstream calls on the server's token, and social crawlers re-request the
   // same card repeatedly. This is the route the cache was written for.
+  // The canonical key: /api/og/<lowercased login>, so one account is
+  // one entry however the caller spelled it.
   return withEdgeCache(request, async () => {
     try {
       const [user, repos, events, contributions, languages] = await Promise.all([
@@ -108,5 +110,5 @@ export async function GET(
         status: notFound ? 404 : 500,
       });
     }
-  });
+  }, `/api/og/${clean}`);
 }

@@ -69,6 +69,14 @@ async function afterResponse(work: Promise<unknown>): Promise<void> {
  * Keyed on the full request URL, so a route that grows a query parameter
  * later keys on it automatically instead of quietly sharing one entry.
  *
+ * `canonicalPath` replaces the path before keying, for a route whose segment
+ * has more than one spelling of the same thing. GitHub logins are unique
+ * case-insensitively, so `/api/og/Torvalds` and `/api/og/torvalds` name one
+ * account — but as two raw URLs they were two entries, and the second one
+ * bought its own ~55-request fan-out on the server's token. Lowercasing in
+ * `sanitizeUsername` alone did NOT fix that: this key never saw the sanitized
+ * value. MEASURED on the live deployment before this was added.
+ *
  * Only 200s are stored. Caching a 404 for a username that does not exist yet,
  * or a 502 from a bad half-hour at GitHub, would turn a transient upstream
  * problem into a sticky one.
@@ -76,13 +84,16 @@ async function afterResponse(work: Promise<unknown>): Promise<void> {
 export async function withEdgeCache(
   request: Request,
   produce: () => Promise<Response>,
+  canonicalPath?: string,
 ): Promise<Response> {
   const cache = edgeCache();
   if (!cache) return produce();
 
   // GET only: the Cache API refuses anything else as a key, and these three
   // routes are reads.
-  const key = new Request(new URL(request.url).toString(), { method: "GET" });
+  const url = new URL(request.url);
+  if (canonicalPath) url.pathname = canonicalPath;
+  const key = new Request(url.toString(), { method: "GET" });
 
   const hit = await cache.match(key).catch(() => undefined);
   if (hit) {
