@@ -15,6 +15,14 @@ export const maxDuration = 60; // fans out to GitHub; do not inherit the short d
 // once per cold start, then reused by every OG image.
 const fontCache = new Map<string, ArrayBuffer>();
 
+/**
+ * Both hops are bounded. Without a signal these were the only unbounded
+ * awaits in the route: five of them run on every cold isolate, and a slow
+ * Google Fonts would hold the request open to `maxDuration` (60s) rather
+ * than failing. 10s matches the GitHub client's own deadline.
+ */
+const FONT_TIMEOUT_MS = 10_000;
+
 async function googleFont(family: string, weight: number): Promise<ArrayBuffer> {
   const key = `${family}:${weight}`;
   const hit = fontCache.get(key);
@@ -27,11 +35,14 @@ async function googleFont(family: string, weight: number): Promise<ArrayBuffer> 
       headers: {
         "User-Agent": "Mozilla/4.0",
       },
+      signal: AbortSignal.timeout(FONT_TIMEOUT_MS),
     },
   ).then((r) => r.text());
   const url = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/)?.[1];
   if (!url) throw new Error(`no ttf for ${family} ${weight}`);
-  const buf = await (await fetch(url)).arrayBuffer();
+  const buf = await (
+    await fetch(url, { signal: AbortSignal.timeout(FONT_TIMEOUT_MS) })
+  ).arrayBuffer();
   fontCache.set(key, buf);
   return buf;
 }
