@@ -23,6 +23,7 @@ import {
 } from '@/lib/capyresume/store';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { emptyBullet, emptyEntry, emptySection } from '@/lib/capyresume/schema';
+import { lintResume } from '@/lib/capyresume/hints';
 import { TEMPLATE_LIST, getTemplate } from '@/lib/capyresume/templates';
 import { composeDocument, type DocBlock } from '@/lib/capyresume/document';
 import { exportResumeJson, importResumeJson, resumeFileName } from '@/lib/capyresume/json';
@@ -69,6 +70,7 @@ export function CapyResume() {
   const doc = stored;
   const spec = useMemo(() => getTemplate(doc.templateId), [doc.templateId]);
   const blocks = useMemo(() => composeDocument(doc, spec), [doc, spec]);
+  const hints = useMemo(() => lintResume(doc), [doc]);
 
   /** Apply a change and persist it. Storage failures are surfaced, never swallowed. */
   const edit = (mutate: (draft: ResumeDoc) => ResumeDoc) => {
@@ -310,6 +312,22 @@ export function CapyResume() {
           {/* ---------------------------------------------------- card 1 */}
           <section className="space-y-6">
             <h2 className="font-display text-lg font-semibold">1. The details</h2>
+
+            {hints.length > 0 && (
+              <div className="rounded-md border border-border p-3">
+                <p className="text-xs font-medium text-foreground">
+                  Worth a look — none of this blocks your export:
+                </p>
+                <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                  {hints.map((hint) => (
+                    <li key={hint.id}>
+                      {hint.tone === 'attention' ? '• ' : '· '}
+                      {hint.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="grid gap-3 sm:grid-cols-2">
               {(
