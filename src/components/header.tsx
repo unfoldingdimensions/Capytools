@@ -16,11 +16,15 @@ export type NavLink = { href: string; label: string; active?: boolean };
  * Notes is the one non-tool destination the chrome carries.
  */
 const TOOL_LINKS: NavLink[] = [
+  // First, and before the individual tools: on a narrow screen the row folds
+  // into the disclosure, and the index is the one entry that gets you to any
+  // of the others.
+  { href: "/tools", label: "All Tools" },
   ...SUITE.map((tool) => ({ href: tool.href, label: tool.short })),
   { href: "/notes", label: "Notes" },
 ];
 
-const DEFAULT_CTA = { label: "Open the tools", href: "/#labs" };
+const DEFAULT_CTA = { label: "Explore our tools", href: "/#labs" };
 
 /**
  * useLayoutEffect warns during SSR, and this component is server-rendered on

@@ -118,7 +118,7 @@ describe("Landing", () => {
     // persistent action. The landing only swaps in section anchors.
     expect(html).toContain("lp-nav-inner");
     expect(html).toContain("lp-brand-glyph");
-    expect(html).toContain("Open the tools");
+    expect(html).toContain("Explore our tools");
     for (const anchor of ["#labs", "#method", "#work"]) {
       expect(html).toContain(`href="${anchor}"`);
     }

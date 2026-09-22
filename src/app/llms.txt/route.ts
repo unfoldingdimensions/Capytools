@@ -50,6 +50,12 @@ The full suite, the house rules it keeps, and how each tool works.
 ${SITE_URL}
 
 ${tools}
+## All Tools
+
+Every tool in the suite on one page, one line each, with a search.
+
+${SITE_URL}/tools
+
 ## Notes
 
 Release notes and one line on every tool.

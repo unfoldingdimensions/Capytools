@@ -77,10 +77,19 @@ function tooMany(key: string, now: number): boolean {
  * only ever acts on an explicit "http". A zone-level "Always Use HTTPS" rule
  * would do the same job one layer earlier and this can go the day one exists
  * — see the rate-limiting note below for the same trade.
+ *
+ * LOOPBACK IS EXEMPT, and that is not a nicety. `next dev` sets
+ * `x-forwarded-proto: http` on every request it serves, so the first version
+ * of this redirected every local page to `https://localhost:3024` — a port
+ * with no TLS listener — and broke the dev server for everyone. There is no
+ * https on a dev host to upgrade to, so there is nothing here to do.
  */
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+
 function httpsRedirect(request: NextRequest): NextResponse | null {
   if (request.headers.get("x-forwarded-proto") !== "http") return null;
   const url = new URL(request.url);
+  if (LOOPBACK_HOSTS.has(url.hostname)) return null;
   url.protocol = "https:";
   return NextResponse.redirect(url, 301);
 }

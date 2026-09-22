@@ -51,7 +51,7 @@ export default function NotFound() {
             ← Back to the landing
           </TransitionLink>
           <TransitionLink href="/#labs" className="lp-read-more">
-            Open the tools
+            Explore our tools
           </TransitionLink>
           <TransitionLink href="/notes" className="lp-read-more">
             Project notes

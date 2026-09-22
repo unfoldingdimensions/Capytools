@@ -65,6 +65,19 @@ describe("http is redirected, so the site is one copy and not two", () => {
     expect(res.headers.get("location")).toBeNull();
   });
 
+  /**
+   * `next dev` sets `x-forwarded-proto: http` on everything it serves, so
+   * without this exemption every local page 301s to https://localhost:PORT,
+   * where nothing is listening. Shipped once, caught on the dev server.
+   */
+  it("leaves localhost alone — there is no https there to upgrade to", () => {
+    for (const host of ["localhost:3024", "127.0.0.1:3024", "[::1]:3024"]) {
+      const res = proxy(req(`http://${host}/tools`, "http"));
+      expect(res.status, host).toBe(200);
+      expect(res.headers.get("location"), host).toBeNull();
+    }
+  });
+
   it("does nothing when the header is absent, rather than guessing", () => {
     const res = proxy(req("https://capytools.app/capyqr"));
     expect(res.status).toBe(200);

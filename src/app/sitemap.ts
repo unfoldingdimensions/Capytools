@@ -13,7 +13,7 @@ import { SITE_URL } from "@/lib/utils";
  * which is a card generated per GitHub user — an unbounded space that would
  * hand crawlers a fan-out onto our token rather than pages worth ranking.
  */
-const STATIC_PAGES = ["/notes", "/design", "/license"] as const;
+const STATIC_PAGES = ["/tools", "/notes", "/design", "/license"] as const;
 
 /**
  * Bumped by hand, for the same reason `/llms.txt` bumps its own: it means
