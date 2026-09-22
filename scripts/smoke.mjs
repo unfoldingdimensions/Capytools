@@ -100,6 +100,14 @@ async function main() {
   check("the homepage points at it, absolutely",
     home.includes('content="https://capytools.app/og.png"'), true);
 
+  // A wrong address used to fall through to Next's stock error page. The
+  // status alone would still be 404 then, so check the chrome came with it.
+  const missing = await get("/this-page-does-not-exist");
+  check("a wrong URL answers 404", missing.status, 404);
+  const missingBody = await missing.text();
+  check("...and still looks like the site",
+    missingBody.includes("lp-display") && missingBody.includes("capy-surprise.svg"), true);
+
   const llms = await (await get("/llms.txt")).text();
   check("/llms.txt lists every tool",
     (llms.match(/^## Capy/gm) ?? []).length, 11);
