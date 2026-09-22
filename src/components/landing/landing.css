@@ -57,7 +57,14 @@
 /* ---------------------------------- base --------------------------------- */
 
 .lp-section {
-  --lp-pad-y: 130px;
+  /* Was 130. Stacked with the next section's padding and the rule's own
+     48px margin, the gap between one section's last line and the next
+     section's first was ~404px — over a third of a 900px viewport of nothing.
+     The separation now comes from the ratio, not the absence: 176px between
+     sections against 96px from the rule to the heading it introduces, so the
+     rule reads as belonging to the section BELOW it rather than floating
+     between two. */
+  --lp-pad-y: 88px;
   padding: var(--lp-pad-y) 0;
 }
 
@@ -117,7 +124,7 @@
   gap: 24px;
   border-top: 1px solid var(--border);
   padding-top: 18px;
-  margin-bottom: 48px;
+  margin-bottom: 28px;
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.18em;
@@ -1108,7 +1115,7 @@ a.lp-wire-item .lp-wire-name {
 /* The dense catalog breathes tighter than the rest of the page — dense then
    airy is the rhythm. */
 .lp-labs {
-  --lp-pad-y: 90px;
+  --lp-pad-y: 64px;
 }
 
 .lp-labs-head {
@@ -1495,10 +1502,10 @@ a.lp-wire-item .lp-wire-name {
 /* ------------------------------- work (dark) ------------------------------ */
 
 .lp-work-outer {
-  --lp-pad-y: 90px;
+  --lp-pad-y: 64px;
   /* The slab's own inset counts too: the first readable line sits this much
      further down again, inside the dark box. */
-  --lp-slab-pad: 96px;
+  --lp-slab-pad: 72px;
   padding: var(--lp-pad-y) 0;
 }
 
@@ -1642,7 +1649,7 @@ a.lp-wire-item .lp-wire-name {
 /* The palate-cleanser before the closing accent — the most expansive
    section on the page. */
 .lp-testimonial {
-  --lp-pad-y: 160px;
+  --lp-pad-y: 104px;
 }
 
 .lp-testimonial-grid {
@@ -2091,7 +2098,7 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-work-outer {
-    --lp-slab-pad: 90px;
+    --lp-slab-pad: 64px;
   }
 
   .lp-work {
@@ -2173,7 +2180,7 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-work-outer {
-    --lp-slab-pad: 60px;
+    --lp-slab-pad: 48px;
   }
 
   .lp-work {
@@ -2222,7 +2229,7 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-section {
-    --lp-pad-y: 80px;
+    --lp-pad-y: 56px;
   }
 
   .lp-hero h1 {
@@ -2235,7 +2242,7 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-work-outer {
-    --lp-slab-pad: 48px;
+    --lp-slab-pad: 40px;
   }
 
   .lp-work {
