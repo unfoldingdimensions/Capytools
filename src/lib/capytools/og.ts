@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { SUITE } from "@/lib/capytools/suite";
 import { SITE_URL } from "@/lib/utils";
 
 /**
@@ -37,7 +38,9 @@ export const OG_IMAGE = {
 export const OG_DEFAULTS = {
   siteName: "Capytools",
   type: "website",
-  locale: "en",
+  // language_TERRITORY, per the Open Graph spec. A bare `en` is not a
+  // valid og:locale and parsers fall back to their own default.
+  locale: "en_US",
   url: `${SITE_URL}/`,
   images: [OG_IMAGE],
 } satisfies Metadata["openGraph"];
@@ -47,3 +50,37 @@ export const TWITTER_DEFAULTS = {
   card: "summary_large_image",
   images: [OG_IMAGE.url],
 } satisfies Metadata["twitter"];
+
+/**
+ * A tool page's metadata, share card included.
+ *
+ * MEASURED on the deployed site: every tool page inherited the LAYOUT'S
+ * `openGraph` whole, so all eleven shared as `og:title` "Capytools — calm
+ * little tools" with `og:url` pointing at the homepage — a link to /capyqr
+ * previewed as, and pointed at, the root. The page's own `<title>` was
+ * always right, which is what made it invisible.
+ *
+ * Inheriting the layout block is the correct default for the card IMAGE and
+ * the site name; it is wrong for the three fields that identify the page.
+ * This overrides exactly those and nothing else, and it is the only way a
+ * tool page should declare metadata — `tests/og-card.test.ts` walks every
+ * SUITE row and fails on a page that hand-rolls it again.
+ *
+ * `href` and the canonical come from the registry rather than the caller, so
+ * a tool cannot advertise a URL it does not serve.
+ */
+export function toolMetadata(
+  tool: string,
+  meta: { title: string; description: string },
+): Metadata {
+  const row = SUITE.find((r) => r.name === tool);
+  // Loud at build time. The silent version of this mistake is the bug above.
+  if (!row) throw new Error(`toolMetadata: no SUITE row named ${tool}`);
+
+  return {
+    ...meta,
+    alternates: { canonical: row.href },
+    openGraph: { ...OG_DEFAULTS, ...meta, url: `${SITE_URL}${row.href}` },
+    twitter: { ...TWITTER_DEFAULTS, ...meta },
+  };
+}

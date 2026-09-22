@@ -1,12 +1,13 @@
 import { ToolPageShell } from "@/components/tool/ToolPageShell";
+import { toolMetadata } from "@/lib/capytools/og";
 import { CapyExpenseShowcase } from "@/components/tool/CapyExpenseShowcase";
 import { EXPENSE_FAQ, EXPENSE_RESEARCH, EXPENSE_WHAT } from "@/lib/capytools/capyexpense-page";
 
-export const metadata = {
+export const metadata = toolMetadata("CapyExpense", {
   title: "CapyExpense — a local-first expense tracker for Windows and Linux",
   description:
     "A desktop expense dashboard that reads a spreadsheet you type into yourself. No account, no bank login, no cloud, no AI. Your file never leaves your machine.",
-};
+});
 
 /**
  * The page a visitor lands on before the builds exist, so it has to do the

@@ -3,6 +3,7 @@ import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { notFound } from "next/navigation";
 import { ShareCardView } from "@/components/share/ShareCardView";
+import { OG_DEFAULTS } from "@/lib/capytools/og";
 import { SITE_URL, sanitizeUsername } from "@/lib/utils";
 
 export async function generateMetadata({
@@ -22,10 +23,14 @@ export async function generateMetadata({
   return {
     title,
     description,
+    // Spread first: a declared `openGraph` REPLACES the layout's whole block,
+    // so without this the page silently drops siteName and locale. The
+    // per-user card then overrides the image the suite ships by default.
     openGraph: {
+      ...OG_DEFAULTS,
       title,
       description,
-      type: "website",
+      url: `${SITE_URL}/u/${clean}`,
       images: [{ url: image, width: 1200, height: 630, alt: `@${clean} on GitHub — wrapped by Capytools` }],
     },
     twitter: {

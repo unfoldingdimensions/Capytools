@@ -1,11 +1,12 @@
 import { ToolPageShell } from "@/components/tool/ToolPageShell";
+import { toolMetadata } from "@/lib/capytools/og";
 import { CapyTone } from "@/components/tool/CapyTone";
 
-export const metadata = {
+export const metadata = toolMetadata("CapyTone", {
   title: "CapyTone — type a feeling, get a poster",
   description:
     "A mood phrase becomes a deterministic five-colour palette and a shareable poster card, drawn by a hand-tuned lexicon — no AI, no signup. 100% in your browser — nothing is stored.",
-};
+});
 
 export default function CapyTonePage() {
   return (
