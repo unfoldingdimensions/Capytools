@@ -58,7 +58,42 @@ function tooMany(key: string, now: number): boolean {
   return entry.count > MAX_REQUESTS;
 }
 
+/**
+ * Plain HTTP is a second copy of the whole site, and Google found it.
+ *
+ * MEASURED: `http://capytools.app/` answered **200 with the full page**, not
+ * a redirect — the Worker serves whatever scheme it is asked on. Search
+ * Console filed the homepage under "Duplicate without user-selected
+ * canonical", because at the time neither copy named a canonical. The
+ * canonical shipped since and resolves the duplicate signal; this closes the
+ * duplicate itself so there is only ever one URL to choose between.
+ *
+ * `.app` is HSTS-preloaded, so no BROWSER ever reaches this path — which is
+ * exactly why it went unnoticed. Crawlers are not browsers.
+ *
+ * Reads `x-forwarded-proto` and NOTHING else, and an absent or unrecognised
+ * value does nothing. That is deliberate: the failure mode of guessing wrong
+ * on an https request is every page redirecting to itself forever, so this
+ * only ever acts on an explicit "http". A zone-level "Always Use HTTPS" rule
+ * would do the same job one layer earlier and this can go the day one exists
+ * — see the rate-limiting note below for the same trade.
+ */
+function httpsRedirect(request: NextRequest): NextResponse | null {
+  if (request.headers.get("x-forwarded-proto") !== "http") return null;
+  const url = new URL(request.url);
+  url.protocol = "https:";
+  return NextResponse.redirect(url, 301);
+}
+
 export function proxy(request: NextRequest) {
+  const upgrade = httpsRedirect(request);
+  if (upgrade) return upgrade;
+
+  // The limiter is the API surface only — the matcher now covers pages too,
+  // for the redirect above, and counting page views here would spend the
+  // budget the fan-out routes need.
+  if (!request.nextUrl.pathname.startsWith("/api/")) return NextResponse.next();
+
   const now = Date.now();
   const key = clientKey(request);
   if (tooMany(key, now)) {
@@ -73,9 +108,14 @@ export function proxy(request: NextRequest) {
 }
 
 /**
- * The API surface only — that is where the fan-out lives (`/api/og`,
- * `/api/languages`, `/api/contributions`). The rest of the site is static and
- * cheap, and counting it here would just spend budget on page views.
+ * Pages as well as the API now, because the http -> https upgrade above has
+ * to reach every URL a crawler can try. The RATE LIMITER is still the API
+ * surface only — that is where the fan-out lives (`/api/og`,
+ * `/api/languages`, `/api/contributions`), and counting page views would just
+ * spend budget on them; `proxy` returns early for anything outside `/api/`.
+ *
+ * `/_next/static/*` is served by the assets binding before the Worker runs,
+ * so it never reaches this regardless of what the matcher says.
  *
  * MEASURED, not assumed: this does NOT rate limit on Cloudflare. The Map is
  * per isolate, and isolates are per request far more often than per caller —
@@ -95,5 +135,5 @@ export function proxy(request: NextRequest) {
  * and a Durable Object becomes the answer, not a bigger number here.
  */
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
