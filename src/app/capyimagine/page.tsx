@@ -1,11 +1,12 @@
 import { ToolPageShell } from "@/components/tool/ToolPageShell";
+import { toolMetadata } from "@/lib/capytools/og";
 import { PromptGen } from "@/components/tool/PromptGen";
 
-export const metadata = {
+export const metadata = toolMetadata("CapyImagine", {
   title: "CapyImagine — random image & video prompts",
   description:
     "A calm random prompt generator for Gemini, Midjourney, Flux, SDXL and video models. No signup, no cookies, nothing stored.",
-};
+});
 
 export default function CapyImagine() {
   return (

@@ -10,6 +10,7 @@ const description = `${SUITE_WORD_CAP} small tools that run entirely in your bro
 
 export const metadata: Metadata = {
   description,
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Capytools — calm little tools",
     description,

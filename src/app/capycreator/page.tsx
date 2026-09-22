@@ -1,11 +1,12 @@
 import { ToolPageShell } from "@/components/tool/ToolPageShell";
+import { toolMetadata } from "@/lib/capytools/og";
 import { CapyCreator } from "@/components/tool/CapyCreator";
 
-export const metadata = {
+export const metadata = toolMetadata("CapyCreator", {
   title: "CapyCreator — model-aware prompt engineering",
   description:
     "A calm, model-aware prompt engineering tool for Gemini, Claude, DeepSeek, GPT, Qwen and open models. No signup, no cookies, nothing stored.",
-};
+});
 
 export default function CapyCreatorPage() {
   return (

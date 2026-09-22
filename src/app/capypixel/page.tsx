@@ -1,11 +1,12 @@
 import { ToolPageShell } from "@/components/tool/ToolPageShell";
+import { toolMetadata } from "@/lib/capytools/og";
 import { CapyPixel } from "@/components/tool/CapyPixel";
 
-export const metadata = {
+export const metadata = toolMetadata("CapyPixel", {
   title: "CapyPixel — pixel art converter & image quantizer",
   description:
     "Turn photos and logos into pixel art — Game Boy, 1-bit, brand-ramp and faithful styles with measured presets, live preview and crisp PNG export. 100% in your browser, nothing uploaded.",
-};
+});
 
 export default function CapyPixelPage() {
   return (
