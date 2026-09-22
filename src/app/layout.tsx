@@ -4,6 +4,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MotionProvider } from "@/components/motion-provider";
+import { OG_DEFAULTS, TWITTER_DEFAULTS } from "@/lib/capytools/og";
+import { SITE_URL } from "@/lib/utils";
 import { NAME_SHIM } from "@/lib/capytools/theme-shim";
 
 const sans = Plus_Jakarta_Sans({
@@ -25,9 +27,19 @@ const label = Albert_Sans({
 });
 
 export const metadata: Metadata = {
+  // Without this, a relative OG image is emitted as-is and every crawler that
+  // needs an absolute URL — which is all of them — silently shows no card.
+  metadataBase: new URL(SITE_URL),
   title: "Capytools — calm little tools",
   description:
     "Small tools that run in your browser and keep nothing. No signup. No cookies. Nothing stored.",
+  openGraph: {
+    title: "Capytools — calm little tools",
+    description:
+      "Small tools that run in your browser and keep nothing. No signup. No cookies. Nothing stored.",
+    ...OG_DEFAULTS,
+  },
+  twitter: TWITTER_DEFAULTS,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
