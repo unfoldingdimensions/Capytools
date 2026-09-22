@@ -11,7 +11,6 @@
 import { getFontStacks } from "../fonts";
 import { hexToRgba } from "../rand";
 import { applyGrain, makeGrainTile } from "../grain";
-import type { CardFormat, MoodPalette } from "../types";
 import {
   drawTracked,
   drawWatermark,

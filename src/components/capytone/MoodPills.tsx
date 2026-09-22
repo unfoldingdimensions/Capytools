@@ -15,7 +15,6 @@
 import { useMemo, useState } from "react";
 
 import {
-  allAnchorIds,
   anchorsForFilter,
   assignmentOf,
   FILTER_GROUPS,
