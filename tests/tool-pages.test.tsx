@@ -176,7 +176,7 @@ describe("shared chrome", () => {
     const html = markup(<Header tool="CapyWrapped" />);
     expect(html).toContain('href="/notes"');
     // The persistent action is the same on every page, tool pages included.
-    expect(html).toContain("Open the tools");
+    expect(html).toContain("Explore our tools");
     // One brand mark for the whole site (the interim capybara seal).
     expect(html).toContain("lp-brand-glyph");
     // An app surface has to say which room you are standing in.
@@ -193,7 +193,7 @@ describe("shared chrome", () => {
     const html = markup(<CapyWrappedPage />);
     expect(html).toContain("lp-nav-inner");
     expect(html).toContain("lp-brand-glyph");
-    expect(html).toContain("Open the tools");
+    expect(html).toContain("Explore our tools");
     // The tool page marks the current tool; the landing has no current tool.
     expect(html).toContain('aria-current="page"');
   });

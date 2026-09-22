@@ -50,7 +50,7 @@ export const HERO = {
     { text: "default", em: true },
   ] as Headline,
   lead: `${SUITE_WORD_CAP} small tools — ${SUITE_LIST} — that run entirely in your browser and keep nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.`,
-  primary: { label: "Open the tools", href: "#labs" },
+  primary: { label: "Explore our tools", href: "#labs" },
   secondary: { label: "CapyExpense — coming soon", href: "/capyexpense" },
   stats: [
     { value: SUITE_INDEX, label: "tools", sub: "in the suite", tone: "solid" },

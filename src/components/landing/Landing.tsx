@@ -23,6 +23,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 
 /** In-page sections, in place of the tool switcher other pages get. */
 const LANDING_LINKS = [
+  { href: "/tools", label: "All Tools" },
   { href: "#labs", label: "Suite" },
   { href: "#method", label: "Method" },
   { href: "#work", label: "Work" },
@@ -38,7 +39,7 @@ export function Landing() {
 
       <Header
         links={LANDING_LINKS}
-        cta={{ label: "Open the tools", href: "#labs" }}
+        cta={{ label: "Explore our tools", href: "#labs" }}
         brandHref="#top"
       />
 

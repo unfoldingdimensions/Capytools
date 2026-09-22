@@ -36,6 +36,17 @@ export type SuiteTool = {
   note: string;
   /** The notes page's one-liner, shorter than `blurb`. */
   line: string;
+  /**
+   * Extra search terms for `/tools`, and nowhere else.
+   *
+   * The prose fields are written to READ well, which is not the same as
+   * being searchable: nothing in CapyStrip's name, line or blurb contains
+   * the word "exif", so the one term anyone looking for it would type
+   * returned nothing at all. These are the words someone SEARCHES rather
+   * than the words we would print - synonyms, file formats, and the model
+   * and vendor names a tool actually works with.
+   */
+  keywords: readonly string[];
   plate: { src: string; width: number; height: number };
 };
 
@@ -52,6 +63,7 @@ export const SUITE: SuiteTool[] = [
       "Your GitHub year in a calm little card — contributions, a month-by-month trendline, stars and top languages.",
     note: "GitHub year",
     line: "Your GitHub year in a calm little card.",
+    keywords: ["github", "contributions", "stats", "year in review", "languages", "streak"],
     plate: { src: "/plates/lab-1.webp", width: 896, height: 1200 },
   },
   {
@@ -66,6 +78,7 @@ export const SUITE: SuiteTool[] = [
       "Random image and video prompts, tuned in your engine's dialect — ratios, frames and negative clauses included.",
     note: "Prompt roulette",
     line: "Random image and video prompts, in your engine's dialect.",
+    keywords: ["prompt", "midjourney", "flux", "sdxl", "gemini", "video", "random", "ai art"],
     plate: { src: "/plates/lab-2.webp", width: 896, height: 1200 },
   },
   {
@@ -80,6 +93,7 @@ export const SUITE: SuiteTool[] = [
       "Model-aware prompt engineering scaled from flash to frontier — intent elucidation, assembly, optional polish.",
     note: "Model-aware",
     line: "Model-aware prompt engineering, flash to frontier.",
+    keywords: ["prompt", "engineering", "claude", "gpt", "deepseek", "qwen", "llm", "system prompt"],
     plate: { src: "/plates/lab-3.webp", width: 896, height: 1200 },
   },
   {
@@ -94,6 +108,7 @@ export const SUITE: SuiteTool[] = [
       "Photos talk; this helps them forget. Reads every metadata trail, strips it in-tab, then proves the strip.",
     note: "Metadata off",
     line: "Photos talk; this helps them forget.",
+    keywords: ["exif", "metadata", "gps", "privacy", "photo", "strip", "location", "c2pa"],
     plate: { src: "/plates/lab-4.webp", width: 896, height: 1200 },
   },
   {
@@ -108,6 +123,7 @@ export const SUITE: SuiteTool[] = [
       "The one that will live on your machine — a Tauri desktop app writing only to your own disk. Builds are not out yet.",
     note: "Coming soon",
     line: "The desktop one — writes only to your own disk.",
+    keywords: ["budget", "spending", "expenses", "spreadsheet", "tauri", "offline", "finance"],
     plate: { src: "/plates/lab-5.webp", width: 896, height: 1200 },
   },
   {
@@ -122,6 +138,7 @@ export const SUITE: SuiteTool[] = [
       "OG images and social cards worth sharing — templates, sizes and accents composed in a live preview, then downloaded or copied. Nothing uploads.",
     note: "Cards, in-tab",
     line: "OG images & social cards, composed in your browser.",
+    keywords: ["open graph", "social card", "twitter", "x", "linkedin", "preview", "1200x630", "share image"],
     plate: { src: "/plates/lab-6.webp", width: 896, height: 1200 },
   },
   {
@@ -136,6 +153,7 @@ export const SUITE: SuiteTool[] = [
       "Styled QR codes that prove they scan — payloads, colors, a logo, and an in-tab decoder before you export.",
     note: "Proof-scanned",
     line: "Styled QR codes, proven scannable in-tab.",
+    keywords: ["qr code", "wifi", "vcard", "scan", "barcode", "link", "contact"],
     plate: { src: "/plates/lab-7.webp", width: 896, height: 1200 },
   },
   {
@@ -150,6 +168,7 @@ export const SUITE: SuiteTool[] = [
       "Resize, convert and favicon-pack without uploading — progressive-halving quality, honest byte counts, and a 16-pixel proof strip before you ship.",
     note: "Bytes, proven",
     line: "Resize, convert and favicon-pack, entirely in-tab.",
+    keywords: ["favicon", "icon", "resize", "convert", "webp", "png", "jpeg", "compress", "ico"],
     plate: { src: "/plates/lab-8.webp", width: 896, height: 1200 },
   },
   {
@@ -164,6 +183,7 @@ export const SUITE: SuiteTool[] = [
       "Count tokens exactly, price them across every model that matters — offline, keyless, with a verified-date stamp on the rates.",
     note: "Count, then cost",
     line: "Exact token counts and model costs, offline.",
+    keywords: ["tokenizer", "tiktoken", "cost", "pricing", "context window", "gpt", "count", "o200k"],
     plate: { src: "/plates/lab-9.webp", width: 896, height: 1200 },
   },
   {
@@ -178,6 +198,7 @@ export const SUITE: SuiteTool[] = [
       "Photos and logos into pixel art — six measured styles from Game Boy to a seven-blue brand ramp, live preview, crisp export. Nothing uploads.",
     note: "Chunky, honest",
     line: "Pixel-art photos and logos, entirely in-tab.",
+    keywords: ["pixel art", "dither", "game boy", "quantize", "retro", "8-bit", "palette"],
     plate: { src: "/plates/lab-10.webp", width: 896, height: 1200 },
   },
   {
@@ -192,6 +213,7 @@ export const SUITE: SuiteTool[] = [
       "Type a feeling, get a poster — a hand-tuned lexicon builds a deterministic five-role palette and a shareable card. No AI, nothing stored.",
     note: "Moods, in colour",
     line: "Mood phrases into palette posters, deterministically.",
+    keywords: ["palette", "colour", "color", "poster", "mood", "hex", "swatch", "contrast", "brand"],
     plate: { src: "/plates/lab-11.webp", width: 896, height: 1200 },
   },
 ];

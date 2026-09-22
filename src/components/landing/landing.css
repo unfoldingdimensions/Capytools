@@ -498,6 +498,22 @@
   background: var(--background);
 }
 
+/* Open means open, at EVERY width.
+ *
+ * This rule used to live only inside the max-width: 1179px block below, while
+ * the `is-crowded` fold that hides the inline row is measured and fires at any
+ * width at all. Above 1180px that left a state with no navigation in it: the
+ * row folded away because it did not fit, and the panel it folded into could
+ * not be shown. It took a 13th link to reach that state on a 1280px tool page,
+ * which is how it surfaced.
+ *
+ * The toggle is only reachable when the row has folded or the viewport is
+ * below the floor, so `is-open` cannot be true in a state where the panel
+ * should stay hidden — no width guard is needed here. */
+.lp-nav-menu.is-open {
+  display: block;
+}
+
 /* `.lp-container` supplies the horizontal padding; only the vertical rhythm
    is set here, and on a more specific selector so it wins. */
 .lp-nav-menu nav {
@@ -558,10 +574,6 @@
 
   .lp-nav-toggle {
     visibility: visible;
-  }
-
-  .lp-nav-menu.is-open {
-    display: block;
   }
 }
 
