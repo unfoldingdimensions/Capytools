@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/components/landing/landing.css";
 import { AmbientBackground } from "@/components/AmbientBackground";
+import { CapyArt } from "@/components/mascot/CapyArt";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { EXTERNAL } from "@/lib/capytools/landing";
@@ -49,6 +50,9 @@ export default function NotesPage() {
           nothing — the one documented exception is CapyExpense, which lives on
           your disk instead.
         </p>
+
+        {/* The quiet page has room for the animal the suite is named after. */}
+        <CapyArt pose="awake" className="mt-10 w-28" />
 
         <div className="lp-divider mt-14" aria-hidden="true" />
 

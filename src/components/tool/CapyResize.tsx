@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Copy, Download, FileImage, ImageUp } from "lucide-react";
+import { Check, Copy, Download, FileImage } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { ErrorCard, type ErrorNotice } from "@/components/tool/ErrorCard";
+import { CapyArt } from "@/components/mascot/CapyArt";
 import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { IDLE_HEADLINE, IDLE_HINT, LOADER_STEPS } from "@/lib/capyresize/demo";
@@ -475,7 +476,7 @@ export function CapyResize() {
               dragOver && "border-primary bg-muted/50",
             )}
           >
-            <ImageUp className="size-9 stroke-[1.25] text-muted-foreground" aria-hidden />
+            <CapyArt pose="awake" className="w-16" />
             <span className="mt-1 text-sm font-medium text-foreground">{IDLE_HEADLINE}</span>
             <span className="text-xs text-muted-foreground">{IDLE_HINT}</span>
             {loading ? (

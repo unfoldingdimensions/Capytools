@@ -1,73 +1,40 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CapyMark } from "../src/components/mascot/CapyMark";
-import { CapyScene } from "../src/components/mascot/CapyScene";
-import { CAPY_POSE, HEAD_PIVOT } from "../src/lib/capytools/mascot";
 import { capyMarkDataUri } from "../src/lib/capytools/sparkline";
 
-describe("CapyMark (app logo)", () => {
+/**
+ * `CapyScene` and its `CAPY_POSE` path data were deleted with this file's
+ * other half: a three-pose rig that animated a head about a pivot, kept as
+ * scaffolding for artwork that never arrived. The real artwork did arrive —
+ * flat, full-colour, single-layer — as `CapyArt`, which the rig could not
+ * drive and did not need to. Two mascot systems is one too many.
+ *
+ * `CapyMark` stays. It is no longer the brand mark (BrandMark carries the
+ * traced logo now), but `capyMarkDataUri` re-draws it inline for the share
+ * card, where Satori cannot parse a React <svg> — so this file is what keeps
+ * those two copies honest.
+ */
+
+describe("CapyMark (share-card glyph)", () => {
   it("is stroke-only so it inherits the theme colour", () => {
     const html = renderToStaticMarkup(<CapyMark />);
     expect(html).toContain('stroke="currentColor"');
     expect(html).not.toMatch(/fill="(?!none)[^"]+"/); // no hard-coded fills
-    expect(html).toContain('aria-hidden');
+    expect(html).toContain("aria-hidden");
   });
 
-  it("is static — no animation classes on the logo", () => {
+  it("is static — no animation classes on it", () => {
     expect(renderToStaticMarkup(<CapyMark />)).not.toMatch(/capy-|animate/);
   });
-});
 
-// CapyScene is kept as scaffolding to fill in later; it is not wired into any
-// page right now, and its animation classes were removed with the logo revert.
-describe("CapyScene (three-pose rig)", () => {
-  const poses = ["loaf", "friends", "nap"] as const;
-
-  it("renders every pose without morphing a path", () => {
-    for (const pose of poses) {
-      const html = renderToStaticMarkup(<CapyScene pose={pose} />);
-      // Same drawing every time — only transforms/opacity differ.
-      expect(html).toContain(CAPY_POSE.body);
-      expect(html).toContain(CAPY_POSE.head);
-      expect(html).toContain(CAPY_POSE.bird);
+  it("the card's inline copy draws the same paths as the component", () => {
+    // Satori cannot parse the React component, so the card re-states the paths
+    // as a string. This is the only thing stopping the two from drifting.
+    const html = renderToStaticMarkup(<CapyMark />);
+    const uri = decodeURIComponent(capyMarkDataUri("#000000"));
+    for (const d of [...html.matchAll(/ d="([^"]+)"/g)].map((m) => m[1])) {
+      expect(uri).toContain(d);
     }
-  });
-
-  it("hides the bird and steam except in the friends pose", () => {
-    const opacityOf = (html: string, d: string) => {
-      const g = html.slice(0, html.indexOf(d));
-      const matches = [...g.matchAll(/opacity:([\d.]+)/g)];
-      return Number(matches[matches.length - 1]?.[1]);
-    };
-    expect(opacityOf(renderToStaticMarkup(<CapyScene pose="friends" />), CAPY_POSE.bird)).toBe(1);
-    expect(opacityOf(renderToStaticMarkup(<CapyScene pose="loaf" />), CAPY_POSE.bird)).toBe(0);
-    expect(opacityOf(renderToStaticMarkup(<CapyScene pose="nap" />), CAPY_POSE.bird)).toBe(0);
-  });
-
-  it("tips the head about the documented pivot when napping", () => {
-    const html = renderToStaticMarkup(<CapyScene pose="nap" />);
-    expect(html).toContain("rotate(-4deg)");
-    expect(html).toContain(`${HEAD_PIVOT.x}px ${HEAD_PIVOT.y}px`);
-    // loaf keeps the head level
-    expect(renderToStaticMarkup(<CapyScene pose="loaf" />)).toContain("rotate(0deg)");
-  });
-
-  it("exposes an accessible name only when given one", () => {
-    expect(renderToStaticMarkup(<CapyScene pose="nap" />)).toContain('aria-hidden');
-    const named = renderToStaticMarkup(<CapyScene pose="nap" title="Napping capybara" />);
-    expect(named).toContain('role="img"');
-    expect(named).toContain('aria-label="Napping capybara"');
-  });
-});
-
-describe("capyMarkDataUri", () => {
-  it("stays a flat static head for the card watermark", () => {
-    const uri = capyMarkDataUri("#123456");
-    expect(uri.startsWith("data:image/svg+xml,")).toBe(true);
-    const svg = decodeURIComponent(uri.slice("data:image/svg+xml,".length));
-    expect(svg).toContain("#123456");
-    expect(svg).toContain("M15 25 C15 13 22 7 32 7"); // original head contour
-    // A PNG cannot hold motion, and Satori cannot parse inline <svg> animation.
-    expect(svg).not.toMatch(/animate|animation|capy-/);
   });
 });
