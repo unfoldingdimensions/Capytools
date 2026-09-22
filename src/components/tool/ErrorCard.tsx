@@ -1,11 +1,11 @@
 "use client";
 
 import { GithubError } from "@/lib/github/types";
-import { CapyScene } from "@/components/mascot/CapyScene";
+import { CapyArt } from "@/components/mascot/CapyArt";
 import { Button } from "@/components/ui/button";
 
 /**
- * The suite's error state: a napping capybara, a plain sentence, and a retry
+ * The suite's error state: a startled capybara, a plain sentence, and a retry
  * only when retrying could actually work.
  *
  * It used to take a `GithubError` and know the GitHub copy, so CapyStrip —
@@ -36,7 +36,7 @@ export function ErrorCard({
 }) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-border bg-card px-8 py-10 text-center">
-      <CapyScene pose="nap" className="w-20 text-foreground/70" title="Napping capybara" />
+      <CapyArt pose="surprise" className="w-20" alt="A startled capybara" />
       <h3 className="font-display text-xl text-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground">{body}</p>
       {onRetry ? (

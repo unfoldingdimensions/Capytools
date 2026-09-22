@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ClipboardPaste, Copy, Download, ImageUp } from "lucide-react";
+import { Check, ClipboardPaste, Copy, Download } from "lucide-react";
 
 import {
   CleanUnsupportedError,
@@ -21,7 +21,7 @@ import type {
   MetadataReport,
   RawMetadata,
 } from "@/lib/capystrip/types";
-import { CapyScene } from "@/components/mascot/CapyScene";
+import { CapyArt } from "@/components/mascot/CapyArt";
 import { ErrorCard } from "@/components/tool/ErrorCard";
 import { StageCard, StageChip } from "@/components/stage-card";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
@@ -337,7 +337,7 @@ export function CapyStrip() {
             dragOver && "border-primary bg-muted/50",
           )}
         >
-          <ImageUp className="size-9 stroke-[1.25] text-muted-foreground" aria-hidden />
+          <CapyArt pose="awake" className="w-16" />
           <span className="mt-1 text-sm font-medium text-foreground">Drop a photo here</span>
           <span className="text-xs text-muted-foreground">
             or click to pick one — or paste a screenshot. it never leaves this tab.
@@ -548,7 +548,7 @@ export function CapyStrip() {
       {/* Report-only mode: HEIC off Safari, or any other decode refusal. */}
       {report && !isDemo && !loading && !error && unsupportedMessage && !clean && (
         <div className="flex items-start gap-4 rounded-3xl border border-border bg-card p-6 shadow-sm">
-          <CapyScene pose="nap" className="hidden w-16 shrink-0 text-foreground/60 sm:block" />
+          <CapyArt pose="asleep" className="hidden w-16 shrink-0 sm:block" />
           <div>
             <h3 className="font-display text-lg text-foreground">No clean copy here.</h3>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{unsupportedMessage}</p>

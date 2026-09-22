@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, ImageUp } from "lucide-react";
+import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ErrorCard, type ErrorNotice } from "@/components/tool/ErrorCard";
+import { CapyArt } from "@/components/mascot/CapyArt";
 import { StageCard, StageChip } from "@/components/stage-card";
 import { saveBlob } from "@/lib/download";
 import { exportPng, drawIndices, previewPitchFor, exportSize } from "@/lib/capypixel/render";
@@ -430,7 +431,7 @@ export function CapyPixel() {
               dragOver && "border-primary bg-muted/50",
             )}
           >
-            <ImageUp className="size-9 stroke-[1.25] text-muted-foreground" aria-hidden />
+            <CapyArt pose="awake" className="w-16" />
             <span className="mt-1 text-sm font-medium text-foreground">
               {mode === "photo" ? "drop a photo here" : "drop an svg logo here"}
             </span>

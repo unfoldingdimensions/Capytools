@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -63,5 +63,37 @@ describe("CapyArt", () => {
         expect(svg()).not.toContain("data:image");
       });
     }
+  });
+});
+
+describe("every pose earns its place", () => {
+  /**
+   * PR #41 shipped these three illustrations and the component, and merged
+   * WITHOUT the two edits that rendered them — so main carried ~30 KiB of
+   * artwork nothing referenced, and no test noticed, because every test was
+   * about the files rather than their use.
+   *
+   * This walks the source for real call sites instead.
+   */
+  const sources = () => {
+    const out: string[] = [];
+    (function walk(dir: string) {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        if (statSync(p).isDirectory()) walk(p);
+        else if (/\.tsx?$/.test(name) && !p.includes("CapyArt")) out.push(readFileSync(p, "utf8"));
+      }
+    })(join(process.cwd(), "src"));
+    return out.join("\n");
+  };
+
+  for (const pose of POSES) {
+    it(`${pose} is actually rendered somewhere`, () => {
+      expect(sources()).toContain(`pose="${pose}"`);
+    });
+  }
+
+  it("the component has at least one importer", () => {
+    expect(sources()).toContain("@/components/mascot/CapyArt");
   });
 });
