@@ -74,3 +74,35 @@ describe("generated icons", () => {
     expect(svg("src/app/icon.svg")).toBe(svg("public/brand/logo.svg"));
   });
 });
+
+describe("BrandMark, the inline copy", () => {
+  it("draws every path the file draws — two copies of a logo silently drift", async () => {
+    const { BRAND_PATHS, BRAND_VIEWBOX } = await import("../src/lib/capytools/brand-paths");
+    const file = svg("public/brand/logo.svg");
+    expect(BRAND_PATHS).toHaveLength(5);
+    for (const d of BRAND_PATHS) expect(file).toContain(d);
+    expect(file).toContain(`viewBox="${BRAND_VIEWBOX}"`);
+  });
+
+  it("renders the disc and all five paths, themed by token", async () => {
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { BrandMark } = await import("../src/components/brand-mark");
+    const html = renderToStaticMarkup(<BrandMark />);
+
+    expect(html).toContain("<circle");
+    expect((html.match(/<path/g) ?? []).length).toBe(5);
+    // evenodd is load-bearing: without it the eye and the toe gaps fill solid.
+    expect(html).toContain('fill-rule="evenodd"');
+    // Tokens, not literals — the sage lifts in dark mode, the ink does not.
+    expect(html).toContain("var(--brand-disc)");
+    expect(html).toContain("var(--brand-ink)");
+    expect(html).toContain('aria-hidden="true"');
+  });
+
+  it("no longer draws the placeholder line glyph", async () => {
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { BrandMark } = await import("../src/components/brand-mark");
+    // CapyMark strokes with currentColor; the real mark fills with its own.
+    expect(renderToStaticMarkup(<BrandMark />)).not.toContain("currentColor");
+  });
+});
