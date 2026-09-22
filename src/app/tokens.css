@@ -98,8 +98,13 @@
   --popover-foreground: #e8e6e2;
   --primary: #9aab8d;           /* lifted sage for dark — dark text on it */
   --primary-foreground: #141412;
-  --brand-disc: #9aab8d;        /* same lift the rest of the sage takes */
-  --brand-ink: #f9f9f7;
+  /* Dark mode INVERTS the mark rather than lifting it. A sage disc reads on
+     the charcoal page (7.66:1) but stays a mid-tone; cream carries 17.77:1 and
+     puts the animal in charcoal, which is the same contrast the other way. It
+     is a bolder mark in dark on purpose — the one place the brand is allowed
+     to be loud. */
+  --brand-disc: #f9f9f7;
+  --brand-ink: #121212;
   --secondary: #262624;
   --secondary-foreground: #e8e6e2;
   --muted: #232322;
