@@ -76,6 +76,34 @@ describe("withEdgeCache", () => {
     expect(produce).toHaveBeenCalledTimes(2);
   });
 
+  it("collapses spellings of one account onto the canonical path", async () => {
+    installCache();
+    const produce = vi.fn(async () => Response.json({ ok: 1 }));
+
+    // What the three routes pass: the sanitized, lowercased login. Without
+    // it the raw URL is the key, and the second spelling buys a second
+    // ~55-request fan-out on the server's token — which is what the live
+    // deployment did until this argument existed.
+    await withEdgeCache(REQ("https://capytools.app/api/og/Torvalds"), produce, "/api/og/torvalds");
+    await withEdgeCache(REQ("https://capytools.app/api/og/torvalds"), produce, "/api/og/torvalds");
+
+    expect(produce).toHaveBeenCalledTimes(1);
+  });
+
+  it("still keys on the query string, canonical path or not", async () => {
+    installCache();
+    const produce = vi.fn(async () => Response.json({ ok: 1 }));
+
+    await withEdgeCache(REQ("https://capytools.app/api/og/octocat"), produce, "/api/og/octocat");
+    await withEdgeCache(
+      REQ("https://capytools.app/api/og/octocat?variant=dark"),
+      produce,
+      "/api/og/octocat",
+    );
+
+    expect(produce).toHaveBeenCalledTimes(2);
+  });
+
   it("keys on the query string too, so a future parameter cannot share an entry", async () => {
     installCache();
     const produce = vi.fn(async () => Response.json({ ok: 1 }));

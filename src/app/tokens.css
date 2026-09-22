@@ -26,6 +26,13 @@
   --popover-foreground: #1a1a1a;
   --primary: #8e9b7e;           /* sage */
   --primary-foreground: #141412;/* dark ink for WCAG AA 4.5:1+ contrast */
+  /* The brand mark's own two colours. Separate from --primary/--background
+     because the mark must NOT invert with the theme: the animal stays cream on
+     a sage disc in both, and only the sage takes the dark-mode lift. Cream on
+     sage is 2.79:1, below the 3:1 non-text floor — WCAG 1.4.11 exempts
+     logotypes, and this is the approved artwork, not a UI affordance. */
+  --brand-disc: #8e9b7e;
+  --brand-ink: #f9f9f7;
   --secondary: #f1efea;
   --secondary-foreground: #1a1a1a;
   --muted: #f1efea;
@@ -91,6 +98,8 @@
   --popover-foreground: #e8e6e2;
   --primary: #9aab8d;           /* lifted sage for dark — dark text on it */
   --primary-foreground: #141412;
+  --brand-disc: #9aab8d;        /* same lift the rest of the sage takes */
+  --brand-ink: #f9f9f7;
   --secondary: #262624;
   --secondary-foreground: #e8e6e2;
   --muted: #232322;

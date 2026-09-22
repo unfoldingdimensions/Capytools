@@ -66,7 +66,7 @@ const PAGES = [
   "/", "/capywrapped", "/capyimagine", "/capycreator", "/capystrip",
   "/capyexpense", "/capyog", "/capyqr", "/capyresize", "/capytoken",
   "/capypixel", "/capytone", "/notes", "/design", "/license",
-  "/sitemap.xml", "/robots.txt", "/llms.txt",
+  "/sitemap.xml", "/robots.txt", "/llms.txt", "/og.png",
 ];
 
 /** Byte-for-byte parity with SECURITY_HEADERS in next.config.ts. */
@@ -91,6 +91,15 @@ async function main() {
     (await (await get("/license")).text()).includes("Apache License"), true);
   // llms.txt is generated from SUITE; a body that lost its tools still
   // answers 200, which is exactly the failure a status check cannot see.
+  // The share card is only ever fetched by crawlers, so a 404 here is
+  // invisible on the site itself and shows up as a blank post.
+  const ogCard = await get("/og.png");
+  check("/og.png is served as an image",
+    (ogCard.headers.get("content-type") ?? "").startsWith("image/"), true);
+  const home = await (await get("/")).text();
+  check("the homepage points at it, absolutely",
+    home.includes('content="https://capytools.app/og.png"'), true);
+
   const llms = await (await get("/llms.txt")).text();
   check("/llms.txt lists every tool",
     (llms.match(/^## Capy/gm) ?? []).length, 11);

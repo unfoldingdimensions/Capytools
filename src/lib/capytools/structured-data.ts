@@ -14,10 +14,10 @@
  *   documented desktop exception, so it must not claim to run on the Web.
  * - No `aggregateRating`, no `review`, no `interactionStatistic`. We have no
  *   ratings, and inventing them is exactly the abuse the vocabulary invites.
- * - No `logo` yet. `Organization.logo` wants a real raster or SVG image and the
- *   suite does not have one — only a favicon, which Google does not accept. An
- *   absent property is honest; a broken one is not. Add it here the day the
- *   logotype lands, and nowhere else.
+ * - `logo` is a PNG, not the SVG beside it. Google's own documentation for this
+ *   property lists BMP/GIF/JPEG/PNG/WebP/SVG but its rich-result tooling is
+ *   reliable on raster; a 512px PNG is the safe answer and the SVG is served
+ *   everywhere a browser reads it.
  */
 
 import { EXTERNAL } from "@/lib/capytools/landing";
@@ -35,6 +35,13 @@ export const SITE_DESCRIPTION =
  * adding an X or LinkedIn profile means adding it here, not in a template.
  */
 const SAME_AS = [EXTERNAL.repo];
+
+/**
+ * The brand mark, as a crawler wants it: square, on its own background, and
+ * raster. `public/brand/logo.svg` is the same drawing and is what the site
+ * itself serves; this is the copy stated to machines.
+ */
+const ORG_LOGO = "/brand/logo-512.png";
 
 /**
  * The homepage's two entities in ONE block.
@@ -64,6 +71,7 @@ const ORGANIZATION = {
   name: SITE_NAME,
   url: `${SITE_URL}/`,
   description: SITE_DESCRIPTION,
+  logo: `${SITE_URL}${ORG_LOGO}`,
   sameAs: SAME_AS,
 } as const;
 

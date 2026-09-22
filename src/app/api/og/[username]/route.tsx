@@ -15,6 +15,14 @@ export const maxDuration = 60; // fans out to GitHub; do not inherit the short d
 // once per cold start, then reused by every OG image.
 const fontCache = new Map<string, ArrayBuffer>();
 
+/**
+ * Both hops are bounded. Without a signal these were the only unbounded
+ * awaits in the route: five of them run on every cold isolate, and a slow
+ * Google Fonts would hold the request open to `maxDuration` (60s) rather
+ * than failing. 10s matches the GitHub client's own deadline.
+ */
+const FONT_TIMEOUT_MS = 10_000;
+
 async function googleFont(family: string, weight: number): Promise<ArrayBuffer> {
   const key = `${family}:${weight}`;
   const hit = fontCache.get(key);
@@ -27,11 +35,14 @@ async function googleFont(family: string, weight: number): Promise<ArrayBuffer> 
       headers: {
         "User-Agent": "Mozilla/4.0",
       },
+      signal: AbortSignal.timeout(FONT_TIMEOUT_MS),
     },
   ).then((r) => r.text());
   const url = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.ttf)\)/)?.[1];
   if (!url) throw new Error(`no ttf for ${family} ${weight}`);
-  const buf = await (await fetch(url)).arrayBuffer();
+  const buf = await (
+    await fetch(url, { signal: AbortSignal.timeout(FONT_TIMEOUT_MS) })
+  ).arrayBuffer();
   fontCache.set(key, buf);
   return buf;
 }
@@ -50,6 +61,8 @@ export async function GET(
   // The single most expensive response on the site: a miss is up to ~55
   // upstream calls on the server's token, and social crawlers re-request the
   // same card repeatedly. This is the route the cache was written for.
+  // The canonical key: /api/og/<lowercased login>, so one account is
+  // one entry however the caller spelled it.
   return withEdgeCache(request, async () => {
     try {
       const [user, repos, events, contributions, languages] = await Promise.all([
@@ -97,5 +110,5 @@ export async function GET(
         status: notFound ? 404 : 500,
       });
     }
-  });
+  }, `/api/og/${clean}`);
 }

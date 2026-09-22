@@ -94,3 +94,18 @@ describe("every tool describes itself", () => {
     }
   });
 });
+
+describe("the organization's logo", () => {
+  it("is absolute, because a crawler has no page to resolve it against", () => {
+    expect(organizationLd().logo).toBe(`${SITE_URL}/brand/logo-512.png`);
+  });
+
+  it("points at a file that is actually in public/", async () => {
+    // The property is a claim made to machines that will fetch it. A 404 here
+    // is worse than the absent property this replaced.
+    const { existsSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const path = organizationLd().logo.replace(SITE_URL, "");
+    expect(existsSync(join(process.cwd(), "public", path))).toBe(true);
+  });
+});
