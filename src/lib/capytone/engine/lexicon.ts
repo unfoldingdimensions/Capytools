@@ -12,9 +12,6 @@
  * substring hits and token overlap; below threshold → guarded random.
  */
 
-import { hueDistance } from "./color";
-import { hashString } from "../rand";
-
 export interface AnchorEntry {
   id: string;
   /** Extra phrases that route here ("hearth", "warm blanket"). Not colors —

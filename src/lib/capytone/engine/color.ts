@@ -4,7 +4,7 @@
  * thing this product must never ship.
  */
 
-import { converter, formatHex, oklch, parse, rgb } from "culori";
+import { converter, formatHex, oklch, parse } from "culori";
 
 const toOklch = converter("oklch");
 const toRgb = converter("rgb");
