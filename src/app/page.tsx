@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { JsonLd } from "@/components/JsonLd";
 import { Landing } from "@/components/landing/Landing";
+import { OG_DEFAULTS } from "@/lib/capytools/og";
 import { homepageGraphLd } from "@/lib/capytools/structured-data";
 import { SUITE_WORD_CAP } from "@/lib/capytools/suite";
 
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Capytools — calm little tools",
     description,
+    // Spread, not omitted: Next replaces the layout's `openGraph` wholesale
+    // when a page declares its own, so leaving this out drops the share card.
+    ...OG_DEFAULTS,
   },
 };
 
