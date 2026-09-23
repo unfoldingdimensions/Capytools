@@ -1,3 +1,5 @@
+[![CI](https://github.com/unfoldingdimensions/CapyResume/actions/workflows/ci.yml/badge.svg)](https://github.com/unfoldingdimensions/CapyResume/actions/workflows/ci.yml)
+
 # CapyResume
 
 **A CV that's actually yours. Made in your tab.**
