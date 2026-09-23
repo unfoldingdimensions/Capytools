@@ -112,16 +112,17 @@ and no API key to configure — that is the point. `.env.example` says so.
 
 ### Scripts
 
-| Command              | What it does                                     |
-| -------------------- | ------------------------------------------------ |
-| `npm run dev`        | Development server                               |
-| `npm run build`      | Production build                                 |
-| `npm start`          | Serve the production build                       |
-| `npm test`           | Jest test suite                                  |
-| `npm run type-check` | `tsc --noEmit`                                   |
-| `npm run lint`       | ESLint                                           |
-| `npm run format`     | Prettier (write) — `format:check` to verify only |
-| `npm run verify:pdf` | Renders a real PDF and asserts its text layer    |
+| Command                 | What it does                                                            |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `npm run dev`           | Development server                                                      |
+| `npm run build`         | Production build                                                        |
+| `npm start`             | Serve the production build                                              |
+| `npm test`              | Jest test suite                                                         |
+| `npm run type-check`    | `tsc --noEmit`                                                          |
+| `npm run lint`          | ESLint                                                                  |
+| `npm run format`        | Prettier (write) — `format:check` to verify only                        |
+| `npm run verify:pdf`    | Renders a real PDF and asserts its text layer                           |
+| `npm run verify:deploy` | Checks a deployed origin: robots, sitemap, self-canonicals, social card |
 
 ## How it is built
 
@@ -179,13 +180,18 @@ than asserted.
 
 ## Contributing
 
-The issue tracker is the contact channel for bug reports, security reports and
-corrections to the legal pages. Two house rules:
+Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the constraints, the design-language rules
+and the gate. Two things worth repeating here:
 
 - **Keep the honesty rules.** No "passes ATS", no invented metrics in the AI
   prompts, no claim the code does not support.
-- **`npm run type-check && npm run lint && npm test` must pass**, and formatting
-  must be Prettier-clean (`npm run format:check`).
+- **The gate must pass** —
+  `npm run format:check && npm run type-check && npm run lint && npm test && npm run verify:pdf && npm run build` —
+  plus `npm run verify:deploy <origin>` when you are checking a deployment.
+
+Security problems go through the private form described in [`SECURITY.md`](./SECURITY.md),
+never a public issue. Participation is covered by
+[`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
 
 Notes on deliberate deviations from the original implementation plan — the PDF
 font strategy, the `lib/` versus `src/lib/` layout, and the deferred ESLint
