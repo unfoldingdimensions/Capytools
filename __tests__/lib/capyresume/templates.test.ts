@@ -73,3 +73,24 @@ describe('capyresume/templates — heading casing', () => {
     expect(headingText(TEMPLATES.serif, 'Experience')).toBe('Experience');
   });
 });
+
+describe('capyresume/templates — registry coverage', () => {
+  it('lists every registry row exactly once', () => {
+    // TEMPLATE_LIST is hand-maintained (templates.ts:97) while TEMPLATES is
+    // type-checked against the TemplateId union, so a row can be added to the
+    // registry, compile cleanly, and never reach the editor's template picker.
+    const listed = TEMPLATE_LIST.map((spec) => spec.id).sort();
+    const registered = Object.keys(TEMPLATES).sort();
+    expect(listed).toEqual(registered);
+  });
+
+  it('keeps every bullet glyph inside WinAnsi', () => {
+    // The PDFs use standard-14 fonts with WinAnsiEncoding: a glyph outside that
+    // set looks fine in the HTML preview and prints as a blank or a notdef box
+    // in the finished file.
+    const SAFE = ['•', '–', '—', '·', '-', '*'];
+    for (const spec of TEMPLATE_LIST) {
+      expect(SAFE).toContain(spec.bulletChar);
+    }
+  });
+});
