@@ -136,7 +136,10 @@ export const PROOF = {
 export type ProofDemoId = (typeof PROOF.demos)[number]["id"];
 
 export const WIRE = {
-  title: "The suite, live",
+  // Not "live", and no pulsing dot: on a product that watches nothing, a
+  // live indicator read as real-time monitoring to exactly the visitors
+  // who care most that there is none.
+  title: "The suite at a glance",
   sub: `${SUITE_WORD_CAP} tools · zero uploads · one machine`,
   tools: SUITE.map((tool, i) => ({ no: `Nº ${pad2(i + 1)}`, name: tool.name })),
   /** Real engine lists: src/lib/promptgen/criteria.ts + capycreator/profiles.ts. */
@@ -323,7 +326,7 @@ export const CTA = {
   lead: "Open any tool in a browser tab and simply start — no account, no cookie banner, no setup. CapyExpense lives on your desktop and your disk, never ours.",
   primary: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
-  foot: ["● Live", "v0.1.0 / Apache-2.0"],
+  foot: ["No account needed", "v0.1.0 / Apache-2.0"],
   ribbon: "CAPYTOOLS · FIN.",
   plate: { src: "/plates/cta.webp", width: 1024, height: 1024 },
 } as const;

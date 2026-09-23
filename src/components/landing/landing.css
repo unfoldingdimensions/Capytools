@@ -1128,29 +1128,6 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   border-right: 1px solid var(--lp-line-soft);
 }
 
-.lp-wire-mark {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--clay);
-  flex-shrink: 0;
-}
-
-.lp-wire-pulse {
-  position: absolute;
-  inset: -5px;
-  border-radius: 999px;
-  border: 1px solid var(--clay);
-  opacity: 0;
-  animation: lp-wire-pulse 2.6s var(--lp-ease-ui) infinite;
-}
-
-@keyframes lp-wire-pulse {
-  0% { transform: scale(0.6); opacity: 0.7; }
-  70%, 100% { transform: scale(1.5); opacity: 0; }
-}
-
 .lp-wire-title {
   line-height: 1.35;
 }
@@ -2459,10 +2436,6 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
 @media (prefers-reduced-motion: reduce) {
   .lp-marquee-track {
-    animation: none;
-  }
-
-  .lp-wire-pulse {
     animation: none;
   }
 

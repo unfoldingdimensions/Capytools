@@ -4,7 +4,7 @@ import { useState } from "react";
 import { WIRE } from "@/lib/capytools/landing";
 
 /**
- * The live wire — two counter-scrolling marquee rows (tool names, then the
+ * The suite at a glance — two counter-scrolling marquee rows (tool names, then the
  * engines each tool speaks). Tracks are rendered twice for a seamless -50%
  * loop. The marquee never stops on its own, so it ships with a
  * keyboard-reachable pause toggle (WCAG 2.2.2) and pauses on hover;
@@ -18,12 +18,9 @@ export function LiveWire() {
   const [paused, setPaused] = useState(false);
 
   return (
-    <section className="lp-wire" aria-label="The suite, live — tools and engines">
+    <section className="lp-wire" aria-label="The suite at a glance — tools and engines">
       <div className="lp-container lp-wire-inner">
         <div className="lp-wire-left">
-          <span className="lp-wire-mark" aria-hidden="true">
-            <span className="lp-wire-pulse" />
-          </span>
           <span className="lp-wire-title">
             <b>{WIRE.title}</b>
             <span>{WIRE.sub}</span>
