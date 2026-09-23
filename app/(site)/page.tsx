@@ -109,7 +109,9 @@ export default function LandingPage() {
           Every layout is a single column of plain text, with no tables and nothing set into an
           image — the shape a parser reads best.
         </p>
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* `auto-rows-fr` levels the rows: without it the grid's second row sits shorter
+            than the first, which reads as a mistake rather than a rhythm. */}
+        <ul className="mt-8 grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((spec) => {
             const copy = TEMPLATE_PAGE_COPY[spec.id];
             return (
@@ -157,7 +159,7 @@ export default function LandingPage() {
 
       <section className="mt-20">
         <h2 className="font-display text-display-md font-normal">Guides</h2>
-        <ul className="mt-8 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-8 grid auto-rows-fr gap-4 sm:grid-cols-3">
           {GUIDES.map((guide) => (
             <li key={guide.href} className="flex">
               <Card hover className="flex h-full w-full flex-col p-6">

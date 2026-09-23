@@ -110,4 +110,20 @@ describe('design language conformance', () => {
     // and a dead ramp is how a palette forks.
     for (const file of FILES) expect(read(file)).not.toMatch(/--brand-\d|brand-\d{2,3}\b/);
   });
+
+  it('levels every card grid', () => {
+    // Cards in a grid stretch within their own row, so a two-row grid of six cards ends
+    // up with a shorter second row — visible as a mistake, and measured at 23px on the
+    // landing page before `auto-rows-fr` went on. Card grids are the ones with `gap-4`;
+    // the hero list (gap-3) and the step columns (gap-8) are prose, not cards.
+    const offenders = FILES.filter((file) => rel(file).startsWith('app/')).flatMap((file) =>
+      [...code(file).matchAll(/className="([^"]*\bgrid\b[^"]*)"/g)]
+        .map((m) => m[1] ?? '')
+        .filter(
+          (cls) => /grid-cols-/.test(cls) && /\bgap-4\b/.test(cls) && !cls.includes('auto-rows-fr')
+        )
+        .map((cls) => `${rel(file)}: ${cls}`)
+    );
+    expect(offenders).toEqual([]);
+  });
 });

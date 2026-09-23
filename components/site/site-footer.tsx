@@ -41,12 +41,12 @@ export function SiteFooter() {
           {GROUPS.map((group) => (
             <nav key={group.title} aria-label={group.title}>
               <p className="eyebrow-micro">{group.title}</p>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-4 space-y-1">
                 {group.links.map(({ href, label }) => (
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-ui-sm text-muted-foreground transition-colors duration-fade ease-ui hover:text-foreground"
+                      className="inline-block py-1 text-ui-sm text-muted-foreground transition-colors duration-fade ease-ui hover:text-foreground"
                     >
                       {label}
                     </Link>

@@ -161,3 +161,29 @@ describe('legal pages', () => {
     expect(legal).toContain('text-title-md font-normal');
   });
 });
+
+describe('primary navigation', () => {
+  const header = readFileSync(
+    path.join(process.cwd(), 'components', 'site', 'site-header.tsx'),
+    'utf8'
+  );
+  const footer = readFileSync(
+    path.join(process.cwd(), 'components', 'site', 'site-footer.tsx'),
+    'utf8'
+  );
+
+  it('is reachable at every width, not just above md', () => {
+    // It used to be `hidden md:flex` on the theory that the footer made it "reachable".
+    // A measured pass at 375px found zero visible nav links on a page whose whole
+    // audience is on a phone.
+    const nav = header.match(/<nav[\s\S]*?className="([^"]+)"/)?.[1] ?? '';
+    expect(nav).not.toContain('hidden');
+    expect(nav).toContain('w-full');
+    expect(nav).toContain('md:w-auto');
+  });
+
+  it('clears the 24px minimum target size on every link', () => {
+    expect(header).toMatch(/className="py-1\.5 text-ui-sm/);
+    expect(footer).toMatch(/className="inline-block py-1 text-ui-sm/);
+  });
+});

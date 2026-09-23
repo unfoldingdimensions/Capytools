@@ -29,7 +29,7 @@ export default function ResumeTemplatesIndexPage() {
         stack for engineering.
       </p>
 
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-12 grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {ROLE_PAGES.map((page) => (
           <li key={page.slug} className="flex">
             <Card hover className="flex h-full w-full flex-col p-6">
