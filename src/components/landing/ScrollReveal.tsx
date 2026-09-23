@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { ease } from "@/lib/capytools/motion";
 
@@ -11,7 +11,10 @@ import { ease } from "@/lib/capytools/motion";
  * library — the landing needs in-view triggers, which the mount-triggered
  * `Reveal` can't do on a nine-section page.
  *
- * Under prefers-reduced-motion the content renders static and visible.
+ * Under prefers-reduced-motion the content renders static and visible — by
+ * the `[data-reveal]` rule in globals.css, not by rendering a different tree:
+ * the server always ships the motion markup, and swapping it for a plain
+ * <div> on the client kept the server's inline opacity:0 forever.
  */
 
 const EASE = ease.slowOut;
@@ -41,17 +44,11 @@ export function ScrollReveal({
   /** Seconds — the export's stagger values (90ms cards, 110ms method…). */
   delay?: number;
 }) {
-  const reduced = useReducedMotion();
-
   // Tool pages wrap their progressive cards in this reveal; when the wrapped
   // child is still conditional (`false`), an empty wrapper must not leave a
   // flex-gap hole behind.
   if (!children) {
     return null;
-  }
-
-  if (reduced) {
-    return <div className={className}>{children}</div>;
   }
 
   return (

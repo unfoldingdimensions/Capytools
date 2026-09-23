@@ -69,6 +69,22 @@
 }
 
 /*
+ * …and under reduced motion, whatever the script did. The server cannot know
+ * the preference, so it always ships each reveal in its starting state; a
+ * component that then rendered a plain <div> for reduced motion hydrated onto
+ * that markup without clearing the inline opacity:0 — 30 of 32 landing
+ * sections stayed blank for anyone with the OS setting on. A reduced-motion
+ * reader gets the finished state, statically, from CSS alone.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+/*
  * …and JavaScript that ran but never hydrated. The rule above cannot see
  * that case: scripting is "enabled", the entrance simply never starts. It
  * happened for real — the dev server refused its own assets to a LAN

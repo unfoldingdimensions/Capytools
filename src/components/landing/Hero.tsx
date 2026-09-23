@@ -19,15 +19,14 @@ const EASE = ease.slowOut;
 export function Hero() {
   const reduced = useReducedMotion();
 
-  const rise = (delay: number) =>
-    reduced
-      ? {}
-      : {
-          // Rise without a fade — see Reveal.tsx.
-          initial: { y: 18 },
-          animate: { y: 0 },
-          transition: { duration: 0.9, ease: EASE, delay },
-        };
+  // One tree for every motion preference — see Reveal.tsx. Reduced motion
+  // only zeroes the transition; branching the markup was a hydration mismatch.
+  const rise = (delay: number) => ({
+    // Rise without a fade — see Reveal.tsx.
+    initial: { y: 18 },
+    animate: { y: 0 },
+    transition: reduced ? { duration: 0 } : { duration: 0.9, ease: EASE, delay },
+  });
 
   return (
     <section className="lp-section lp-hero" id="top">
@@ -62,9 +61,9 @@ export function Hero() {
                   data-reveal=""
                   // The h1 is the LCP element. Blur only — a blurred word is
                   // painted, a transparent one is not, and LCP was waiting on it.
-                  initial={reduced ? undefined : { filter: "blur(6px)" }}
-                  animate={reduced ? undefined : { filter: "blur(0px)" }}
-                  transition={{ duration: 0.9, ease: EASE, delay: 0.1 + i * 0.09 }}
+                  initial={{ filter: "blur(6px)" }}
+                  animate={{ filter: "blur(0px)" }}
+                  transition={reduced ? { duration: 0 } : { duration: 0.9, ease: EASE, delay: 0.1 + i * 0.09 }}
                 >
                   {seg.text}
                 </motion.em>

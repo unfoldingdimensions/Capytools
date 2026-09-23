@@ -170,7 +170,8 @@ describe("Landing assets", () => {
   it("quotes the README's first line exactly, and it scopes the desktop tool", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
     const quote = COLOPHON.quote.map((seg) => seg.text).join("").replace(/[“”]/g, "");
-    expect(readme).toContain(`${quote}\n`);
+    // Line-exact, and CRLF-proof: a Windows checkout reads the README with \r\n.
+    expect(readme.split(/\r?\n/)).toContain(quote);
     expect(quote).not.toMatch(/\bAll run in your browser/);
   });
 
