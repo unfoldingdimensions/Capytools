@@ -125,8 +125,9 @@ describe("registration parity", () => {
   it("is on the landing page and in the masthead, via the one registry", () => {
     expect(SUITE.some((tool) => tool.href === "/capyexpense")).toBe(true);
     expect(LABS.tools.some((tool) => tool.href === "/capyexpense")).toBe(true);
-    // Derived copy, so the hero names every tool without a second list to keep.
-    expect(HERO.lead).toContain("CapyExpense");
+    // The hero names jobs now, not products; CapyExpense keeps its own quiet
+    // link beside the meta line instead of a place in the lead.
+    expect(HERO.aside.href).toBe("/capyexpense");
     // And the switcher is built from the registry, not hand-listed: render it.
     expect(renderToStaticMarkup(<Header />)).toContain('href="/capyexpense"');
   });

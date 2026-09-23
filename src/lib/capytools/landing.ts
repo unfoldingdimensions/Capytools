@@ -20,7 +20,8 @@
 import {
   SUITE,
   SUITE_INDEX,
-  SUITE_LIST,
+  listOut,
+  numberWord,
   SUITE_WORD,
   SUITE_WORD_CAP,
   countByCategory,
@@ -40,6 +41,22 @@ export const EXTERNAL = {
 /** Headline segment; `em` renders the italic Fraunces emphasis. */
 export type Headline = { text: string; em?: boolean }[];
 
+/**
+ * The hero names JOBS, not products. It used to read out all eleven Capy-
+ * names in a row — made-up words that told a first-time visitor nothing. Four
+ * jobs anyone recognises lead; the rest are counted from the registry, so a
+ * twelfth tool changes "seven more" to "eight more" by itself.
+ */
+export const HERO_JOBS = [
+  { href: "/capyqr", job: "QR codes" },
+  { href: "/capyog", job: "OG cards" },
+  { href: "/capyresize", job: "favicon packs" },
+  { href: "/capytoken", job: "token counts" },
+] as const;
+
+const HERO_REST = numberWord(SUITE.length - HERO_JOBS.length);
+const IN_BROWSER = numberWord(countByCategory("browser"));
+
 export const HERO = {
   label: "Calm little tool suite",
   ix: `· Nº ${SUITE_INDEX}`,
@@ -49,7 +66,7 @@ export const HERO = {
     { text: ", quiet by " },
     { text: "default", em: true },
   ] as Headline,
-  lead: `${SUITE_WORD_CAP} small tools — ${SUITE_LIST} — that run entirely in your browser and keep nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.`,
+  lead: `${listOut([...HERO_JOBS.map((row) => row.job), `${HERO_REST} more small jobs`])} — ${IN_BROWSER} of them done right in your browser, keeping nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.`,
   primary: { label: "Explore our tools", href: "#labs" },
   aside: { label: "CapyExpense, the desktop one — coming soon", href: "/capyexpense" },
   stats: [
@@ -229,7 +246,7 @@ export const LABS = {
   },
   foot: `${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`,
   /** Promises the whole suite, so it opens the index — not one tool. */
-  cta: `See all ${SUITE_WORD}`,
+  cta: `See all ${SUITE_WORD} tools`,
   tools: SUITE.map((tool, i) => ({
     badge: tool.badge,
     no: `Nº ${pad2(i + 1)}`,
@@ -296,7 +313,7 @@ export const WORK = {
     { text: " and clutter for " },
     { text: "cards", em: true },
   ] as Headline,
-  link: { label: `All ${SUITE_WORD} tools`, href: "/tools" },
+  link: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
   cards: [
     {
       kicker: "Featured tool",
@@ -351,8 +368,8 @@ export const CTA = {
     { text: ", your tools stay " },
     { text: "calm", em: true },
   ] as Headline,
-  lead: "Open the suite in any browser tab and simply start — no account, no cookie banner, no setup. CapyExpense lives on your desktop and your disk, never ours.",
-  primary: { label: "Open the suite", href: "/tools" },
+  lead: "Open any tool in a browser tab and simply start — no account, no cookie banner, no setup. CapyExpense lives on your desktop and your disk, never ours.",
+  primary: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
   foot: ["● Live", "v0.1.0 / Apache-2.0"],
   ribbon: "CAPYTOOLS · FIN.",
@@ -381,11 +398,12 @@ export const LANDING_FOOTER = {
       ],
     },
     {
-      title: "Colophon",
+      title: "On this page",
       links: [
+        { label: "Try it here", href: "#proof" },
         { label: `${SUITE_WORD_CAP} tools`, href: "#labs" },
         { label: "House rules", href: "#method" },
-        { label: "First line", href: "#testimonial" },
+        { label: "From the README", href: "#testimonial" },
       ],
     },
   ],

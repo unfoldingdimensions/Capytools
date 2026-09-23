@@ -207,3 +207,12 @@ describe("shared chrome", () => {
     expect(html).toContain("lp-corner-tl");
   });
 });
+
+describe("the shared footer's claim holds on every page it renders on", () => {
+  it("never promises 'nothing stored' — CapyExpense keeps your files on disk", () => {
+    const footer = renderToStaticMarkup(<CapyExpensePage />);
+    expect(footer).not.toMatch(/capytools — [^<]*nothing stored/i);
+    expect(footer).toContain("no signup. no cookies. open source.");
+    expect(footer).not.toContain("coming soon</p>");
+  });
+});

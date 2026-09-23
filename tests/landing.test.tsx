@@ -21,13 +21,14 @@ import { Landing } from "../src/components/landing/Landing";
 import DesignNotesPage from "../src/app/design/page";
 import LicensePage from "../src/app/license/page";
 import NotesPage from "../src/app/notes/page";
-import { CTA, EXTERNAL, LABS, PLATES, HERO, LANDING_FOOTER, WORK } from "../src/lib/capytools/landing";
+import { CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, WORK } from "../src/lib/capytools/landing";
 import {
   SUITE,
   SUITE_INDEX,
-  SUITE_LIST,
   SUITE_WORD,
   gridColumns,
+  numberWord,
+  countByCategory,
 } from "../src/lib/capytools/suite";
 
 const html = renderToStaticMarkup(<Landing />);
@@ -58,7 +59,9 @@ describe("Landing", () => {
     // made all of them wrong at once. They read the registry now.
     expect(SUITE_INDEX).toBe(String(SUITE.length).padStart(2, "0"));
     expect(HERO.ix).toContain(SUITE_INDEX);
-    expect(HERO.lead).toContain(SUITE_LIST);
+    // The hero names jobs, and counts the rest from the registry.
+    expect(HERO.lead).toContain(`${numberWord(SUITE.length - HERO_JOBS.length)} more small jobs`);
+    expect(HERO.lead).toContain(`${numberWord(countByCategory("browser"))} of them done right in your browser`);
     expect(HERO.stats[0].value).toBe(SUITE_INDEX);
     expect(LABS.meta[1]).toBe(`${SUITE_INDEX} of ${SUITE_INDEX} shipped`);
     expect(LABS.foot).toBe(`${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`);
@@ -268,5 +271,46 @@ describe("the landing has one primary action and lists the suite less", () => {
   it("drops the Colophon glyph grid and the fake progress dots", () => {
     expect(html).not.toContain("lp-partners");
     expect(html).not.toContain("lp-progress");
+  });
+});
+
+/**
+ * The clarify pass. The copy says one thing once, in the visitor's words,
+ * and only what is true on the page it is printed on.
+ */
+describe("the landing speaks in jobs, one noun per idea", () => {
+  it("leads with jobs a first-timer recognises, each one a real tool", () => {
+    for (const row of HERO_JOBS) {
+      expect(HERO.lead).toContain(row.job);
+      expect(SUITE.some((tool) => tool.href === row.href)).toBe(true);
+    }
+    // Eleven invented product names in a row told a newcomer nothing.
+    const namesInLead = SUITE.filter((tool) => HERO.lead.includes(tool.name));
+    expect(namesInLead).toHaveLength(0);
+  });
+
+  it("does not claim the desktop tool runs in the browser", () => {
+    expect(HERO.lead).not.toMatch(/all of them|every one of them|entirely in your browser and keep/i);
+  });
+
+  it("gives every whole-suite promise one label and one destination", () => {
+    const label = `See all ${SUITE_WORD} tools`;
+    expect(LABS.cta).toBe(label);
+    expect(WORK.link).toEqual({ label, href: "/tools" });
+    expect(CTA.primary).toEqual({ label, href: "/tools" });
+  });
+
+  it("names landing sections for what they are", () => {
+    // The nav row only — the footer's "Suite" column title is a fine label.
+    const nav = html.match(/<nav class="lp-nav-links"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
+    expect(nav).not.toBe("");
+    for (const vague of [">Suite<", ">Method<", ">Work<"]) expect(nav).not.toContain(vague);
+    expect(nav).toContain('href="#proof"');
+  });
+
+  it("keeps plain words in the footer's in-page column", () => {
+    const column = LANDING_FOOTER.columns.find((col) => col.links.some((link) => link.href === "#testimonial"));
+    expect(column?.title).toBe("On this page");
+    expect(column?.links.map((link) => link.label)).not.toContain("First line");
   });
 });

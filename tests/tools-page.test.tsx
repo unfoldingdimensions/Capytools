@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
@@ -84,12 +86,21 @@ describe("the terms people actually type reach the right tool", () => {
     ["palette", "CapyTone"],
     ["budget", "CapyExpense"],
     ["github", "CapyWrapped"],
+    ["image", "CapyResize"],
+    ["image", "CapyPixel"],
+    ["image", "CapyStrip"],
   ])("%s finds %s", (query, expected) => {
     expect(find(query)).toContain(expected);
   });
 
   it("narrows on every term rather than widening", () => {
     expect(find("qr wifi")).toEqual(["CapyQR"]);
+  });
+
+  it("no single-letter keyword — it could only ever match a bare letter", () => {
+    for (const tool of SUITE) {
+      for (const word of tool.keywords) expect(word.length, `${tool.name}: "${word}"`).toBeGreaterThan(1);
+    }
   });
 
   it("every tool carries at least three search terms", () => {
@@ -129,5 +140,13 @@ describe("/tools is findable", () => {
     expect(metadata.alternates?.canonical).toBe("/tools");
     expect((metadata.openGraph as { url?: string })?.url).toBe(`${SITE_URL}/tools`);
     expect(metadata.openGraph?.title).toBe(metadata.title);
+  });
+});
+
+describe("the /tools empty state points the right way", () => {
+  it("offers to clear the search, and never says the tools are above it", () => {
+    const src = readFileSync(join(process.cwd(), "src/components/tools/ToolsGrid.tsx"), "utf8");
+    expect(src).not.toContain("listed above");
+    expect(src).toContain("clear search");
   });
 });
