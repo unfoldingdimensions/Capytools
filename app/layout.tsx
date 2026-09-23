@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Albert_Sans, Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
 
 import './globals.css';
 import React from 'react';
@@ -7,18 +7,32 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SkipLink } from '@/components/ui/SkipLink';
 import { siteUrl } from '@/lib/site';
 
-// Optimized font loading with next/font (no render-blocking, automatic preload)
-const inter = Inter({
+// The Capytools type system (DESIGN.md): Fraunces for titles, Plus Jakarta Sans at
+// weight 500 for all UI, Albert Sans as the label voice. The token names are the
+// suite's — --font-display / --font-sans / --font-mono — so one utility maps each role.
+const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sans',
+  weight: ['500', '600', '700', '800'],
   display: 'swap',
   preload: true,
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
+// Italic is loaded deliberately: the brief's headline voice carries an <em> emphasis
+// word, and a synthesized oblique would undo the whole point of a light serif.
+const display = Fraunces({
   subsets: ['latin'],
-  variable: '--font-outfit',
-  weight: ['500', '600', '700', '800'],
+  variable: '--font-display',
+  style: ['normal', 'italic'],
+  display: 'swap',
+  preload: true,
+});
+
+// The label voice (eyebrows, tags, code). The token keeps its `--font-mono` name, so
+// every `font-mono` utility resolves to Albert Sans in one place.
+const label = Albert_Sans({
+  subsets: ['latin'],
+  variable: '--font-mono',
   display: 'swap',
   preload: true,
 });
@@ -50,22 +64,21 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: light)', color: '#f9f9f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#121212' },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}>
+      <body
+        className={`${sans.variable} ${display.variable} ${label.variable} font-sans antialiased`}
+      >
         <SkipLink />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        {/* No `disableTransitionOnChange`: the 150ms colour interpolation IS the design
+            language (DESIGN.md §Layout), and it never touches layout properties. */}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <main id="main-content">{children}</main>
         </ThemeProvider>
       </body>

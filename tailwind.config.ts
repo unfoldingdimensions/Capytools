@@ -76,14 +76,37 @@ const config: Config = {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'Georgia', 'serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
         swiss: 'var(--shadow-swiss)',
         'swiss-hover': '0 20px 40px -8px rgba(0, 0, 0, 0.1)',
         card: 'var(--shadow-card)',
         pop: 'var(--shadow-pop)',
+      },
+      // The suite's size ramp (DESIGN.md §Typography). Every fixed size the site is
+      // allowed to use lives here; nothing below 10px, and a new size joins the ramp
+      // before it appears in code.
+      fontSize: {
+        'label-micro': ['0.625rem', { lineHeight: '1.5' }],
+        'label-caps': ['0.6875rem', { lineHeight: '1.5', letterSpacing: '0.24em' }],
+        caption: ['0.75rem', { lineHeight: '1.5' }],
+        'ui-sm': ['0.8125rem', { lineHeight: '1.5' }],
+        'body-sm': ['0.875rem', { lineHeight: '1.6' }],
+        'ui-md': ['0.9375rem', { lineHeight: '1.5' }],
+        'body-md': ['1rem', { lineHeight: '1.5' }],
+        'lead-lg': ['1.125rem', { lineHeight: '1.55' }],
+        'title-sm': ['1.3125rem', { lineHeight: '1.2' }],
+        'title-md': ['1.625rem', { lineHeight: '1.15' }],
+        'display-md': ['1.5rem', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
+        'display-sm': ['2.125rem', { lineHeight: '1.05' }],
+        'display-lg': ['2.375rem', { lineHeight: '1.05' }],
+        'display-tool': ['3rem', { lineHeight: '1.04' }],
+        'display-xl': ['3.75rem', { lineHeight: '1.04', letterSpacing: '-0.02em' }],
+        'numeral-lg': ['4rem', { lineHeight: '0.9' }],
+        'numeral-xl': ['4.5rem', { lineHeight: '1' }],
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
