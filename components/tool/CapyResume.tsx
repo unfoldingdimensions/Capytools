@@ -25,7 +25,8 @@ import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { emptyBullet, emptyEntry, emptySection } from '@/lib/capyresume/schema';
 import { lintResume } from '@/lib/capyresume/hints';
 import { TEMPLATE_LIST, getTemplate, isPackUnlocked } from '@/lib/capyresume/templates';
-import { composeDocument, type DocBlock } from '@/lib/capyresume/document';
+import { composeDocument } from '@/lib/capyresume/document';
+import { BlockView, previewPaperStyle } from '@/components/tool/BlockView';
 import {
   exportResumeJson,
   importResumeJson,
@@ -640,20 +641,11 @@ export function CapyResume() {
 
             <div
               className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
-              style={{
-                fontFamily: spec.fontFamily,
-                fontSize: `${spec.fontSize}pt`,
-                lineHeight: spec.lineHeight,
-              }}
+              style={previewPaperStyle(spec)}
             >
               <div style={{ padding: '28pt 30pt' }}>
                 {blocks.map((block, index) => (
-                  <BlockView
-                    key={index}
-                    block={block}
-                    bulletChar={spec.bulletChar}
-                    rule={spec.headingRule}
-                  />
+                  <BlockView key={index} block={block} spec={spec} />
                 ))}
               </div>
             </div>
@@ -733,66 +725,4 @@ export function CapyResume() {
       </main>
     </div>
   );
-}
-
-function BlockView({
-  block,
-  bulletChar,
-  rule,
-}: {
-  block: DocBlock;
-  bulletChar: string;
-  rule: boolean;
-}) {
-  switch (block.kind) {
-    case 'header':
-      return (
-        <div style={{ marginBottom: '10pt' }}>
-          {block.name && <div style={{ fontSize: '1.6em', fontWeight: 700 }}>{block.name}</div>}
-          {block.contact.map((line, i) => (
-            <div key={i}>{line}</div>
-          ))}
-          {block.links.map((line, i) => (
-            <div key={i}>{line}</div>
-          ))}
-        </div>
-      );
-    case 'heading':
-      return (
-        <div
-          style={{
-            marginTop: '14pt',
-            marginBottom: '6pt',
-            fontWeight: 700,
-            borderBottom: rule ? '0.75pt solid #111' : undefined,
-            paddingBottom: rule ? '2pt' : undefined,
-          }}
-        >
-          {block.text}
-        </div>
-      );
-    case 'entry':
-      return (
-        <div style={{ marginBottom: '6pt' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <strong>{block.title ?? ''}</strong>
-            <span>{block.range ?? ''}</span>
-          </div>
-          {block.meta && <div>{block.meta}</div>}
-        </div>
-      );
-    case 'paragraph':
-      return <p style={{ marginBottom: '4pt' }}>{block.text}</p>;
-    case 'bullet':
-      return (
-        <div style={{ display: 'flex', gap: '8pt', marginBottom: '2pt' }}>
-          <span>{bulletChar}</span>
-          <span style={{ flex: 1 }}>{block.text}</span>
-        </div>
-      );
-    case 'tags':
-      return <div style={{ marginBottom: '4pt' }}>{block.text}</div>;
-    default:
-      return null;
-  }
 }
