@@ -49,9 +49,18 @@ export const DEMO_RESUME: ResumeDoc = {
           startDate: '2022-03',
           current: true,
           bullets: [
-            { id: 'demo-exp-1-b1', text: 'Rebuilt the monthly close process, cutting it from nine days to four.' },
-            { id: 'demo-exp-1-b2', text: 'Built a demand forecast used by three regional teams to plan 1,200 weekly deliveries.' },
-            { id: 'demo-exp-1-b3', text: 'Trained eight colleagues on the new reporting stack, removing a single-person dependency.' },
+            {
+              id: 'demo-exp-1-b1',
+              text: 'Rebuilt the monthly close process, cutting it from nine days to four.',
+            },
+            {
+              id: 'demo-exp-1-b2',
+              text: 'Built a demand forecast used by three regional teams to plan 1,200 weekly deliveries.',
+            },
+            {
+              id: 'demo-exp-1-b3',
+              text: 'Trained eight colleagues on the new reporting stack, removing a single-person dependency.',
+            },
           ],
           tags: [],
         },
@@ -63,8 +72,14 @@ export const DEMO_RESUME: ResumeDoc = {
           startDate: '2019-07',
           endDate: '2022-02',
           bullets: [
-            { id: 'demo-exp-2-b1', text: 'Automated the weekly KPI pack, saving six hours of manual work per week.' },
-            { id: 'demo-exp-2-b2', text: 'Identified a routing inefficiency that reduced fuel spend by 11% year on year.' },
+            {
+              id: 'demo-exp-2-b1',
+              text: 'Automated the weekly KPI pack, saving six hours of manual work per week.',
+            },
+            {
+              id: 'demo-exp-2-b2',
+              text: 'Identified a routing inefficiency that reduced fuel spend by 11% year on year.',
+            },
           ],
           tags: [],
         },
@@ -95,7 +110,14 @@ export const DEMO_RESUME: ResumeDoc = {
         {
           id: 'demo-skills-1',
           bullets: [],
-          tags: ['SQL', 'Python (pandas)', 'Excel modelling', 'Power BI', 'Stakeholder reporting', 'Process design'],
+          tags: [
+            'SQL',
+            'Python (pandas)',
+            'Excel modelling',
+            'Power BI',
+            'Stakeholder reporting',
+            'Process design',
+          ],
         },
       ],
     },
@@ -108,7 +130,10 @@ export const DEMO_RESUME: ResumeDoc = {
           id: 'demo-project-1',
           title: 'Open transit-delay dataset',
           bullets: [
-            { id: 'demo-project-1-b1', text: 'Published a cleaned ten-year dataset of metropolitan rail delays, used by two university courses.' },
+            {
+              id: 'demo-project-1-b1',
+              text: 'Published a cleaned ten-year dataset of metropolitan rail delays, used by two university courses.',
+            },
           ],
           tags: ['Python', 'Data cleaning'],
         },

@@ -168,7 +168,7 @@ export function ResumePdfDocument({
 export async function buildResumePdf(doc: ResumeDoc, options: PdfOptions = {}): Promise<Blob> {
   const templateId = options.templateId ?? doc.templateId;
   const instance = pdf(
-    <ResumePdfDocument doc={doc} templateId={templateId} paperSize={options.paperSize ?? 'A4'} />,
+    <ResumePdfDocument doc={doc} templateId={templateId} paperSize={options.paperSize ?? 'A4'} />
   );
   return instance.toBlob();
 }

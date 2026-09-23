@@ -46,7 +46,8 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
   classic: {
     id: 'classic',
     name: 'Classic',
-    description: 'Single column, upper-case headings, a hairline rule under each. The safest default.',
+    description:
+      'Single column, upper-case headings, a hairline rule under each. The safest default.',
     columns: 1,
     usesTables: false,
     fontFamily: 'Helvetica',

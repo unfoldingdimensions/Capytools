@@ -134,7 +134,7 @@ export function blocksToPlainText(blocks: readonly DocBlock[]): string {
         lines.push(block.text);
         break;
       case 'entry':
-        lines.push(...[block.title, block.meta, block.range].filter(Boolean) as string[]);
+        lines.push(...([block.title, block.meta, block.range].filter(Boolean) as string[]));
         break;
     }
   }

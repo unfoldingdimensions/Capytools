@@ -261,7 +261,7 @@ export function isResumeEmpty(doc: ResumeDoc): boolean {
       contact.email?.trim() ||
       contact.phone?.trim() ||
       contact.location?.trim() ||
-      contact.links.length > 0,
+      contact.links.length > 0
   );
   if (hasContact) return false;
 
@@ -271,7 +271,7 @@ export function isResumeEmpty(doc: ResumeDoc): boolean {
         Boolean(entry.title?.trim() || entry.organisation?.trim() || entry.text?.trim()) ||
         entry.bullets.some((bullet) => bullet.text.trim().length > 0) ||
         // Blank tags are noise from a half-typed input, not content.
-        entry.tags.some((tag) => tag.trim().length > 0),
-    ),
+        entry.tags.some((tag) => tag.trim().length > 0)
+    )
   );
 }

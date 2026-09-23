@@ -63,7 +63,7 @@ function headingParagraph(text: string, spec: TemplateSpec): Paragraph {
 
 function headerParagraphs(
   block: Extract<DocBlock, { kind: 'header' }>,
-  spec: TemplateSpec,
+  spec: TemplateSpec
 ): Paragraph[] {
   const font = wordFont(spec);
   const paragraphs: Paragraph[] = [];
@@ -75,7 +75,7 @@ function headerParagraphs(
           new TextRun({ text: block.name, bold: true, font, size: halfPoints(spec.fontSize + 7) }),
         ],
         spacing: { after: 60 },
-      }),
+      })
     );
   }
 
@@ -84,7 +84,7 @@ function headerParagraphs(
       new Paragraph({
         children: [new TextRun({ text: line, font, size: halfPoints(spec.fontSize - 0.5) })],
         spacing: { after: 20 },
-      }),
+      })
     );
   }
 
@@ -107,7 +107,9 @@ function blockToParagraph(block: NonHeaderBlock, spec: TemplateSpec): Paragraph 
       if (block.range) {
         // A tab to the right-aligned stop keeps the date off the title without
         // introducing a second column or a table.
-        children.push(new TextRun({ text: `\t${block.range}`, font, size: halfPoints(spec.fontSize - 0.5) }));
+        children.push(
+          new TextRun({ text: `\t${block.range}`, font, size: halfPoints(spec.fontSize - 0.5) })
+        );
       }
       return new Paragraph({
         children,

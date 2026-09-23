@@ -1,0 +1,16 @@
+# Prettier's own defaults already cover node_modules.
+.next/
+out/
+build/
+coverage/
+
+# Owned by npm, not by us. Reformatting it produces tens of thousands of lines
+# of diff on every `npm install` and then fights the package manager.
+package-lock.json
+
+# Owned by Next.js and rewritten on every build — formatting it just makes the
+# tree dirty again.
+next-env.d.ts
+
+# Local agent working material: gitignored, never committed, no need to style.
+.hermes/

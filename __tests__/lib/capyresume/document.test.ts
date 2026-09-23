@@ -21,7 +21,9 @@ function fullResume(): ResumeDoc {
         id: 'demo-custom',
         type: 'custom',
         title: 'Volunteering',
-        entries: [{ id: 'v1', title: 'Treasurer', organisation: 'Local club', bullets: [], tags: [] }],
+        entries: [
+          { id: 'v1', title: 'Treasurer', organisation: 'Local club', bullets: [], tags: [] },
+        ],
       },
     ],
   });
@@ -35,7 +37,7 @@ describe('capyresume/document — header', () => {
   it('opens with the header block', () => {
     const blocks = composeDocument(DEMO_RESUME, TEMPLATES.classic);
     expect(blocks[0]!.kind).toBe('header');
-    expect((blocks[0] as Extract<typeof blocks[0], { kind: 'header' }>).name).toBe('Maya Okafor');
+    expect((blocks[0] as Extract<(typeof blocks)[0], { kind: 'header' }>).name).toBe('Maya Okafor');
   });
 
   it('splits contact details and links onto separate lines', () => {
@@ -48,7 +50,10 @@ describe('capyresume/document — header', () => {
       '+61 400 000 000',
       'Melbourne, Australia',
     ]);
-    expect(header.links).toEqual(['LinkedIn: linkedin.com/in/mayaokafor', 'Portfolio: mayaokafor.example.com']);
+    expect(header.links).toEqual([
+      'LinkedIn: linkedin.com/in/mayaokafor',
+      'Portfolio: mayaokafor.example.com',
+    ]);
   });
 
   it('omits blank contact fields rather than emitting empty lines', () => {
@@ -65,19 +70,24 @@ describe('capyresume/document — header', () => {
 });
 
 describe('capyresume/document — sections are never dropped', () => {
-  it.each(TEMPLATE_LIST)('$name renders every non-empty section, including projects and certifications', (spec) => {
-    // Regression guard: in the previous build two of three templates silently
-    // omitted Projects and Certifications from the exported file.
-    const blocks = composeDocument(fullResume(), spec);
-    const headings = blocks
-      .filter((block): block is Extract<typeof block, { kind: 'heading' }> => block.kind === 'heading')
-      .map((block) => block.text);
+  it.each(TEMPLATE_LIST)(
+    '$name renders every non-empty section, including projects and certifications',
+    (spec) => {
+      // Regression guard: in the previous build two of three templates silently
+      // omitted Projects and Certifications from the exported file.
+      const blocks = composeDocument(fullResume(), spec);
+      const headings = blocks
+        .filter(
+          (block): block is Extract<typeof block, { kind: 'heading' }> => block.kind === 'heading'
+        )
+        .map((block) => block.text);
 
-    expect(headings).toHaveLength(7); // summary, experience, education, skills, projects, certifications, custom
-    expect(headings.join(' | ')).toMatch(/PROJECTS|Projects/);
-    expect(headings.join(' | ')).toMatch(/CERTIFICATIONS|Certifications/);
-    expect(headings.join(' | ')).toMatch(/VOLUNTEERING|Volunteering/);
-  });
+      expect(headings).toHaveLength(7); // summary, experience, education, skills, projects, certifications, custom
+      expect(headings.join(' | ')).toMatch(/PROJECTS|Projects/);
+      expect(headings.join(' | ')).toMatch(/CERTIFICATIONS|Certifications/);
+      expect(headings.join(' | ')).toMatch(/VOLUNTEERING|Volunteering/);
+    }
+  );
 
   it("keeps the user's section order", () => {
     const headings = composeDocument(fullResume(), TEMPLATES.classic)
@@ -95,7 +105,14 @@ describe('capyresume/document — sections are never dropped', () => {
   it('skips a section whose entries are all blank', () => {
     const doc = migrate({
       contact: { name: 'A' },
-      sections: [{ id: 's', type: 'experience', title: 'Experience', entries: [{ id: 'e', bullets: [], tags: [] }] }],
+      sections: [
+        {
+          id: 's',
+          type: 'experience',
+          title: 'Experience',
+          entries: [{ id: 'e', bullets: [], tags: [] }],
+        },
+      ],
     });
     expect(composeDocument(doc, TEMPLATES.classic).map((b) => b.kind)).toEqual(['header']);
   });
@@ -104,7 +121,10 @@ describe('capyresume/document — sections are never dropped', () => {
 describe('capyresume/document — entry composition', () => {
   it('emits an entry line, then bullets', () => {
     const blocks = composeDocument(DEMO_RESUME, TEMPLATES.classic);
-    const entry = blocks.find((b) => b.kind === 'entry') as Extract<typeof blocks[0], { kind: 'entry' }>;
+    const entry = blocks.find((b) => b.kind === 'entry') as Extract<
+      (typeof blocks)[0],
+      { kind: 'entry' }
+    >;
 
     expect(entry.title).toBe('Senior Operations Analyst');
     expect(entry.meta).toBe('Northwind Logistics \u00b7 Melbourne, VIC');
@@ -130,7 +150,7 @@ describe('capyresume/document — entry composition', () => {
 
   it('renders skills as a comma-separated tag line', () => {
     const tags = composeDocument(DEMO_RESUME, TEMPLATES.classic).filter(
-      (b): b is Extract<typeof b, { kind: 'tags' }> => b.kind === 'tags',
+      (b): b is Extract<typeof b, { kind: 'tags' }> => b.kind === 'tags'
     );
     expect(tags[0]!.text).toContain('SQL');
     expect(tags[0]!.text).toContain(', ');
@@ -155,7 +175,12 @@ describe('capyresume/document — entry composition', () => {
   it('detects a blank section', () => {
     expect(isSectionEmpty({ id: 's', type: 'custom', title: 'X', entries: [] })).toBe(true);
     expect(
-      isSectionEmpty({ id: 's', type: 'custom', title: 'X', entries: [{ ...emptyEntry(), text: 'hi' }] }),
+      isSectionEmpty({
+        id: 's',
+        type: 'custom',
+        title: 'X',
+        entries: [{ ...emptyEntry(), text: 'hi' }],
+      })
     ).toBe(false);
   });
 });
@@ -164,7 +189,13 @@ describe('capyresume/document — output hygiene', () => {
   it('adds no watermark, attribution or branding to any template', () => {
     for (const spec of TEMPLATE_LIST) {
       const text = blocksToPlainText(composeDocument(fullResume(), spec));
-      for (const forbidden of ['Handcraft', 'CapyResume', 'Generated by', 'capy.tools', 'watermark']) {
+      for (const forbidden of [
+        'Handcraft',
+        'CapyResume',
+        'Generated by',
+        'capy.tools',
+        'watermark',
+      ]) {
         expect(text).not.toContain(forbidden);
       }
     }

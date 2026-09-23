@@ -5,20 +5,7 @@
  * its arguments so it can be unit-tested without a browser.
  */
 
-const MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** `2020-03` → `Mar 2020`; `2020` → `2020`; anything else is returned trimmed. */
 export function formatMonth(value?: string): string {
