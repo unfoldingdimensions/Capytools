@@ -248,9 +248,14 @@ sales pipeline.
 6. **Set expectations from the data, not from hope.** Freemium conversion medians are
    ~2% [11]; the peer project with 39k stars raises €33/month [2]. Treat the paid tier as
    validation and a signal, not as income, until the free tier has real traffic.
-7. **Re-open the question only if the constraints change**: a hosted copy (F), or a
-   recruiter/team surface (G), are the two developments that would make the excluded models
-   available.
+7. **Re-open the question only if the constraints change.** Two developments would make the
+   excluded models available: a hosted copy (F), or a recruiter/team surface (G). There is a
+   third, better-fitting version of the first — **client-side-encrypted sync**, a service that
+   only ever holds ciphertext. That is the shape Obsidian proves works (§4) and the only
+   revenue model in this document that does not contradict the privacy claim. It still
+   changes the central sentence from _nothing leaves the browser_ to _only ciphertext does_,
+   so it belongs in its own plan with its own threat model; it is named and deferred in §2 of
+   the paid-tier plan rather than left to be rediscovered as an exciting idea later.
 
 ## 7. What this research does not establish
 
