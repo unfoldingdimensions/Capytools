@@ -147,3 +147,64 @@ at any point.
 
 1. **The paid tier is unbuilt** — template packs, cover-letter bundle, saved
    versions and bulk tailoring are scoped, documented and deliberately absent.
+
+---
+
+## Part 5 — Launch state
+
+Verified 2026-09-24, after the UI/UX pass and the community-files commit
+(`129375c`).
+
+**Done and verified:**
+
+- **Community files.** `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`
+  (Contributor Covenant 2.1, fetched from the source and adapted only at the
+  reporting line), a pull-request template and `.github/ISSUE_TEMPLATE/`
+  (two forms plus a chooser config) — all on `main`, read back from the remote.
+  GitHub's community health went from **42% to 100%**.
+- **GitHub metadata.** The description no longer sells the pre-pivot product:
+  it advertised "BYOK writing assistant … live premium preview … Next.js +
+  Prisma + Clerk", none of which is in this codebase. Topics replaced —
+  `clerk`, `prisma`, `saas`, `openai` removed; `ats`, `client-side`,
+  `local-first`, `privacy`, `no-account`, `browser-only`, `cv-builder`,
+  `apache-license` added. (`apache-2.0` is rejected by GitHub: dots are not
+  allowed in topics.) Homepage is deliberately left empty — there is no origin
+  yet, and a dead link is worse than a missing one.
+- **Licence.** `gh api repos/…/license` reports `Apache-2.0`. The GraphQL
+  `licenseInfo` field reads null on a private repository, which is a red
+  herring rather than a problem.
+- **History hygiene.** All 238 commits scanned for token and private-key
+  shapes: none. `.env.example` is the only env-shaped file ever added — no
+  `.env`, no `.pem`, no credential file in any commit.
+- **The CI badge's shape.** Workflow file `ci.yml`, workflow name `CI`, default
+  branch `main`, runs green on `main`: the three ways a badge shows "no status"
+  are all checked, and the README's URL matches the first.
+- **Deploy assertions.** `npm run verify:deploy <origin>` is new: it checks
+  `robots.txt`, the sitemap, every self-canonical, leaked placeholder origins
+  and that the social card is a real 1200×630 PNG. It refuses to guess an
+  origin, and fails correctly when the declared origin differs from the one the
+  build was made with.
+
+**Only true once public — the flip checklist, in order:**
+
+1. **Enable private vulnerability reporting.** It is a public-repository
+   feature (the REST endpoint returns 404 while the repo is private), and both
+   `SECURITY.md` and the code of conduct point at that form.
+2. **Confirm the CI badge renders.** It 404s for everyone today — authenticated
+   or anonymous — purely because the repository is private.
+3. **Deploy, then run `npm run verify:deploy <origin>`** before announcing
+   anything. Those five assertions are precisely what no local build can prove.
+4. **Search Console:** verify the origin, submit the sitemap.
+5. **Decide the history question below.**
+
+**Open:**
+
+1. **Twenty commits carry real email addresses** — fifteen as
+   `unfoldingdimensions@gmail.com`, five as a third party's address. Going
+   public publishes both permanently. `git filter-repo --mail-map` is the only
+   fix; it rewrites every SHA and needs a force-push. Nothing external
+   references a SHA yet, so this is the cheapest it will ever be.
+2. **Two human verifications**, unchanged: an exported DOCX opened in Word and
+   Google Docs, and a real BYOK key against a provider's CORS. Two others from
+   the same list are now covered by measurement — a live reload preserving
+   state (47 of 47 fields) and the PDF text layer (`verify:pdf`).
