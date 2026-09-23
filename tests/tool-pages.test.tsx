@@ -240,10 +240,15 @@ describe("touch targets and the thumb-reach output bar", () => {
     expect(html).toContain("pointer-coarse:h-11");
   });
 
-  it("renders the mobile output bar, inert until the code scrolls away", () => {
+  it("portals the output bar to <body>, and starts it inert and off-screen", () => {
+    // A transformed ancestor (the shell's Reveal) re-anchors position: fixed,
+    // so the bar must escape the stage entirely — and it only exists once the
+    // client mounts, which is why the server markup carries no trace of it.
     const html = markup(<CapyQRPage />);
     expect(html).toContain('id="capyqr-code"');
-    // Server render assumes the code is in view: the bar starts inert and off-screen.
-    expect(html).toMatch(/<div inert="" aria-hidden="true" class="fixed inset-x-0 bottom-0[^"]*translate-y-full/);
+    expect(html).not.toContain("fixed inset-x-0 bottom-0");
+    const src = readFileSync(join(process.cwd(), "src/components/tool/CapyQR.tsx"), "utf8");
+    expect(src).toMatch(/createPortal\([\s\S]*?inert=\{codeInView\}[\s\S]*?document\.body/);
+    expect(src).toContain('codeInView ? "translate-y-full" : "translate-y-0"');
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Copy, Dices, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -259,6 +260,11 @@ export function CapyQR() {
   const thumbCanvasRef = useRef<HTMLCanvasElement>(null);
   // Whether card 03 (the code) is on screen; the bar stands in when it is not.
   const [codeInView, setCodeInView] = useState(true);
+  // The bar is portalled to <body>, so it only exists once the client mounts.
+  const [portalReady, setPortalReady] = useState(false);
+  const markPortalReady = useCallback(() => setPortalReady(true), []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(markPortalReady, [markPortalReady]);
 
   const payload = useMemo(() => buildPayload(kind, fields), [kind, fields]);
   const moduleCount = useMemo(
@@ -1412,43 +1418,53 @@ export function CapyQR() {
         </p>
       </StageCard>
 
-      <div
-        inert={codeInView}
-        aria-hidden={codeInView}
-        className={cn(
-          "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.35)] transition-transform duration-300 ease-out motion-reduce:transition-none lg:hidden",
-          codeInView ? "translate-y-full" : "translate-y-0",
-        )}
-      >
-        <div className="mx-auto flex max-w-xl items-center gap-3">
-          <canvas
-            ref={thumbCanvasRef}
-            width={112}
-            height={112}
-            aria-hidden
-            className="size-14 flex-none rounded-lg border border-border bg-white"
-          />
-          <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
-            {!payload.ok
-              ? "fill in the payload to make a code."
-              : proof?.ok && !proof.inverted
-                ? "verified scannable, in this tab."
-                : proof?.ok
-                  ? "light on dark — some scanners will refuse it."
-                  : proof
-                    ? "won't scan yet — raise the contrast."
-                    : "scanning the render…"}
-          </p>
-          <Button
-            className="h-11 flex-none rounded-full px-5"
-            onClick={handleDownload}
-            disabled={busy || !payload.ok}
-          >
-            <Download className="mr-1.5 size-4" />
-            Download
-          </Button>
-        </div>
-      </div>
+      {/* Portalled to <body>: the tool renders inside ToolPageShell's Reveal,
+          which animates `transform`, and a transformed ancestor re-anchors
+          `position: fixed` to itself — the bar would ride the stage instead of
+          the viewport for as long as the entrance runs, or forever if it never
+          finishes. */}
+      {portalReady
+        ? createPortal(
+            <div
+              inert={codeInView}
+              aria-hidden={codeInView}
+              className={cn(
+                "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.35)] transition-transform duration-300 ease-out motion-reduce:transition-none lg:hidden",
+                codeInView ? "translate-y-full" : "translate-y-0",
+              )}
+            >
+              <div className="mx-auto flex max-w-xl items-center gap-3">
+                <canvas
+                  ref={thumbCanvasRef}
+                  width={112}
+                  height={112}
+                  aria-hidden
+                  className="size-14 flex-none rounded-lg border border-border bg-white"
+                />
+                <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
+                  {!payload.ok
+                    ? "fill in the payload to make a code."
+                    : proof?.ok && !proof.inverted
+                      ? "verified scannable, in this tab."
+                      : proof?.ok
+                        ? "light on dark — some scanners will refuse it."
+                        : proof
+                          ? "won't scan yet — raise the contrast."
+                          : "scanning the render…"}
+                </p>
+                <Button
+                  className="h-11 flex-none rounded-full px-5"
+                  onClick={handleDownload}
+                  disabled={busy || !payload.ok}
+                >
+                  <Download className="mr-1.5 size-4" />
+                  Download
+                </Button>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
       {/* Room to scroll the last card clear of the bar. */}
       <div aria-hidden className="h-24 lg:hidden" />
     </div>
