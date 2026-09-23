@@ -487,9 +487,13 @@ export function CapyQR() {
   const svgBlocked = svgExportBlocked(Boolean(logoUrl), frame.on);
 
   return (
-    <div className="flex w-full flex-col gap-5">
+    // Below lg the cards stack 01 → 02 → 03 (and the output bar stands in for
+    // 03 while it is off-screen). From lg the output takes a sticky right
+    // column: styling is a see-and-adjust loop, and the code sat 1,493px below
+    // the controls at 1280×900. DOM and focus order stay 01 → 02 → 03.
+    <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_368px] lg:items-start">
       {/* CARD 1: THE PAYLOAD */}
-      <StageCard index="01" title="The payload" marks>
+      <StageCard index="01" title="The payload" marks className="lg:col-start-1">
         <div className="mt-4 flex flex-wrap items-center gap-1.5">
           {KINDS.map((k) => (
             <Pill
@@ -829,6 +833,7 @@ export function CapyQR() {
       <StageCard
         index="02"
         title="The style"
+        className="lg:col-start-1"
         actions={
           <div className="flex items-center gap-1.5" role="group" aria-label="Settings detail">
             <Pill active={detail === "simple"} onClick={() => setDetail("simple")} label="Simple settings">
@@ -1301,7 +1306,12 @@ export function CapyQR() {
       </StageCard>
 
       {/* CARD 3: THE CODE */}
-      <StageCard id="capyqr-code" index="03" title="The code">
+      <StageCard
+        id="capyqr-code"
+        index="03"
+        title="The code"
+        className="lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
+      >
         {/* The engine's own canvas — the QR alone — renders here, hidden;
             the composed stage below is the visible, scannable, exportable
             surface. */}

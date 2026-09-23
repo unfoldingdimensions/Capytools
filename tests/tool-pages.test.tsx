@@ -252,3 +252,18 @@ describe("touch targets and the thumb-reach output bar", () => {
     expect(src).toContain('codeInView ? "translate-y-full" : "translate-y-0"');
   });
 });
+
+describe("CapyQR keeps its output beside the controls on desktop", () => {
+  it("lays out two columns from lg, the code card sticky on the right", () => {
+    const html = markup(<CapyQRPage />);
+    expect(html).toContain("lg:grid-cols-[minmax(0,1fr)_368px]");
+    expect(html).toMatch(/id="capyqr-code"[^>]*lg:sticky/);
+  });
+
+  it("keeps DOM order payload → style → code, so focus order matches reading order", () => {
+    const html = markup(<CapyQRPage />);
+    const at = (title: string) => html.indexOf(title);
+    expect(at("The payload")).toBeLessThan(at("The style"));
+    expect(at("The style")).toBeLessThan(at("The code"));
+  });
+});
