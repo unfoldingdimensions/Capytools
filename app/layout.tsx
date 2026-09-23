@@ -5,6 +5,7 @@ import './globals.css';
 import React from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SkipLink } from '@/components/ui/SkipLink';
+import { siteUrl } from '@/lib/site';
 
 // Optimized font loading with next/font (no render-blocking, automatic preload)
 const inter = Inter({
@@ -22,7 +23,12 @@ const plusJakarta = Plus_Jakarta_Sans({
   preload: true,
 });
 
+/** Absolute URLs — canonical, Open Graph, sitemap — resolve against this when set. */
+const origin = siteUrl();
+const metadataBase = origin ? new URL(origin) : undefined;
+
 export const metadata: Metadata = {
+  metadataBase,
   title: 'CapyResume — free resume builder in your browser',
   description:
     'Build a clean, single-column resume and export a real PDF or DOCX — no signup, no watermark. Your details never leave this tab.',

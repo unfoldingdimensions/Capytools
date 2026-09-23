@@ -17,3 +17,12 @@ export const SITE = {
   /** Shown as "Last updated" on every legal page. Bump when the text changes. */
   legalUpdated: 'September 21, 2026',
 } as const;
+
+/**
+ * The production origin, without a trailing slash: `''` until
+ * NEXT_PUBLIC_SITE_URL is set. Callers must degrade rather than emit an
+ * invented absolute URL — an empty sitemap and no canonical beat a wrong one.
+ */
+export function siteUrl(): string {
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/+$/, '');
+}

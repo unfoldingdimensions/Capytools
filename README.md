@@ -90,6 +90,12 @@ will say so before they ship. Getting your résumé out the door stays free.
 Requires **Node.js ≥ 20.9** — the floor Next 16 itself declares; install and
 build fail below it.
 
+### Environment
+
+| Variable               | Default   | What it does                                                                                                                                                                                          |
+| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | _(unset)_ | The production origin. While it is unset, `metadataBase`, canonical links and `/sitemap.xml` stay off rather than pointing at an invented domain. Set it once at deploy time — no code change needed. |
+
 ```bash
 git clone https://github.com/unfoldingdimensions/CapyResume.git
 cd CapyResume
