@@ -1,12 +1,10 @@
 import Image from "next/image";
-import { SUITE } from "@/lib/capytools/suite";
 import { CAPABILITIES, CAPABILITIES_PLATE } from "@/lib/capytools/landing";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
-import { ArrowUpRight, PromiseIcon } from "@/components/landing/icons";
-import { TransitionLink } from "@/components/TransitionLink";
+import { PromiseIcon } from "@/components/landing/icons";
 
-/** III. Capabilities / Promises — the four promises every tool holds. */
+/** II. Capabilities / Promises — the two promises every tool keeps, and how to check them. */
 export function Capabilities() {
   return (
     <section className="lp-section lp-capabilities" id="capabilities">
@@ -63,20 +61,15 @@ export function Capabilities() {
                       ))}
                     </h3>
                     <p>{card.copy}</p>
-                    <TransitionLink
-                      href={card.href}
-                      className="lp-arrow-mark"
-                      // Named for the destination. "Learn more about ${card.tag}"
-                      // read "Every tool" twice, for two different pages, once
-                      // the tags became scopes.
-                      aria-label={`See it in ${SUITE.find((tool) => tool.href === card.href)?.name ?? "the suite"}`}
-                    >
-                      <ArrowUpRight />
-                    </TransitionLink>
                   </div>
                 </ScrollReveal>
               ))}
             </div>
+
+            <p className="lp-cap-check">
+              <b>{CAPABILITIES.check.lead}</b> {CAPABILITIES.check.text}{" "}
+              <a href={CAPABILITIES.check.link.href}>{CAPABILITIES.check.link.label}</a>.
+            </p>
           </ScrollReveal>
         </div>
       </div>

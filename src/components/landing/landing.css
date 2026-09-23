@@ -1344,6 +1344,26 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   margin-top: 36px;
 }
 
+.lp-cap-check {
+  max-width: 60ch;
+  margin-top: 28px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+.lp-cap-check b {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.lp-cap-check a {
+  color: color-mix(in oklab, var(--water) 80%, var(--foreground));
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
+  text-underline-offset: 4px;
+}
+
 .lp-card {
   position: relative;
   display: flex;

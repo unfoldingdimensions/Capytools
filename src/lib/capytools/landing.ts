@@ -165,13 +165,16 @@ export const WIRE = {
 
 export const CAPABILITIES = {
   roman: "II.",
-  meta: ["Capabilities · Promises", "2 kept by all, 2 by some"],
+  meta: ["Capabilities · Promises", "2 kept by all"],
   label: "Capabilities",
   ix: "· Nº 02",
+  // Two promises, not four: the other two cards were features of single tools
+  // (CapyWrapped's export, CapyImagine's engines), which their catalog
+  // blurbs already describe, and the headline had to hedge to hold them.
   headline: [
     { text: "Two promises " },
     { text: "every", em: true },
-    { text: " tool keeps, two that a few add" },
+    { text: " tool keeps" },
   ] as Headline,
   lead: "The architecture is the privacy policy. Each tool is small enough to read in one sitting and quiet enough to leave open all day.",
   ribbon: "CAPYTOOLS · CAPABILITIES MATRIX",
@@ -182,7 +185,6 @@ export const CAPABILITIES = {
       icon: "browser",
       title: ["Runs on", "your machine"],
       copy: "Browser tools compute in this tab; two fetch public data through a route that stores nothing. CapyExpense runs on your desktop.",
-      href: "/capyqr",
     },
     {
       num: "02",
@@ -190,25 +192,14 @@ export const CAPABILITIES = {
       icon: "privacy",
       title: ["Keeps nothing", "of yours"],
       copy: "No signup, no cookies, no account. Browser memory stays in localStorage; CapyExpense keeps its files on your disk, never ours.",
-      href: "/capystrip",
-    },
-    {
-      num: "03",
-      tag: "In CapyWrapped",
-      icon: "export",
-      title: ["Take it", "with you"],
-      copy: "Wrapped cards download as PNG — wide and square, light and dark — or post straight to X.",
-      href: "/capywrapped",
-    },
-    {
-      num: "04",
-      tag: "In CapyImagine",
-      icon: "engines",
-      title: ["Speaks your", "dialect"],
-      copy: "Prompts tuned per engine — Gemini, Midjourney, Flux, SDXL, Kling, Runway, Seedance.",
-      href: "/capyimagine",
     },
   ],
+  /** Don't take the cards' word for it. */
+  check: {
+    lead: "Check it yourself:",
+    text: "open your browser's developer tools on the Network tab, then type into the demos at the top of this page. Nothing you type is sent.",
+    link: { label: "back to the demos", href: "#proof" },
+  },
 } as const;
 
 export type LabCategory = "browser" | "desktop";
