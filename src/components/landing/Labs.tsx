@@ -110,8 +110,8 @@ export function Labs() {
                   />
                 </div>
                 <div className="lp-lab-num-row">
+                  {/* No year: every card said "2026", which told nobody anything. */}
                   <span>{tool.no}</span>
-                  <span>{tool.year}</span>
                 </div>
                 <h3 id={`lab-${tool.href.slice(1)}`}>{tool.name}</h3>
                 <p id={`lab-${tool.href.slice(1)}-blurb`}>{tool.blurb}</p>

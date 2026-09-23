@@ -244,7 +244,6 @@ export const LABS = {
   tools: SUITE.map((tool, i) => ({
     badge: tool.badge,
     no: `Nº ${pad2(i + 1)}`,
-    year: tool.year,
     name: tool.name,
     blurb: tool.blurb,
     href: tool.href,

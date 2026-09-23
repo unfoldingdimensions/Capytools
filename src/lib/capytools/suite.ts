@@ -29,7 +29,6 @@ export type SuiteTool = {
    * UtilitiesApplication rather than inventing a value.
    */
   appCategory: string;
-  year: string;
   /** The catalog card's sentence. */
   blurb: string;
   /** The Colophon's one-line note under the glyph. */
@@ -58,7 +57,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Wrapped",
     appCategory: "DeveloperApplication",
-    year: "2026",
     blurb:
       "Your GitHub year in a calm little card — contributions, a month-by-month trendline, stars and top languages.",
     note: "GitHub year",
@@ -73,7 +71,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Imagine",
     appCategory: "DesignApplication",
-    year: "2026",
     blurb:
       "Random image and video prompts, tuned in your engine's dialect — ratios, frames and negative clauses included.",
     note: "Prompt roulette",
@@ -88,7 +85,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Create",
     appCategory: "DeveloperApplication",
-    year: "2026",
     blurb:
       "Model-aware prompt engineering scaled from flash to frontier — intent elucidation, assembly, optional polish.",
     note: "Model-aware",
@@ -103,7 +99,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Strip",
     appCategory: "SecurityApplication",
-    year: "2026",
     blurb:
       "Photos talk; this helps them forget. Reads every metadata trail, strips it in-tab, then proves the strip.",
     note: "Metadata off",
@@ -118,7 +113,6 @@ export const SUITE: SuiteTool[] = [
     cat: "desktop",
     badge: "Desktop · soon",
     appCategory: "FinanceApplication",
-    year: "2026",
     blurb:
       "The one that will live on your machine — a Tauri desktop app writing only to your own disk. Builds are not out yet.",
     note: "Coming soon",
@@ -133,7 +127,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "OG",
     appCategory: "DesignApplication",
-    year: "2026",
     blurb:
       "OG images and social cards worth sharing — templates, sizes and accents composed in a live preview, then downloaded or copied. Nothing uploads.",
     note: "Cards, in-tab",
@@ -148,7 +141,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "QR",
     appCategory: "UtilitiesApplication",
-    year: "2026",
     blurb:
       "Styled QR codes that prove they scan — payloads, colors, a logo, and an in-tab decoder before you export.",
     note: "Proof-scanned",
@@ -163,7 +155,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Resize",
     appCategory: "MultimediaApplication",
-    year: "2026",
     blurb:
       "Resize, convert and favicon-pack without uploading — progressive-halving quality, honest byte counts, and a 16-pixel proof strip before you ship.",
     note: "Bytes, proven",
@@ -178,7 +169,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Token",
     appCategory: "DeveloperApplication",
-    year: "2026",
     blurb:
       "Count tokens exactly, price them across every model that matters — offline, keyless, with a verified-date stamp on the rates.",
     note: "Count, then cost",
@@ -193,7 +183,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Pixel",
     appCategory: "MultimediaApplication",
-    year: "2026",
     blurb:
       "Photos and logos into pixel art — six measured styles from Game Boy to a seven-blue brand ramp, live preview, crisp export. Nothing uploads.",
     note: "Chunky, honest",
@@ -208,7 +197,6 @@ export const SUITE: SuiteTool[] = [
     cat: "browser",
     badge: "Tone",
     appCategory: "DesignApplication",
-    year: "2026",
     blurb:
       "Type a feeling, get a poster — a hand-tuned lexicon builds a deterministic five-role palette and a shareable card. No AI, nothing stored.",
     note: "Moods, in colour",

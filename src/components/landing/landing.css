@@ -594,6 +594,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: none; /* in a tight flex row it squashed into an oval at 375px */
   width: 66px;
   height: 66px;
   border: 1px solid color-mix(in oklab, var(--foreground) 30%, transparent);
@@ -2393,6 +2394,11 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   .lp-foot-brand {
     grid-column: 1 / -1;
   }
+}
+
+/* Cream plates on the charcoal page glared: dim them a little in dark. */
+.dark .lp-plate img {
+  filter: brightness(0.86);
 }
 
 /* --------------------------- reduced motion ------------------------------ */
