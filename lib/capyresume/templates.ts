@@ -31,8 +31,6 @@ export interface TemplateSpec {
   readonly headingCase: 'upper' | 'title';
   /** Thin rule beneath section headings. */
   readonly headingRule: boolean;
-  /** Vertical rhythm. */
-  readonly density: 'comfortable' | 'compact';
   /** Kept near-black so printing stays legible and parsing is unaffected. */
   readonly accent: string;
   readonly bulletChar: string;
@@ -64,7 +62,6 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
     fontFamily: 'Helvetica',
     headingCase: 'upper',
     headingRule: true,
-    density: 'comfortable',
     accent: '#111111',
     bulletChar: '\u2022',
     fontSize: 10.5,
@@ -81,7 +78,6 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
     fontFamily: 'Helvetica',
     headingCase: 'upper',
     headingRule: true,
-    density: 'compact',
     accent: '#111111',
     bulletChar: '\u2022',
     fontSize: 9.5,
@@ -98,9 +94,57 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
     fontFamily: 'Times-Roman',
     headingCase: 'title',
     headingRule: true,
-    density: 'comfortable',
     accent: '#111111',
     bulletChar: '\u2013',
+    fontSize: 10.5,
+    entryGap: 8,
+    lineHeight: 1.35,
+  },
+  air: {
+    id: 'air',
+    name: 'Air',
+    description: 'Whitespace instead of rules — title-case headings with nothing under them.',
+    pack: 'expanded',
+    columns: 1,
+    usesTables: false,
+    fontFamily: 'Helvetica',
+    headingCase: 'title',
+    headingRule: false,
+    accent: '#111111',
+    bulletChar: '\u2013',
+    fontSize: 11,
+    entryGap: 10,
+    lineHeight: 1.4,
+  },
+  executive: {
+    id: 'executive',
+    name: 'Executive',
+    description: 'A larger type scale with more air between roles, for senior applications.',
+    pack: 'expanded',
+    columns: 1,
+    usesTables: false,
+    fontFamily: 'Helvetica',
+    headingCase: 'upper',
+    headingRule: true,
+    accent: '#111111',
+    bulletChar: '\u2022',
+    fontSize: 11.5,
+    entryGap: 9,
+    lineHeight: 1.4,
+  },
+  journal: {
+    id: 'journal',
+    name: 'Journal',
+    description:
+      'Times-based with upper-case headings and no rules — traditional, without the lines.',
+    pack: 'expanded',
+    columns: 1,
+    usesTables: false,
+    fontFamily: 'Times-Roman',
+    headingCase: 'upper',
+    headingRule: false,
+    accent: '#111111',
+    bulletChar: '\u00B7',
     fontSize: 10.5,
     entryGap: 8,
     lineHeight: 1.35,
@@ -111,6 +155,9 @@ export const TEMPLATE_LIST: readonly TemplateSpec[] = [
   TEMPLATES.classic,
   TEMPLATES.compact,
   TEMPLATES.serif,
+  TEMPLATES.air,
+  TEMPLATES.executive,
+  TEMPLATES.journal,
 ];
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'classic';

@@ -13,8 +13,8 @@
 /** Bump when the persisted shape changes in a way `migrate()` must repair. */
 export const RESUME_SCHEMA_VERSION = 1;
 
-/** The three single-column, ATS-parse-friendly layouts shipped in v1. */
-export type TemplateId = 'classic' | 'compact' | 'serif';
+/** The single-column, parse-friendly layouts — every one of them, as the registry grows. */
+export type TemplateId = 'classic' | 'compact' | 'serif' | 'air' | 'executive' | 'journal';
 
 export type SectionType =
   | 'summary'

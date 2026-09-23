@@ -9,8 +9,9 @@ import {
 } from '@/lib/capyresume/templates';
 
 describe('capyresume/templates — registry', () => {
-  it('ships three templates in v1', () => {
-    expect(TEMPLATE_LIST).toHaveLength(3);
+  it('ships six templates: the three free ones plus the expanded pack', () => {
+    expect(TEMPLATE_LIST).toHaveLength(6);
+    expect(TEMPLATE_LIST.filter((s) => s.pack === 'free')).toHaveLength(3);
   });
 
   it('keys the registry by the spec id', () => {
