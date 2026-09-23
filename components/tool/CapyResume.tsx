@@ -24,7 +24,7 @@ import {
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { emptyBullet, emptyEntry, emptySection } from '@/lib/capyresume/schema';
 import { lintResume } from '@/lib/capyresume/hints';
-import { TEMPLATE_LIST, getTemplate } from '@/lib/capyresume/templates';
+import { TEMPLATE_LIST, getTemplate, isPackUnlocked } from '@/lib/capyresume/templates';
 import { composeDocument, type DocBlock } from '@/lib/capyresume/document';
 import {
   exportResumeJson,
@@ -605,11 +605,13 @@ export function CapyResume() {
                     edit((d) => ({ ...d, templateId: event.target.value as TemplateId }))
                   }
                 >
-                  {TEMPLATE_LIST.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name}
-                    </option>
-                  ))}
+                  {TEMPLATE_LIST.filter((template) => isPackUnlocked(template.pack)).map(
+                    (template) => (
+                      <option key={template.id} value={template.id}>
+                        {template.name}
+                      </option>
+                    )
+                  )}
                 </select>
               </label>
 

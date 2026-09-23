@@ -4,6 +4,7 @@ import {
   TEMPLATES,
   getTemplate,
   headingText,
+  isPackUnlocked,
   isTemplateId,
 } from '@/lib/capyresume/templates';
 
@@ -92,5 +93,27 @@ describe('capyresume/templates — registry coverage', () => {
     for (const spec of TEMPLATE_LIST) {
       expect(SAFE).toContain(spec.bulletChar);
     }
+  });
+});
+
+describe('capyresume/templates — pack seam', () => {
+  it('tags every template with a pack', () => {
+    for (const spec of TEMPLATE_LIST) {
+      expect(typeof spec.pack).toBe('string');
+      expect(spec.pack.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('unlocks every pack until a payment layer exists', () => {
+    // This is the whole seam: free must never gate the export of the user's own
+    // résumé (plan §6.4), and until payments exist there is nothing to gate with.
+    for (const pack of new Set(TEMPLATE_LIST.map((s) => s.pack))) {
+      expect(isPackUnlocked(pack)).toBe(true);
+    }
+  });
+
+  it('keeps the free set at the original three', () => {
+    const free = TEMPLATE_LIST.filter((s) => s.pack === 'free');
+    expect(free.map((s) => s.id).sort()).toEqual(['classic', 'compact', 'serif']);
   });
 });

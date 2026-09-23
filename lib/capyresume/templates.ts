@@ -40,7 +40,17 @@ export interface TemplateSpec {
   /** Points of space between an entry and the next. */
   readonly entryGap: number;
   readonly lineHeight: number;
+
+  /**
+   * The pack this template belongs to — the paid seam (plan §6.4). `free` is the
+   * always-included set; the others name the template packs the paid tier will
+   * sell. Nothing is gated today: see isPackUnlocked().
+   */
+  readonly pack: TemplatePackId;
 }
+
+/** Template packs. `free` ships with the product; `expanded` is the first paid pack. */
+export type TemplatePackId = 'free' | 'expanded';
 
 export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
   classic: {
@@ -48,6 +58,7 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
     name: 'Classic',
     description:
       'Single column, upper-case headings, a hairline rule under each. The safest default.',
+    pack: 'free',
     columns: 1,
     usesTables: false,
     fontFamily: 'Helvetica',
@@ -64,6 +75,7 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
     id: 'compact',
     name: 'Compact',
     description: 'The same single column with tighter leading — for a long career on one page.',
+    pack: 'free',
     columns: 1,
     usesTables: false,
     fontFamily: 'Helvetica',
@@ -80,6 +92,7 @@ export const TEMPLATES: Record<TemplateId, TemplateSpec> = {
     id: 'serif',
     name: 'Serif',
     description: 'Times-based and title-case, for traditional and academic applications.',
+    pack: 'free',
     columns: 1,
     usesTables: false,
     fontFamily: 'Times-Roman',
@@ -101,6 +114,16 @@ export const TEMPLATE_LIST: readonly TemplateSpec[] = [
 ];
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'classic';
+
+/**
+ * The paid seam (plan §6.4). Returns true for every pack while no payment layer
+ * exists, which keeps adding templates behaviour-neutral today and leaves
+ * exactly one function to change when payments arrive. The rule the seam exists
+ * to protect: free must never gate the export of someone's own résumé.
+ */
+export function isPackUnlocked(_pack: TemplatePackId): boolean {
+  return true;
+}
 
 export function isTemplateId(value: unknown): value is TemplateId {
   return typeof value === 'string' && Object.prototype.hasOwnProperty.call(TEMPLATES, value);
