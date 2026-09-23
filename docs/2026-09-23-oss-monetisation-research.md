@@ -96,13 +96,15 @@ one-time purchase [11]. Photopea is the proof at the small end: a one-off-use cr
 selling ad-free access in fixed day blocks, explicitly refusing donations and auto-renewal
 [the founder's stated model].
 
-**(d) A client-side gate is viable — but not with an OSI licence on the same code.**
-tldraw ships exactly the mechanism proposed in the paid-tier plan: a licence key verified
-client-side, "validated on the client. You can use them offline. They can be public", with
-the SDK refusing to run in production without one, and licence terms forbidding users to
-"disable, change, or interfere with the Software's License Key enforcement" [12][13][14]
-(**✓ first-hand**: I fetched the raw `LICENSE.md`). That works because tldraw is selling to
-businesses under a proprietary licence. Sublime Text is the honour-system version: $99
+(**d) A client-side gate is viable — but not with an OSI licence on the same code.**
+tldraw ships exactly the mechanism proposed in the paid-tier plan: keys "validated on the
+client. They can be public: you can safely include them in your frontend code", decoded and
+verified "locally without making network requests to a license server", with the SDK
+permitted "only in development" until a valid key is supplied and licence terms forbidding
+users to "disable, change, or interfere with the Software's License Key enforcement"
+[12][13][14] (**✓ first-hand**: I fetched the page and the raw `LICENSE.md` myself — §4 has
+the full mechanics). That works because tldraw is selling to businesses under a proprietary
+licence. Sublime Text is the honour-system version: $99
 one-off, unlimited evaluation, and — the detail worth copying — it still phones home for
 revocation, which its own forum documents as a contested tradeoff taken knowingly
 [17][18]. Obsidian's FAQ and the Insomnia 8.0 reversal (accounts and cloud forced on a
@@ -124,7 +126,95 @@ core "is not permissive enough... some product features are never open" [44][46]
 criticism CapyResume would attract if it gates features is on the record from the people
 who invented the alternatives: "'Open core' means proprietary software" [45].
 
-## 4. What that leaves, scored against our constraints
+## 4. Two mechanisms in detail
+
+Both re-read first-hand from the vendors' own pages on 2026-09-23, because the paid-tier plan
+borrows from both.
+
+### tldraw: a client-side key that genuinely gates — and why it can
+
+The mechanism as documented [12][13]:
+
+- The default licence permits use **"only in development"**; production needs a key — trial
+  (free, 100 days, one per commercial unit), commercial ("value-based pricing", sold through
+  sales [48]), or hobby (non-commercial).
+- Keys are **"validated on the client... They can be public: you can safely include them in
+  your frontend code"**, and the SDK "decodes and verifies the key's signature locally
+  without making network requests to a license server" [13].
+- Each key encodes **the allowed hosts, the licence type and the expiration date**; the SDK
+  checks the current hostname against the embedded domain list [13].
+- Without a valid key: console errors, then **"after five seconds, stops rendering the
+  editor"** [13]. A loud, visible failure — not a nag.
+- Perpetual licences "don't have a time-based expiration. Instead, they're tied to a
+  version": every patch release forever, but major/minor releases published after the
+  licence's expiration date (plus a 30-day grace period) require renewal [13]. Annual
+  licences get the same 30-day grace; trials get none [13].
+- Telemetry is asymmetric and disclosed: **trial and hobby keys ping tldraw's servers** with
+  licence ID, type, SDK version, build environment and deployment URL; **commercial keys
+  send nothing**; nothing is sent from development [13].
+- Where enforcement cannot be technical it is contractual: the licence forbids users to
+  "disable, change, or interfere with the Software's License Key enforcement" [14].
+- And the human note: "Please do not abuse trial licenses and tell your friends not to,
+  either" [12].
+
+**Why it works, and why it would not transfer.** Three things give that gate teeth, none of
+them cryptographic: the buyer is a company whose procurement process wants a licence on
+file, so the key is a compliance artefact as much as a technical one; the gated thing is the
+only route to shipping a product, so the alternative to paying is not shipping; and the
+licence is proprietary, so deleting the check breaches terms with a named counterparty
+rather than exercising a software freedom [13][14]. A job-seeker has no procurement, no
+audit and no counterparty, and forking is four minutes' work. **The mechanism transplants —
+it is thirty lines we already planned — but the incentive that collects the money does
+not.**
+
+### Obsidian: a proprietary free app funded by optional services
+
+The correction that matters most: Obsidian is **not open source**. It is closed-source
+freeware funded by services, which puts it in the hosted/support row (§1, row 3), not in the
+donation or licence-gate rows.
+
+What it sells, from its pricing page today [15]: Sync at **$4 per user per month billed
+annually** ($5 monthly), Publish at **$8 per site per month billed annually** ($10 monthly),
+a **Catalyst** licence at $25, and a Commercial licence at $50. Sync is secured with
+"AES‑256 end-to-end encryption, preventing us from reading it" [50]. Refunds are "full...
+within 7 days of purchase with no questions asked for Obsidian Sync and Publish", while
+"Catalyst licenses, Commercial licenses, and Obsidian Credit are non-refundable" [15];
+students, faculty and nonprofits get 40% off [15].
+
+The February 2025 change (§3(a)) made the commercial licence optional, with the reasoning
+stated plainly: "Why make this change? Simplicity. The Commercial license terms were
+confusing and added unnecessary complexity to our pricing" — and, more pointedly, "Nothing
+else is changing. No account required, no ads, no tracking, no strings attached. Your data
+remains fully in your control... All features are available to you for free without limits"
+[16]. The company describes itself as **"100% supported by our users, not investors"** [49],
+and Catalyst exists to keep it "free from investor influence that could compromise" that
+independence [15].
+
+**Why it works, and what it costs them.** Obsidian sells the one thing a local-first app can
+sell without touching trust — a service they run, encrypted so they cannot read it — while
+never gating the app and never requiring an account. The price of that position is that the
+revenue is not licence revenue at all: it is subscription revenue from services, which means
+running servers and support indefinitely. **Take away the servers and Obsidian has no
+business.**
+
+### The two ends side by side
+
+|                           | tldraw                                     | Obsidian                                  |
+| ------------------------- | ------------------------------------------ | ----------------------------------------- |
+| What is paid for          | the core use itself (production)           | services adjacent to the core use         |
+| Who pays                  | companies shipping a product               | organisations and sync users, voluntarily |
+| Enforcement               | client-side key + a ban on tampering       | none; the licence is explicitly optional  |
+| If you do not pay         | editor stops rendering after five seconds  | nothing — the app stays fully usable      |
+| What actually moves money | procurement and compliance, no alternative | convenience, encryption, goodwill         |
+| Available to CapyResume   | the code, not the incentive                | **no** — the money is the servers         |
+
+The lesson sits exactly between them. Gate **the core use** and the incentive must come from
+somewhere CapyResume does not have; sell **a service** and the money requires a server it has
+promised not to build. What remains is the shape already in the plan: a small, honest
+artefact purchase, priced like Sublime Text and Tailwind Plus rather than sold like tldraw's
+sales pipeline.
+
+## 5. What that leaves, scored against our constraints
 
 | Option                                              | Evidence                                                                        | Revenue expectation                          | Cost                                                 | Verdict                  |
 | --------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------- | ------------------------ |
@@ -136,7 +226,7 @@ who invented the alternatives: "'Open core' means proprietary software" [45].
 | **F. Hosted tier / support**                        | Supabase, Grafana, Nextcloud, Stirling, draw.io                                 | real money                                   | breaks the no-server promise                         | excluded                 |
 | **G. Team/enterprise tier**                         | Stirling $99/mo per 100 users; draw.io $1.95/user/mo                            | needs a team buyer                           | no team surface in a job-seeker tool                 | not now                  |
 
-## 5. Recommendation
+## 6. Recommendation
 
 1. **Keep Apache-2.0 and keep the free tier complete** — permanently. The free tier being a
    whole product, not a crippled one, is what makes any future "that's just open core"
@@ -162,7 +252,7 @@ who invented the alternatives: "'Open core' means proprietary software" [45].
    recruiter/team surface (G), are the two developments that would make the excluded models
    available.
 
-## 6. What this research does not establish
+## 7. What this research does not establish
 
 - No first-party revenue or conversion data exists for free browser-only résumé builders.
   The conversion benchmarks are mobile-app datasets [11] and a 2009 survey of downloadable
@@ -231,3 +321,6 @@ who invented the alternatives: "'Open core' means proprietary software" [45].
 [45] https://writing.kemitchell.com/2019/09/25/Open-Core-Stories
 [46] https://blog.sentry.io/sentry-is-now-fair-source
 [47] https://blog.sentry.io/join-the-pledge
+[48] https://tldraw.dev/pricing
+[49] https://obsidian.md/about
+[50] https://obsidian.md/sync
