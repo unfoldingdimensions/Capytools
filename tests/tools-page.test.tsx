@@ -55,7 +55,8 @@ describe("/tools lists the whole suite", () => {
     const markup = renderToStaticMarkup(<ToolsGrid />);
     const desktop = SUITE.filter((t) => t.cat === "desktop").length;
     expect(markup.match(/>Desktop</g) ?? []).toHaveLength(desktop);
-    expect(markup.match(/>Browser</g) ?? []).toHaveLength(SUITE.length - desktop);
+    // The rule (browser) goes unlabelled; ten "Browser" chips were noise.
+    expect(markup.match(/>Browser</g) ?? []).toHaveLength(0);
   });
 });
 

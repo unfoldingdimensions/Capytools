@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { ToolsGrid } from "@/components/tools/ToolsGrid";
 import { OG_DEFAULTS } from "@/lib/capytools/og";
-import { SUITE, SUITE_WORD, SUITE_WORD_CAP, countByCategory } from "@/lib/capytools/suite";
+import { SUITE, SUITE_WORD, SUITE_WORD_CAP, countByCategory, numberWord } from "@/lib/capytools/suite";
 
 const title = "All Tools — every Capytools tool on one page";
 const description = `All ${SUITE_WORD} Capytools tools, with one line on what each one does and a search that finds the right one. Every browser tool runs in your own tab and keeps nothing.`;
@@ -51,9 +51,10 @@ export default function ToolsPage() {
           <CapyArt pose="awake" className="ml-4 inline-block w-16 sm:ml-6 sm:w-20" />
         </h1>
         <p className="lp-lead mt-6 max-w-[52ch]">
-          {SUITE_WORD_CAP} of them. {browser} run entirely in your browser and
-          keep nothing — no signup, no cookies, no server. The one documented
-          exception is CapyExpense, which lives on your own disk instead.
+          {SUITE_WORD_CAP} of them. {numberWord(browser)[0].toUpperCase() + numberWord(browser).slice(1)} run
+          in your browser and keep nothing — no signup, no cookies, no uploads.
+          The one documented exception is CapyExpense, which lives on your own
+          disk instead.
         </p>
 
         <div className="lp-divider mt-12" aria-hidden="true" />
@@ -72,7 +73,7 @@ export default function ToolsPage() {
         </p>
       </main>
 
-      <SiteFooter here="/tools" />
+      <SiteFooter here="/tools" wide />
     </div>
   );
 }

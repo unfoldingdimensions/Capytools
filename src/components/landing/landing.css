@@ -541,6 +541,10 @@
 
 /* ----------------------------------- hero -------------------------------- */
 
+.lp-hero.lp-section {
+  padding-top: 40px;
+}
+
 .lp-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
@@ -720,7 +724,7 @@
 }
 
 .lp-proof-lead {
-  max-width: 60ch;
+  max-width: 52ch;
   margin: 0 0 18px;
   font-size: 14px;
   line-height: 1.55;
@@ -1011,6 +1015,18 @@
   text-decoration: underline;
   text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
   text-underline-offset: 4px;
+}
+
+/* A secondary action inside the demos: the hero's "Explore our tools" is the
+   page's one sage primary, and the token demo's button made a second. */
+.lp-btn-quiet {
+  color: var(--foreground);
+  background: transparent;
+  border-color: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+.lp-btn-quiet:hover {
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
 }
 
 .lp-proof-source {
@@ -1813,7 +1829,7 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   align-items: center;
 }
 
-.lp-testimonial h2 {
+.lp-testimonial .lp-quote {
   /* The display face, like the other seven section headlines. This one alone
      was set in the UI face at weight 700 — a pull-quote voice nobody chose. */
   font-family: var(--font-display);
@@ -1825,7 +1841,7 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   text-wrap: balance;
 }
 
-.lp-testimonial h2 em {
+.lp-testimonial .lp-quote em {
   font-style: italic;
   font-weight: 400;
 }

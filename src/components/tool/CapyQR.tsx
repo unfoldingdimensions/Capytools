@@ -208,7 +208,7 @@ function Swatches({
             "size-5 rounded-full border transition-colors pointer-coarse:size-11",
             value.toLowerCase() === hex
               ? "border-foreground ring-2 ring-[var(--primary)]/40"
-              : "border-border hover:border-foreground/50",
+              : "border-foreground/25 hover:border-foreground/50",
           )}
           style={{ background: hex }}
         />

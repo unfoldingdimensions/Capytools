@@ -254,7 +254,9 @@ export function ProofBand() {
         </div>
 
       <div className="lp-proof-counter" role="status" aria-live="polite">
-        <span className="lp-proof-counter-n">{requests ?? "—"}</span>
+        {/* "—" until the first keystroke arms it: a big 0 before anything was
+            counted claimed a measurement that had not started. */}
+        <span className="lp-proof-counter-n">{armed ? (requests ?? "—") : "—"}</span>
         <span className="lp-proof-counter-label">
           <b>{PROOF.counter.label}</b>
           {armed ? PROOF.counter.note : "starts counting when you type in any demo."}
@@ -359,7 +361,7 @@ function TokenDemo({ value, armed, load }: { value: string; armed: boolean; load
   if (!live) {
     return (
       <div className="lp-proof-tokens">
-        <button type="button" className="lp-btn lp-btn-primary lp-btn-sm" onClick={() => setWanted(true)}>
+        <button type="button" className="lp-btn lp-btn-quiet lp-btn-sm" onClick={() => setWanted(true)}>
           count it here
         </button>
         <p className="lp-proof-result">loads the exact tokenizer into this tab — about 1.1 MB, once.</p>

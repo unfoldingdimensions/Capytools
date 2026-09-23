@@ -76,7 +76,7 @@ export const HERO = {
     { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
     // Counted, not rounded up: CapyExpense is a desktop app, so "100%
     // client-side" was false the day it joined the suite.
-    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in your tab", sub: "one is desktop", tone: "clay" },
+    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in-tab", sub: "one desktop", tone: "plain" },
   ] as { value: string; label: string; sub: string; tone: string }[],
   meta: "↳ one quiet tab · your input stays in it",
 } as const;

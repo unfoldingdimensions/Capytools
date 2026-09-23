@@ -24,14 +24,16 @@ export function Colophon() {
 
         <div className="lp-testimonial-grid">
           <ScrollReveal className="lp-testimonial-copy">
-            <span className="lp-label">
+            <h2 className="lp-label">
               {COLOPHON.label} <span className="lp-ix">{COLOPHON.ix}</span>
-            </span>
-            <h2>
+            </h2>
+            {/* A quotation, not a heading: as an h2 its ~150 characters filled
+                the page's heading list. The label above is the heading. */}
+            <blockquote className="lp-quote">
               {COLOPHON.quote.map((seg, i) =>
                 seg.em ? <em key={i}>{seg.text}</em> : <span key={i}>{seg.text}</span>,
               )}
-            </h2>
+            </blockquote>
 
             <div className="lp-author">
               <BrandMark className="lp-author-mark" />
