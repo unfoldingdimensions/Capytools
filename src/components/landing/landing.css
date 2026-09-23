@@ -1252,10 +1252,9 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   to { transform: translateX(-50%); }
 }
 
-/* pauses — hover, explicit toggle, and while tabbing through (WCAG 2.2.2) */
+/* pauses — hover and the explicit toggle (WCAG 2.2.2) */
 .lp-wire-row:hover .lp-marquee-track,
-.lp-wire-rows.is-paused .lp-marquee-track,
-.lp-wire-rows:focus-within .lp-marquee-track {
+.lp-wire-rows.is-paused .lp-marquee-track {
   animation-play-state: paused;
 }
 
@@ -1279,19 +1278,8 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   color: var(--foreground);
 }
 
-a.lp-wire-item {
-  transition: color var(--dur-fade) var(--lp-ease-ui);
-}
-
-a.lp-wire-item:hover {
-  color: var(--sage-deep);
-}
-
-.dark a.lp-wire-item:hover {
-  color: var(--primary);
-}
-
-a.lp-wire-item .lp-wire-name {
+/* The engine row reads quieter than the tool names above it. */
+.lp-wire-row-reverse .lp-wire-name {
   color: inherit;
 }
 

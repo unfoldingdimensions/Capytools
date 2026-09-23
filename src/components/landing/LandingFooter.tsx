@@ -57,7 +57,10 @@ export function LandingFooter() {
         </div>
 
         <div className="lp-foot-mega">
-          <ScrollReveal direction="rise-lg">
+          {/* "up", not "rise-lg": the wrapper clips (overflow: hidden), and a
+              64px drop left too little of the line inside the clip to count
+              as in view. */}
+          <ScrollReveal>
             <div className="lp-word">
               {LANDING_FOOTER.mega.map((seg, i) =>
                 seg.em ? <em key={i}>{seg.text}</em> : <span key={i}>{seg.text}</span>,

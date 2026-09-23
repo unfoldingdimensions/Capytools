@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { WIRE } from "@/lib/capytools/landing";
-import { TransitionLink } from "@/components/TransitionLink";
 
 /**
  * The live wire — two counter-scrolling marquee rows (tool names, then the
  * engines each tool speaks). Tracks are rendered twice for a seamless -50%
  * loop. The marquee never stops on its own, so it ships with a
- * keyboard-reachable pause toggle (WCAG 2.2.2) and pauses on hover and while
- * tabbing through the engine links; reduced-motion kills the animation in
- * CSS and hides the toggle.
+ * keyboard-reachable pause toggle (WCAG 2.2.2) and pauses on hover;
+ * reduced-motion kills the animation in CSS and hides the toggle.
+ *
+ * Both rows are decorative. The engine handles used to be links: fourteen
+ * moving, 18px-tall tab stops that all led to the same two pages the catalog
+ * already links.
  */
 export function LiveWire() {
   const [paused, setPaused] = useState(false);
@@ -64,33 +66,16 @@ export function LiveWire() {
             </div>
           </div>
 
-          <div className="lp-wire-row lp-wire-row-reverse">
+          <div className="lp-wire-row lp-wire-row-reverse" aria-hidden="true">
             <div className="lp-marquee-track">
               {[0, 1].map((copy) => (
-                <span key={copy} style={{ display: "inline-flex", gap: 36 }} aria-hidden={copy === 1}>
-                  {WIRE.engines.imagine.map((engine) => (
-                    <TransitionLink
-                      key={`imagine-${engine.handle}-${copy}`}
-                      href={engine.href}
-                      className="lp-wire-item"
-                      tabIndex={copy === 1 ? -1 : undefined}
-                    >
-                      <span aria-hidden="true">·</span>
+                <span key={copy} style={{ display: "inline-flex", gap: 36 }}>
+                  {[...WIRE.engines.imagine, ...WIRE.engines.creator].map((engine, i) => (
+                    <span key={`${engine.handle}-${i}`} className="lp-wire-item">
+                      <span>·</span>
                       <span className="lp-wire-name">{engine.handle}</span>
                       <span className="lp-wire-role">engine</span>
-                    </TransitionLink>
-                  ))}
-                  {WIRE.engines.creator.map((engine) => (
-                    <TransitionLink
-                      key={`creator-${engine.handle}-${copy}`}
-                      href={engine.href}
-                      className="lp-wire-item"
-                      tabIndex={copy === 1 ? -1 : undefined}
-                    >
-                      <span aria-hidden="true">·</span>
-                      <span className="lp-wire-name">{engine.handle}</span>
-                      <span className="lp-wire-role">engine</span>
-                    </TransitionLink>
+                    </span>
                   ))}
                 </span>
               ))}

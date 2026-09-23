@@ -51,9 +51,13 @@ export function Capabilities() {
                     </div>
                     <PromiseIcon icon={card.icon} />
                     <h3>
-                      {card.title.map((line) => (
+                      {/* The trailing space is invisible at a block's end but
+                          kept in the text: without it a screen reader read
+                          "Runs inyour tab". */}
+                      {card.title.map((line, i) => (
                         <span key={line} style={{ display: "block" }}>
                           {line}
+                          {i < card.title.length - 1 ? " " : null}
                         </span>
                       ))}
                     </h3>
