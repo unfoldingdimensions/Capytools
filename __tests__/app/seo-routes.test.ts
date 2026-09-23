@@ -1,5 +1,7 @@
 import robots from '@/app/robots';
-import sitemap from '@/app/sitemap';
+import sitemap, { STATIC_PATHS } from '@/app/sitemap';
+import { COUNTRY_PAGES } from '@/lib/capyresume/seo/countries';
+import { ROLE_PAGES } from '@/lib/capyresume/seo/roles';
 import { TEMPLATE_LIST } from '@/lib/capyresume/templates';
 
 const ORIGIN = 'https://capyresume.example';
@@ -30,16 +32,22 @@ describe('seo routes', () => {
     expect(sitemap()).toEqual([]);
   });
 
-  it('lists the static routes and every template, absolutely and uniquely', () => {
+  it('lists every prerendered route, absolutely and uniquely', () => {
     process.env.NEXT_PUBLIC_SITE_URL = ORIGIN;
     const urls = sitemap().map((entry) => entry.url);
 
-    expect(urls).toContain(`${ORIGIN}/`);
-    expect(urls).toContain(`${ORIGIN}/capyresume`);
-    expect(urls).toContain(`${ORIGIN}/privacy`);
-    for (const spec of TEMPLATE_LIST) {
-      expect(urls).toContain(`${ORIGIN}/templates/${spec.id}`);
+    for (const path of STATIC_PATHS) expect(urls).toContain(`${ORIGIN}${path}`);
+    for (const spec of TEMPLATE_LIST) expect(urls).toContain(`${ORIGIN}/templates/${spec.id}`);
+    for (const page of ROLE_PAGES)
+      expect(urls).toContain(`${ORIGIN}/resume-templates/${page.slug}`);
+    for (const page of COUNTRY_PAGES) {
+      expect(urls).toContain(`${ORIGIN}/free-cv-builder/${page.slug}`);
     }
+
+    // Nothing prerendered may be missing, and nothing invented may appear.
+    expect(urls).toHaveLength(
+      STATIC_PATHS.length + TEMPLATE_LIST.length + ROLE_PAGES.length + COUNTRY_PAGES.length
+    );
     // Duplicate URLs in a sitemap are a crawler warning, not a hint.
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) expect(url.startsWith(`${ORIGIN}/`)).toBe(true);
