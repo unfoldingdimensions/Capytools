@@ -10,8 +10,11 @@
  *   src/lib/capycreator/profiles.ts has seven families).
  * - The export linked back to capytools.app from the site itself, and
  *   out to GitHub for project meta; every link here now routes natively
- *   (/notes, /design, /license are real pages). The landing renders zero
- *   external hrefs — only the /notes page links out, for contributions.
+ *   (/notes, /design, /license are real pages). The landing renders ONE
+ *   external href: the proof band's "read the code that just ran", because
+ *   "open and local" (PRODUCT.md) is a claim the visitor should be able to
+ *   check from where it is made. Everything else stays native; /notes links
+ *   out for contributions.
  * - Editorial-lite: side rails, FIG/coordinate annotations, pagination
  *   counters, the hero index and the inert work arrows did not survive
  *   the port.
@@ -26,7 +29,6 @@ import {
   SUITE_WORD_CAP,
   countByCategory,
   pad2,
-  suiteNumber,
 } from "@/lib/capytools/suite";
 
 export const EXTERNAL = {
@@ -66,13 +68,15 @@ export const HERO = {
     { text: ", quiet by " },
     { text: "default", em: true },
   ] as Headline,
-  lead: `${listOut([...HERO_JOBS.map((row) => row.job), `${HERO_REST} more small jobs`])} — ${IN_BROWSER} of them done right in your browser, keeping nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.`,
+  lead: `${listOut([...HERO_JOBS.map((row) => row.job), `${HERO_REST} more small jobs`])} — ${IN_BROWSER} of them done right in your browser, keeping nothing. No signup, no cookies, no uploads.`,
   primary: { label: "Explore our tools", href: "#labs" },
   aside: { label: "CapyExpense, the desktop one — coming soon", href: "/capyexpense" },
   stats: [
     { value: SUITE_INDEX, label: "tools", sub: "in the suite", tone: "solid" },
     { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
-    { value: "100%", label: "client-side", sub: "no uploads", tone: "clay" },
+    // Counted, not rounded up: CapyExpense is a desktop app, so "100%
+    // client-side" was false the day it joined the suite.
+    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in your tab", sub: "one is desktop", tone: "clay" },
   ] as { value: string; label: string; sub: string; tone: string }[],
   meta: "↳ one quiet tab · nothing leaves it",
 } as const;
@@ -121,6 +125,11 @@ export const PROOF = {
       open: { label: "open CapyTone", href: "/capytone" },
     },
   ],
+  /** The code behind the demos — the one external href on the landing. */
+  source: {
+    label: "read the code that just ran",
+    href: `${EXTERNAL.repo}/blob/main/src/components/landing/ProofBand.tsx`,
+  },
   /** Auto-advance until the visitor touches anything, then never again. */
   advanceMs: 7000,
 } as const;
@@ -129,83 +138,64 @@ export type ProofDemoId = (typeof PROOF.demos)[number]["id"];
 
 export const WIRE = {
   title: "The suite, live",
-  sub: `${SUITE_WORD_CAP} tools · zero servers · one tab`,
+  sub: `${SUITE_WORD_CAP} tools · zero uploads · one tab`,
   tools: SUITE.map((tool, i) => ({ no: `Nº ${pad2(i + 1)}`, name: tool.name })),
   /** Real engine lists: src/lib/promptgen/criteria.ts + capycreator/profiles.ts. */
   engines: {
     imagine: [
-      { handle: "@gemini", href: "/capyimagine" },
-      { handle: "@midjourney", href: "/capyimagine" },
-      { handle: "@flux", href: "/capyimagine" },
-      { handle: "@sdxl", href: "/capyimagine" },
-      { handle: "@seedance", href: "/capyimagine" },
-      { handle: "@runway", href: "/capyimagine" },
-      { handle: "@kling", href: "/capyimagine" },
+      { handle: "@gemini" },
+      { handle: "@midjourney" },
+      { handle: "@flux" },
+      { handle: "@sdxl" },
+      { handle: "@seedance" },
+      { handle: "@runway" },
+      { handle: "@kling" },
     ],
     creator: [
-      { handle: "@claude", href: "/capycreator" },
-      { handle: "@deepseek", href: "/capycreator" },
-      { handle: "@gemini", href: "/capycreator" },
-      { handle: "@gpt", href: "/capycreator" },
-      { handle: "@glm", href: "/capycreator" },
-      { handle: "@qwen", href: "/capycreator" },
-      { handle: "@hunyuan", href: "/capycreator" },
+      { handle: "@claude" },
+      { handle: "@deepseek" },
+      { handle: "@gemini" },
+      { handle: "@gpt" },
+      { handle: "@glm" },
+      { handle: "@qwen" },
+      { handle: "@hunyuan" },
     ],
   },
 } as const;
 
-export const ABOUT = {
-  roman: "II.",
-  meta: ["About / Manifesto", "Capytools / Volume 01"],
-  label: "About the suite",
-  ix: "· Nº 02",
-  headline: [
-    { text: "Settled like a " },
-    { text: "capybara", em: true },
-    { text: " in " },
-    { text: "warm water", em: true },
-  ] as Headline,
-  lead: "Everything runs 100% in your browser — the one documented exception is CapyExpense, a desktop app that writes only to your own disk. Where a tool needs memory it uses localStorage, and nothing else exists to store.",
-  cta: { label: "Read the design notes", href: "/design" },
-  footer: "No signup · No cookies · No server",
-  sideNote:
-    "Every tool states its own promise — browser tools keep nothing, desktop tools keep it on your machine.",
-  caption: ["Studies in quiet software.", "(Capytools, MMXXVI)"],
-  plate: { src: "/plates/about.webp", width: 1024, height: 1024 },
-} as const;
 
 export const CAPABILITIES = {
-  roman: "III.",
-  meta: ["Capabilities · Promises", "4 held by all"],
+  roman: "II.",
+  meta: ["Capabilities · Promises", "2 kept by all, 2 by some"],
   label: "Capabilities",
-  ix: "· Nº 03",
+  ix: "· Nº 02",
   headline: [
-    { text: "Four promises, held by " },
+    { text: "Two promises " },
     { text: "every", em: true },
-    { text: " tool in the suite" },
+    { text: " tool keeps, two that a few add" },
   ] as Headline,
   lead: "The architecture is the privacy policy. Each tool is small enough to read in one sitting and quiet enough to leave open all day.",
   ribbon: "CAPYTOOLS · CAPABILITIES MATRIX",
   cards: [
     {
       num: "01",
-      tag: "Browser",
+      tag: "Every tool",
       icon: "browser",
-      title: ["Runs in", "your tab"],
-      copy: "Every computation is client-side. The one documented exception is CapyExpense, a desktop app on your own disk.",
-      href: "/capyexpense",
+      title: ["Runs on", "your machine"],
+      copy: "Browser tools compute in this tab; two fetch public data through a route that stores nothing. CapyExpense runs on your desktop.",
+      href: "/capyqr",
     },
     {
       num: "02",
-      tag: "Privacy",
+      tag: "Every tool",
       icon: "privacy",
-      title: ["Stores", "nothing"],
-      copy: "No signup, no cookies, no server. Where a tool needs memory it stays in localStorage.",
+      title: ["Keeps nothing", "of yours"],
+      copy: "No signup, no cookies, no account. Browser memory stays in localStorage; CapyExpense keeps its files on your disk, never ours.",
       href: "/capystrip",
     },
     {
       num: "03",
-      tag: "Export",
+      tag: "In CapyWrapped",
       icon: "export",
       title: ["Take it", "with you"],
       copy: "Wrapped cards download as PNG — wide and square, light and dark — or post straight to X.",
@@ -213,7 +203,7 @@ export const CAPABILITIES = {
     },
     {
       num: "04",
-      tag: "Engines",
+      tag: "In CapyImagine",
       icon: "engines",
       title: ["Speaks your", "dialect"],
       copy: "Prompts tuned per engine — Gemini, Midjourney, Flux, SDXL, Kling, Runway, Seedance.",
@@ -225,10 +215,10 @@ export const CAPABILITIES = {
 export type LabCategory = "browser" | "desktop";
 
 export const LABS = {
-  roman: "IV.",
+  roman: "III.",
   meta: ["Labs / Tool Catalog", `${SUITE_INDEX} of ${SUITE_INDEX} shipped`],
   label: "Labs",
-  ix: "· Nº 04",
+  ix: "· Nº 03",
   headline: [
     { text: `${SUITE_WORD_CAP} quiet tools, each one ` },
     { text: "finished", em: true },
@@ -260,10 +250,10 @@ export const LABS = {
 } as const;
 
 export const METHOD = {
-  roman: "V.",
+  roman: "IV.",
   meta: ["Method / House Rules", "04 steps, always"],
   label: "Method",
-  ix: "· Nº 05",
+  ix: "· Nº 04",
   headline: [
     { text: "Arrive, compute, " },
     { text: "forget", em: true },
@@ -284,7 +274,7 @@ export const METHOD = {
       num: "02",
       title: "Compute",
       arrow: true,
-      copy: "Every byte is processed in your browser. No server round-trips, no uploads, no queue.",
+      copy: "Your files and text are processed in your browser. No uploads, no queue.",
       plate: { src: "/plates/method-2.webp", width: 816, height: 816 },
     },
     {
@@ -304,43 +294,12 @@ export const METHOD = {
   ],
 } as const;
 
-export const WORK = {
-  roman: "VI.",
-  meta: ["Selected Tools · 2026", "Edited by Capytools"],
-  headline: [
-    { text: "Tools that trade noise for " },
-    { text: "calm", em: true },
-    { text: " and clutter for " },
-    { text: "cards", em: true },
-  ] as Headline,
-  link: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
-  cards: [
-    {
-      kicker: "Featured tool",
-      index: `${suiteNumber("/capywrapped")} / ${SUITE_INDEX}`,
-      name: "CapyWrapped",
-      copy: "Your GitHub year, wrapped in a calm little card — contributions, a month-by-month trendline, stars and top languages. Named after the capybara.",
-      href: "/capywrapped",
-      meta: ["2026 · BROWSER", "WRAPPED"],
-      plate: { src: "/plates/work-1.webp", width: 768, height: 1024 },
-    },
-    {
-      kicker: "Privacy tool",
-      index: `${suiteNumber("/capystrip")} / ${SUITE_INDEX}`,
-      name: "CapyStrip",
-      copy: "Drop, paste or pick a photo. CapyStrip reads GPS, device serials, editing software and AI fingerprints, strips everything in-tab, then re-scans its own output to prove it.",
-      href: "/capystrip",
-      meta: ["2026 · BROWSER", "STRIP"],
-      plate: { src: "/plates/work-2.webp", width: 768, height: 1024 },
-    },
-  ],
-} as const;
 
 export const COLOPHON = {
-  roman: "VII.",
+  roman: "V.",
   meta: ["Colophon / First Line", "Quoted verbatim"],
   label: "From the first line",
-  ix: "· Nº 07",
+  ix: "· Nº 05",
   // A verbatim quote from the project README, so the count in it is NOT derived
   // — "eleven" here is a quotation, and tests/landing.test.tsx asserts this
   // string against the README itself so the two cannot drift apart silently.
@@ -350,7 +309,6 @@ export const COLOPHON = {
     { text: " Eleven so far. All run in your browser and keep nothing.”" },
   ] as Headline,
   author: {
-    initial: "C",
     name: "Capytools, README",
     sub: "First line, quoted verbatim",
   },
@@ -358,10 +316,10 @@ export const COLOPHON = {
 } as const;
 
 export const CTA = {
-  roman: "VIII.",
+  roman: "VI.",
   meta: ["Contact / Open Tabs", "One click, no signup"],
   label: "Begin quietly",
-  ix: "· Nº 08",
+  ix: "· Nº 06",
   headline: [
     { text: "Your data stays " },
     { text: "yours", em: true },
@@ -377,7 +335,7 @@ export const CTA = {
 } as const;
 
 export const LANDING_FOOTER = {
-  blurb: `Calm little tools that run entirely in your browser and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of ${SUITE_WORD}, Apache-licensed, version 0.1.0.`,
+  blurb: `Calm little tools that run on your machine and keep nothing. Named after the capybara — calm, unhurried, at home in any water. Suite of ${SUITE_WORD}, Apache-licensed, version 0.1.0.`,
   getExpense: {
     label: "CapyExpense, soon",
     sub: "Desktop · writes only to your disk",
@@ -403,7 +361,7 @@ export const LANDING_FOOTER = {
         { label: "Try it here", href: "#proof" },
         { label: `${SUITE_WORD_CAP} tools`, href: "#labs" },
         { label: "House rules", href: "#method" },
-        { label: "From the README", href: "#testimonial" },
+        { label: "From the README", href: "#readme" },
       ],
     },
   ],
@@ -420,13 +378,10 @@ export const LANDING_FOOTER = {
 
 /** The plates the page ships, for the asset-existence test. */
 export const PLATES = [
-  "about",
   "hero",
   "capabilities",
   "cta",
   "testimonial",
-  "work-1",
-  "work-2",
   "lab-1",
   "lab-2",
   "lab-3",

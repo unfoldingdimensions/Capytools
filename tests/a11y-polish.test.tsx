@@ -69,3 +69,37 @@ describe("the tool number has one source", () => {
     }
   });
 });
+
+describe("the second critique's harden pass", () => {
+  const landing = renderToStaticMarkup(<Landing />);
+  const text = (markup: string) => markup.replace(/<[^>]+>/g, "");
+
+  it("keeps a word space between stacked heading lines", () => {
+    const heads = [...landing.matchAll(/<div class="lp-card">[\s\S]*?<h3>([\s\S]*?)<\/h3>/g)].map((m) => m[1]);
+    expect(heads.length).toBeGreaterThan(0);
+    // A block line that ends flush against the next one reads as one word.
+    for (const head of heads) expect(head).not.toMatch(/\S<\/span><span/);
+    expect(text(heads[0])).toMatch(/ /);
+  });
+
+  it("puts no link inside the moving ticker", () => {
+    const wire = landing.match(/<section class="lp-wire"[\s\S]*?<\/section>/)?.[0] ?? "";
+    expect(wire).not.toBe("");
+    expect(wire).not.toContain("<a ");
+  });
+
+  it("lets a reveal at the very end of a page fire", () => {
+    const reveal = readFileSync(join(process.cwd(), "src/components/landing/ScrollReveal.tsx"), "utf8");
+    expect(reveal).not.toMatch(/margin: "0px 0px -/);
+  });
+});
+
+describe("CapyQR prints its verdict as a sentence", () => {
+  it("never uppercases the scan note, which carries the decoded payload", () => {
+    const html = renderToStaticMarkup(<CapyQRPage />);
+    const note = html.match(/<p class="([^"]*)">scanning the render…<\/p>/);
+    expect(note).not.toBeNull();
+    expect(note![1]).not.toContain("uppercase");
+    expect(note![1]).toContain("text-[13px]");
+  });
+});

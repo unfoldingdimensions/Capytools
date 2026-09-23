@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { StageCard, StageChip } from "@/components/stage-card";
+import { STAGE_TONE, StageCard } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { saveBlob } from "@/lib/download";
 import { buildPayload } from "@/lib/capyqr/payloads";
@@ -110,7 +110,7 @@ const DEFAULT_FIELDS: PayloadFields = {
 };
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
 
 function Pill({
   active,
@@ -215,6 +215,20 @@ function Swatches({
 
 function truncateForChip(data: string): string {
   return data.length > 40 ? `${data.slice(0, 40)}…` : data;
+}
+
+/**
+ * The in-tab scan's verdict. It is a sentence, so it is set as one: the old
+ * 10px uppercase chip printed the decoded link as HTTPS://CAPYTOOLS.APP —
+ * not what the code holds, on the one line meant to prove what it holds —
+ * and wrapped into two broken pills.
+ */
+function ScanNote({ tone = "plain", children }: { tone?: keyof typeof STAGE_TONE; children: React.ReactNode }) {
+  return (
+    <p className={cn("mx-auto max-w-full rounded-2xl border px-4 py-2 text-[13px] leading-snug", STAGE_TONE[tone])}>
+      {children}
+    </p>
+  );
 }
 
 export function CapyQR() {
@@ -821,7 +835,7 @@ export function CapyQR() {
               <span className="text-[var(--clay)]">{payload.error}</span>
             )}
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             {payload.ok
               ? capacityNote(payload.value, style.ecc)
               : "the code waits until the payload above is complete."}
@@ -855,7 +869,7 @@ export function CapyQR() {
             >
               <span
                 aria-hidden
-                className="mr-1.5 inline-block size-2 rounded-full align-middle"
+                className="mr-1.5 inline-block size-2 rounded-full align-middle ring-1 ring-foreground/30"
                 style={{ background: preset.style.fg.mode === "solid" ? preset.style.fg.color : preset.style.fg.from }}
               />
               {preset.label}
@@ -1156,7 +1170,7 @@ export function CapyQR() {
                   ))}
                 </SelectContent>
               </Select>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 H recovers the most; L packs the most data.
               </span>
             </div>
@@ -1182,7 +1196,7 @@ export function CapyQR() {
           />
           {logoUrl ? (
             <>
-              <span className="max-w-48 truncate text-[11px] text-muted-foreground">
+              <span className="max-w-48 truncate text-xs text-muted-foreground">
                 {logoName}
               </span>
               <Button
@@ -1202,7 +1216,7 @@ export function CapyQR() {
               </Button>
             </>
           ) : (
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               sits in the center, 40% of the code&rsquo;s width
             </span>
           )}
@@ -1299,7 +1313,7 @@ export function CapyQR() {
               <li className="text-muted-foreground">logo · none, so nothing covers the modules.</li>
             )}
           </ul>
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             the guards are rules of thumb, not a spec — the scan below is the proof.
           </p>
         </div>
@@ -1329,25 +1343,28 @@ export function CapyQR() {
             scan", and that is the one result a screen-reader user most needs. */}
         <div className="mt-4 text-center" aria-live="polite">
           {payload.ok && proof?.ok && !proof.inverted ? (
-            <StageChip tone="sage">
-              verified scannable — decoded: {truncateForChip(proof.data)}
-            </StageChip>
+            <ScanNote tone="sage">
+              verified scannable — decoded:
+              <code className="mt-0.5 block font-mono text-[12px] [overflow-wrap:anywhere]">
+                {truncateForChip(proof.data)}
+              </code>
+            </ScanNote>
           ) : payload.ok && proof?.ok ? (
-            <StageChip tone="clay">
+            <ScanNote tone="clay">
               decoded here, but the modules are light on dark — scanners that only read
               upright codes will refuse it. Swap the colours to be sure.
-            </StageChip>
+            </ScanNote>
           ) : payload.ok && proof && !proof.ok ? (
-            <StageChip tone="clay">
+            <ScanNote tone="clay">
               the in-tab scan could not read this one — try higher contrast or a calmer dot style.
-            </StageChip>
+            </ScanNote>
           ) : payload.ok ? (
-            <StageChip>scanning the render…</StageChip>
+            <ScanNote>scanning the render…</ScanNote>
           ) : null}
         </div>
 
         {payload.ok ? (
-          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          <p className="mt-2 text-center text-xs text-muted-foreground">
             high contrast scans best — test at arm&rsquo;s length.
           </p>
         ) : null}
@@ -1414,7 +1431,7 @@ export function CapyQR() {
         ) : null}
 
         {svgBlocked ? (
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             {frame.on
               ? "SVG keeps vector purity — export the framed version as PNG."
               : "SVG keeps vector purity — export the logo version as PNG."}

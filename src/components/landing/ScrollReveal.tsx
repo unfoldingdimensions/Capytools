@@ -62,7 +62,11 @@ export function ScrollReveal({
       data-reveal=""
       initial={HIDDEN[direction]}
       whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.12, margin: "0px 0px -8% 0px" }}
+      // No negative bottom margin: it shrank the viewport by 8%, so anything
+      // shorter than that at the very end of a page could never reach 12%
+      // visible — the footer's "Quiet by default." stayed at opacity 0 on
+      // every phone.
+      viewport={{ once: true, amount: 0.12 }}
       transition={{ duration: 0.9, ease: EASE, delay }}
     >
       {children}

@@ -70,6 +70,7 @@ export function Labs() {
               {LABS.residence.sub.map((line, i) => (
                 <span key={i} style={{ display: "block" }}>
                   {line}
+                  {i < LABS.residence.sub.length - 1 ? " " : null}
                 </span>
               ))}
             </span>

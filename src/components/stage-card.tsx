@@ -105,6 +105,13 @@ export function StageCard({
   );
 }
 
+/** Surface + text colour per tone, shared by chips and longer status notes. */
+export const STAGE_TONE = {
+  clay: "border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]",
+  sage: "border-primary/30 bg-primary/10 text-foreground",
+  plain: "border-border bg-muted/60 text-muted-foreground",
+} as const;
+
 /** The chips that sit beside a stage eyebrow or under a heading. */
 export function StageChip({
   children,
@@ -119,9 +126,7 @@ export function StageChip({
     <span
       className={cn(
         "rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em]",
-        tone === "clay" && "border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]",
-        tone === "sage" && "border-primary/30 bg-primary/10 text-foreground",
-        tone === "plain" && "border-border bg-muted/60 text-muted-foreground",
+        STAGE_TONE[tone],
         className,
       )}
     >

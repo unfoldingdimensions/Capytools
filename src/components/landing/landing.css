@@ -39,7 +39,9 @@
    * that is a passing state — a chip, a badge, a "coming soon" — is muted.
    * Clay on a link was what made it read as a second primary colour.
    */
-  --lp-accent-ink: #a05e3c;
+  /* #a05e3c measured 4.39:1 on the muted surface — under AA for the 14px
+     section numerals. #8f5233 holds 5:1+ on cream, card and muted alike. */
+  --lp-accent-ink: #8f5233;
   --lp-line-soft: color-mix(in oklab, var(--foreground) 8%, transparent);
   --lp-line-faint: color-mix(in oklab, var(--foreground) 5%, transparent);
   --lp-shadow: 0 30px 60px -30px color-mix(in oklab, var(--foreground) 16%, transparent);
@@ -269,15 +271,6 @@
 .lp-btn-primary:hover {
   background: var(--sage-mid);
   transform: translateY(-1px);
-}
-
-.lp-btn-ghost {
-  color: var(--foreground);
-  border-color: color-mix(in oklab, var(--foreground) 20%, transparent);
-}
-
-.lp-btn-ghost:hover {
-  background: color-mix(in oklab, var(--foreground) 4%, transparent);
 }
 
 /* focus ring — house ring color, export geometry. This unlayered rule is the
@@ -581,9 +574,12 @@
   margin-top: 36px;
 }
 
+/* A three-column row: flex-wrap broke it 2 + 1 at 1280px and orphaned the
+   last ring under the first. Below 560px each stat stacks ring over label
+   so the three still share one row. */
 .lp-hero-stats {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, max-content));
   gap: 30px;
   margin-top: 44px;
 }
@@ -1007,10 +1003,16 @@
   min-height: 44px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--water);
+  /* Water alone measured 4.41:1 on cream; a fifth of ink clears AA, as the
+     sign-off's read-more link does. */
+  color: color-mix(in oklab, var(--water) 80%, var(--foreground));
   text-decoration: underline;
   text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
   text-underline-offset: 4px;
+}
+
+.lp-proof-source {
+  margin-top: 12px;
 }
 
 .lp-proof-open svg {
@@ -1182,7 +1184,7 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   border-radius: 999px;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -1248,10 +1250,15 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   to { transform: translateX(-50%); }
 }
 
-/* pauses — hover, explicit toggle, and while tabbing through (WCAG 2.2.2) */
+@media (pointer: coarse) {
+  .lp-wire-pause {
+    min-height: 44px;
+  }
+}
+
+/* pauses — hover and the explicit toggle (WCAG 2.2.2) */
 .lp-wire-row:hover .lp-marquee-track,
-.lp-wire-rows.is-paused .lp-marquee-track,
-.lp-wire-rows:focus-within .lp-marquee-track {
+.lp-wire-rows.is-paused .lp-marquee-track {
   animation-play-state: paused;
 }
 
@@ -1275,19 +1282,8 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   color: var(--foreground);
 }
 
-a.lp-wire-item {
-  transition: color var(--dur-fade) var(--lp-ease-ui);
-}
-
-a.lp-wire-item:hover {
-  color: var(--sage-deep);
-}
-
-.dark a.lp-wire-item:hover {
-  color: var(--primary);
-}
-
-a.lp-wire-item .lp-wire-name {
+/* The engine row reads quieter than the tool names above it. */
+.lp-wire-row-reverse .lp-wire-name {
   color: inherit;
 }
 
@@ -1295,91 +1291,6 @@ a.lp-wire-item .lp-wire-name {
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-/* ---------------------------------- about -------------------------------- */
-
-.lp-about-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 80px;
-  align-items: center;
-}
-
-.lp-about h2 {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(44px, 5.4vw, 78px);
-  line-height: 1.02;
-  letter-spacing: -0.012em;
-  margin-top: 30px;
-  text-wrap: balance;
-}
-
-.lp-about h2 em {
-  font-style: italic;
-  font-weight: 400;
-}
-
-.lp-about .lp-lead {
-  margin-top: 26px;
-  max-width: 42ch;
-}
-
-.lp-about .lp-btn {
-  margin-top: 34px;
-}
-
-.lp-about-foot {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 46px;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-}
-
-.lp-about-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-style: italic;
-}
-
-.lp-about-side-note {
-  border-left: 1px solid var(--border);
-  padding-left: 16px;
-  margin-top: 26px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--muted-foreground);
-  max-width: 40ch;
-}
-
-.lp-about-caption {
-  margin-top: 22px;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 15px;
-  color: var(--foreground);
-}
-
-.lp-about-caption span {
-  display: block;
-  font-family: var(--font-mono);
-  font-style: normal;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-  margin-top: 6px;
 }
 
 /* ------------------------------ capabilities ------------------------------ */
@@ -1888,151 +1799,6 @@ a.lp-wire-item .lp-wire-name {
   color: var(--primary);
 }
 
-/* ------------------------------- work (dark) ------------------------------ */
-
-.lp-work-outer {
-  --lp-pad-y: 64px;
-  /* The slab's own inset counts too: the first readable line sits this much
-     further down again, inside the dark box. */
-  --lp-slab-pad: 72px;
-  padding: var(--lp-pad-y) 0;
-}
-
-.lp-work {
-  /* The slab keeps its ink identity in both themes: ink-on-paper in light,
-     a dark card field on the charcoal page in dark — it must never invert
-     into a white panel. Everything inside mixes against --slab-fg. */
-  --slab-bg: var(--foreground);
-  --slab-fg: var(--background);
-  background: var(--slab-bg);
-  color: var(--slab-fg);
-  border-radius: 24px;
-  margin: 0 64px;
-  padding: var(--lp-slab-pad) 64px;
-}
-
-.dark .lp-work {
-  --slab-bg: var(--card);
-  --slab-fg: var(--foreground);
-}
-
-.lp-work .lp-sec-rule {
-  color: color-mix(in oklab, var(--slab-fg) 62%, transparent);
-  border-top-color: color-mix(in srgb, var(--slab-fg) 16%, transparent);
-}
-
-.lp-work .lp-roman,
-.lp-work .lp-label::before {
-  color: var(--clay);
-}
-
-.lp-work .lp-label {
-  color: color-mix(in oklab, var(--slab-fg) 62%, transparent);
-}
-
-.lp-work h2 {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(40px, 5vw, 66px);
-  line-height: 1.03;
-  letter-spacing: -0.012em;
-  margin-top: 30px;
-  max-width: 20ch;
-  text-wrap: balance;
-}
-
-.lp-work h2 em {
-  font-style: italic;
-  font-weight: 400;
-}
-
-.lp-work-link {
-  display: inline-block;
-  margin-top: 26px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--slab-fg) 65%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--slab-fg) 30%, transparent);
-  padding-bottom: 4px;
-  transition: color var(--dur-fade) var(--lp-ease-ui);
-}
-
-.lp-work-link:hover {
-  color: var(--slab-fg);
-}
-
-.lp-work-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.05fr 0.85fr;
-  gap: 48px;
-  margin-top: 64px;
-  align-items: start;
-}
-
-.lp-work-card {
-  display: block;
-  border: 1px solid color-mix(in srgb, var(--slab-fg) 14%, transparent);
-  border-radius: 24px;
-  padding: 26px;
-  color: inherit;
-  transition:
-    transform var(--dur-move) var(--lp-ease-reveal),
-    border-color var(--dur-fade) var(--lp-ease-ui);
-}
-
-.lp-work-card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--slab-fg) 32%, transparent);
-}
-
-.lp-work-card .lp-label-row {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--slab-fg) 55%, transparent);
-}
-
-.lp-work-card h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 26px;
-  margin-top: 16px;
-}
-
-.lp-work-card p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: color-mix(in oklab, var(--slab-fg) 68%, transparent);
-  margin-top: 10px;
-}
-
-.lp-work-card .lp-plate {
-  margin: 20px 0 18px;
-  border-radius: 16px;
-  overflow: hidden;
-  aspect-ratio: 3 / 4;
-}
-
-.lp-work-card .lp-plate img {
-  height: 100%;
-  object-fit: cover;
-}
-
-.lp-work-card .lp-meta-row {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--slab-fg) 55%, transparent);
-}
-
 /* -------------------------------- colophon ------------------------------- */
 
 /* The palate-cleanser before the closing accent — the most expansive
@@ -2072,17 +1838,10 @@ a.lp-wire-item .lp-wire-name {
   margin-top: 34px;
 }
 
-.lp-author-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.lp-author-mark {
   width: 44px;
   height: 44px;
-  border: 1.5px solid var(--foreground);
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
+  flex: none;
 }
 
 .lp-author p {
@@ -2318,7 +2077,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-foot-bottom .lp-heart {
-  color: var(--clay);
+  color: var(--lp-accent-ink);
 }
 
 .lp-foot-mega {
@@ -2437,15 +2196,6 @@ a.lp-wire-item .lp-wire-name {
     padding: 0 44px;
   }
 
-  .lp-work-outer {
-    --lp-slab-pad: 64px;
-  }
-
-  .lp-work {
-    margin: 0 44px;
-    padding: var(--lp-slab-pad) 44px;
-  }
-
   .lp-nav-inner {
     gap: 18px;
   }
@@ -2482,7 +2232,6 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-hero-grid,
-  .lp-about-grid,
   .lp-capabilities-grid,
   .lp-testimonial-grid,
   .lp-cta-grid {
@@ -2512,20 +2261,6 @@ a.lp-wire-item .lp-wire-name {
 
   .lp-method-grid::before {
     display: none;
-  }
-
-  .lp-work-outer {
-    --lp-slab-pad: 48px;
-  }
-
-  .lp-work {
-    margin: 0 12px;
-    padding: var(--lp-slab-pad) 24px;
-  }
-
-  .lp-work-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
   }
 
   .lp-wire-inner {
@@ -2562,19 +2297,58 @@ a.lp-wire-item .lp-wire-name {
     font-size: 38px;
   }
 
+  .lp-hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .lp-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
   .lp-labs-grid,
   .lp-cards {
     grid-template-columns: 1fr;
   }
 
-  .lp-work-outer {
-    --lp-slab-pad: 40px;
+  /* Eleven 600px portrait cards made the catalog alone six phone screens.
+     Below 560px each tool is a row instead: a square plate beside its name
+     and its one-line job. */
+  .lp-labs-grid {
+    gap: 12px;
   }
 
-  .lp-work {
-    margin: 0 6px;
-    padding: var(--lp-slab-pad) 20px;
-    border-radius: 24px;
+  .lp-lab {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 16px;
+    align-items: start;
+  }
+
+  .lp-lab-img {
+    grid-row: 1 / span 3;
+    aspect-ratio: 1;
+    border-radius: 12px;
+  }
+
+  .lp-lab-badge,
+  .lp-lab .lp-arrow-mark {
+    display: none;
+  }
+
+  .lp-lab-num-row {
+    margin: 2px 0 4px;
+  }
+
+  .lp-lab h3 {
+    margin: 0;
+  }
+
+  .lp-lab p {
+    margin: 4px 0 0;
   }
 
   .lp-foot-grid {
@@ -2606,17 +2380,12 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-btn,
-  .lp-work-card,
   .lp-lab-img img,
   .lp-arrow-mark svg {
     transition: none;
   }
 
   .lp-btn:hover {
-    transform: none;
-  }
-
-  .lp-work-card:hover {
     transform: none;
   }
 
