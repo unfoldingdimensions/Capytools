@@ -17,7 +17,9 @@ import { SUITE_WORD } from "@/lib/capytools/suite";
  * Its replacement links stay on this site — shared chrome carries no external
  * links (D18; tests/tool-pages.test.tsx), so the repo lives on /notes.
  */
-export function SiteFooter() {
+/** `here` marks the link to the page this footer sits on, which is not a way out. */
+export function SiteFooter({ here }: { here?: "/tools" | "/notes" } = {}) {
+  const current = (href: string) => (href === here ? ("page" as const) : undefined);
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row">
@@ -25,10 +27,10 @@ export function SiteFooter() {
           capytools — no signup. no cookies. open source.
         </p>
         <nav aria-label="Footer" className="flex gap-5 text-xs text-muted-foreground">
-          <Link href="/tools" className="transition-colors hover:text-foreground">
+          <Link href="/tools" aria-current={current("/tools")} className="transition-colors hover:text-foreground aria-[current=page]:text-foreground">
             all {SUITE_WORD} tools
           </Link>
-          <Link href="/notes" className="transition-colors hover:text-foreground">
+          <Link href="/notes" aria-current={current("/notes")} className="transition-colors hover:text-foreground aria-[current=page]:text-foreground">
             notes
           </Link>
         </nav>

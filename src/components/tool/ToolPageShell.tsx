@@ -148,7 +148,9 @@ export function ToolPageShell({
         {/* The closing accent, and where the sign-off lives. */}
         <div className="lp-tool-signoff">
           <div className={cn("lp-tool-foot mx-auto w-full px-6", width)}>
-            <Link href="/" className="lp-read-more">
+            {/* The index, not the landing: someone who just finished one tool
+                is looking for the next, and /tools is where the suite is. */}
+            <Link href="/tools" className="lp-read-more">
               ← back to the suite
             </Link>
             <span className="lp-tool-foot-ix">{index}</span>

@@ -86,7 +86,11 @@ export function StageCard({
                 h2 — the page had only an h1, and assistive tech could not jump
                 to "The style" or "The code". Same look as the old span. */}
             {eyebrow ? (
-              <h2 className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              <h2
+                // 12px and ink: a stage heading at 10px sat below the 11px
+                // field labels it heads.
+                className="font-mono text-xs font-medium uppercase tracking-[0.16em] text-foreground"
+              >
                 {eyebrow}
               </h2>
             ) : null}

@@ -99,6 +99,21 @@ export const DEFAULT_STYLE: QrStyleState = CAPY_PRESETS[0].style;
  * the design system already owns. A swatch is a starting point, not a
  * guarantee: the guards still judge the combination it lands in.
  */
+/** What a screen reader says for each swatch — "#4a6741" names nothing. */
+export const SWATCH_NAMES: Readonly<Record<string, string>> = {
+  "#1a1a1a": "ink",
+  "#4a6741": "deep sage",
+  "#5f7a72": "water",
+  "#c07952": "clay",
+  "#d9a441": "gold",
+  "#7a8e6e": "sage",
+  "#f9f9f7": "cream",
+  "#ffffff": "white",
+  "#f1efea": "linen",
+  "#dfe5d6": "pale sage",
+  "#1e1e1e": "charcoal",
+};
+
 export const CODE_SWATCHES: readonly string[] = [
   "#1a1a1a",
   "#4a6741",

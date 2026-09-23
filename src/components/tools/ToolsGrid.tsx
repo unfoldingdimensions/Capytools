@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { TransitionLink } from "@/components/TransitionLink";
 import { SUITE, pad2 } from "@/lib/capytools/suite";
@@ -31,16 +31,43 @@ const ROWS = SUITE.map((tool, i) => ({
   haystack: `${tool.name} ${tool.line} ${tool.blurb} ${tool.badge} ${tool.cat} ${tool.keywords.join(" ")}`.toLowerCase(),
 }));
 
+function match(query: string) {
+  // Every whitespace-separated term must match, so "qr code" narrows
+  // rather than widening the way a naive substring test would.
+  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return ROWS;
+  return ROWS.filter((row) => terms.every((term) => row.haystack.includes(term)));
+}
+
 export function ToolsGrid() {
   const [query, setQuery] = useState("");
+  const [announced, setAnnounced] = useState("");
+  const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const shown = useMemo(() => {
-    // Every whitespace-separated term must match, so "qr code" narrows
-    // rather than widening the way a naive substring test would.
-    const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    if (terms.length === 0) return ROWS;
-    return ROWS.filter((row) => terms.every((term) => row.haystack.includes(term)));
-  }, [query]);
+  const shown = useMemo(() => match(query), [query]);
+  const input = useRef<HTMLInputElement>(null);
+
+  // "/" jumps to the search from anywhere on the page, as it does on most
+  // developer sites — unless the visitor is already typing somewhere.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]")) return;
+      event.preventDefault();
+      input.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  function search(next: string) {
+    setQuery(next);
+    clearTimeout(settle.current);
+    settle.current = setTimeout(() => {
+      setAnnounced(`${match(next).length} of ${ROWS.length} tools`);
+    }, 700);
+  }
 
   return (
     <>
@@ -50,21 +77,27 @@ export function ToolsGrid() {
         </label>
         <div className="relative mt-3">
           <input
+            ref={input}
             id="tool-search"
             type="search"
+            aria-keyshortcuts="/"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => search(event.target.value)}
             placeholder="try “qr”, “exif”, “tokens”, “desktop”…"
             autoComplete="off"
             className="w-full rounded-full border border-border bg-card px-5 py-3 pr-28 text-base text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
           />
+          {/* The visible count updates per keystroke; the announcement waits for
+              typing to pause. aria-live="polite" on the count itself still
+              queued one announcement per letter. */}
           <span
             className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
-            // Announced politely rather than on every keystroke's re-render:
-            // a screen reader should hear the count settle, not each letter.
-            aria-live="polite"
+            aria-hidden="true"
           >
             {shown.length} / {ROWS.length}
+          </span>
+          <span className="sr-only" aria-live="polite">
+            {announced}
           </span>
         </div>
       </div>
@@ -77,7 +110,7 @@ export function ToolsGrid() {
           </p>
           <button
             type="button"
-            onClick={() => setQuery("")}
+            onClick={() => search("")}
             className="min-h-11 rounded-full border border-border px-4 text-sm text-foreground transition-colors hover:border-primary/60"
           >
             clear search

@@ -594,6 +594,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: none; /* in a tight flex row it squashed into an oval at 375px */
   width: 66px;
   height: 66px;
   border: 1px solid color-mix(in oklab, var(--foreground) 30%, transparent);
@@ -662,11 +663,6 @@
 
 /* hero plate + hairline corner marks */
 
-.lp-hero-art {
-  position: relative;
-  align-self: center;
-}
-
 .lp-plate {
   position: relative;
 }
@@ -702,31 +698,37 @@
 /* Three real tools, live under the hero. The band surface and the Fraunces
    headline are the house's; the stage is a fixed box so switching tabs, or an
    engine arriving, never moves anything on the page. */
-.lp-proof {
-  padding: 88px 0;
+
+/* The hero's right column: claim, live demos, then the counter under them. */
+.lp-proof-hero {
+  align-self: center;
 }
 
-.lp-proof-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: 56px;
-  align-items: start;
-}
-
-.lp-proof h2 {
+.lp-proof-hero h2 {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(36px, 4.2vw, 56px);
-  line-height: 1.04;
-  letter-spacing: -0.012em;
-  margin: 26px 0 20px;
-  max-width: 14ch;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
   text-wrap: balance;
 }
 
-.lp-proof h2 em {
+.lp-proof-hero h2 em {
   font-style: italic;
   font-weight: 400;
+}
+
+.lp-proof-lead {
+  max-width: 60ch;
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+.lp-hero-plate {
+  display: none;
 }
 
 /* The counter is the claim, so it gets the display face, not a ring. */
@@ -734,15 +736,15 @@
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  margin-top: 34px;
-  padding-top: 22px;
+  margin-top: 20px;
+  padding-top: 18px;
   border-top: 1px solid var(--lp-line-soft);
 }
 
 .lp-proof-counter-n {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 64px;
+  font-size: 48px;
   line-height: 0.9;
   font-variant-numeric: tabular-nums;
   color: var(--foreground);
@@ -1027,15 +1029,6 @@
 }
 
 @media (max-width: 880px) {
-  .lp-proof {
-    padding: 64px 0;
-  }
-
-  .lp-proof-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
-
   .lp-proof-panel {
     min-height: 0;
   }
@@ -1295,11 +1288,20 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
 /* ------------------------------ capabilities ------------------------------ */
 
+/* Top-aligned, with the plate held in view: centred against the tall copy
+   column it sat ~280px low, over a blank block, at 1280px. */
 .lp-capabilities-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 70px;
-  align-items: center;
+  align-items: start;
+}
+
+@media (min-width: 881px) {
+  .lp-capabilities-art {
+    position: sticky;
+    top: 96px;
+  }
 }
 
 .lp-capabilities h2 {
@@ -1987,9 +1989,11 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
 /* --------------------------------- footer -------------------------------- */
 
+/* Flush against the closing CTA's tinted band — a 60px margin left a cream
+   seam between the two. */
 .lp-footer {
   border-top: 1px solid var(--border);
-  margin-top: 60px;
+  margin-top: 0;
   padding: 60px 0 30px;
 }
 
@@ -2051,6 +2055,33 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   font-size: 14px;
   color: color-mix(in oklab, var(--foreground) 80%, transparent);
   transition: color var(--dur-fade) var(--lp-ease-ui);
+}
+
+/* Touch: 44px targets without moving the layout. The lone links grow an
+   invisible hit area; the footer lists trade their 10px item margin for
+   44px-tall links, the same pitch give or take. */
+@media (pointer: coarse) {
+  .lp-read-more,
+  .lp-method-foot-right a {
+    position: relative;
+  }
+
+  .lp-read-more::after,
+  .lp-method-foot-right a::after {
+    content: "";
+    position: absolute;
+    inset: -14px -6px;
+  }
+
+  .lp-foot-col li {
+    margin: 0;
+  }
+
+  .lp-foot-col li a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 }
 
 .lp-foot-col li a:hover {
@@ -2239,7 +2270,12 @@ html:not([data-hydrated]) .lp-proof-failsafe {
     gap: 50px;
   }
 
-  .lp-hero-art {
+  .lp-hero-plate {
+    display: block;
+    margin-top: 50px;
+  }
+
+  .lp-hero-plate .lp-plate {
     max-width: 520px;
   }
 
@@ -2358,6 +2394,11 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   .lp-foot-brand {
     grid-column: 1 / -1;
   }
+}
+
+/* Cream plates on the charcoal page glared: dim them a little in dark. */
+.dark .lp-plate img {
+  filter: brightness(0.86);
 }
 
 /* --------------------------- reduced motion ------------------------------ */

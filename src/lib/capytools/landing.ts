@@ -78,7 +78,7 @@ export const HERO = {
     // client-side" was false the day it joined the suite.
     { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in your tab", sub: "one is desktop", tone: "clay" },
   ] as { value: string; label: string; sub: string; tone: string }[],
-  meta: "↳ one quiet tab · nothing leaves it",
+  meta: "↳ one quiet tab · your input stays in it",
 } as const;
 
 /**
@@ -90,7 +90,6 @@ export const HERO = {
  * demo is the claim.
  */
 export const PROOF = {
-  label: "Try it here",
   headline: [
     { text: "Nothing you type " },
     { text: "leaves this tab", em: true },
@@ -138,7 +137,7 @@ export type ProofDemoId = (typeof PROOF.demos)[number]["id"];
 
 export const WIRE = {
   title: "The suite, live",
-  sub: `${SUITE_WORD_CAP} tools · zero uploads · one tab`,
+  sub: `${SUITE_WORD_CAP} tools · zero uploads · one machine`,
   tools: SUITE.map((tool, i) => ({ no: `Nº ${pad2(i + 1)}`, name: tool.name })),
   /** Real engine lists: src/lib/promptgen/criteria.ts + capycreator/profiles.ts. */
   engines: {
@@ -216,7 +215,12 @@ export type LabCategory = "browser" | "desktop";
 
 export const LABS = {
   roman: "III.",
-  meta: ["Labs / Tool Catalog", `${SUITE_INDEX} of ${SUITE_INDEX} shipped`],
+  // ponytail: "coming" = the desktop category, true while CapyExpense is its
+  // only member and has no builds; give SUITE a shipped flag when that changes.
+  meta: [
+    "Labs / Tool Catalog",
+    `${countByCategory("browser")} of ${SUITE_INDEX} shipped · ${countByCategory("desktop")} coming`,
+  ],
   label: "Labs",
   ix: "· Nº 03",
   headline: [
@@ -240,7 +244,6 @@ export const LABS = {
   tools: SUITE.map((tool, i) => ({
     badge: tool.badge,
     no: `Nº ${pad2(i + 1)}`,
-    year: tool.year,
     name: tool.name,
     blurb: tool.blurb,
     href: tool.href,
@@ -306,7 +309,7 @@ export const COLOPHON = {
   quote: [
     { text: "“A home for " },
     { text: "small, quiet tools.", em: true },
-    { text: " Eleven so far. All run in your browser and keep nothing.”" },
+    { text: " Eleven so far. Ten run in your browser and keep nothing; one lives on your desktop and keeps your files there.”" },
   ] as Headline,
   author: {
     name: "Capytools, README",

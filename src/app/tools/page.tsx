@@ -72,7 +72,7 @@ export default function ToolsPage() {
         </p>
       </main>
 
-      <SiteFooter />
+      <SiteFooter here="/tools" />
     </div>
   );
 }

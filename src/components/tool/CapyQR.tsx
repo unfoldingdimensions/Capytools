@@ -38,6 +38,7 @@ import {
   BACKGROUND_SWATCHES,
   CAPY_PRESETS,
   CODE_SWATCHES,
+  SWATCH_NAMES,
   DEFAULT_STYLE,
   EYES_SWATCHES,
   randomGuardPassingStyle,
@@ -197,7 +198,7 @@ function Swatches({
         <button
           key={hex}
           type="button"
-          aria-label={`${label}: ${hex}`}
+          aria-label={`${label}: ${SWATCH_NAMES[hex] ?? hex}`}
           aria-pressed={value.toLowerCase() === hex}
           onClick={() => onPick(hex)}
           className={cn(
@@ -828,9 +829,9 @@ export function CapyQR() {
 
         <div className="mt-4">
           <span className={labelClass}>encoded payload</span>
-          <div className="mt-1.5 break-all rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
+          <div className="mt-1.5 rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
             {payload.ok ? (
-              payload.value
+              <span className="break-all">{payload.value}</span>
             ) : (
               <span className="text-[var(--clay)]">{payload.error}</span>
             )}
@@ -1290,31 +1291,33 @@ export function CapyQR() {
 
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <span className={labelClass}>the guards</span>
+          {/* Each line already names its subject; a "contrast ·" prefix made it
+              read "contrast · contrast is comfortable". */}
           <ul className="mt-2 space-y-1.5 text-[13px] leading-relaxed">
             <li className={contrast === "ok" ? "text-muted-foreground" : "text-[var(--clay)]"}>
-              contrast · {CONTRAST_COPY[contrast]}
+              {CONTRAST_COPY[contrast]}
             </li>
             {eyesGuarded ? (
               <li className="text-[var(--clay)]">
-                eyes · the corner eyes are low-contrast and they carry the finder pattern —
+                the corner eyes are low-contrast and they carry the finder pattern —
                 darken them or let them match the code.
               </li>
             ) : null}
             <li className={quiet === "ok" ? "text-muted-foreground" : "text-[var(--clay)]"}>
-              quiet zone · {QUIET_COPY[quiet]}
+              {QUIET_COPY[quiet]}
             </li>
             {logoNotes.length > 0 ? (
               logoNotes.map((note) => (
                 <li key={note} className="text-[var(--clay)]">
-                  logo · {note}
+                  {note}
                 </li>
               ))
             ) : (
-              <li className="text-muted-foreground">logo · none, so nothing covers the modules.</li>
+              <li className="text-muted-foreground">no logo, so nothing covers the modules.</li>
             )}
           </ul>
           <p className="mt-2 text-xs text-muted-foreground">
-            the guards are rules of thumb, not a spec — the scan below is the proof.
+            the guards are rules of thumb, not a spec — the in-tab scan is the proof.
           </p>
         </div>
       </StageCard>
@@ -1401,7 +1404,7 @@ export function CapyQR() {
               size="sm"
               className="min-w-[84px] rounded-full pointer-coarse:h-11 pointer-coarse:px-5"
               onClick={handleDownload}
-              disabled={busy}
+              disabled={busy || !payload.ok}
             >
               <Download className="mr-1.5 size-3.5" />
               Download
@@ -1411,7 +1414,7 @@ export function CapyQR() {
               variant="ghost"
               className="min-w-[84px] rounded-full pointer-coarse:h-11 pointer-coarse:px-5"
               onClick={handleCopy}
-              disabled={busy}
+              disabled={busy || !payload.ok}
             >
               {copied ? <Check className="mr-1.5 size-3.5" /> : <Copy className="mr-1.5 size-3.5" />}
               {copied ? "Copied" : "Copy image"}
@@ -1470,7 +1473,10 @@ export function CapyQR() {
                   width={112}
                   height={112}
                   aria-hidden
-                  className="size-14 flex-none rounded-lg border border-border bg-white"
+                  className={cn(
+                    "size-14 flex-none rounded-lg border border-border bg-white",
+                    !payload.ok && "invisible",
+                  )}
                 />
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {!payload.ok

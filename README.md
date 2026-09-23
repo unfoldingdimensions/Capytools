@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Eleven so far. All run in your browser and keep nothing.
+A home for small, quiet tools. Eleven so far. Ten run in your browser and keep nothing; one lives on your desktop and keeps your files there.
 
 **[capytools.app](https://capytools.app)**
 

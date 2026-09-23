@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import CapyQRPage from "@/app/capyqr/page";
 import { Landing } from "@/components/landing/Landing";
 import { SUITE } from "@/lib/capytools/suite";
+import { BACKGROUND_SWATCHES, CODE_SWATCHES, EYES_SWATCHES, SWATCH_NAMES } from "@/lib/capyqr/presets";
 
 /**
  * The polish pass's accessibility fixes, each one found by the Sep 2026
@@ -101,5 +102,27 @@ describe("CapyQR prints its verdict as a sentence", () => {
     expect(note).not.toBeNull();
     expect(note![1]).not.toContain("uppercase");
     expect(note![1]).toContain("text-[13px]");
+  });
+});
+
+describe("the third critique's harden pass", () => {
+  const landing = renderToStaticMarkup(<Landing />);
+
+  it("names each capability link for the tool it opens, uniquely", () => {
+    const names = [...landing.matchAll(/class="lp-arrow-mark" aria-label="([^"]+)"/g)].map((m) => m[1]);
+    expect(names.length).toBe(4);
+    expect(new Set(names).size).toBe(names.length);
+    for (const name of names) expect(SUITE.some((tool) => name === `See it in ${tool.name}`)).toBe(true);
+  });
+
+  it("labels the landing's nav as sections, not tools", () => {
+    expect(landing).toContain('aria-label="On this page"');
+    expect(landing).not.toContain('<nav class="lp-nav-links" aria-label="Tools"');
+  });
+
+  it("gives every QR swatch a spoken colour name", () => {
+    for (const hex of [...CODE_SWATCHES, ...EYES_SWATCHES, ...BACKGROUND_SWATCHES]) {
+      expect(SWATCH_NAMES[hex], hex).toBeTruthy();
+    }
   });
 });
