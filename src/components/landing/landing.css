@@ -2275,6 +2275,31 @@ html:not([data-hydrated]) .lp-proof-failsafe {
     margin-top: 50px;
   }
 
+  /* One column: the proof comes straight after the lead and its button, and
+     the stat rings and hero foot follow it. In source order the proof started
+     at 830px on a 812px phone — below the fold it was moved up to lead. The
+     copy column dissolves (display: contents) so its children and the proof
+     can be ordered as siblings. */
+  .lp-hero-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .lp-hero-copy {
+    display: contents;
+  }
+
+  .lp-proof-hero {
+    order: 1;
+    margin-top: 40px;
+  }
+
+  .lp-hero-stats,
+  .lp-hero-foot {
+    order: 2;
+  }
+
   .lp-hero-plate .lp-plate {
     max-width: 520px;
   }
@@ -2331,6 +2356,15 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
   .lp-hero h1 {
     font-size: 38px;
+  }
+
+  /* The section rule's meta wrapped to four lines on a phone; one line,
+     clipped, keeps the scaffolding without spending a screen on it. */
+  .lp-sec-rule .lp-meta-grp {
+    gap: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .lp-hero-stats {
