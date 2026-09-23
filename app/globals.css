@@ -360,6 +360,27 @@
     animation: scale-in var(--duration-normal) cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  /* Landing reveal — the hero settles in over 900ms on the entrance curve, staggered
+     per element through `--reveal-delay`. `backwards` holds the start state during the
+     delay, so nothing flashes before it arrives. The universal reduced-motion guard
+     below zeroes the duration, which leaves the content simply arrived. */
+  .reveal-up {
+    animation: reveal-up var(--dur-hero) var(--ease-entrance) backwards;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   /* GPU Acceleration - use for animated elements */
   .gpu-accelerated {
     transform: translateZ(0);
