@@ -39,7 +39,9 @@
    * that is a passing state — a chip, a badge, a "coming soon" — is muted.
    * Clay on a link was what made it read as a second primary colour.
    */
-  --lp-accent-ink: #a05e3c;
+  /* #a05e3c measured 4.39:1 on the muted surface — under AA for the 14px
+     section numerals. #8f5233 holds 5:1+ on cream, card and muted alike. */
+  --lp-accent-ink: #8f5233;
   --lp-line-soft: color-mix(in oklab, var(--foreground) 8%, transparent);
   --lp-line-faint: color-mix(in oklab, var(--foreground) 5%, transparent);
   --lp-shadow: 0 30px 60px -30px color-mix(in oklab, var(--foreground) 16%, transparent);
@@ -1007,7 +1009,9 @@
   min-height: 44px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--water);
+  /* Water alone measured 4.41:1 on cream; a fifth of ink clears AA, as the
+     sign-off's read-more link does. */
+  color: color-mix(in oklab, var(--water) 80%, var(--foreground));
   text-decoration: underline;
   text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
   text-underline-offset: 4px;
@@ -1250,6 +1254,12 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 @keyframes lp-marquee-x {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+
+@media (pointer: coarse) {
+  .lp-wire-pause {
+    min-height: 44px;
+  }
 }
 
 /* pauses — hover and the explicit toggle (WCAG 2.2.2) */
@@ -2080,7 +2090,7 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 }
 
 .lp-foot-bottom .lp-heart {
-  color: var(--clay);
+  color: var(--lp-accent-ink);
 }
 
 .lp-foot-mega {
