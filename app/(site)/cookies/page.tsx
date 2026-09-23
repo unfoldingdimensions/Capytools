@@ -8,9 +8,10 @@ import {
 import { LegalH3, LegalP, LegalPage, LegalSection, LegalUL } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
-  title: 'Cookie Policy | CapyResume',
+  title: 'Cookie policy | CapyResume',
   description:
     'CapyResume sets no cookies. This page lists the browser local storage entries it uses instead, and how to clear them.',
+  alternates: { canonical: '/cookies' },
 };
 
 function Key({ children }: { children: string }) {

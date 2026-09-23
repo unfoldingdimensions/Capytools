@@ -2,9 +2,10 @@ import { Metadata } from 'next';
 import { LegalP, LegalPage, LegalSection, LegalUL } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | CapyResume',
+  title: 'Terms of service | CapyResume',
   description:
     'Terms for using CapyResume, a free and open-source résumé builder that runs entirely in your browser.',
+  alternates: { canonical: '/terms' },
 };
 
 export default function TermsOfServicePage() {

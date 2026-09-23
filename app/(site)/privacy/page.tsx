@@ -3,9 +3,10 @@ import { AI_SETTINGS_KEY, RESUME_STORAGE_KEY as STORAGE_KEY } from '@/lib/capyre
 import { LegalH3, LegalP, LegalPage, LegalSection, LegalUL } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | CapyResume',
+  title: 'Privacy policy | CapyResume',
   description:
     'CapyResume runs entirely in your browser. Your résumé is not uploaded, there is no account, and there is no server of ours holding your data.',
+  alternates: { canonical: '/privacy' },
 };
 
 export default function PrivacyPolicyPage() {
