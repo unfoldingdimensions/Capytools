@@ -174,6 +174,10 @@ export function ProofBand() {
               {armed ? PROOF.counter.note : "starts counting when you type in any demo."}
             </span>
           </div>
+          <a className="lp-proof-open lp-proof-source" href={PROOF.source.href}>
+            {PROOF.source.label}
+            <ArrowUpRight />
+          </a>
         </div>
 
         <div className="lp-proof-stage">

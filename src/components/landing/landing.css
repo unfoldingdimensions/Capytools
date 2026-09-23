@@ -1013,6 +1013,10 @@
   text-underline-offset: 4px;
 }
 
+.lp-proof-source {
+  margin-top: 12px;
+}
+
 .lp-proof-open svg {
   width: 14px;
   height: 14px;

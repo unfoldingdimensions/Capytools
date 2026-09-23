@@ -21,7 +21,7 @@ import { Landing } from "../src/components/landing/Landing";
 import DesignNotesPage from "../src/app/design/page";
 import LicensePage from "../src/app/license/page";
 import NotesPage from "../src/app/notes/page";
-import { CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, WORK } from "../src/lib/capytools/landing";
+import { CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, PROOF, WORK } from "../src/lib/capytools/landing";
 import {
   SUITE,
   SUITE_INDEX,
@@ -120,8 +120,9 @@ describe("Landing", () => {
     }
   });
 
-  it("routes everything natively — zero external hrefs on the landing", () => {
-    expect(html).not.toContain('href="http');
+  it("routes natively — the one external href is the proof band's source link", () => {
+    const external = html.match(/href="http[^"]*"/g) ?? [];
+    expect(external).toEqual([`href="${PROOF.source.href}"`]);
     // The project-meta targets exist as native editorial pages.
     expect(html).toContain('href="/design"');
     expect(html).toContain('href="/license"');
