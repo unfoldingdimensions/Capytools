@@ -44,8 +44,12 @@ export function ToolPageShell({
 }: {
   /** Passed to the shared Header to highlight the nav pill. */
   tool: string;
-  /** The AGENTS.md eyebrow contract: `Capy<Name> · tool no. X`. */
-  eyebrow: string;
+  /**
+   * The AGENTS.md eyebrow contract: `Capy<Name> · tool no. X`. Derived from
+   * SUITE by default — eleven pages each hand-typed their own number, which
+   * is exactly the kind of copy that drifts when a tool is added or moved.
+   */
+  eyebrow?: string;
   /**
    * Headline lines; `em` renders the italic emphasis line, `dot` swaps that
    * line's terminal period for the landing's clay `.lp-dot`.
@@ -60,6 +64,8 @@ export function ToolPageShell({
   entrance?: boolean;
   children: React.ReactNode;
 }) {
+  const position = SUITE.findIndex((row) => row.name === tool);
+  const label = eyebrow ?? (position >= 0 ? `${tool} · tool no. ${position + 1}` : tool);
   // The sign-off numbers are facts of the registry, not of the page: this
   // tool's position in SUITE over the suite's size. Every page used to
   // hand-carry its own "Nº 06 / 08", so shipping a tool meant re-editing all
@@ -96,7 +102,7 @@ export function ToolPageShell({
           )}
         >
           <Reveal>
-            <p className="lp-label">{eyebrow}</p>
+            <p className="lp-label">{label}</p>
           </Reveal>
 
           <h1

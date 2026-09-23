@@ -94,7 +94,8 @@ export function Labs() {
               <TransitionLink
                 href={tool.href}
                 className="lp-lab"
-                aria-label={`Open ${tool.name}`}
+                aria-labelledby={`lab-${tool.href.slice(1)}`}
+                aria-describedby={`lab-${tool.href.slice(1)}-blurb`}
               >
                 <div className="lp-lab-img">
                   <span className="lp-lab-badge">{tool.badge}</span>
@@ -111,8 +112,8 @@ export function Labs() {
                   <span>{tool.no}</span>
                   <span>{tool.year}</span>
                 </div>
-                <h4>{tool.name}</h4>
-                <p>{tool.blurb}</p>
+                <h3 id={`lab-${tool.href.slice(1)}`}>{tool.name}</h3>
+                <p id={`lab-${tool.href.slice(1)}-blurb`}>{tool.blurb}</p>
                 <span className="lp-arrow-mark" aria-hidden="true">
                   <ArrowUpRight />
                 </span>

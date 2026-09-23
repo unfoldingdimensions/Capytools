@@ -280,9 +280,12 @@
   background: color-mix(in oklab, var(--foreground) 4%, transparent);
 }
 
-/* focus ring — house ring color, export geometry */
+/* focus ring — house ring color, export geometry. This unlayered rule is the
+   one that wins on every page inside .lp, so the contrast fix lives here too:
+   plain sage is ~2.9:1 on a white card, under the 3:1 a focus indicator needs,
+   and a third of ink deepens it on light and lifts it on dark. */
 .lp :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid color-mix(in oklab, var(--primary) 70%, var(--foreground));
   outline-offset: 3px;
 }
 
@@ -1653,7 +1656,7 @@ a.lp-wire-item .lp-wire-name {
   color: var(--muted-foreground);
 }
 
-.lp-lab h4 {
+.lp-lab h3 {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 18px;
@@ -1774,7 +1777,7 @@ a.lp-wire-item .lp-wire-name {
   color: var(--lp-accent-ink);
 }
 
-.lp-method-step h4 {
+.lp-method-step h3 {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -1785,7 +1788,7 @@ a.lp-wire-item .lp-wire-name {
   margin-top: 26px;
 }
 
-.lp-method-step h4 .lp-arrow-r {
+.lp-method-step h3 .lp-arrow-r {
   font-family: var(--font-sans);
   font-weight: 400;
   color: var(--lp-accent-ink);
@@ -2075,7 +2078,9 @@ a.lp-wire-item .lp-wire-name {
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--water);
+  /* Water alone measured 3.98:1 on the light sign-off band, under AA for 11px
+     text. A fifth of ink takes it to 5.2:1, and lifts it further on dark. */
+  color: color-mix(in oklab, var(--water) 80%, var(--foreground));
   border-bottom: 1px solid color-mix(in oklab, var(--water) 40%, transparent);
   padding-bottom: 3px;
 }
@@ -2236,7 +2241,7 @@ a.lp-wire-item .lp-wire-name {
   color: var(--water);
 }
 
-.lp-foot-col h5 {
+.lp-foot-col h2 {
   font-family: var(--font-mono);
   font-weight: 500;
   font-size: 11px;

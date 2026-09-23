@@ -30,7 +30,7 @@ export function LandingFooter() {
 
           {LANDING_FOOTER.columns.map((col) => (
             <nav className="lp-foot-col" key={col.title} aria-label={col.title}>
-              <h5>{col.title}</h5>
+              <h2>{col.title}</h2>
               <ul>
                 {col.links.map((link) => (
                   <li key={link.label}>

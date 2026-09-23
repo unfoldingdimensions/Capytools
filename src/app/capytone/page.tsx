@@ -12,7 +12,6 @@ export default function CapyTonePage() {
   return (
     <ToolPageShell
       tool="CapyTone"
-      eyebrow="CapyTone · tool no. 11"
       headline={[{ text: "Type a feeling," }, { text: "get a poster", em: true, dot: true }]}
       lead="a hand-tuned lexicon turns any mood phrase into a five-colour palette — deterministic, no AI, nothing leaves the tab."
       align="left"

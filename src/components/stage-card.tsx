@@ -82,10 +82,13 @@ export function StageCard({
       {hasHeader ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
+            {/* A named stage is a section of the tool, so its title is a real
+                h2 — the page had only an h1, and assistive tech could not jump
+                to "The style" or "The code". Same look as the old span. */}
             {eyebrow ? (
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              <h2 className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                 {eyebrow}
-              </span>
+              </h2>
             ) : null}
             {chips}
           </div>

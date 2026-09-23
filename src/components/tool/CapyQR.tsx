@@ -1325,7 +1325,9 @@ export function CapyQR() {
           className="mx-auto block aspect-square w-full max-w-[320px] rounded-2xl border border-border"
         />
 
-        <div className="mt-4 text-center">
+        {/* Announced: restyling can turn "verified scannable" into "won't
+            scan", and that is the one result a screen-reader user most needs. */}
+        <div className="mt-4 text-center" aria-live="polite">
           {payload.ok && proof?.ok && !proof.inverted ? (
             <StageChip tone="sage">
               verified scannable — decoded: {truncateForChip(proof.data)}

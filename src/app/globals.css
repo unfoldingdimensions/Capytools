@@ -80,8 +80,12 @@
     color: var(--foreground);
   }
 
+  /* 2px, 2px offset, per DESIGN.md. Light sage is ~2.9:1 on a white card —
+     under the 3:1 a focus indicator needs — so it is mixed toward the ink,
+     which deepens it on light and lifts it on dark. (.lp pages carry the same
+     fix in landing.css, whose unlayered rule wins inside them.) */
   :focus-visible {
-    outline: 2px solid var(--ring);
+    outline: 2px solid color-mix(in oklab, var(--ring) 70%, var(--foreground));
     outline-offset: 2px;
     border-radius: 2px;
   }
