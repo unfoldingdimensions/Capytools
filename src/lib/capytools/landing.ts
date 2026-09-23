@@ -76,7 +76,7 @@ export const HERO = {
     { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
     // Counted, not rounded up: CapyExpense is a desktop app, so "100%
     // client-side" was false the day it joined the suite.
-    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in your tab", sub: "one is desktop", tone: "clay" },
+    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in-tab", sub: "one desktop", tone: "plain" },
   ] as { value: string; label: string; sub: string; tone: string }[],
   meta: "↳ one quiet tab · your input stays in it",
 } as const;
@@ -136,7 +136,10 @@ export const PROOF = {
 export type ProofDemoId = (typeof PROOF.demos)[number]["id"];
 
 export const WIRE = {
-  title: "The suite, live",
+  // Not "live", and no pulsing dot: on a product that watches nothing, a
+  // live indicator read as real-time monitoring to exactly the visitors
+  // who care most that there is none.
+  title: "The suite at a glance",
   sub: `${SUITE_WORD_CAP} tools · zero uploads · one machine`,
   tools: SUITE.map((tool, i) => ({ no: `Nº ${pad2(i + 1)}`, name: tool.name })),
   /** Real engine lists: src/lib/promptgen/criteria.ts + capycreator/profiles.ts. */
@@ -165,13 +168,16 @@ export const WIRE = {
 
 export const CAPABILITIES = {
   roman: "II.",
-  meta: ["Capabilities · Promises", "2 kept by all, 2 by some"],
+  meta: ["Capabilities · Promises", "2 kept by all"],
   label: "Capabilities",
   ix: "· Nº 02",
+  // Two promises, not four: the other two cards were features of single tools
+  // (CapyWrapped's export, CapyImagine's engines), which their catalog
+  // blurbs already describe, and the headline had to hedge to hold them.
   headline: [
     { text: "Two promises " },
     { text: "every", em: true },
-    { text: " tool keeps, two that a few add" },
+    { text: " tool keeps" },
   ] as Headline,
   lead: "The architecture is the privacy policy. Each tool is small enough to read in one sitting and quiet enough to leave open all day.",
   ribbon: "CAPYTOOLS · CAPABILITIES MATRIX",
@@ -182,7 +188,6 @@ export const CAPABILITIES = {
       icon: "browser",
       title: ["Runs on", "your machine"],
       copy: "Browser tools compute in this tab; two fetch public data through a route that stores nothing. CapyExpense runs on your desktop.",
-      href: "/capyqr",
     },
     {
       num: "02",
@@ -190,25 +195,14 @@ export const CAPABILITIES = {
       icon: "privacy",
       title: ["Keeps nothing", "of yours"],
       copy: "No signup, no cookies, no account. Browser memory stays in localStorage; CapyExpense keeps its files on your disk, never ours.",
-      href: "/capystrip",
-    },
-    {
-      num: "03",
-      tag: "In CapyWrapped",
-      icon: "export",
-      title: ["Take it", "with you"],
-      copy: "Wrapped cards download as PNG — wide and square, light and dark — or post straight to X.",
-      href: "/capywrapped",
-    },
-    {
-      num: "04",
-      tag: "In CapyImagine",
-      icon: "engines",
-      title: ["Speaks your", "dialect"],
-      copy: "Prompts tuned per engine — Gemini, Midjourney, Flux, SDXL, Kling, Runway, Seedance.",
-      href: "/capyimagine",
     },
   ],
+  /** Don't take the cards' word for it. */
+  check: {
+    lead: "Check it yourself:",
+    text: "open your browser's developer tools on the Network tab, then type into the demos at the top of this page. Nothing you type is sent.",
+    link: { label: "back to the demos", href: "#proof" },
+  },
 } as const;
 
 export type LabCategory = "browser" | "desktop";
@@ -332,7 +326,7 @@ export const CTA = {
   lead: "Open any tool in a browser tab and simply start — no account, no cookie banner, no setup. CapyExpense lives on your desktop and your disk, never ours.",
   primary: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
-  foot: ["● Live", "v0.1.0 / Apache-2.0"],
+  foot: ["No account needed", "v0.1.0 / Apache-2.0"],
   ribbon: "CAPYTOOLS · FIN.",
   plate: { src: "/plates/cta.webp", width: 1024, height: 1024 },
 } as const;

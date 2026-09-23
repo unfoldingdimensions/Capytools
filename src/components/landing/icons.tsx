@@ -11,7 +11,7 @@ export function ArrowUpRight({ className }: { className?: string }) {
   );
 }
 
-/** The four promise-card glyphs, keyed by the icon field in CAPABILITIES. */
+/** The promise-card glyphs, keyed by the icon field in CAPABILITIES. */
 export function PromiseIcon({ icon }: { icon: string }) {
   const common = {
     viewBox: "0 0 24 24",
@@ -32,19 +32,6 @@ export function PromiseIcon({ icon }: { icon: string }) {
         <svg {...common}>
           <path d="M4 4l16 16" />
           <path d="M10.5 5.2A9 9 0 0 1 21 12a9 9 0 0 1-2.3 4.2M6.6 6.6A9 9 0 0 0 3 12a9 9 0 0 0 9 9 9 9 0 0 0 3.4-.7" />
-        </svg>
-      );
-    case "export":
-      return (
-        <svg {...common}>
-          <path d="M12 4v10M8 10l4 4 4-4" />
-          <path d="M5 19h14" />
-        </svg>
-      );
-    case "engines":
-      return (
-        <svg {...common}>
-          <path d="M4 12h3l2-6 4 12 2-6h5" />
         </svg>
       );
     default:

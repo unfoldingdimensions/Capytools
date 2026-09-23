@@ -17,12 +17,16 @@ import { SUITE_WORD } from "@/lib/capytools/suite";
  * Its replacement links stay on this site — shared chrome carries no external
  * links (D18; tests/tool-pages.test.tsx), so the repo lives on /notes.
  */
-/** `here` marks the link to the page this footer sits on, which is not a way out. */
-export function SiteFooter({ here }: { here?: "/tools" | "/notes" } = {}) {
+/**
+ * `here` marks the link to the page this footer sits on, which is not a way out.
+ * `wide` matches a max-w-5xl page (/tools), so the footer's left edge lines up
+ * with the content above it instead of sitting 64px further in.
+ */
+export function SiteFooter({ here, wide = false }: { here?: "/tools" | "/notes"; wide?: boolean } = {}) {
   const current = (href: string) => (href === here ? ("page" as const) : undefined);
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto flex w-full max-w-4xl flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row">
+      <div className={`mx-auto flex w-full ${wide ? "max-w-5xl" : "max-w-4xl"} flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row`}>
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
           capytools — no signup. no cookies. open source.
         </p>

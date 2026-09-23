@@ -108,11 +108,12 @@ describe("CapyQR prints its verdict as a sentence", () => {
 describe("the third critique's harden pass", () => {
   const landing = renderToStaticMarkup(<Landing />);
 
-  it("names each capability link for the tool it opens, uniquely", () => {
-    const names = [...landing.matchAll(/class="lp-arrow-mark" aria-label="([^"]+)"/g)].map((m) => m[1]);
-    expect(names.length).toBe(4);
-    expect(new Set(names).size).toBe(names.length);
-    for (const name of names) expect(SUITE.some((tool) => name === `See it in ${tool.name}`)).toBe(true);
+  it("points the promises at the proof, not at an arbitrary tool", () => {
+    const caps = landing.match(/<section class="lp-section lp-capabilities"[\s\S]*?<\/section>/)?.[0] ?? "";
+    expect(caps).not.toBe("");
+    expect(caps).not.toContain("lp-arrow-mark");
+    expect(caps).toContain('href="#proof"');
+    expect(caps.match(/class="lp-card"/g) ?? []).toHaveLength(2);
   });
 
   it("labels the landing's nav as sections, not tools", () => {
@@ -124,5 +125,23 @@ describe("the third critique's harden pass", () => {
     for (const hex of [...CODE_SWATCHES, ...EYES_SWATCHES, ...BACKGROUND_SWATCHES]) {
       expect(SWATCH_NAMES[hex], hex).toBeTruthy();
     }
+  });
+});
+
+describe("CapyQR's simple mode is one decision per row", () => {
+  const html = renderToStaticMarkup(<CapyQRPage />);
+
+  it("keeps colour, quiet zone and error correction behind 'full'", () => {
+    expect(html).not.toContain("code swatches");
+    expect(html).not.toContain('id="capyqr-quiet"');
+    expect(html).not.toContain('id="capyqr-ecc"');
+    expect(html).toContain('id="capyqr-dot-type"');
+    expect(html).toContain("upload logo");
+  });
+
+  it("offers a way back, and Download before the export options", () => {
+    expect(html).toContain('aria-label="Reset the style to its defaults"');
+    expect(html.indexOf(">Download<")).toBeGreaterThan(0);
+    expect(html.indexOf(">Download<")).toBeLessThan(html.indexOf('aria-label="Size 512"'));
   });
 });

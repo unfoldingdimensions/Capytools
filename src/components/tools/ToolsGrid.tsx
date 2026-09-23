@@ -83,9 +83,9 @@ export function ToolsGrid() {
             aria-keyshortcuts="/"
             value={query}
             onChange={(event) => search(event.target.value)}
-            placeholder="try “qr”, “exif”, “tokens”, “desktop”…"
+            placeholder="try “qr”, “exif”, “tokens”…"
             autoComplete="off"
-            className="w-full rounded-full border border-border bg-card px-5 py-3 pr-28 text-base text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
+            className="w-full rounded-full border border-border bg-card px-5 py-3 pr-28 text-base text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary"
           />
           {/* The visible count updates per keystroke; the announcement waits for
               typing to pause. aria-live="polite" on the count itself still
@@ -122,27 +122,27 @@ export function ToolsGrid() {
             <li key={tool.name}>
               <TransitionLink
                 href={tool.href}
-                className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-primary/60 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-primary/60 focus-visible:border-primary"
               >
                 <span className="flex items-center justify-between gap-3">
                   <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
                     {tool.no}
                   </span>
-                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    {tool.cat === "desktop" ? "Desktop" : "Browser"}
-                  </span>
+                  {/* Only the exception is labelled: ten "Browser" chips marked the
+                      rule, not the one tool that breaks it. */}
+                  {tool.cat === "desktop" ? (
+                    <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      Desktop
+                    </span>
+                  ) : null}
                 </span>
 
-                <span className="mt-4 font-display text-2xl font-light text-foreground transition-colors group-hover:text-primary">
+                <h2 className="mt-4 font-display text-2xl font-light text-foreground transition-colors group-hover:text-primary">
                   {tool.name}
-                </span>
+                </h2>
 
                 <span className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {tool.line}
-                </span>
-
-                <span className="mt-5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--sage-deep)] dark:text-primary">
-                  Open →
                 </span>
               </TransitionLink>
             </li>

@@ -212,7 +212,11 @@ export function Header({
               stays centred on the block. */}
           <span className="lp-brand-text">
             Capytools
-            {tool && <span className="lp-brand-tool">· {tool}</span>}
+            {/* Not when the nav already shows it as the current page:
+                "Capytools · All Tools" beside an active "All Tools". */}
+            {tool && !links.some((link) => link.label === tool) && (
+              <span className="lp-brand-tool">· {tool}</span>
+            )}
           </span>
         </Link>
 
@@ -238,7 +242,7 @@ export function Header({
             className="lp-nav-toggle"
             aria-expanded={open}
             aria-controls="site-nav-menu"
-            aria-label={open ? "Close the tools menu" : "Open the tools menu"}
+            aria-label={`${open ? "Close" : "Open"} the ${links === TOOL_LINKS ? "site" : "sections"} menu`}
             onClick={() => setOpen((was) => !was)}
           >
             <span aria-hidden="true" />
@@ -250,7 +254,7 @@ export function Header({
       {/* The same links, stacked. Closed it is `display: none`, so it leaves the
           a11y tree entirely and only one <nav> is ever exposed. */}
       <div id="site-nav-menu" className={`lp-nav-menu${open ? " is-open" : ""}`}>
-        <nav className="lp-container" aria-label="Tools menu">
+        <nav className="lp-container" aria-label={links === TOOL_LINKS ? "Site menu" : "Sections menu"}>
           {links.map((link) => (
             <Link
               key={link.href}

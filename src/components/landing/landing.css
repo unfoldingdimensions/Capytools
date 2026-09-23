@@ -541,6 +541,10 @@
 
 /* ----------------------------------- hero -------------------------------- */
 
+.lp-hero.lp-section {
+  padding-top: 40px;
+}
+
 .lp-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
@@ -720,7 +724,7 @@
 }
 
 .lp-proof-lead {
-  max-width: 60ch;
+  max-width: 52ch;
   margin: 0 0 18px;
   font-size: 14px;
   line-height: 1.55;
@@ -1013,6 +1017,18 @@
   text-underline-offset: 4px;
 }
 
+/* A secondary action inside the demos: the hero's "Explore our tools" is the
+   page's one sage primary, and the token demo's button made a second. */
+.lp-btn-quiet {
+  color: var(--foreground);
+  background: transparent;
+  border-color: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+.lp-btn-quiet:hover {
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
 .lp-proof-source {
   margin-top: 12px;
 }
@@ -1126,29 +1142,6 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   flex-shrink: 0;
   padding-right: 28px;
   border-right: 1px solid var(--lp-line-soft);
-}
-
-.lp-wire-mark {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--clay);
-  flex-shrink: 0;
-}
-
-.lp-wire-pulse {
-  position: absolute;
-  inset: -5px;
-  border-radius: 999px;
-  border: 1px solid var(--clay);
-  opacity: 0;
-  animation: lp-wire-pulse 2.6s var(--lp-ease-ui) infinite;
-}
-
-@keyframes lp-wire-pulse {
-  0% { transform: scale(0.6); opacity: 0.7; }
-  70%, 100% { transform: scale(1.5); opacity: 0; }
 }
 
 .lp-wire-title {
@@ -1342,6 +1335,26 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   margin-top: 36px;
+}
+
+.lp-cap-check {
+  max-width: 60ch;
+  margin-top: 28px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+.lp-cap-check b {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.lp-cap-check a {
+  color: color-mix(in oklab, var(--water) 80%, var(--foreground));
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
+  text-underline-offset: 4px;
 }
 
 .lp-card {
@@ -1816,7 +1829,7 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   align-items: center;
 }
 
-.lp-testimonial h2 {
+.lp-testimonial .lp-quote {
   /* The display face, like the other seven section headlines. This one alone
      was set in the UI face at weight 700 — a pull-quote voice nobody chose. */
   font-family: var(--font-display);
@@ -1828,7 +1841,7 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   text-wrap: balance;
 }
 
-.lp-testimonial h2 em {
+.lp-testimonial .lp-quote em {
   font-style: italic;
   font-weight: 400;
 }
@@ -2275,6 +2288,31 @@ html:not([data-hydrated]) .lp-proof-failsafe {
     margin-top: 50px;
   }
 
+  /* One column: the proof comes straight after the lead and its button, and
+     the stat rings and hero foot follow it. In source order the proof started
+     at 830px on a 812px phone — below the fold it was moved up to lead. The
+     copy column dissolves (display: contents) so its children and the proof
+     can be ordered as siblings. */
+  .lp-hero-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .lp-hero-copy {
+    display: contents;
+  }
+
+  .lp-proof-hero {
+    order: 1;
+    margin-top: 40px;
+  }
+
+  .lp-hero-stats,
+  .lp-hero-foot {
+    order: 2;
+  }
+
   .lp-hero-plate .lp-plate {
     max-width: 520px;
   }
@@ -2331,6 +2369,15 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
   .lp-hero h1 {
     font-size: 38px;
+  }
+
+  /* The section rule's meta wrapped to four lines on a phone; one line,
+     clipped, keeps the scaffolding without spending a screen on it. */
+  .lp-sec-rule .lp-meta-grp {
+    gap: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .lp-hero-stats {
@@ -2405,10 +2452,6 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
 @media (prefers-reduced-motion: reduce) {
   .lp-marquee-track {
-    animation: none;
-  }
-
-  .lp-wire-pulse {
     animation: none;
   }
 
