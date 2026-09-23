@@ -40,7 +40,7 @@ export class StorageUnavailableError extends Error {
 const listeners = new Set<() => void>();
 
 /** The frozen doc a server render sees. Module-level so the reference is stable. */
-const SERVER_SNAPSHOT: ResumeDoc = Object.freeze(emptyResume()) as ResumeDoc;
+const SERVER_SNAPSHOT: ResumeDoc = Object.freeze(emptyResume());
 
 let cachedRaw: string | null = null;
 let cachedDoc: ResumeDoc | null = null;

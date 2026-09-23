@@ -86,15 +86,53 @@ repairs it on the way in. If a future version needs to migrate rather than drop,
 that is a change to `store.ts` (read the old key, migrate, write the new one), not
 a change to `migrate()`.
 
-## `eslint-config-next` is still v15 while Next is v16
+## ESLint 9 flat config, and what the migration surfaced
 
-**Cause:** `eslint-config-next@16` requires `eslint >= 9`, and this project is on
-ESLint 8 with a legacy `.eslintrc.json`.
+**An earlier entry in this file said:** `eslint-config-next` could not move to
+v16 because it requires ESLint 9, and this project was on ESLint 8 with a legacy
+`.eslintrc.json`. That is no longer true.
 
-**Consequence:** linting works and the gate is green, but the Next-specific rules
-are one major behind the framework. Fixing it means migrating to ESLint 9's flat
-config (`eslint.config.mjs`), which is a self-contained change rather than
-something to fold into another fix. Deferred deliberately.
+**We do:** `eslint.config.mjs` with ESLint 9.39 and `eslint-config-next` 16.3.
+
+**How the old config maps to the new one:**
+
+- `parserOptions.project: './tsconfig.json'` → `projectService: true`, which
+  reuses a single TypeScript program instead of building one per lint run.
+- `plugin:@typescript-eslint/recommended` plus
+  `recommended-requiring-type-checking` → `tseslint.configs.recommendedTypeChecked`.
+- `ignorePatterns` → a `ignores` object at the top of the flat config.
+- `extends: ['prettier']` → `eslint-config-prettier` applied **last**, so ESLint
+  and Prettier cannot disagree about a file.
+
+**Three things the migration surfaced — worth recording, because two of them are
+not obvious:**
+
+1. ESLint 8 never linted `.cjs` at all: the CLI only picked up extensions some
+   config had opted into, and nothing had opted into `.cjs`. So
+   `scripts/verify-pdf-text-layer.cjs` was silently unlinted. ESLint 9 lints it,
+   which meant turning type-aware rules off for it — it is not in
+   `tsconfig.json` — and turning off two rules that do not belong on tooling:
+   `no-require-imports` (because `require()` _is_ CommonJS) and `no-console`
+   (a verification script's entire job is to print).
+2. Flat config merges in order. A rules block with no `files` key applies
+   everywhere, so a project-rules block re-enabled `await-thenable` for `.cjs`
+   and undid the disable meant for it. The type-aware disable has to come
+   _after_ the project rules; the config carries a comment saying so, because
+   moving that block looks harmless.
+3. Two genuinely redundant type assertions that the more accurate
+   `projectService` analysis rejects: `as ResumeDoc` on an `Object.freeze()`
+   result (TypeScript does not enforce `readonly` in assignability, so it was
+   always accepted) and `as unknown as typeof fetch` on a jest mock. Removed
+   rather than suppressed — a suppression would have hidden the signal.
+
+**Verified:** 72 files linted, 0 errors and 0 warnings under `npm run lint`,
+alongside a clean `tsc`, 247 passing tests and a clean build.
+
+**Not done deliberately:** the `lint` script still carries `--max-warnings=1000`
+rather than `0`. Warnings currently sit at zero, so tightening it would be a
+one-character change with real effect — a stray `console.log` in product code
+would then fail the gate — but that is a change to how strictly the project
+gates itself, not part of this migration.
 
 ## Paper size is a UI preference, not document data
 

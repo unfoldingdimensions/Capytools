@@ -13,7 +13,7 @@ const fetchMock = jest.fn();
 
 beforeEach(() => {
   fetchMock.mockReset();
-  global.fetch = fetchMock as unknown as typeof fetch;
+  global.fetch = fetchMock;
 });
 
 function makeResponse(body: unknown, status = 200): Response {
