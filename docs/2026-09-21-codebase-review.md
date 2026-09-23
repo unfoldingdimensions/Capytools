@@ -139,10 +139,11 @@ missing Content-Security-Policy (D6), the lagging `eslint-config-next` (E2), and
 the repository rename — the GitHub slug is now `CapyResume`, matching the local
 directory and every reference in the tree. A CI workflow was also restored,
 having been deleted pre-pivot, so the checks the README describes now actually
-run.
+run. The credential embedded in the remote URL is gone as well: all three
+workspace remotes now use `git@github.com:…`, the token has been revoked on
+GitHub, and a sweep of every `.git/config` under the workspace finds no
+credential pasted into a remote URL. The value was never printed to a transcript
+at any point.
 
-1. **A GitHub personal access token is embedded in `.git/config`** as part of the
-   remote URL. It must be revoked and the remote switched to SSH. The value is
-   deliberately not reproduced here, and it was never printed to a transcript.
-2. **The paid tier is unbuilt** — template packs, cover-letter bundle, saved
+1. **The paid tier is unbuilt** — template packs, cover-letter bundle, saved
    versions and bulk tailoring are scoped, documented and deliberately absent.
