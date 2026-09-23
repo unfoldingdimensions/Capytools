@@ -93,3 +93,13 @@ describe("the second critique's harden pass", () => {
     expect(reveal).not.toMatch(/margin: "0px 0px -/);
   });
 });
+
+describe("CapyQR prints its verdict as a sentence", () => {
+  it("never uppercases the scan note, which carries the decoded payload", () => {
+    const html = renderToStaticMarkup(<CapyQRPage />);
+    const note = html.match(/<p class="([^"]*)">scanning the render…<\/p>/);
+    expect(note).not.toBeNull();
+    expect(note![1]).not.toContain("uppercase");
+    expect(note![1]).toContain("text-[13px]");
+  });
+});

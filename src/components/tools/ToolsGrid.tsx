@@ -108,7 +108,7 @@ export function ToolsGrid() {
                   {tool.line}
                 </span>
 
-                <span className="mt-5 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+                <span className="mt-5 font-mono text-[11px] uppercase tracking-[0.14em] text-primary">
                   Open →
                 </span>
               </TransitionLink>
