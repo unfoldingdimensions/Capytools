@@ -15,6 +15,9 @@ GITHUB_PUSH.md
 .agent
 .gemini/
 .gemini_security/
+# JetBrains project files: personal IDE state that changes with the folder
+# name and belongs to whoever runs the IDE, not to the repository.
+.idea/
 graphify-out/
 
 # Local agent/tooling state - not part of the app (matches the Capytools convention:
