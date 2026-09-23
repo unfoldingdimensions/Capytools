@@ -2352,7 +2352,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-tool-display-lg {
-  font-size: 2.6rem;
+  font-size: 2.375rem; /* display-lg; was an off-ramp 2.6rem */
   line-height: 1.06;
   letter-spacing: -0.02em;
 }
