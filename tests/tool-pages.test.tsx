@@ -49,8 +49,8 @@ describe("tool pages — editorial shell", () => {
       // The landing's clay terminal period.
       expect(html).toContain('class="lp-dot"');
       // Editorial sign-off row: internal back link + index meta.
-      expect(html).toContain('href="/"');
-      expect(html).toContain("back to the suite");
+      // …to the index, where the next tool is — not the landing.
+      expect(html).toMatch(/<a[^>]*href="\/tools"[^>]*>← back to the suite/);
       expect(html).toContain(index);
       // The chrome puts a nav in front of the content, so every tool page owes
       // the reader the same bypass the landing has always shipped.

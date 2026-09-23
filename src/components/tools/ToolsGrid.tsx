@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { TransitionLink } from "@/components/TransitionLink";
 import { SUITE, pad2 } from "@/lib/capytools/suite";
@@ -45,6 +45,21 @@ export function ToolsGrid() {
   const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const shown = useMemo(() => match(query), [query]);
+  const input = useRef<HTMLInputElement>(null);
+
+  // "/" jumps to the search from anywhere on the page, as it does on most
+  // developer sites — unless the visitor is already typing somewhere.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]")) return;
+      event.preventDefault();
+      input.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   function search(next: string) {
     setQuery(next);
@@ -62,8 +77,10 @@ export function ToolsGrid() {
         </label>
         <div className="relative mt-3">
           <input
+            ref={input}
             id="tool-search"
             type="search"
+            aria-keyshortcuts="/"
             value={query}
             onChange={(event) => search(event.target.value)}
             placeholder="try “qr”, “exif”, “tokens”, “desktop”…"

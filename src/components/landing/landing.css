@@ -2056,6 +2056,33 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   transition: color var(--dur-fade) var(--lp-ease-ui);
 }
 
+/* Touch: 44px targets without moving the layout. The lone links grow an
+   invisible hit area; the footer lists trade their 10px item margin for
+   44px-tall links, the same pitch give or take. */
+@media (pointer: coarse) {
+  .lp-read-more,
+  .lp-method-foot-right a {
+    position: relative;
+  }
+
+  .lp-read-more::after,
+  .lp-method-foot-right a::after {
+    content: "";
+    position: absolute;
+    inset: -14px -6px;
+  }
+
+  .lp-foot-col li {
+    margin: 0;
+  }
+
+  .lp-foot-col li a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
 .lp-foot-col li a:hover {
   color: var(--sage-deep);
 }
