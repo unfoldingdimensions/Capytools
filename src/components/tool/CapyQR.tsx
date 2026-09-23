@@ -1344,8 +1344,10 @@ export function CapyQR() {
         <div className="mt-4 text-center" aria-live="polite">
           {payload.ok && proof?.ok && !proof.inverted ? (
             <ScanNote tone="sage">
-              verified scannable — decoded:{" "}
-              <code className="break-all font-mono text-[12px]">{truncateForChip(proof.data)}</code>
+              verified scannable — decoded:
+              <code className="mt-0.5 block font-mono text-[12px] [overflow-wrap:anywhere]">
+                {truncateForChip(proof.data)}
+              </code>
             </ScanNote>
           ) : payload.ok && proof?.ok ? (
             <ScanNote tone="clay">

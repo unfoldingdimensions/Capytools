@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { COLOPHON, TESTIMONIAL_PLATE } from "@/lib/capytools/landing";
+import { BrandMark } from "@/components/brand-mark";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -10,10 +11,14 @@ import { TransitionLink } from "@/components/TransitionLink";
  * It used to end in a grid of eleven tool glyphs: the suite's SIXTH listing
  * on this page, after the hero lead, the live wire, the catalog, Selected
  * Work and the footer. /tools is the index now; the quote says the rest.
+ *
+ * The source is signed with the brand mark, not a person's initial in a
+ * circle: the testimonial costume borrowed the look of social proof for a
+ * line the project wrote about itself.
  */
 export function Colophon() {
   return (
-    <section className="lp-section lp-testimonial" id="testimonial">
+    <section className="lp-section lp-testimonial" id="readme">
       <div className="lp-container">
         <SectionRule roman={COLOPHON.roman} meta={COLOPHON.meta} />
 
@@ -29,9 +34,7 @@ export function Colophon() {
             </h2>
 
             <div className="lp-author">
-              <span className="lp-author-avatar" aria-hidden="true">
-                {COLOPHON.author.initial}
-              </span>
+              <BrandMark className="lp-author-mark" />
               <p>
                 {COLOPHON.author.name}
                 <span>{COLOPHON.author.sub}</span>

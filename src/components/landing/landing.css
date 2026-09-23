@@ -1838,17 +1838,10 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   margin-top: 34px;
 }
 
-.lp-author-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.lp-author-mark {
   width: 44px;
   height: 44px;
-  border: 1.5px solid var(--foreground);
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 18px;
+  flex: none;
 }
 
 .lp-author p {

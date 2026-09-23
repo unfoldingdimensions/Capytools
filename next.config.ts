@@ -43,6 +43,12 @@ const CSP_REPORT_ONLY = [
   // @vercel/speed-insights were the only ones, and they went with the move off
   // Vercel — so the privacy copy is now literally true rather than nearly true.
   // Anything added back here is a claim on /notes that has to change with it.
+  //
+  // KNOWN VIOLATION: production also loads
+  // static.cloudflareinsights.com/beacon.min.js — Cloudflare Web Analytics,
+  // injected by the zone, not by this code. This report-only policy flags it
+  // on every page; flipping to enforcing blocks it. Decide the beacon in the
+  // dashboard (and the privacy copy with it) before enforcing.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://avatars.githubusercontent.com",

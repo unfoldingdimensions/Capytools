@@ -309,7 +309,6 @@ export const COLOPHON = {
     { text: " Eleven so far. All run in your browser and keep nothing.”" },
   ] as Headline,
   author: {
-    initial: "C",
     name: "Capytools, README",
     sub: "First line, quoted verbatim",
   },
@@ -362,7 +361,7 @@ export const LANDING_FOOTER = {
         { label: "Try it here", href: "#proof" },
         { label: `${SUITE_WORD_CAP} tools`, href: "#labs" },
         { label: "House rules", href: "#method" },
-        { label: "From the README", href: "#testimonial" },
+        { label: "From the README", href: "#readme" },
       ],
     },
   ],

@@ -314,7 +314,7 @@ describe("the landing speaks in jobs, one noun per idea", () => {
   });
 
   it("keeps plain words in the footer's in-page column", () => {
-    const column = LANDING_FOOTER.columns.find((col) => col.links.some((link) => link.href === "#testimonial"));
+    const column = LANDING_FOOTER.columns.find((col) => col.links.some((link) => link.href === "#readme"));
     expect(column?.title).toBe("On this page");
     expect(column?.links.map((link) => link.label)).not.toContain("First line");
   });
