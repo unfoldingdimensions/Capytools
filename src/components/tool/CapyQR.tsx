@@ -134,7 +134,10 @@ function Pill({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors pointer-coarse:min-h-11 pointer-coarse:px-4",
+        // Controls in the UI face at 13px; the 11px tracked mono is for the
+        // labels above them. Both were the same uppercase mono, so a label and
+        // the pill it labels could not be told apart.
+        "rounded-full border px-3 py-1 font-sans text-[13px] transition-colors pointer-coarse:min-h-11 pointer-coarse:px-4",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -245,6 +248,8 @@ export function CapyQR() {
   // nothing, and "simple" is the calm default every visit settles into.
   const [detail, setDetail] = useState<"simple" | "full">("simple");
   const [frame, setFrame] = useState<FrameState>(DEFAULT_FRAME);
+  // "random" replaced a hand-tuned style with no way back.
+  const [beforeRandom, setBeforeRandom] = useState<QrStyleState | null>(null);
   // Both stamped with what they describe, so neither outlives its subject:
   // the scan is only a proof of the options it actually read off the canvas,
   // and the status note only applies to the file it named.
@@ -828,15 +833,22 @@ export function CapyQR() {
         </div>
 
         <div className="mt-4">
-          <span className={labelClass}>encoded payload</span>
-          <div className="mt-1.5 rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
-            {payload.ok ? (
-              <span className="break-all">{payload.value}</span>
-            ) : (
-              <span className="text-[var(--clay)]">{payload.error}</span>
-            )}
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
+          {/* In link mode the encoded payload is usually the input, verbatim;
+              the well only earns its space when it says something new — an
+              error, or a value that differs from what was typed. */}
+          {kind !== "link" || !payload.ok || payload.value !== (fields.link?.text ?? "") ? (
+            <>
+              <span className={labelClass}>encoded payload</span>
+              <div className="mt-1.5 mb-2 rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
+                {payload.ok ? (
+                  <span className="break-all">{payload.value}</span>
+                ) : (
+                  <span className="text-[var(--clay)]">{payload.error}</span>
+                )}
+              </div>
+            </>
+          ) : null}
+          <p className="text-xs text-muted-foreground">
             {payload.ok
               ? capacityNote(payload.value, style.ecc)
               : "the code waits until the payload above is complete."}
@@ -878,11 +890,38 @@ export function CapyQR() {
           ))}
           <Pill
             active={false}
-            onClick={() => setStyle(randomGuardPassingStyle(Math.random))}
+            onClick={() => {
+              setBeforeRandom((prev) => prev ?? style);
+              setStyle(randomGuardPassingStyle(Math.random));
+            }}
             label="Randomize style within the guards"
           >
             <Dices aria-hidden className="mr-1.5 inline size-3" />
             random
+          </Pill>
+          {beforeRandom ? (
+            <Pill
+              active={false}
+              onClick={() => {
+                setStyle(beforeRandom);
+                setBeforeRandom(null);
+              }}
+              label="Undo random: back to the style before it"
+            >
+              undo random
+            </Pill>
+          ) : null}
+          <Pill
+            active={false}
+            disabled={JSON.stringify(style) === JSON.stringify(DEFAULT_STYLE) && JSON.stringify(frame) === JSON.stringify(DEFAULT_FRAME)}
+            onClick={() => {
+              setStyle(DEFAULT_STYLE);
+              setFrame(DEFAULT_FRAME);
+              setBeforeRandom(null);
+            }}
+            label="Reset the style to its defaults"
+          >
+            reset
           </Pill>
         </div>
 
@@ -969,8 +1008,11 @@ export function CapyQR() {
           ) : null}
         </div>
 
+        {/* Simple is presets, dot type and a logo — one decision each. Colour,
+            quiet zone, error correction and the frame were all visible in
+            "simple" too, ten control groups before the Download. */}
+        {detail === "full" ? (
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-          {detail === "full" ? (
             <div className="flex items-center gap-1.5">
               <span className={labelClass}>color</span>
               <Pill
@@ -1002,32 +1044,23 @@ export function CapyQR() {
                 gradient
               </Pill>
             </div>
-          ) : null}
 
-          {style.fg.mode === "solid" || detail === "simple" ? (
+          {style.fg.mode === "solid" ? (
             <>
               <ColorField
                 id="capyqr-fg-color"
                 label="module color"
-                value={style.fg.mode === "solid" ? style.fg.color : style.fg.from}
+                value={style.fg.color}
                 onChange={(hex) =>
-                  setStyle((prev) =>
-                    prev.fg.mode === "solid"
-                      ? { ...prev, fg: { mode: "solid", color: hex } }
-                      : { ...prev, fg: { ...prev.fg, from: hex } },
-                  )
+                  setStylePatch({ fg: { mode: "solid", color: hex } })
                 }
               />
               <Swatches
                 label="code swatches"
                 colors={CODE_SWATCHES}
-                value={style.fg.mode === "solid" ? style.fg.color : style.fg.from}
+                value={style.fg.color}
                 onPick={(hex) =>
-                  setStyle((prev) =>
-                    prev.fg.mode === "solid"
-                      ? { ...prev, fg: { mode: "solid", color: hex } }
-                      : { ...prev, fg: { ...prev.fg, from: hex } },
-                  )
+                  setStylePatch({ fg: { mode: "solid", color: hex } })
                 }
               />
             </>
@@ -1097,7 +1130,6 @@ export function CapyQR() {
             value={style.bg === "transparent" ? "#ffffff" : style.bg}
             onPick={(hex) => setStylePatch({ bg: hex })}
           />
-          {detail === "full" ? (
             <Pill
               active={style.bg === "transparent"}
               onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
@@ -1105,8 +1137,8 @@ export function CapyQR() {
             >
               transparent
             </Pill>
-          ) : null}
         </div>
+        ) : null}
 
         {detail === "full" ? (
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -1126,6 +1158,7 @@ export function CapyQR() {
           </div>
         ) : null}
 
+        {detail === "full" ? (
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="capyqr-quiet" className={labelClass}>
@@ -1177,11 +1210,12 @@ export function CapyQR() {
             </div>
           </div>
         </div>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <label
             htmlFor="capyqr-logo"
-            className="inline-flex cursor-pointer items-center rounded-full border border-border bg-muted/30 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
+            className="inline-flex cursor-pointer items-center rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
           >
             upload logo
           </label>
@@ -1223,6 +1257,7 @@ export function CapyQR() {
           )}
         </div>
 
+        {detail === "full" ? (
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
           <Pill
             active={frame.on}
@@ -1231,7 +1266,7 @@ export function CapyQR() {
           >
             frame
           </Pill>
-          {frame.on && detail === "full" ? (
+          {frame.on ? (
             <>
               <div className="flex items-center gap-1.5">
                 <span className={labelClass}>shape</span>
@@ -1288,6 +1323,7 @@ export function CapyQR() {
             </div>
           ) : null}
         </div>
+        ) : null}
 
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <span className={labelClass}>the guards</span>
@@ -1374,7 +1410,29 @@ export function CapyQR() {
           </p>
         ) : null}
 
-        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+        {/* The one action, directly under the proof that it is worth taking.
+            It was a small button after the size and format pills. */}
+        <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+          <Button
+            className="h-11 rounded-full"
+            onClick={handleDownload}
+            disabled={busy || !payload.ok}
+          >
+            <Download className="mr-1.5 size-4" />
+            Download
+          </Button>
+          <Button
+            variant="ghost"
+            className="h-11 rounded-full px-5"
+            onClick={handleCopy}
+            disabled={busy || !payload.ok}
+          >
+            {copied ? <Check className="mr-1.5 size-4" /> : <Copy className="mr-1.5 size-4" />}
+            {copied ? "Copied" : "Copy image"}
+          </Button>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex items-center gap-1.5">
             <span className={labelClass}>size</span>
             {SIZES.map((s) => (
@@ -1399,27 +1457,6 @@ export function CapyQR() {
             ))}
           </div>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              size="sm"
-              className="min-w-[84px] rounded-full pointer-coarse:h-11 pointer-coarse:px-5"
-              onClick={handleDownload}
-              disabled={busy || !payload.ok}
-            >
-              <Download className="mr-1.5 size-3.5" />
-              Download
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="min-w-[84px] rounded-full pointer-coarse:h-11 pointer-coarse:px-5"
-              onClick={handleCopy}
-              disabled={busy || !payload.ok}
-            >
-              {copied ? <Check className="mr-1.5 size-3.5" /> : <Copy className="mr-1.5 size-3.5" />}
-              {copied ? "Copied" : "Copy image"}
-            </Button>
-          </div>
         </div>
 
         {moduleCount !== null && payload.ok ? (

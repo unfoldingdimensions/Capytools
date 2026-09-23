@@ -126,3 +126,21 @@ describe("the third critique's harden pass", () => {
     }
   });
 });
+
+describe("CapyQR's simple mode is one decision per row", () => {
+  const html = renderToStaticMarkup(<CapyQRPage />);
+
+  it("keeps colour, quiet zone and error correction behind 'full'", () => {
+    expect(html).not.toContain("code swatches");
+    expect(html).not.toContain('id="capyqr-quiet"');
+    expect(html).not.toContain('id="capyqr-ecc"');
+    expect(html).toContain('id="capyqr-dot-type"');
+    expect(html).toContain("upload logo");
+  });
+
+  it("offers a way back, and Download before the export options", () => {
+    expect(html).toContain('aria-label="Reset the style to its defaults"');
+    expect(html.indexOf(">Download<")).toBeGreaterThan(0);
+    expect(html.indexOf(">Download<")).toBeLessThan(html.indexOf('aria-label="Size 512"'));
+  });
+});
