@@ -108,7 +108,7 @@ export const SUITE: SuiteTool[] = [
       "Photos talk; this helps them forget. Reads every metadata trail, strips it in-tab, then proves the strip.",
     note: "Metadata off",
     line: "Photos talk; this helps them forget.",
-    keywords: ["exif", "metadata", "gps", "privacy", "photo", "strip", "location", "c2pa"],
+    keywords: ["image", "exif", "metadata", "gps", "privacy", "photo", "strip", "location", "c2pa"],
     plate: { src: "/plates/lab-4.webp", width: 896, height: 1200 },
   },
   {
@@ -138,7 +138,7 @@ export const SUITE: SuiteTool[] = [
       "OG images and social cards worth sharing — templates, sizes and accents composed in a live preview, then downloaded or copied. Nothing uploads.",
     note: "Cards, in-tab",
     line: "OG images & social cards, composed in your browser.",
-    keywords: ["open graph", "social card", "twitter", "x", "linkedin", "preview", "1200x630", "share image"],
+    keywords: ["open graph", "social card", "twitter", "linkedin", "preview", "1200x630", "share image"],
     plate: { src: "/plates/lab-6.webp", width: 896, height: 1200 },
   },
   {
@@ -168,7 +168,7 @@ export const SUITE: SuiteTool[] = [
       "Resize, convert and favicon-pack without uploading — progressive-halving quality, honest byte counts, and a 16-pixel proof strip before you ship.",
     note: "Bytes, proven",
     line: "Resize, convert and favicon-pack, entirely in-tab.",
-    keywords: ["favicon", "icon", "resize", "convert", "webp", "png", "jpeg", "compress", "ico"],
+    keywords: ["image", "favicon", "icon", "resize", "convert", "webp", "png", "jpeg", "compress", "ico"],
     plate: { src: "/plates/lab-8.webp", width: 896, height: 1200 },
   },
   {
@@ -198,7 +198,7 @@ export const SUITE: SuiteTool[] = [
       "Photos and logos into pixel art — six measured styles from Game Boy to a seven-blue brand ramp, live preview, crisp export. Nothing uploads.",
     note: "Chunky, honest",
     line: "Pixel-art photos and logos, entirely in-tab.",
-    keywords: ["pixel art", "dither", "game boy", "quantize", "retro", "8-bit", "palette"],
+    keywords: ["image", "pixel art", "dither", "game boy", "quantize", "retro", "8-bit", "palette"],
     plate: { src: "/plates/lab-10.webp", width: 896, height: 1200 },
   },
   {
@@ -243,8 +243,13 @@ const WORDS = [
   "eleven",
 ] as const;
 
+/** 7 → "seven": any count, spelled out for prose; digits past the table. */
+export function numberWord(n: number): string {
+  return WORDS[n] ?? String(n);
+}
+
 /** "five" — the spelled-out count, for copy that reads as prose. */
-export const SUITE_WORD = WORDS[SUITE_SIZE] ?? String(SUITE_SIZE);
+export const SUITE_WORD = numberWord(SUITE_SIZE);
 
 /** Capitalised, for the start of a sentence. */
 export const SUITE_WORD_CAP = SUITE_WORD.charAt(0).toUpperCase() + SUITE_WORD.slice(1);
@@ -254,8 +259,6 @@ export function listOut(items: readonly string[]): string {
   if (items.length <= 1) return items.join("");
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
-
-export const SUITE_LIST = listOut(SUITE_NAMES);
 
 /** How many rows in the catalog carry each filter tag. */
 export function countByCategory(cat: ToolCategory): number {

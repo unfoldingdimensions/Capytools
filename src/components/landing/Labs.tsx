@@ -94,7 +94,8 @@ export function Labs() {
               <TransitionLink
                 href={tool.href}
                 className="lp-lab"
-                aria-label={`Open ${tool.name}`}
+                aria-labelledby={`lab-${tool.href.slice(1)}`}
+                aria-describedby={`lab-${tool.href.slice(1)}-blurb`}
               >
                 <div className="lp-lab-img">
                   <span className="lp-lab-badge">{tool.badge}</span>
@@ -111,8 +112,8 @@ export function Labs() {
                   <span>{tool.no}</span>
                   <span>{tool.year}</span>
                 </div>
-                <h4>{tool.name}</h4>
-                <p>{tool.blurb}</p>
+                <h3 id={`lab-${tool.href.slice(1)}`}>{tool.name}</h3>
+                <p id={`lab-${tool.href.slice(1)}-blurb`}>{tool.blurb}</p>
                 <span className="lp-arrow-mark" aria-hidden="true">
                   <ArrowUpRight />
                 </span>
@@ -122,20 +123,14 @@ export function Labs() {
         </div>
 
         <div className="lp-labs-foot">
-          <div className="lp-progress" aria-hidden="true">
-            {LABS.tools.map((tool) => (
-              <span key={tool.name} className="lp-on" />
-            ))}
-          </div>
           {/* Distributed CTA: a visitor convinced by the catalog acts here,
-              not at the bottom of the page. */}
+              not at the bottom of the page. It opened CapyWrapped — one tool,
+              under a label promising all of them — and eleven always-on
+              "progress" dots sat beside it, decoration posing as status. */}
           <div className="lp-labs-foot-right">
             <span className="lp-meta">{LABS.foot}</span>
-            <TransitionLink
-              href="/capywrapped"
-              className="lp-btn lp-btn-primary lp-btn-sm"
-            >
-              Open the suite
+            <TransitionLink href="/tools" className="lp-btn lp-btn-primary lp-btn-sm">
+              {LABS.cta}
               <ArrowUpRight />
             </TransitionLink>
           </div>

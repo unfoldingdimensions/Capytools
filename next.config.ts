@@ -58,6 +58,16 @@ const CSP_REPORT_ONLY = [
 
 const nextConfig: NextConfig = {
   /**
+   * Dev only. Next 16 refuses its dev assets and HMR to any hostname but
+   * localhost, so opening the dev server from a phone or another machine on
+   * the LAN (http://192.168.x.y:3024) loaded the HTML and then never hydrated:
+   * blurred headline, every reveal stuck at opacity 0, demos frozen on
+   * "loading". Private 192.168/16 only — one `*` is one label — and it has
+   * no effect on the production build.
+   */
+  allowedDevOrigins: ["192.168.*.*"],
+
+  /**
    * No image optimizer. The plates are hand-optimized WebP at their display
    * size, so Cloudflare's IMAGES binding would re-encode already-final bytes
    * and bill for the privilege. Without this, the default loader would look

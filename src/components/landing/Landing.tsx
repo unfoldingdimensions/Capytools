@@ -1,6 +1,7 @@
 import "./landing.css";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/landing/Hero";
+import { ProofBand } from "@/components/landing/ProofBand";
 import { LiveWire } from "@/components/landing/LiveWire";
 import { About } from "@/components/landing/About";
 import { Capabilities } from "@/components/landing/Capabilities";
@@ -24,9 +25,9 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 /** In-page sections, in place of the tool switcher other pages get. */
 const LANDING_LINKS = [
   { href: "/tools", label: "All Tools" },
-  { href: "#labs", label: "Suite" },
-  { href: "#method", label: "Method" },
-  { href: "#work", label: "Work" },
+  { href: "#proof", label: "Try it" },
+  { href: "#method", label: "House rules" },
+  { href: "#work", label: "Featured" },
   { href: "/notes", label: "Notes" },
 ];
 
@@ -39,12 +40,13 @@ export function Landing() {
 
       <Header
         links={LANDING_LINKS}
-        cta={{ label: "Explore our tools", href: "#labs" }}
         brandHref="#top"
       />
 
       <main id="main">
         <Hero />
+        {/* The claim, demonstrated: three tools live, beside a request counter. */}
+        <ProofBand />
         <LiveWire />
         {/* The manifesto band — one surface for the two reading sections,
             breaking the long cream run before the catalog. */}

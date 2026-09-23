@@ -49,11 +49,72 @@ typography:
     fontWeight: 500
     lineHeight: 1.5
     letterSpacing: "0.24em"
+  label-micro:
+    fontFamily: Albert Sans
+    fontSize: 0.625rem
+    fontWeight: 500
+    lineHeight: 1.5
+    letterSpacing: "0.18em"
+  caption:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 0.75rem
+    fontWeight: 500
+    lineHeight: 1.5
+  ui-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 0.8125rem
+    fontWeight: 500
+    lineHeight: 1.5
+  ui-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 0.9375rem
+    fontWeight: 500
+    lineHeight: 1.5
+  lead-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 1.125rem
+    fontWeight: 500
+    lineHeight: 1.55
+  title-sm:
+    fontFamily: Fraunces
+    fontSize: 1.3125rem
+    fontWeight: 400
+    lineHeight: 1.2
+  title-md:
+    fontFamily: Fraunces
+    fontSize: 1.625rem
+    fontWeight: 400
+    lineHeight: 1.15
+  display-sm:
+    fontFamily: Fraunces
+    fontSize: 2.125rem
+    fontWeight: 300
+    lineHeight: 1.05
+  display-lg:
+    fontFamily: Fraunces
+    fontSize: 2.375rem
+    fontWeight: 300
+    lineHeight: 1.05
+  display-tool:
+    fontFamily: Fraunces
+    fontSize: 3rem
+    fontWeight: 300
+    lineHeight: 1.04
+  numeral-lg:
+    fontFamily: Fraunces
+    fontSize: 4rem
+    fontWeight: 300
+    lineHeight: 0.9
+  numeral-xl:
+    fontFamily: Fraunces
+    fontSize: 4.5rem
+    fontWeight: 300
+    lineHeight: 1
 rounded:
-  sm: 7px
+  sm: 6px
   md: 12px
-  lg: 26px
-  xl: 22px
+  lg: 24px
+  xl: 16px
   full: 9999px
 spacing:
   xs: 4px
@@ -182,7 +243,31 @@ at base weight 500. Albert Sans (a geometric sans, serving as the
 - `display-md` — tool card titles (`text-2xl`), normal weight.
 - `body-md` / `body-sm` — descriptions and UI text, relaxed leading.
 - `label-caps` — tool eyebrows at 11px (`Capy<Name> · tool no. X`), card
-  eyebrows at 10px. Same style, one step smaller.
+  eyebrows at 10px (`label-micro`). Same style, one step smaller.
+
+**The ramp.** Every fixed size in the suite sits on one scale, and a new size
+joins it here before it appears in code:
+
+| px | token | use |
+|---|---|---|
+| 10 | `label-micro` | card eyebrows, badges, meta in caps |
+| 11 | `label-caps` | tool eyebrows, section labels |
+| 12 | `caption` | footnotes, swatch roles, secondary meta |
+| 13 | `ui-sm` | small UI text, notes, links in prose |
+| 14 | `body-sm` | descriptions, results, most UI |
+| 15 | `ui-md` | inputs and menu links |
+| 16 | `body-md` | leads and body copy |
+| 18 | `lead-lg` | large leads |
+| 21 / 26 | `title-sm` / `title-md` | card and panel titles (Fraunces) |
+| 24 | `display-md` | tool card titles |
+| 34 / 38 | `display-sm` / `display-lg` | fixed display moments |
+| 48 | `display-tool` | tool-page and /tools headlines on mobile (`text-5xl`) |
+| 60 | `display-xl` | the hero |
+| 64 / 72 | `numeral-lg` / `numeral-xl` | proof-band count and token count |
+
+Nothing below 10px. Section headlines between 36px and 150px are fluid
+`clamp()`s anchored on the display tokens; they are intentional, and a
+detector that only knows fixed sizes will list them.
 
 Headings `h1–h4` default to weight 700 unless a display style overrides them.
 
@@ -232,12 +317,18 @@ transitions so blurred text never pulses mid-wipe.
 
 ## Shapes
 
-- Main cards: `rounded-3xl` (`{rounded.lg}`).
-- Inset wells: `rounded-2xl` (`{rounded.xl}`).
+Five radii, Tailwind's own, and nothing between them:
+
+- Main cards, stages, slabs: `rounded-3xl`, 24px (`{rounded.lg}`).
+- Inset wells, plates and images inside cards: `rounded-2xl`, 16px (`{rounded.xl}`).
+- Inputs and fields: 12px (`{rounded.md}`).
+- Inline code and the smallest chips: `rounded-md`, 6px (`{rounded.sm}`).
 - Pills and buttons: `rounded-full` (`{rounded.full}`); shadcn buttons use
   `rounded-4xl` from the same family.
-- Small inputs/labels: `rounded-md` (`{rounded.md}`).
 - Focus rings resolve to a 2px rounding regardless of shape.
+
+The key names predate these values (`lg` above `xl` reads backwards); the
+roles are what the components reference, so the keys stay.
 
 ## Components
 

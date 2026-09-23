@@ -38,21 +38,23 @@ export default function ToolsPage() {
       </a>
 
       <AmbientBackground />
-      <Header />
+      <Header tool="All Tools" />
 
       <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-6 pb-24 pt-16">
         <span className="lp-label">All Tools · The suite</span>
         <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
           Every tool, <em>one page</em>
           <span className="lp-dot">.</span>
+          {/* Inline, so it follows "one page." at every width — on a phone the
+              headline wraps and the capybara stays on its last line, feet on
+              the baseline. alt="" + aria-hidden keeps the heading's name. */}
+          <CapyArt pose="awake" className="ml-4 inline-block w-16 sm:ml-6 sm:w-20" />
         </h1>
         <p className="lp-lead mt-6 max-w-[52ch]">
           {SUITE_WORD_CAP} of them. {browser} run entirely in your browser and
           keep nothing — no signup, no cookies, no server. The one documented
           exception is CapyExpense, which lives on your own disk instead.
         </p>
-
-        <CapyArt pose="awake" className="mt-10 w-24" />
 
         <div className="lp-divider mt-12" aria-hidden="true" />
 

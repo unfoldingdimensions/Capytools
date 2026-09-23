@@ -5,26 +5,24 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SUITE } from "@/lib/capytools/suite";
 
 export type NavLink = { href: string; label: string; active?: boolean };
 
 /**
- * The suite's tool switcher, derived from the registry so a new tool appears
- * here the moment it appears in `SUITE` — the row measures its own fit and
- * folds into the disclosure, so nothing here needs editing for tool #9 either.
- * Notes is the one non-tool destination the chrome carries.
+ * Every page but the landing navigates the suite through two links, not
+ * thirteen.
+ *
+ * It used to carry every tool by name, derived from `SUITE`. At eleven tools
+ * that row needed ~1,370px, so it folded into the menu button at every common
+ * laptop width: most visitors saw no navigation at all on a tool page, and
+ * opening the menu meant choosing from thirteen entries. /tools is the
+ * switcher now: a searchable index of the whole suite, one click from any
+ * page. The brand line ("Capytools · CapyQR") says where you are.
  */
 const TOOL_LINKS: NavLink[] = [
-  // First, and before the individual tools: on a narrow screen the row folds
-  // into the disclosure, and the index is the one entry that gets you to any
-  // of the others.
   { href: "/tools", label: "All Tools" },
-  ...SUITE.map((tool) => ({ href: tool.href, label: tool.short })),
   { href: "/notes", label: "Notes" },
 ];
-
-const DEFAULT_CTA = { label: "Explore our tools", href: "/#labs" };
 
 /**
  * useLayoutEffect warns during SSR, and this component is server-rendered on
@@ -58,19 +56,23 @@ const useIsomorphicLayoutEffect =
  *   goes home.
  * - `active` — the current tool is marked with `aria-current`, the landing
  *   marks nothing.
+ *
+ * No persistent CTA. There used to be a black "Explore our tools" pill on
+ * every page; on the landing it duplicated the hero's own button (same label,
+ * same #labs target, two high-emphasis styles), on /tools it led away from
+ * the index, and on a 375px phone it was the width that pushed the menu
+ * button 17px off-screen. "All Tools" in the row reaches the whole suite from
+ * any page, so the pill was restating it.
  */
 export function Header({
   tool,
   links = TOOL_LINKS,
-  cta = DEFAULT_CTA,
   brandHref = "/",
 }: {
   /** Names the current tool beside the wordmark; omit it on the landing. */
   tool?: string;
   /** Nav entries. Defaults to the suite switcher. */
   links?: NavLink[];
-  /** The persistent action, identical on every page. `null` hides it. */
-  cta?: { label: string; href: string } | null;
   brandHref?: string;
 }) {
   const [hidden, setHidden] = useState(false);
@@ -229,11 +231,6 @@ export function Header({
 
         <div className="lp-nav-right">
           <ThemeToggle />
-          {cta ? (
-            <Link className="lp-nav-cta" href={cta.href}>
-              {cta.label}
-            </Link>
-          ) : null}
           <button
             type="button"
             className="lp-nav-toggle"
@@ -263,15 +260,6 @@ export function Header({
               {link.label}
             </Link>
           ))}
-          {cta ? (
-            <Link
-              href={cta.href}
-              className="lp-nav-menu-cta"
-              onClick={() => setOpen(false)}
-            >
-              {cta.label}
-            </Link>
-          ) : null}
         </nav>
       </div>
     </header>

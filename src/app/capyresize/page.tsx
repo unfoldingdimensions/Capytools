@@ -12,7 +12,6 @@ export default function CapyResizePage() {
   return (
     <ToolPageShell
       tool="CapyResize"
-      eyebrow="CapyResize · tool no. 8"
       headline={[{ text: "Every size it" }, { text: "needs to be", em: true, dot: true }]}
       lead="resize, convert and favicon-pack images in your browser. all local."
       align="left"

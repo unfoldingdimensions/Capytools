@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
@@ -84,12 +86,21 @@ describe("the terms people actually type reach the right tool", () => {
     ["palette", "CapyTone"],
     ["budget", "CapyExpense"],
     ["github", "CapyWrapped"],
+    ["image", "CapyResize"],
+    ["image", "CapyPixel"],
+    ["image", "CapyStrip"],
   ])("%s finds %s", (query, expected) => {
     expect(find(query)).toContain(expected);
   });
 
   it("narrows on every term rather than widening", () => {
     expect(find("qr wifi")).toEqual(["CapyQR"]);
+  });
+
+  it("no single-letter keyword — it could only ever match a bare letter", () => {
+    for (const tool of SUITE) {
+      for (const word of tool.keywords) expect(word.length, `${tool.name}: "${word}"`).toBeGreaterThan(1);
+    }
   });
 
   it("every tool carries at least three search terms", () => {
@@ -108,13 +119,24 @@ describe("/tools is reachable from the chrome", () => {
     expect(markup).toContain(">All Tools<");
   });
 
-  it("is the first entry, so a folded row still leads somewhere useful", () => {
+  it("is the switcher: the masthead carries All Tools and Notes, nothing else", () => {
+    // It carried all eleven tools by name, needed ~1,370px, and folded into
+    // the menu at every common laptop width.
     const markup = renderToStaticMarkup(<Header tool="CapyQR" />);
-    expect(markup.indexOf(">All Tools<")).toBeLessThan(markup.indexOf(">Wrapped<"));
+    const row = markup.match(/<nav class="lp-nav-links"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
+    const labels = [...row.matchAll(/>([^<>]+)<\/a>/g)].map((m) => m[1]);
+    expect(labels).toEqual(["All Tools", "Notes"]);
   });
 
-  it("the persistent CTA reads Explore our tools", () => {
-    expect(renderToStaticMarkup(<Header />)).toContain("Explore our tools");
+  it("marks itself as the current page on /tools", () => {
+    const markup = renderToStaticMarkup(<ToolsPage />);
+    expect(markup).toContain('<a class="is-active" aria-current="page" href="/tools">');
+  });
+
+  it("carries no persistent CTA — All Tools already reaches the suite", () => {
+    const markup = renderToStaticMarkup(<Header />);
+    expect(markup).not.toContain("lp-nav-cta");
+    expect(markup).not.toContain("Explore our tools");
   });
 });
 
@@ -127,5 +149,13 @@ describe("/tools is findable", () => {
     expect(metadata.alternates?.canonical).toBe("/tools");
     expect((metadata.openGraph as { url?: string })?.url).toBe(`${SITE_URL}/tools`);
     expect(metadata.openGraph?.title).toBe(metadata.title);
+  });
+});
+
+describe("the /tools empty state points the right way", () => {
+  it("offers to clear the search, and never says the tools are above it", () => {
+    const src = readFileSync(join(process.cwd(), "src/components/tools/ToolsGrid.tsx"), "utf8");
+    expect(src).not.toContain("listed above");
+    expect(src).toContain("clear search");
   });
 });

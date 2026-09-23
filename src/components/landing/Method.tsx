@@ -35,14 +35,14 @@ export function Method() {
             <ScrollReveal key={step.num} delay={i * 0.11}>
               <div className="lp-method-step">
                 <span className="lp-method-num">{step.num}</span>
-                <h4>
+                <h3>
                   {step.title}
                   {step.arrow && (
                     <span className="lp-arrow-r" aria-hidden="true">
                       →
                     </span>
                   )}
-                </h4>
+                </h3>
                 <p>{step.copy}</p>
                 <div className="lp-plate">
                   <Image

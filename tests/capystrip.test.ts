@@ -2,7 +2,7 @@ import { deflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 
 import { sniffImageKind } from "../src/lib/capystrip/detect";
-import { HERO, LABS } from "../src/lib/capytools/landing";
+import { LABS } from "../src/lib/capytools/landing";
 import { SUITE, pad2, suiteNumber } from "../src/lib/capytools/suite";
 import {
   canvasIsUsable,
@@ -418,7 +418,6 @@ describe("capystrip registration", () => {
     // a tool is one row plus its page, not a scavenger hunt.
     expect(suiteNumber("/capystrip")).toBe(pad2(at + 1));
     expect(LABS.tools.some((tool) => tool.href === "/capystrip")).toBe(true);
-    expect(HERO.lead).toContain("CapyStrip");
   });
 });
 

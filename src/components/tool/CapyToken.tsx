@@ -12,6 +12,7 @@ import { StageCard, StageChip } from "@/components/stage-card";
 import { COPIED_MS } from "@/lib/capytools/feedback";
 import { chatOverhead, ruleOfThumb } from "@/lib/capytoken/estimate";
 import { countTokens, ensureEngine } from "@/lib/capytoken/engine";
+import { readHandoff } from "@/lib/capytools/handoff";
 import { formatCost, formatPerM, formatTokens } from "@/lib/capytoken/format";
 import { CURATED_PRICES, PRICES_SOURCE_COMMIT, PRICES_VERIFIED } from "@/lib/capytoken/prices";
 import { costFor, contextFit, estimateLabelFor } from "@/lib/capytoken/compute";
@@ -80,6 +81,15 @@ export function CapyToken() {
   const [retryAt, setRetryAt] = useState(0);
 
   const runId = useRef(0);
+
+  // Arriving from the landing's proof band: the visitor's own text rides in
+  // the URL fragment, which the browser never sends (lib/capytools/handoff).
+  const hydrateHandoff = useCallback(() => {
+    const text = readHandoff();
+    if (text) setText(text);
+  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(hydrateHandoff, [hydrateHandoff]);
 
   // One debounced count per text change. First use loads the ranks (~1 MB,
   // once) behind the honest loading chip; the singleton cache makes every

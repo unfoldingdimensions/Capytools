@@ -12,7 +12,6 @@ export default function CapyTokenPage() {
   return (
     <ToolPageShell
       tool="CapyToken"
-      eyebrow="CapyToken · tool no. 9"
       headline={[{ text: "Count before you" }, { text: "spend", em: true, dot: true }]}
       lead="exact token counts and model costs, computed entirely in your browser. all local."
       align="left"

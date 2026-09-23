@@ -70,10 +70,19 @@ export function ToolsGrid() {
       </div>
 
       {shown.length === 0 ? (
-        <p className="mt-12 text-muted-foreground">
-          Nothing matches “{query.trim()}”. Every tool is listed above the
-          search when it is empty — try a shorter word.
-        </p>
+        <div className="mt-12 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
+          <p>
+            Nothing matches “{query.trim()}”. Try a shorter word, or clear the
+            search to see all {ROWS.length}.
+          </p>
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="min-h-11 rounded-full border border-border px-4 text-sm text-foreground transition-colors hover:border-primary/60"
+          >
+            clear search
+          </button>
+        </div>
       ) : (
         <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((tool) => (
@@ -86,7 +95,7 @@ export function ToolsGrid() {
                   <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
                     {tool.no}
                   </span>
-                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                     {tool.cat === "desktop" ? "Desktop" : "Browser"}
                   </span>
                 </span>

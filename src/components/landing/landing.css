@@ -125,7 +125,7 @@
   border-top: 1px solid var(--border);
   padding-top: 18px;
   margin-bottom: 28px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -280,9 +280,12 @@
   background: color-mix(in oklab, var(--foreground) 4%, transparent);
 }
 
-/* focus ring — house ring color, export geometry */
+/* focus ring — house ring color, export geometry. This unlayered rule is the
+   one that wins on every page inside .lp, so the contrast fix lives here too:
+   plain sage is ~2.9:1 on a white card, under the 3:1 a focus indicator needs,
+   and a third of ink deepens it on light and lifts it on dark. */
 .lp :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid color-mix(in oklab, var(--primary) 70%, var(--foreground));
   outline-offset: 3px;
 }
 
@@ -325,7 +328,7 @@
   align-items: center;
   gap: 12px;
   font-weight: 700;
-  font-size: 17px;
+  font-size: 18px;
   color: var(--foreground);
   flex-shrink: 0;
 }
@@ -417,37 +420,9 @@
   gap: 14px;
 }
 
-.lp-nav-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  background: var(--foreground);
-  color: var(--background);
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition:
-    background-color var(--dur-fade) var(--lp-ease-ui),
-    transform var(--dur-move) var(--lp-ease-ui);
-}
-
-.lp-nav-cta::after {
-  content: "\2192";
-  font-size: 12px;
-}
-
-.lp-nav-cta:hover {
-  background: color-mix(in oklab, var(--foreground) 86%, var(--background));
-}
-
-.lp-nav-cta:active {
-  transform: translateY(1px);
-}
-
-/* Nav disclosure. The row carries any number of tools down to 1180px; below
-   that the same links stack into a panel rather than disappearing. The old
+/* Nav disclosure. The row shows while it fits (measured) and above the 760px
+   no-JS floor; otherwise the same links stack into a panel rather than
+   disappearing. The old
    chrome simply removed the nav — the landing dropped its four anchors at
    880px and the tool header dropped its five pills at 768px, which left the
    tool switcher absent on every phone. */
@@ -461,9 +436,11 @@
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 36px;
-  height: 36px;
-  padding: 0 8px;
+  /* 44px, the touch-target floor: this is the only way from one page to
+     another on a phone. It was 36px. */
+  width: 44px;
+  height: 44px;
+  padding: 0 12px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;
@@ -541,16 +518,6 @@
   color: var(--foreground);
 }
 
-.lp-nav-menu .lp-nav-menu-cta {
-  margin-top: 12px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--foreground);
-  color: var(--background);
-  text-align: center;
-}
-
 /* Measured overflow: the row would not fit, so it folds into the disclosure.
    `position: absolute` takes it out of the flow while `visibility: hidden`
    keeps it measurable and out of the a11y tree and the tab order — display:
@@ -565,9 +532,11 @@
   visibility: visible;
 }
 
-/* No-JS floor. The measurement would fold the row below this width anyway, but
-   the page has to be right before hydration. */
-@media (max-width: 1179px) {
+/* No-JS floor: the page has to be right before hydration, when nothing has
+   been measured yet. It was 1179px when the row carried all thirteen links;
+   it carries two now (five on the landing), so above 760px the row fits and
+   the measured `is-crowded` fold handles anything tighter once JS runs. */
+@media (max-width: 760px) {
   .lp-nav-links {
     display: none;
   }
@@ -635,7 +604,7 @@
   border-radius: 999px;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 19px;
+  font-size: 18px;
   color: var(--foreground);
 }
 
@@ -651,7 +620,7 @@
 }
 
 .lp-stat-label {
-  font-size: 10.5px;
+  font-size: 11px;
   line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -674,10 +643,25 @@
 }
 
 .lp-meta {
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+/* CapyExpense, demoted from the hero's second button to a note beside the
+   meta line: findable, never competing with the one primary action. */
+.lp-hero-aside {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+  transition: color var(--dur-fade) var(--lp-ease-ui);
+}
+
+.lp-hero-aside:hover {
+  color: var(--foreground);
 }
 
 /* hero plate + hairline corner marks */
@@ -715,6 +699,415 @@
   border: 1px solid color-mix(in oklab, var(--background) 55%, var(--foreground) 20%);
   border-radius: 6px;
   box-shadow: var(--lp-shadow);
+}
+
+/* ------------------------------- the proof ------------------------------- */
+
+/* Three real tools, live under the hero. The band surface and the Fraunces
+   headline are the house's; the stage is a fixed box so switching tabs, or an
+   engine arriving, never moves anything on the page. */
+.lp-proof {
+  padding: 88px 0;
+}
+
+.lp-proof-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.lp-proof h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(36px, 4.2vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  margin: 26px 0 20px;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+.lp-proof h2 em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* The counter is the claim, so it gets the display face, not a ring. */
+.lp-proof-counter {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--lp-line-soft);
+}
+
+.lp-proof-counter-n {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  min-width: 1.2ch;
+}
+
+.lp-proof-counter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 34ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-counter-label b {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.lp-proof-stage {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--background);
+  padding: 22px;
+}
+
+.lp-proof-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lp-proof-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lp-proof-tab {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fade) var(--lp-ease-ui),
+    color var(--dur-fade) var(--lp-ease-ui),
+    border-color var(--dur-fade) var(--lp-ease-ui);
+}
+
+.lp-proof-tab:hover {
+  border-color: color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.lp-proof-tab[aria-selected="true"] {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: transparent;
+}
+
+.lp-proof-stop {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.lp-proof-stop:hover {
+  color: var(--foreground);
+}
+
+.lp-proof-panel {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+  /* Tall enough for the tallest demo (the QR plus its result line), so no
+     tab switch or engine arrival changes the band's height. */
+  min-height: 356px;
+  align-content: start;
+}
+
+.lp-proof-panel[hidden] {
+  display: none;
+}
+
+.lp-proof-field {
+  display: grid;
+  gap: 8px;
+}
+
+.lp-proof-field span {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-field input,
+.lp-proof-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 1px solid var(--input);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 15px;
+  resize: none;
+  transition: border-color var(--dur-fade) var(--lp-ease-ui);
+}
+
+.lp-proof-field input:focus-visible,
+.lp-proof-field textarea:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+.lp-proof-out {
+  min-height: 0;
+}
+
+.lp-proof-qr-wrap {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+/* A dotted matrix stands in for the code while the engine loads, so the box
+   is never empty and never changes size when the canvas arrives. */
+.lp-proof-qr {
+  flex: none;
+  width: 200px;
+  height: 200px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, var(--lp-line-soft) 1.4px, transparent 1.6px) 0 0 / 12px 12px,
+    #ffffff;
+}
+
+.lp-proof-qr.is-drawn {
+  background: #ffffff;
+}
+
+.lp-proof-qr canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.lp-proof-result {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.lp-proof-chip {
+  display: inline-block;
+  margin: 0 8px 6px 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 22%, transparent);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lp-proof-chip.is-warn {
+  background: color-mix(in oklab, var(--destructive) 14%, transparent);
+}
+
+.lp-proof-tokens {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.lp-proof-big {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 72px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+.lp-proof-big small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-palette {
+  display: grid;
+  gap: 14px;
+}
+
+.lp-proof-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lp-proof-swatches li {
+  display: grid;
+  gap: 6px;
+}
+
+.lp-proof-swatch {
+  display: block;
+  aspect-ratio: 1 / 1.25;
+  border-radius: 12px;
+  border: 1px solid var(--lp-line-soft);
+  background: var(--muted);
+}
+
+.lp-proof-hex {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+.lp-proof-role {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--water);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
+  text-underline-offset: 4px;
+}
+
+.lp-proof-open svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lp-proof-note {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 880px) {
+  .lp-proof {
+    padding: 64px 0;
+  }
+
+  .lp-proof-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .lp-proof-panel {
+    min-height: 0;
+  }
+
+  .lp-proof-qr-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .lp-proof-stage {
+    padding: 16px;
+  }
+
+  .lp-proof-swatches {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .lp-proof-hex {
+    font-size: 11px;
+  }
+}
+
+/* Without a running script the engines never load, so "loading the qr
+   engine…" and the request counter would be a status that never resolves.
+   The failsafe note says what is true instead — at once with scripting off,
+   and after the same 3s grace period when a script ran but never hydrated
+   (see the reveal failsafe in globals.css). */
+.lp-proof-failsafe {
+  display: none;
+}
+
+@media (scripting: none) {
+  .lp-proof-out,
+  .lp-proof-counter {
+    display: none;
+  }
+
+  .lp-proof-failsafe {
+    display: block;
+  }
+}
+
+@keyframes lp-proof-give-up {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes lp-proof-explain {
+  to {
+    opacity: 1;
+  }
+}
+
+html:not([data-hydrated]) .lp-proof-out,
+html:not([data-hydrated]) .lp-proof-counter {
+  animation: lp-proof-give-up 0s linear 3s forwards;
+}
+
+html:not([data-hydrated]) .lp-proof-failsafe {
+  display: block;
+  opacity: 0;
+  animation: lp-proof-explain 0.4s ease-out 3s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-proof-tab,
+  .lp-proof-field input,
+  .lp-proof-field textarea {
+    transition: none;
+  }
 }
 
 /* ------------------------------- the wire -------------------------------- */
@@ -769,7 +1162,7 @@
 
 .lp-wire-title b {
   display: block;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--foreground);
 }
@@ -942,7 +1335,7 @@ a.lp-wire-item .lp-wire-name {
   align-items: center;
   gap: 14px;
   margin-top: 46px;
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -964,7 +1357,7 @@ a.lp-wire-item .lp-wire-name {
   border-left: 1px solid var(--border);
   padding-left: 16px;
   margin-top: 26px;
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.6;
   color: var(--muted-foreground);
   max-width: 40ch;
@@ -1044,7 +1437,7 @@ a.lp-wire-item .lp-wire-name {
   flex-direction: column;
   gap: 14px;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 24px;
   background: var(--card);
   padding: 22px;
 }
@@ -1059,7 +1452,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-card-tag {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -1084,7 +1477,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-card p {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--muted-foreground);
 }
@@ -1247,7 +1640,7 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-lab-img {
   position: relative;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 3 / 4;
   background: var(--muted);
@@ -1280,7 +1673,7 @@ a.lp-wire-item .lp-wire-name {
   background: color-mix(in srgb, var(--background) 88%, transparent);
   backdrop-filter: blur(4px);
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--foreground);
@@ -1291,15 +1684,15 @@ a.lp-wire-item .lp-wire-name {
   justify-content: space-between;
   margin: 15px 2px 7px;
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--muted-foreground);
 }
 
-.lp-lab h4 {
+.lp-lab h3 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 17.5px;
+  font-size: 18px;
   color: var(--foreground);
   margin: 0 2px;
 }
@@ -1329,22 +1722,6 @@ a.lp-wire-item .lp-wire-name {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-}
-
-.lp-progress {
-  display: inline-flex;
-  gap: 7px;
-}
-
-.lp-progress span {
-  width: 28px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--lp-line-soft);
-}
-
-.lp-progress .lp-on {
-  background: color-mix(in oklab, var(--foreground) 55%, transparent);
 }
 
 .lp-labs-foot .lp-meta a {
@@ -1393,7 +1770,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-method-aside p {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--muted-foreground);
 }
@@ -1433,7 +1810,7 @@ a.lp-wire-item .lp-wire-name {
   color: var(--lp-accent-ink);
 }
 
-.lp-method-step h4 {
+.lp-method-step h3 {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -1444,14 +1821,14 @@ a.lp-wire-item .lp-wire-name {
   margin-top: 26px;
 }
 
-.lp-method-step h4 .lp-arrow-r {
+.lp-method-step h3 .lp-arrow-r {
   font-family: var(--font-sans);
   font-weight: 400;
   color: var(--lp-accent-ink);
 }
 
 .lp-method-step p {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--muted-foreground);
   margin: 10px 0 24px;
@@ -1459,7 +1836,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-method-step .lp-plate {
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 1 / 1;
 }
@@ -1481,7 +1858,7 @@ a.lp-wire-item .lp-wire-name {
   display: flex;
   align-items: center;
   gap: 13px;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--muted-foreground);
 }
 
@@ -1529,7 +1906,7 @@ a.lp-wire-item .lp-wire-name {
   --slab-fg: var(--background);
   background: var(--slab-bg);
   color: var(--slab-fg);
-  border-radius: 32px;
+  border-radius: 24px;
   margin: 0 64px;
   padding: var(--lp-slab-pad) 64px;
 }
@@ -1628,7 +2005,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-work-card p {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.6;
   color: color-mix(in oklab, var(--slab-fg) 68%, transparent);
   margin-top: 10px;
@@ -1636,7 +2013,7 @@ a.lp-wire-item .lp-wire-name {
 
 .lp-work-card .lp-plate {
   margin: 20px 0 18px;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 3 / 4;
 }
@@ -1709,7 +2086,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-author p {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--foreground);
 }
@@ -1727,57 +2104,6 @@ a.lp-wire-item .lp-wire-name {
   margin: 30px 0;
 }
 
-.lp-partners-lead {
-  font-size: 13px;
-  color: var(--muted-foreground);
-}
-
-.lp-partners {
-  display: grid;
-  /* Same contract as the catalog grid — count from the suite, 5 as a fallback. */
-  grid-template-columns: repeat(var(--lp-partner-cols, 5), minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 22px;
-}
-
-.lp-partner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px 10px 15px;
-  text-align: center;
-  color: var(--foreground);
-  transition:
-    transform var(--dur-move) var(--lp-ease-reveal),
-    border-color var(--dur-fade) var(--lp-ease-ui);
-}
-
-.lp-partner:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in oklab, var(--foreground) 32%, transparent);
-}
-
-.lp-partner .lp-glyph svg {
-  width: 44px;
-  height: 18px;
-  stroke: color-mix(in oklab, var(--foreground) 80%, transparent);
-  stroke-width: 2;
-  fill: none;
-}
-
-.lp-partner span {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.lp-partner small {
-  font-size: 10.5px;
-  color: var(--muted-foreground);
-}
-
 .lp-read-more {
   display: inline-block;
   margin-top: 30px;
@@ -1785,7 +2111,9 @@ a.lp-wire-item .lp-wire-name {
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--water);
+  /* Water alone measured 3.98:1 on the light sign-off band, under AA for 11px
+     text. A fifth of ink takes it to 5.2:1, and lifts it further on dark. */
+  color: color-mix(in oklab, var(--water) 80%, var(--foreground));
   border-bottom: 1px solid color-mix(in oklab, var(--water) 40%, transparent);
   padding-bottom: 3px;
 }
@@ -1880,7 +2208,7 @@ a.lp-wire-item .lp-wire-name {
   gap: 20px;
   margin-top: 52px;
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -1895,7 +2223,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-cta-art .lp-plate img {
-  border-radius: 20px;
+  border-radius: 16px;
 }
 
 /* --------------------------------- footer -------------------------------- */
@@ -1917,7 +2245,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-foot-brand p {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--muted-foreground);
   max-width: 36ch;
@@ -1936,7 +2264,7 @@ a.lp-wire-item .lp-wire-name {
 .lp-foot-cta .lp-foot-cta-sub {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 9.5px;
+  font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -1946,10 +2274,10 @@ a.lp-wire-item .lp-wire-name {
   color: var(--water);
 }
 
-.lp-foot-col h5 {
+.lp-foot-col h2 {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -1961,7 +2289,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-foot-col li a {
-  font-size: 13.5px;
+  font-size: 14px;
   color: color-mix(in oklab, var(--foreground) 80%, transparent);
   transition: color var(--dur-fade) var(--lp-ease-ui);
 }
@@ -2062,7 +2390,7 @@ a.lp-wire-item .lp-wire-name {
 }
 
 .lp-tool-display-lg {
-  font-size: 2.6rem;
+  font-size: 2.375rem; /* display-lg; was an off-ramp 2.6rem */
   line-height: 1.06;
   letter-spacing: -0.02em;
 }
@@ -2134,11 +2462,6 @@ a.lp-wire-item .lp-wire-name {
 
   .lp-labs-grid {
     gap: 14px;
-  }
-
-  .lp-partners {
-    grid-template-columns: repeat(3, 1fr);
-    row-gap: 18px;
   }
 
   /* The brand takes its own row instead of the fourth column being hidden.
@@ -2225,15 +2548,6 @@ a.lp-wire-item .lp-wire-name {
     padding: 0 16px;
   }
 
-  .lp-nav-cta {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .lp-nav-cta::after {
-    display: none;
-  }
-
   /* "Capytools · CapyWrapped" plus the right-hand cluster crowds a 390px bar;
      the page's own h1 already names the tool. */
   .lp-brand-tool {
@@ -2270,10 +2584,6 @@ a.lp-wire-item .lp-wire-name {
   .lp-foot-brand {
     grid-column: 1 / -1;
   }
-
-  .lp-partners {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 /* --------------------------- reduced motion ------------------------------ */
@@ -2283,8 +2593,7 @@ a.lp-wire-item .lp-wire-name {
     animation: none;
   }
 
-  .lp-wire-pulse,
-  .lp-progress span {
+  .lp-wire-pulse {
     animation: none;
   }
 
@@ -2298,7 +2607,6 @@ a.lp-wire-item .lp-wire-name {
 
   .lp-btn,
   .lp-work-card,
-  .lp-partner,
   .lp-lab-img img,
   .lp-arrow-mark svg {
     transition: none;
@@ -2308,8 +2616,7 @@ a.lp-wire-item .lp-wire-name {
     transform: none;
   }
 
-  .lp-work-card:hover,
-  .lp-partner:hover {
+  .lp-work-card:hover {
     transform: none;
   }
 

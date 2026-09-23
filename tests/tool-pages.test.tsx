@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { ReactElement } from "react";
@@ -176,11 +178,13 @@ describe("shared chrome", () => {
     const html = markup(<Header tool="CapyWrapped" />);
     expect(html).toContain('href="/notes"');
     // The persistent action is the same on every page, tool pages included.
-    expect(html).toContain("Explore our tools");
+    expect(html).toContain('href="/tools"');
+    expect(html).not.toContain("lp-nav-cta");
     // One brand mark for the whole site (the interim capybara seal).
     expect(html).toContain("lp-brand-glyph");
-    // An app surface has to say which room you are standing in.
-    expect(html).toContain('aria-current="page"');
+    // An app surface has to say which room you are standing in: the brand
+    // line names the tool, now that the masthead no longer lists every tool.
+    expect(html).toContain("· CapyWrapped");
     // The nav collapses rather than disappearing.
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain('aria-controls="site-nav-menu"');
@@ -193,9 +197,10 @@ describe("shared chrome", () => {
     const html = markup(<CapyWrappedPage />);
     expect(html).toContain("lp-nav-inner");
     expect(html).toContain("lp-brand-glyph");
-    expect(html).toContain("Explore our tools");
-    // The tool page marks the current tool; the landing has no current tool.
-    expect(html).toContain('aria-current="page"');
+    expect(html).toContain('href="/tools"');
+    expect(html).not.toContain("lp-nav-cta");
+    // The tool page names the current tool in the brand line.
+    expect(html).toContain("· CapyWrapped");
   });
 
   it("expense showcase keeps its a11y switcher contract", () => {
@@ -203,5 +208,62 @@ describe("shared chrome", () => {
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain('aria-controls="capyexpense-demo"');
     expect(html).toContain("lp-corner-tl");
+  });
+});
+
+describe("the shared footer's claim holds on every page it renders on", () => {
+  it("never promises 'nothing stored' — CapyExpense keeps your files on disk", () => {
+    const footer = renderToStaticMarkup(<CapyExpensePage />);
+    expect(footer).not.toMatch(/capytools — [^<]*nothing stored/i);
+    expect(footer).toContain("no signup. no cookies. open source.");
+    expect(footer).not.toContain("coming soon</p>");
+  });
+});
+
+/**
+ * The adapt pass. Tap targets reach 44px on coarse pointers only, so desktop
+ * keeps its density; and below lg, CapyQR's output follows the thumb.
+ */
+describe("touch targets and the thumb-reach output bar", () => {
+  const css = readFileSync(join(process.cwd(), "src/components/landing/landing.css"), "utf8");
+
+  it("the menu button is 44×44 — it is the only way between pages on a phone", () => {
+    const rule = css.match(/\.lp-nav-toggle \{[^}]*\}/)?.[0] ?? "";
+    expect(rule).toContain("width: 44px");
+    expect(rule).toContain("height: 44px");
+  });
+
+  it("CapyQR's pills, swatches and actions grow on coarse pointers", () => {
+    const html = markup(<CapyQRPage />);
+    expect(html).toContain("pointer-coarse:min-h-11");
+    expect(html).toContain("pointer-coarse:size-11");
+    expect(html).toContain("pointer-coarse:h-11");
+  });
+
+  it("portals the output bar to <body>, and starts it inert and off-screen", () => {
+    // A transformed ancestor (the shell's Reveal) re-anchors position: fixed,
+    // so the bar must escape the stage entirely — and it only exists once the
+    // client mounts, which is why the server markup carries no trace of it.
+    const html = markup(<CapyQRPage />);
+    expect(html).toContain('id="capyqr-code"');
+    expect(html).not.toContain("fixed inset-x-0 bottom-0");
+    const src = readFileSync(join(process.cwd(), "src/components/tool/CapyQR.tsx"), "utf8");
+    expect(src).toMatch(/createPortal\([\s\S]*?inert=\{codeInView\}[\s\S]*?document\.body/);
+    expect(src).toContain('codeInView ? "translate-y-full" : "translate-y-0"');
+  });
+});
+
+describe("CapyQR keeps its output beside the controls on desktop", () => {
+  it("lays out two columns from lg, the code card sticky on the right", () => {
+    const html = markup(<CapyQRPage />);
+    expect(html).toContain("lg:grid-cols-[minmax(0,1fr)_368px]");
+    expect(html).toMatch(/id="capyqr-code"[^>]*lg:sticky/);
+  });
+
+  it("keeps DOM order payload → style → code, so focus order matches reading order", () => {
+    const html = markup(<CapyQRPage />);
+    const at = (title: string) => html.indexOf(title);
+    expect(at("The payload")).toBeLessThan(at("The style"));
+    expect(at("The style")).toBeLessThan(at("The code"));
   });
 });

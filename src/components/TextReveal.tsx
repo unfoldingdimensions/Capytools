@@ -59,6 +59,7 @@ export function TextReveal({
             <motion.span
               key={i}
               className="inline-block"
+              data-reveal=""
               // Blur and rise, no fade — see Reveal.tsx. A blurred word still
               // counts as painted; a transparent one does not, and this is the
               // h1 that LCP was waiting on.

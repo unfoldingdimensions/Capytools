@@ -58,6 +58,7 @@ export function Hero() {
               seg.em ? (
                 <motion.em
                   key={i}
+                  data-reveal=""
                   // The h1 is the LCP element. Blur only — a blurred word is
                   // painted, a transparent one is not, and LCP was waiting on it.
                   initial={reduced ? undefined : { filter: "blur(6px)" }}
@@ -82,13 +83,6 @@ export function Hero() {
               {HERO.primary.label}
               <ArrowUpRight />
             </a>
-            <TransitionLink className="lp-btn lp-btn-ghost" href={HERO.secondary.href}>
-              {HERO.secondary.label}
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M9 12h6M12 9v6" />
-              </svg>
-            </TransitionLink>
           </motion.div>
 
           <motion.div className="lp-hero-stats" {...rise(0.5)}>
@@ -109,6 +103,11 @@ export function Hero() {
 
           <motion.div className="lp-hero-foot" {...rise(0.58)}>
             <span className="lp-meta">{HERO.meta}</span>
+            {/* The one product nobody can use yet was the hero's second button,
+                the site's second-most prominent action. It is a note now. */}
+            <TransitionLink className="lp-hero-aside" href={HERO.aside.href}>
+              {HERO.aside.label}
+            </TransitionLink>
           </motion.div>
         </div>
 

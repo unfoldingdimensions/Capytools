@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Copy, Dices, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ import {
 import { verifyCanvas, type VerifyResult } from "@/lib/capyqr/verify";
 import type { EccLevel, FrameState, FrameShape, PayloadFields, PayloadKind, QrStyleState } from "@/lib/capyqr/types";
 import { DEFAULT_FRAME } from "@/lib/capyqr/types";
+import { readHandoff } from "@/lib/capytools/handoff";
 import { cn } from "@/lib/utils";
 
 /** The frame shapes the style card offers, in display order. */
@@ -131,7 +133,7 @@ function Pill({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors pointer-coarse:min-h-11 pointer-coarse:px-4",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -168,7 +170,7 @@ function ColorField({
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5 disabled:cursor-not-allowed"
+        className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5 disabled:cursor-not-allowed pointer-coarse:size-11"
       />
       <span className="font-mono text-[11px] uppercase tabular-nums text-muted-foreground">
         {value}
@@ -189,7 +191,7 @@ function Swatches({
   onPick: (hex: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5 pointer-coarse:gap-2.5">
       <span className={labelClass}>{label}</span>
       {colors.map((hex) => (
         <button
@@ -199,7 +201,7 @@ function Swatches({
           aria-pressed={value.toLowerCase() === hex}
           onClick={() => onPick(hex)}
           className={cn(
-            "size-5 rounded-full border transition-colors",
+            "size-5 rounded-full border transition-colors pointer-coarse:size-11",
             value.toLowerCase() === hex
               ? "border-foreground ring-2 ring-[var(--primary)]/40"
               : "border-border hover:border-foreground/50",
@@ -236,12 +238,33 @@ export function CapyQR() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState({ text: "", file: "" });
 
+  // Arriving from the landing's proof band: the visitor's own text rides in
+  // the URL fragment, which the browser never sends (lib/capytools/handoff).
+  const hydrateHandoff = useCallback(() => {
+    const text = readHandoff();
+    if (text) {
+      setKind("link");
+      setFields((prev) => ({ ...prev, link: { ...prev.link, text } }));
+    };
+  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(hydrateHandoff, [hydrateHandoff]);
+
   const engineRef = useRef<QrEngine | null>(null);
   // The engine's own canvas lives in a hidden host (frames are composed over
   // it); the stage canvas is what the preview shows, the scan reads, and the
   // export hands to the browser.
   const engineHostRef = useRef<HTMLDivElement>(null);
   const stageCanvasRef = useRef<HTMLCanvasElement>(null);
+  // The mobile output bar's copy of the stage, redrawn on every verify.
+  const thumbCanvasRef = useRef<HTMLCanvasElement>(null);
+  // Whether card 03 (the code) is on screen; the bar stands in when it is not.
+  const [codeInView, setCodeInView] = useState(true);
+  // The bar is portalled to <body>, so it only exists once the client mounts.
+  const [portalReady, setPortalReady] = useState(false);
+  const markPortalReady = useCallback(() => setPortalReady(true), []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(markPortalReady, [markPortalReady]);
 
   const payload = useMemo(() => buildPayload(kind, fields), [kind, fields]);
   const moduleCount = useMemo(
@@ -303,6 +326,20 @@ export function CapyQR() {
     };
   }, []);
 
+  // Below lg the three cards stack, so the code sits a long scroll below the
+  // controls that change it (1,834px down on a 375px phone). While card 03 is
+  // off-screen, a bar at the thumb's edge carries its thumbnail, its scan
+  // result and Download.
+  useEffect(() => {
+    const card = document.getElementById("capyqr-code");
+    if (!card || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setCodeInView(entry.isIntersecting), {
+      threshold: 0.15,
+    });
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, []);
+
   // Replacing the logo revokes the old object URL; so does leaving the page.
   useEffect(() => {
     const url = logoUrl;
@@ -325,6 +362,12 @@ export function CapyQR() {
         if (engineCanvas instanceof HTMLCanvasElement && stage) {
           composeStage(engineCanvas, stage, layout, style, frame);
           setVerify({ result: verifyCanvas(stage), of: engineOptions });
+          const thumb = thumbCanvasRef.current;
+          const tctx = thumb?.getContext("2d");
+          if (thumb && tctx) {
+            tctx.clearRect(0, 0, thumb.width, thumb.height);
+            tctx.drawImage(stage, 0, 0, thumb.width, thumb.height);
+          }
         }
       }, VERIFY_SETTLE_MS);
     }, DEBOUNCE_MS);
@@ -444,9 +487,13 @@ export function CapyQR() {
   const svgBlocked = svgExportBlocked(Boolean(logoUrl), frame.on);
 
   return (
-    <div className="flex w-full flex-col gap-5">
+    // Below lg the cards stack 01 → 02 → 03 (and the output bar stands in for
+    // 03 while it is off-screen). From lg the output takes a sticky right
+    // column: styling is a see-and-adjust loop, and the code sat 1,493px below
+    // the controls at 1280×900. DOM and focus order stay 01 → 02 → 03.
+    <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_368px] lg:items-start">
       {/* CARD 1: THE PAYLOAD */}
-      <StageCard index="01" title="The payload" marks>
+      <StageCard index="01" title="The payload" marks className="lg:col-start-1">
         <div className="mt-4 flex flex-wrap items-center gap-1.5">
           {KINDS.map((k) => (
             <Pill
@@ -786,6 +833,7 @@ export function CapyQR() {
       <StageCard
         index="02"
         title="The style"
+        className="lg:col-start-1"
         actions={
           <div className="flex items-center gap-1.5" role="group" aria-label="Settings detail">
             <Pill active={detail === "simple"} onClick={() => setDetail("simple")} label="Simple settings">
@@ -1118,7 +1166,7 @@ export function CapyQR() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <label
             htmlFor="capyqr-logo"
-            className="cursor-pointer rounded-full border border-border bg-muted/30 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+            className="inline-flex cursor-pointer items-center rounded-full border border-border bg-muted/30 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
           >
             upload logo
           </label>
@@ -1258,7 +1306,12 @@ export function CapyQR() {
       </StageCard>
 
       {/* CARD 3: THE CODE */}
-      <StageCard index="03" title="The code">
+      <StageCard
+        id="capyqr-code"
+        index="03"
+        title="The code"
+        className="lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
+      >
         {/* The engine's own canvas — the QR alone — renders here, hidden;
             the composed stage below is the visible, scannable, exportable
             surface. */}
@@ -1272,7 +1325,9 @@ export function CapyQR() {
           className="mx-auto block aspect-square w-full max-w-[320px] rounded-2xl border border-border"
         />
 
-        <div className="mt-4 text-center">
+        {/* Announced: restyling can turn "verified scannable" into "won't
+            scan", and that is the one result a screen-reader user most needs. */}
+        <div className="mt-4 text-center" aria-live="polite">
           {payload.ok && proof?.ok && !proof.inverted ? (
             <StageChip tone="sage">
               verified scannable — decoded: {truncateForChip(proof.data)}
@@ -1325,7 +1380,7 @@ export function CapyQR() {
           <div className="ml-auto flex items-center gap-2">
             <Button
               size="sm"
-              className="min-w-[84px] rounded-full"
+              className="min-w-[84px] rounded-full pointer-coarse:h-11 pointer-coarse:px-5"
               onClick={handleDownload}
               disabled={busy}
             >
@@ -1335,7 +1390,7 @@ export function CapyQR() {
             <Button
               size="sm"
               variant="ghost"
-              className="min-w-[84px] rounded-full"
+              className="min-w-[84px] rounded-full pointer-coarse:h-11 pointer-coarse:px-5"
               onClick={handleCopy}
               disabled={busy}
             >
@@ -1374,6 +1429,56 @@ export function CapyQR() {
               : "compose the payload above — the code is waiting."}
         </p>
       </StageCard>
+
+      {/* Portalled to <body>: the tool renders inside ToolPageShell's Reveal,
+          which animates `transform`, and a transformed ancestor re-anchors
+          `position: fixed` to itself — the bar would ride the stage instead of
+          the viewport for as long as the entrance runs, or forever if it never
+          finishes. */}
+      {portalReady
+        ? createPortal(
+            <div
+              inert={codeInView}
+              aria-hidden={codeInView}
+              className={cn(
+                "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.35)] transition-transform duration-300 ease-out motion-reduce:transition-none lg:hidden",
+                codeInView ? "translate-y-full" : "translate-y-0",
+              )}
+            >
+              <div className="mx-auto flex max-w-xl items-center gap-3">
+                <canvas
+                  ref={thumbCanvasRef}
+                  width={112}
+                  height={112}
+                  aria-hidden
+                  className="size-14 flex-none rounded-lg border border-border bg-white"
+                />
+                <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
+                  {!payload.ok
+                    ? "fill in the payload to make a code."
+                    : proof?.ok && !proof.inverted
+                      ? "verified scannable, in this tab."
+                      : proof?.ok
+                        ? "light on dark — some scanners will refuse it."
+                        : proof
+                          ? "won't scan yet — raise the contrast."
+                          : "scanning the render…"}
+                </p>
+                <Button
+                  className="h-11 flex-none rounded-full px-5"
+                  onClick={handleDownload}
+                  disabled={busy || !payload.ok}
+                >
+                  <Download className="mr-1.5 size-4" />
+                  Download
+                </Button>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+      {/* Room to scroll the last card clear of the bar. */}
+      <div aria-hidden className="h-24 lg:hidden" />
     </div>
   );
 }
