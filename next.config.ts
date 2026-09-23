@@ -1,5 +1,40 @@
 import type { NextConfig } from 'next';
 
+const isProd = process.env.NODE_ENV === 'production';
+
+/**
+ * Content-Security-Policy, assembled once so the reasoning lives with it.
+ *
+ * `connect-src` is deliberately **not** an allowlist of the three known AI
+ * providers. The BYOK client lets a user point at any OpenAI-compatible
+ * endpoint — OpenRouter, LM Studio, a local Ollama — and a fixed allowlist
+ * would break that the moment the config shipped. What this policy actually
+ * guarantees is narrower and worth having: no request ever leaves for a remote
+ * host over cleartext `http:`, so an API key cannot be sent in the clear, and
+ * no exotic scheme can be used as a channel. Localhost stays open for local
+ * models, and dev is permissive so the HMR socket and the bundler keep working.
+ *
+ * `script-src` and `style-src` need `'unsafe-inline'`: Next's App Router
+ * streams its own inline bootstrap and flight data, and React sets style
+ * attributes directly. `'unsafe-eval'` is dev-only.
+ */
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  isProd
+    ? "connect-src 'self' https: http://localhost:* http://127.0.0.1:*"
+    : "connect-src 'self' https: http: ws: wss:",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -36,6 +71,10 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: contentSecurityPolicy,
+          },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',

@@ -108,3 +108,32 @@ versioned-key entry above) — too high a cost for a display preference.
 **Consequence:** if paper size ever becomes per-document or per-export-preset, it
 belongs in `ResumeData` at the next version bump, with `migrate()` defaulting
 existing documents to A4.
+
+## Content-Security-Policy: a floor, not an AI-provider allowlist
+
+**Finding of the review:** no CSP at all; HSTS, `X-Frame-Options` and `nosniff`
+were set, framing and sniffing were covered, but nothing bound what the page was
+allowed to load or contact.
+
+**We do:** send a full policy from `next.config.ts` — `default-src 'self'`,
+`object-src 'none'`, `frame-ancestors 'none'`, `base-uri 'self'`,
+`form-action 'self'`, and a `connect-src` permitting `https:` plus localhost
+while forbidding remote cleartext `http:`.
+
+**The decision worth recording** is what `connect-src` deliberately is _not_: an
+allowlist of OpenAI, Gemini and Anthropic. The BYOK client lets a user point at
+any OpenAI-compatible endpoint — OpenRouter, an LM Studio box, a local Ollama —
+and a fixed list would break that feature the moment it shipped. What the policy
+guarantees instead is narrower but worth having: an API key can never be sent to
+a remote host in the clear.
+
+**Why not nonce plus `strict-dynamic`:** a nonce needs per-request middleware,
+which would make these pages dynamic and forfeit static generation. For an
+application with no third-party scripts and no server-rendered user HTML, that
+is too high a price, so `'unsafe-inline'` is accepted in `script-src` and
+`style-src`. `'unsafe-eval'` is dev-only.
+
+**Verified, not assumed:** the header is served on all five routes; a probe for a
+URI that `img-src` forbids raises a real `securitypolicyviolation` event in the
+browser, so the policy is enforced rather than decorative; and the page still
+hydrates under it — typing into the name input re-renders the preview.
