@@ -58,6 +58,14 @@ export const metadata: Metadata = {
     description:
       'Build a clean, single-column resume and export a real PDF or DOCX — no signup, no watermark.',
   },
+  // The image itself comes from the file convention (app/opengraph-image.png), which
+  // Next wires in automatically; this only sets the card shape.
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CapyResume — free resume builder in your browser',
+    description:
+      'Build a clean, single-column resume and export a real PDF or DOCX — no signup, no watermark.',
+  },
 };
 
 export const viewport = {
