@@ -24,8 +24,6 @@ const TOOL_LINKS: NavLink[] = [
   { href: "/notes", label: "Notes" },
 ];
 
-const DEFAULT_CTA = { label: "Explore our tools", href: "/#labs" };
-
 /**
  * useLayoutEffect warns during SSR, and this component is server-rendered on
  * every page. Measuring before paint on the client and after paint on the
@@ -58,19 +56,23 @@ const useIsomorphicLayoutEffect =
  *   goes home.
  * - `active` — the current tool is marked with `aria-current`, the landing
  *   marks nothing.
+ *
+ * No persistent CTA. There used to be a black "Explore our tools" pill on
+ * every page; on the landing it duplicated the hero's own button (same label,
+ * same #labs target, two high-emphasis styles), on /tools it led away from
+ * the index, and on a 375px phone it was the width that pushed the menu
+ * button 17px off-screen. "All Tools" in the row reaches the whole suite from
+ * any page, so the pill was restating it.
  */
 export function Header({
   tool,
   links = TOOL_LINKS,
-  cta = DEFAULT_CTA,
   brandHref = "/",
 }: {
   /** Names the current tool beside the wordmark; omit it on the landing. */
   tool?: string;
   /** Nav entries. Defaults to the suite switcher. */
   links?: NavLink[];
-  /** The persistent action, identical on every page. `null` hides it. */
-  cta?: { label: string; href: string } | null;
   brandHref?: string;
 }) {
   const [hidden, setHidden] = useState(false);
@@ -229,11 +231,6 @@ export function Header({
 
         <div className="lp-nav-right">
           <ThemeToggle />
-          {cta ? (
-            <Link className="lp-nav-cta" href={cta.href}>
-              {cta.label}
-            </Link>
-          ) : null}
           <button
             type="button"
             className="lp-nav-toggle"
@@ -263,15 +260,6 @@ export function Header({
               {link.label}
             </Link>
           ))}
-          {cta ? (
-            <Link
-              href={cta.href}
-              className="lp-nav-menu-cta"
-              onClick={() => setOpen(false)}
-            >
-              {cta.label}
-            </Link>
-          ) : null}
         </nav>
       </div>
     </header>

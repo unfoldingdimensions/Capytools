@@ -39,7 +39,6 @@ export function Landing() {
 
       <Header
         links={LANDING_LINKS}
-        cta={{ label: "Explore our tools", href: "#labs" }}
         brandHref="#top"
       />
 

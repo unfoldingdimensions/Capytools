@@ -417,35 +417,6 @@
   gap: 14px;
 }
 
-.lp-nav-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  background: var(--foreground);
-  color: var(--background);
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition:
-    background-color var(--dur-fade) var(--lp-ease-ui),
-    transform var(--dur-move) var(--lp-ease-ui);
-}
-
-.lp-nav-cta::after {
-  content: "\2192";
-  font-size: 12px;
-}
-
-.lp-nav-cta:hover {
-  background: color-mix(in oklab, var(--foreground) 86%, var(--background));
-}
-
-.lp-nav-cta:active {
-  transform: translateY(1px);
-}
-
 /* Nav disclosure. The row carries any number of tools down to 1180px; below
    that the same links stack into a panel rather than disappearing. The old
    chrome simply removed the nav — the landing dropped its four anchors at
@@ -539,16 +510,6 @@
 .lp-nav-menu a:hover,
 .lp-nav-menu a.is-active {
   color: var(--foreground);
-}
-
-.lp-nav-menu .lp-nav-menu-cta {
-  margin-top: 12px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--foreground);
-  color: var(--background);
-  text-align: center;
 }
 
 /* Measured overflow: the row would not fit, so it folds into the disclosure.
@@ -678,6 +639,21 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+/* CapyExpense, demoted from the hero's second button to a note beside the
+   meta line: findable, never competing with the one primary action. */
+.lp-hero-aside {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+  transition: color var(--dur-fade) var(--lp-ease-ui);
+}
+
+.lp-hero-aside:hover {
+  color: var(--foreground);
 }
 
 /* hero plate + hairline corner marks */
@@ -1331,22 +1307,6 @@ a.lp-wire-item .lp-wire-name {
   flex-wrap: wrap;
 }
 
-.lp-progress {
-  display: inline-flex;
-  gap: 7px;
-}
-
-.lp-progress span {
-  width: 28px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--lp-line-soft);
-}
-
-.lp-progress .lp-on {
-  background: color-mix(in oklab, var(--foreground) 55%, transparent);
-}
-
 .lp-labs-foot .lp-meta a {
   color: var(--water);
 }
@@ -1727,57 +1687,6 @@ a.lp-wire-item .lp-wire-name {
   margin: 30px 0;
 }
 
-.lp-partners-lead {
-  font-size: 13px;
-  color: var(--muted-foreground);
-}
-
-.lp-partners {
-  display: grid;
-  /* Same contract as the catalog grid — count from the suite, 5 as a fallback. */
-  grid-template-columns: repeat(var(--lp-partner-cols, 5), minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 22px;
-}
-
-.lp-partner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px 10px 15px;
-  text-align: center;
-  color: var(--foreground);
-  transition:
-    transform var(--dur-move) var(--lp-ease-reveal),
-    border-color var(--dur-fade) var(--lp-ease-ui);
-}
-
-.lp-partner:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in oklab, var(--foreground) 32%, transparent);
-}
-
-.lp-partner .lp-glyph svg {
-  width: 44px;
-  height: 18px;
-  stroke: color-mix(in oklab, var(--foreground) 80%, transparent);
-  stroke-width: 2;
-  fill: none;
-}
-
-.lp-partner span {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.lp-partner small {
-  font-size: 10.5px;
-  color: var(--muted-foreground);
-}
-
 .lp-read-more {
   display: inline-block;
   margin-top: 30px;
@@ -2136,11 +2045,6 @@ a.lp-wire-item .lp-wire-name {
     gap: 14px;
   }
 
-  .lp-partners {
-    grid-template-columns: repeat(3, 1fr);
-    row-gap: 18px;
-  }
-
   /* The brand takes its own row instead of the fourth column being hidden.
      `:nth-child(4) { display: none }` silently dropped the whole Colophon
      column — the three links under it — on every tablet from 560px to 1080px. */
@@ -2225,15 +2129,6 @@ a.lp-wire-item .lp-wire-name {
     padding: 0 16px;
   }
 
-  .lp-nav-cta {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .lp-nav-cta::after {
-    display: none;
-  }
-
   /* "Capytools · CapyWrapped" plus the right-hand cluster crowds a 390px bar;
      the page's own h1 already names the tool. */
   .lp-brand-tool {
@@ -2270,10 +2165,6 @@ a.lp-wire-item .lp-wire-name {
   .lp-foot-brand {
     grid-column: 1 / -1;
   }
-
-  .lp-partners {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 /* --------------------------- reduced motion ------------------------------ */
@@ -2283,8 +2174,7 @@ a.lp-wire-item .lp-wire-name {
     animation: none;
   }
 
-  .lp-wire-pulse,
-  .lp-progress span {
+  .lp-wire-pulse {
     animation: none;
   }
 
@@ -2298,7 +2188,6 @@ a.lp-wire-item .lp-wire-name {
 
   .lp-btn,
   .lp-work-card,
-  .lp-partner,
   .lp-lab-img img,
   .lp-arrow-mark svg {
     transition: none;
@@ -2308,8 +2197,7 @@ a.lp-wire-item .lp-wire-name {
     transform: none;
   }
 
-  .lp-work-card:hover,
-  .lp-partner:hover {
+  .lp-work-card:hover {
     transform: none;
   }
 

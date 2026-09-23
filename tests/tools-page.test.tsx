@@ -113,8 +113,10 @@ describe("/tools is reachable from the chrome", () => {
     expect(markup.indexOf(">All Tools<")).toBeLessThan(markup.indexOf(">Wrapped<"));
   });
 
-  it("the persistent CTA reads Explore our tools", () => {
-    expect(renderToStaticMarkup(<Header />)).toContain("Explore our tools");
+  it("carries no persistent CTA — All Tools already reaches the suite", () => {
+    const markup = renderToStaticMarkup(<Header />);
+    expect(markup).not.toContain("lp-nav-cta");
+    expect(markup).not.toContain("Explore our tools");
   });
 });
 

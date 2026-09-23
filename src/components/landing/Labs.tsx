@@ -122,20 +122,14 @@ export function Labs() {
         </div>
 
         <div className="lp-labs-foot">
-          <div className="lp-progress" aria-hidden="true">
-            {LABS.tools.map((tool) => (
-              <span key={tool.name} className="lp-on" />
-            ))}
-          </div>
           {/* Distributed CTA: a visitor convinced by the catalog acts here,
-              not at the bottom of the page. */}
+              not at the bottom of the page. It opened CapyWrapped — one tool,
+              under a label promising all of them — and eleven always-on
+              "progress" dots sat beside it, decoration posing as status. */}
           <div className="lp-labs-foot-right">
             <span className="lp-meta">{LABS.foot}</span>
-            <TransitionLink
-              href="/capywrapped"
-              className="lp-btn lp-btn-primary lp-btn-sm"
-            >
-              Open the suite
+            <TransitionLink href="/tools" className="lp-btn lp-btn-primary lp-btn-sm">
+              {LABS.cta}
               <ArrowUpRight />
             </TransitionLink>
           </div>

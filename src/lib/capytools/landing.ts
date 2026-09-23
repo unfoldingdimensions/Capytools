@@ -51,7 +51,7 @@ export const HERO = {
   ] as Headline,
   lead: `${SUITE_WORD_CAP} small tools — ${SUITE_LIST} — that run entirely in your browser and keep nothing. No signup, no cookies, no server. Named after the capybara: calm, unhurried, at home anywhere.`,
   primary: { label: "Explore our tools", href: "#labs" },
-  secondary: { label: "CapyExpense — coming soon", href: "/capyexpense" },
+  aside: { label: "CapyExpense, the desktop one — coming soon", href: "/capyexpense" },
   stats: [
     { value: SUITE_INDEX, label: "tools", sub: "in the suite", tone: "solid" },
     { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
@@ -178,6 +178,8 @@ export const LABS = {
     sub: [`one suite, ${SUITE_WORD} small rooms,`, "no lobby, no queue"],
   },
   foot: `${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`,
+  /** Promises the whole suite, so it opens the index — not one tool. */
+  cta: `See all ${SUITE_WORD}`,
   tools: SUITE.map((tool, i) => ({
     badge: tool.badge,
     no: `Nº ${pad2(i + 1)}`,
@@ -244,7 +246,7 @@ export const WORK = {
     { text: " and clutter for " },
     { text: "cards", em: true },
   ] as Headline,
-  link: { label: `All ${SUITE_WORD} tools`, href: "#labs" },
+  link: { label: `All ${SUITE_WORD} tools`, href: "/tools" },
   cards: [
     {
       kicker: "Featured tool",
@@ -285,13 +287,7 @@ export const COLOPHON = {
     name: "Capytools, README",
     sub: "First line, quoted verbatim",
   },
-  partnersLead: "The whole suite, one glyph each — every tool one click from the last.",
   readMore: { label: "Read the notes", href: "/notes" },
-  partners: SUITE.map((tool) => ({
-    name: tool.name,
-    small: tool.note,
-    href: tool.href,
-  })),
 } as const;
 
 export const CTA = {
@@ -306,7 +302,7 @@ export const CTA = {
     { text: "calm", em: true },
   ] as Headline,
   lead: "Open the suite in any browser tab and simply start — no account, no cookie banner, no setup. CapyExpense lives on your desktop and your disk, never ours.",
-  primary: { label: "Open the suite", href: "#labs" },
+  primary: { label: "Open the suite", href: "/tools" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
   foot: ["● Live", "v0.1.0 / Apache-2.0"],
   ribbon: "CAPYTOOLS · FIN.",
