@@ -87,7 +87,8 @@ will say so before they ship. Getting your résumé out the door stays free.
 
 ## Getting started
 
-Requires **Node.js ≥ 18**.
+Requires **Node.js ≥ 20.9** — the floor Next 16 itself declares; install and
+build fail below it.
 
 ```bash
 git clone https://github.com/unfoldingdimensions/CapyResume.git

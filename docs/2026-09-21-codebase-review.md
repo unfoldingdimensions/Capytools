@@ -134,17 +134,15 @@ Verified by running, on the final tree:
 
 ## Part 4 — Still open
 
-Items since resolved in the same stretch of work, so they no longer belong here:
-the missing Content-Security-Policy (D6) and the lagging `eslint-config-next`
-(E2).
+Items resolved since this review was written, so they no longer belong here: the
+missing Content-Security-Policy (D6), the lagging `eslint-config-next` (E2), and
+the repository rename — the GitHub slug is now `CapyResume`, matching the local
+directory and every reference in the tree. A CI workflow was also restored,
+having been deleted pre-pivot, so the checks the README describes now actually
+run.
 
 1. **A GitHub personal access token is embedded in `.git/config`** as part of the
    remote URL. It must be revoked and the remote switched to SSH. The value is
    deliberately not reproduced here, and it was never printed to a transcript.
-2. **The GitHub repository rename.** The application, the local directory and every
-   reference in the tree are now CapyResume; the slug on GitHub is still
-   `Handcraftresume`. Until that is changed there, the clone command in `README.md`
-   and the two URLs in `lib/site.ts` point at a repository that does not exist.
-   Rotate the credential in item 1 first.
-3. **The paid tier is unbuilt** — template packs, cover-letter bundle, saved
+2. **The paid tier is unbuilt** — template packs, cover-letter bundle, saved
    versions and bulk tailoring are scoped, documented and deliberately absent.
