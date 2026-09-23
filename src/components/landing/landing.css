@@ -1301,91 +1301,6 @@ a.lp-wire-item .lp-wire-name {
   text-transform: uppercase;
 }
 
-/* ---------------------------------- about -------------------------------- */
-
-.lp-about-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 80px;
-  align-items: center;
-}
-
-.lp-about h2 {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(44px, 5.4vw, 78px);
-  line-height: 1.02;
-  letter-spacing: -0.012em;
-  margin-top: 30px;
-  text-wrap: balance;
-}
-
-.lp-about h2 em {
-  font-style: italic;
-  font-weight: 400;
-}
-
-.lp-about .lp-lead {
-  margin-top: 26px;
-  max-width: 42ch;
-}
-
-.lp-about .lp-btn {
-  margin-top: 34px;
-}
-
-.lp-about-foot {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 46px;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-}
-
-.lp-about-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-style: italic;
-}
-
-.lp-about-side-note {
-  border-left: 1px solid var(--border);
-  padding-left: 16px;
-  margin-top: 26px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--muted-foreground);
-  max-width: 40ch;
-}
-
-.lp-about-caption {
-  margin-top: 22px;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 15px;
-  color: var(--foreground);
-}
-
-.lp-about-caption span {
-  display: block;
-  font-family: var(--font-mono);
-  font-style: normal;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-  margin-top: 6px;
-}
-
 /* ------------------------------ capabilities ------------------------------ */
 
 .lp-capabilities-grid {
@@ -1892,151 +1807,6 @@ a.lp-wire-item .lp-wire-name {
   color: var(--primary);
 }
 
-/* ------------------------------- work (dark) ------------------------------ */
-
-.lp-work-outer {
-  --lp-pad-y: 64px;
-  /* The slab's own inset counts too: the first readable line sits this much
-     further down again, inside the dark box. */
-  --lp-slab-pad: 72px;
-  padding: var(--lp-pad-y) 0;
-}
-
-.lp-work {
-  /* The slab keeps its ink identity in both themes: ink-on-paper in light,
-     a dark card field on the charcoal page in dark — it must never invert
-     into a white panel. Everything inside mixes against --slab-fg. */
-  --slab-bg: var(--foreground);
-  --slab-fg: var(--background);
-  background: var(--slab-bg);
-  color: var(--slab-fg);
-  border-radius: 24px;
-  margin: 0 64px;
-  padding: var(--lp-slab-pad) 64px;
-}
-
-.dark .lp-work {
-  --slab-bg: var(--card);
-  --slab-fg: var(--foreground);
-}
-
-.lp-work .lp-sec-rule {
-  color: color-mix(in oklab, var(--slab-fg) 62%, transparent);
-  border-top-color: color-mix(in srgb, var(--slab-fg) 16%, transparent);
-}
-
-.lp-work .lp-roman,
-.lp-work .lp-label::before {
-  color: var(--clay);
-}
-
-.lp-work .lp-label {
-  color: color-mix(in oklab, var(--slab-fg) 62%, transparent);
-}
-
-.lp-work h2 {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(40px, 5vw, 66px);
-  line-height: 1.03;
-  letter-spacing: -0.012em;
-  margin-top: 30px;
-  max-width: 20ch;
-  text-wrap: balance;
-}
-
-.lp-work h2 em {
-  font-style: italic;
-  font-weight: 400;
-}
-
-.lp-work-link {
-  display: inline-block;
-  margin-top: 26px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--slab-fg) 65%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--slab-fg) 30%, transparent);
-  padding-bottom: 4px;
-  transition: color var(--dur-fade) var(--lp-ease-ui);
-}
-
-.lp-work-link:hover {
-  color: var(--slab-fg);
-}
-
-.lp-work-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.05fr 0.85fr;
-  gap: 48px;
-  margin-top: 64px;
-  align-items: start;
-}
-
-.lp-work-card {
-  display: block;
-  border: 1px solid color-mix(in srgb, var(--slab-fg) 14%, transparent);
-  border-radius: 24px;
-  padding: 26px;
-  color: inherit;
-  transition:
-    transform var(--dur-move) var(--lp-ease-reveal),
-    border-color var(--dur-fade) var(--lp-ease-ui);
-}
-
-.lp-work-card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--slab-fg) 32%, transparent);
-}
-
-.lp-work-card .lp-label-row {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--slab-fg) 55%, transparent);
-}
-
-.lp-work-card h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 26px;
-  margin-top: 16px;
-}
-
-.lp-work-card p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: color-mix(in oklab, var(--slab-fg) 68%, transparent);
-  margin-top: 10px;
-}
-
-.lp-work-card .lp-plate {
-  margin: 20px 0 18px;
-  border-radius: 16px;
-  overflow: hidden;
-  aspect-ratio: 3 / 4;
-}
-
-.lp-work-card .lp-plate img {
-  height: 100%;
-  object-fit: cover;
-}
-
-.lp-work-card .lp-meta-row {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--slab-fg) 55%, transparent);
-}
-
 /* -------------------------------- colophon ------------------------------- */
 
 /* The palate-cleanser before the closing accent — the most expansive
@@ -2441,15 +2211,6 @@ a.lp-wire-item .lp-wire-name {
     padding: 0 44px;
   }
 
-  .lp-work-outer {
-    --lp-slab-pad: 64px;
-  }
-
-  .lp-work {
-    margin: 0 44px;
-    padding: var(--lp-slab-pad) 44px;
-  }
-
   .lp-nav-inner {
     gap: 18px;
   }
@@ -2486,7 +2247,6 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-hero-grid,
-  .lp-about-grid,
   .lp-capabilities-grid,
   .lp-testimonial-grid,
   .lp-cta-grid {
@@ -2516,20 +2276,6 @@ a.lp-wire-item .lp-wire-name {
 
   .lp-method-grid::before {
     display: none;
-  }
-
-  .lp-work-outer {
-    --lp-slab-pad: 48px;
-  }
-
-  .lp-work {
-    margin: 0 12px;
-    padding: var(--lp-slab-pad) 24px;
-  }
-
-  .lp-work-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
   }
 
   .lp-wire-inner {
@@ -2571,14 +2317,42 @@ a.lp-wire-item .lp-wire-name {
     grid-template-columns: 1fr;
   }
 
-  .lp-work-outer {
-    --lp-slab-pad: 40px;
+  /* Eleven 600px portrait cards made the catalog alone six phone screens.
+     Below 560px each tool is a row instead: a square plate beside its name
+     and its one-line job. */
+  .lp-labs-grid {
+    gap: 12px;
   }
 
-  .lp-work {
-    margin: 0 6px;
-    padding: var(--lp-slab-pad) 20px;
-    border-radius: 24px;
+  .lp-lab {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 16px;
+    align-items: start;
+  }
+
+  .lp-lab-img {
+    grid-row: 1 / span 3;
+    aspect-ratio: 1;
+    border-radius: 12px;
+  }
+
+  .lp-lab-badge,
+  .lp-lab .lp-arrow-mark {
+    display: none;
+  }
+
+  .lp-lab-num-row {
+    margin: 2px 0 4px;
+  }
+
+  .lp-lab h3 {
+    margin: 0;
+  }
+
+  .lp-lab p {
+    margin: 4px 0 0;
   }
 
   .lp-foot-grid {
@@ -2610,17 +2384,12 @@ a.lp-wire-item .lp-wire-name {
   }
 
   .lp-btn,
-  .lp-work-card,
   .lp-lab-img img,
   .lp-arrow-mark svg {
     transition: none;
   }
 
   .lp-btn:hover {
-    transform: none;
-  }
-
-  .lp-work-card:hover {
     transform: none;
   }
 

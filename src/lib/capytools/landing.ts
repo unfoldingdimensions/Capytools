@@ -29,7 +29,6 @@ import {
   SUITE_WORD_CAP,
   countByCategory,
   pad2,
-  suiteNumber,
 } from "@/lib/capytools/suite";
 
 export const EXTERNAL = {
@@ -69,7 +68,7 @@ export const HERO = {
     { text: ", quiet by " },
     { text: "default", em: true },
   ] as Headline,
-  lead: `${listOut([...HERO_JOBS.map((row) => row.job), `${HERO_REST} more small jobs`])} — ${IN_BROWSER} of them done right in your browser, keeping nothing. No signup, no cookies, no uploads. Named after the capybara: calm, unhurried, at home anywhere.`,
+  lead: `${listOut([...HERO_JOBS.map((row) => row.job), `${HERO_REST} more small jobs`])} — ${IN_BROWSER} of them done right in your browser, keeping nothing. No signup, no cookies, no uploads.`,
   primary: { label: "Explore our tools", href: "#labs" },
   aside: { label: "CapyExpense, the desktop one — coming soon", href: "/capyexpense" },
   stats: [
@@ -164,31 +163,12 @@ export const WIRE = {
   },
 } as const;
 
-export const ABOUT = {
-  roman: "II.",
-  meta: ["About / Manifesto", "Capytools / Volume 01"],
-  label: "About the suite",
-  ix: "· Nº 02",
-  headline: [
-    { text: "Settled like a " },
-    { text: "capybara", em: true },
-    { text: " in " },
-    { text: "warm water", em: true },
-  ] as Headline,
-  lead: "Every browser tool computes in your tab. Two fetch public data through a route that stores nothing — GitHub stats for CapyWrapped, a web page's colours for CapyTone — and CapyExpense, the desktop one, writes only to your own disk. Where a tool needs memory it uses localStorage, and nothing else exists to store.",
-  cta: { label: "Read the design notes", href: "/design" },
-  footer: "No signup · No cookies · No uploads",
-  sideNote:
-    "Every tool states its own promise — browser tools keep nothing, desktop tools keep it on your machine.",
-  caption: ["Studies in quiet software.", "(Capytools, MMXXVI)"],
-  plate: { src: "/plates/about.webp", width: 1024, height: 1024 },
-} as const;
 
 export const CAPABILITIES = {
-  roman: "III.",
+  roman: "II.",
   meta: ["Capabilities · Promises", "2 kept by all, 2 by some"],
   label: "Capabilities",
-  ix: "· Nº 03",
+  ix: "· Nº 02",
   headline: [
     { text: "Two promises " },
     { text: "every", em: true },
@@ -235,10 +215,10 @@ export const CAPABILITIES = {
 export type LabCategory = "browser" | "desktop";
 
 export const LABS = {
-  roman: "IV.",
+  roman: "III.",
   meta: ["Labs / Tool Catalog", `${SUITE_INDEX} of ${SUITE_INDEX} shipped`],
   label: "Labs",
-  ix: "· Nº 04",
+  ix: "· Nº 03",
   headline: [
     { text: `${SUITE_WORD_CAP} quiet tools, each one ` },
     { text: "finished", em: true },
@@ -270,10 +250,10 @@ export const LABS = {
 } as const;
 
 export const METHOD = {
-  roman: "V.",
+  roman: "IV.",
   meta: ["Method / House Rules", "04 steps, always"],
   label: "Method",
-  ix: "· Nº 05",
+  ix: "· Nº 04",
   headline: [
     { text: "Arrive, compute, " },
     { text: "forget", em: true },
@@ -314,43 +294,12 @@ export const METHOD = {
   ],
 } as const;
 
-export const WORK = {
-  roman: "VI.",
-  meta: ["Selected Tools · 2026", "Edited by Capytools"],
-  headline: [
-    { text: "Tools that trade noise for " },
-    { text: "calm", em: true },
-    { text: " and clutter for " },
-    { text: "cards", em: true },
-  ] as Headline,
-  link: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
-  cards: [
-    {
-      kicker: "Featured tool",
-      index: `${suiteNumber("/capywrapped")} / ${SUITE_INDEX}`,
-      name: "CapyWrapped",
-      copy: "Your GitHub year, wrapped in a calm little card — contributions, a month-by-month trendline, stars and top languages. Named after the capybara.",
-      href: "/capywrapped",
-      meta: ["2026 · BROWSER", "WRAPPED"],
-      plate: { src: "/plates/work-1.webp", width: 768, height: 1024 },
-    },
-    {
-      kicker: "Privacy tool",
-      index: `${suiteNumber("/capystrip")} / ${SUITE_INDEX}`,
-      name: "CapyStrip",
-      copy: "Drop, paste or pick a photo. CapyStrip reads GPS, device serials, editing software and AI fingerprints, strips everything in-tab, then re-scans its own output to prove it.",
-      href: "/capystrip",
-      meta: ["2026 · BROWSER", "STRIP"],
-      plate: { src: "/plates/work-2.webp", width: 768, height: 1024 },
-    },
-  ],
-} as const;
 
 export const COLOPHON = {
-  roman: "VII.",
+  roman: "V.",
   meta: ["Colophon / First Line", "Quoted verbatim"],
   label: "From the first line",
-  ix: "· Nº 07",
+  ix: "· Nº 05",
   // A verbatim quote from the project README, so the count in it is NOT derived
   // — "eleven" here is a quotation, and tests/landing.test.tsx asserts this
   // string against the README itself so the two cannot drift apart silently.
@@ -368,10 +317,10 @@ export const COLOPHON = {
 } as const;
 
 export const CTA = {
-  roman: "VIII.",
+  roman: "VI.",
   meta: ["Contact / Open Tabs", "One click, no signup"],
   label: "Begin quietly",
-  ix: "· Nº 08",
+  ix: "· Nº 06",
   headline: [
     { text: "Your data stays " },
     { text: "yours", em: true },
@@ -430,13 +379,10 @@ export const LANDING_FOOTER = {
 
 /** The plates the page ships, for the asset-existence test. */
 export const PLATES = [
-  "about",
   "hero",
   "capabilities",
   "cta",
   "testimonial",
-  "work-1",
-  "work-2",
   "lab-1",
   "lab-2",
   "lab-3",

@@ -21,7 +21,7 @@ import { Landing } from "../src/components/landing/Landing";
 import DesignNotesPage from "../src/app/design/page";
 import LicensePage from "../src/app/license/page";
 import NotesPage from "../src/app/notes/page";
-import { CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, PROOF, WORK } from "../src/lib/capytools/landing";
+import { CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, PROOF } from "../src/lib/capytools/landing";
 import {
   SUITE,
   SUITE_INDEX,
@@ -115,7 +115,7 @@ describe("Landing", () => {
     expect(html).toContain("lp-nav-inner");
     expect(html).toContain("lp-brand-glyph");
     expect(html).toContain('href="/tools"');
-    for (const anchor of ["#labs", "#method", "#work"]) {
+    for (const anchor of ["#proof", "#labs", "#method"]) {
       expect(html).toContain(`href="${anchor}"`);
     }
   });
@@ -262,11 +262,16 @@ describe("the landing has one primary action and lists the suite less", () => {
   });
 
   it("sends every whole-suite promise to the index", () => {
-    expect(WORK.link.href).toBe("/tools");
     expect(CTA.primary.href).toBe("/tools");
     expect(html).toContain(`>${LABS.cta}<`);
     // Labs' button promised the suite and opened one tool.
     expect(html).not.toMatch(/href="\/capywrapped"[^>]*lp-btn-primary/);
+  });
+
+  it("cuts the sections that restated the promises and repeated the catalog", () => {
+    expect(html).not.toContain('id="about"');
+    expect(html).not.toContain('id="work"');
+    expect(html).not.toContain('href="#work"');
   });
 
   it("drops the Colophon glyph grid and the fake progress dots", () => {
@@ -297,7 +302,6 @@ describe("the landing speaks in jobs, one noun per idea", () => {
   it("gives every whole-suite promise one label and one destination", () => {
     const label = `See all ${SUITE_WORD} tools`;
     expect(LABS.cta).toBe(label);
-    expect(WORK.link).toEqual({ label, href: "/tools" });
     expect(CTA.primary).toEqual({ label, href: "/tools" });
   });
 
