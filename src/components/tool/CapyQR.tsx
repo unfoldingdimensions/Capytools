@@ -869,7 +869,7 @@ export function CapyQR() {
             >
               <span
                 aria-hidden
-                className="mr-1.5 inline-block size-2 rounded-full align-middle"
+                className="mr-1.5 inline-block size-2 rounded-full align-middle ring-1 ring-foreground/30"
                 style={{ background: preset.style.fg.mode === "solid" ? preset.style.fg.color : preset.style.fg.from }}
               />
               {preset.label}

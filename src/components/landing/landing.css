@@ -273,15 +273,6 @@
   transform: translateY(-1px);
 }
 
-.lp-btn-ghost {
-  color: var(--foreground);
-  border-color: color-mix(in oklab, var(--foreground) 20%, transparent);
-}
-
-.lp-btn-ghost:hover {
-  background: color-mix(in oklab, var(--foreground) 4%, transparent);
-}
-
 /* focus ring — house ring color, export geometry. This unlayered rule is the
    one that wins on every page inside .lp, so the contrast fix lives here too:
    plain sage is ~2.9:1 on a white card, under the 3:1 a focus indicator needs,
@@ -583,9 +574,12 @@
   margin-top: 36px;
 }
 
+/* A three-column row: flex-wrap broke it 2 + 1 at 1280px and orphaned the
+   last ring under the first. Below 560px each stat stacks ring over label
+   so the three still share one row. */
 .lp-hero-stats {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, max-content));
   gap: 30px;
   margin-top: 44px;
 }
@@ -2308,6 +2302,17 @@ html:not([data-hydrated]) .lp-proof-failsafe {
 
   .lp-hero h1 {
     font-size: 38px;
+  }
+
+  .lp-hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .lp-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .lp-labs-grid,
