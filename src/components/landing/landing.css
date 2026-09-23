@@ -433,9 +433,11 @@
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 36px;
-  height: 36px;
-  padding: 0 8px;
+  /* 44px, the touch-target floor: this is the only way from one page to
+     another on a phone. It was 36px. */
+  width: 44px;
+  height: 44px;
+  padding: 0 12px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;

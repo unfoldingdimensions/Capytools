@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { ReactElement } from "react";
@@ -215,5 +217,33 @@ describe("the shared footer's claim holds on every page it renders on", () => {
     expect(footer).not.toMatch(/capytools — [^<]*nothing stored/i);
     expect(footer).toContain("no signup. no cookies. open source.");
     expect(footer).not.toContain("coming soon</p>");
+  });
+});
+
+/**
+ * The adapt pass. Tap targets reach 44px on coarse pointers only, so desktop
+ * keeps its density; and below lg, CapyQR's output follows the thumb.
+ */
+describe("touch targets and the thumb-reach output bar", () => {
+  const css = readFileSync(join(process.cwd(), "src/components/landing/landing.css"), "utf8");
+
+  it("the menu button is 44×44 — it is the only way between pages on a phone", () => {
+    const rule = css.match(/\.lp-nav-toggle \{[^}]*\}/)?.[0] ?? "";
+    expect(rule).toContain("width: 44px");
+    expect(rule).toContain("height: 44px");
+  });
+
+  it("CapyQR's pills, swatches and actions grow on coarse pointers", () => {
+    const html = markup(<CapyQRPage />);
+    expect(html).toContain("pointer-coarse:min-h-11");
+    expect(html).toContain("pointer-coarse:size-11");
+    expect(html).toContain("pointer-coarse:h-11");
+  });
+
+  it("renders the mobile output bar, inert until the code scrolls away", () => {
+    const html = markup(<CapyQRPage />);
+    expect(html).toContain('id="capyqr-code"');
+    // Server render assumes the code is in view: the bar starts inert and off-screen.
+    expect(html).toMatch(/<div inert="" aria-hidden="true" class="fixed inset-x-0 bottom-0[^"]*translate-y-full/);
   });
 });

@@ -55,7 +55,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={() => void toggle()}
       aria-label="Toggle light and dark theme"
-      className="size-10 rounded-full sm:size-9"
+      className="size-10 rounded-full sm:size-9 pointer-coarse:size-11!"
     >
       {/*
         Which glyph shows is decided purely by the `dark` class through CSS, not
