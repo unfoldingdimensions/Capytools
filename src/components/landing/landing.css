@@ -693,6 +693,373 @@
   box-shadow: var(--lp-shadow);
 }
 
+/* ------------------------------- the proof ------------------------------- */
+
+/* Three real tools, live under the hero. The band surface and the Fraunces
+   headline are the house's; the stage is a fixed box so switching tabs, or an
+   engine arriving, never moves anything on the page. */
+.lp-proof {
+  padding: 88px 0;
+}
+
+.lp-proof-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.lp-proof h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(36px, 4.2vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  margin: 26px 0 20px;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+.lp-proof h2 em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* The counter is the claim, so it gets the display face, not a ring. */
+.lp-proof-counter {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--lp-line-soft);
+}
+
+.lp-proof-counter-n {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  min-width: 1.2ch;
+}
+
+.lp-proof-counter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 34ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-counter-label b {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.lp-proof-stage {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--background);
+  padding: 22px;
+}
+
+.lp-proof-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lp-proof-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lp-proof-tab {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fade) var(--lp-ease-ui),
+    color var(--dur-fade) var(--lp-ease-ui),
+    border-color var(--dur-fade) var(--lp-ease-ui);
+}
+
+.lp-proof-tab:hover {
+  border-color: color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.lp-proof-tab[aria-selected="true"] {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: transparent;
+}
+
+.lp-proof-stop {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.lp-proof-stop:hover {
+  color: var(--foreground);
+}
+
+.lp-proof-panel {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+  /* Tall enough for the tallest demo (the QR plus its result line), so no
+     tab switch or engine arrival changes the band's height. */
+  min-height: 356px;
+  align-content: start;
+}
+
+.lp-proof-panel[hidden] {
+  display: none;
+}
+
+.lp-proof-field {
+  display: grid;
+  gap: 8px;
+}
+
+.lp-proof-field span {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-field input,
+.lp-proof-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 1px solid var(--input);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 15px;
+  resize: none;
+  transition: border-color var(--dur-fade) var(--lp-ease-ui);
+}
+
+.lp-proof-field input:focus-visible,
+.lp-proof-field textarea:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+.lp-proof-out {
+  min-height: 0;
+}
+
+.lp-proof-qr-wrap {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+/* A dotted matrix stands in for the code while the engine loads, so the box
+   is never empty and never changes size when the canvas arrives. */
+.lp-proof-qr {
+  flex: none;
+  width: 200px;
+  height: 200px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, var(--lp-line-soft) 1.4px, transparent 1.6px) 0 0 / 12px 12px,
+    #ffffff;
+}
+
+.lp-proof-qr.is-drawn {
+  background: #ffffff;
+}
+
+.lp-proof-qr canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.lp-proof-result {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.lp-proof-chip {
+  display: inline-block;
+  margin: 0 8px 6px 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 22%, transparent);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lp-proof-chip.is-warn {
+  background: color-mix(in oklab, var(--destructive) 14%, transparent);
+}
+
+.lp-proof-tokens {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.lp-proof-big {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 72px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+.lp-proof-big small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-palette {
+  display: grid;
+  gap: 14px;
+}
+
+.lp-proof-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lp-proof-swatches li {
+  display: grid;
+  gap: 6px;
+}
+
+.lp-proof-swatch {
+  display: block;
+  aspect-ratio: 1 / 1.25;
+  border-radius: 12px;
+  border: 1px solid var(--lp-line-soft);
+  background: var(--muted);
+}
+
+.lp-proof-hex {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+.lp-proof-role {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.lp-proof-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--water);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--water) 35%, transparent);
+  text-underline-offset: 4px;
+}
+
+.lp-proof-open svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lp-proof-note {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 880px) {
+  .lp-proof {
+    padding: 64px 0;
+  }
+
+  .lp-proof-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .lp-proof-panel {
+    min-height: 0;
+  }
+
+  .lp-proof-qr-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .lp-proof-stage {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .lp-proof-swatches {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .lp-proof-hex {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-proof-tab,
+  .lp-proof-field input,
+  .lp-proof-field textarea {
+    transition: none;
+  }
+}
+
 /* ------------------------------- the wire -------------------------------- */
 
 .lp-wire {

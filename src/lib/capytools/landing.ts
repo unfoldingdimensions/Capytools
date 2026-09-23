@@ -60,6 +60,56 @@ export const HERO = {
   meta: "↳ one quiet tab · nothing leaves it",
 } as const;
 
+/**
+ * The proof band, directly under the hero: three real tools, live in the tab,
+ * beside a counter that watches for a request carrying what you typed.
+ *
+ * "Open and local" is the positioning (PRODUCT.md). This is where the landing
+ * stops saying it and shows it — the words below describe the demo, and the
+ * demo is the claim.
+ */
+export const PROOF = {
+  label: "Try it here",
+  headline: [
+    { text: "Nothing you type " },
+    { text: "leaves this tab", em: true },
+  ] as Headline,
+  lead: "Three of the tools, running right here. Type into any of them and watch the counter: it counts every request this page makes to a server that could read what you typed.",
+  counter: {
+    label: "requests to a server that could read it",
+    note: "counted by your browser's resource timing — our API or any other site, since you first typed. the page loading its own files is not one.",
+  },
+  demos: [
+    {
+      id: "qr",
+      tab: "QR code",
+      prompt: "a link to encode",
+      initial: "https://capytools.app",
+      open: { label: "open CapyQR", href: "/capyqr" },
+    },
+    {
+      id: "tokens",
+      tab: "Token count",
+      prompt: "text to count",
+      initial: "Calm little tools that run in your browser and keep nothing.",
+      open: { label: "open CapyToken", href: "/capytoken" },
+    },
+    {
+      id: "palette",
+      tab: "Palette",
+      prompt: "a mood",
+      // A curated lexicon anchor (night-rain), so the first palette anyone sees
+      // is a tuned one — "rain on a tin roof" matched nothing and improvised.
+      initial: "rain on the window",
+      open: { label: "open CapyTone", href: "/capytone" },
+    },
+  ],
+  /** Auto-advance until the visitor touches anything, then never again. */
+  advanceMs: 7000,
+} as const;
+
+export type ProofDemoId = (typeof PROOF.demos)[number]["id"];
+
 export const WIRE = {
   title: "The suite, live",
   sub: `${SUITE_WORD_CAP} tools · zero servers · one tab`,

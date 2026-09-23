@@ -58,6 +58,7 @@ import {
 import { verifyCanvas, type VerifyResult } from "@/lib/capyqr/verify";
 import type { EccLevel, FrameState, FrameShape, PayloadFields, PayloadKind, QrStyleState } from "@/lib/capyqr/types";
 import { DEFAULT_FRAME } from "@/lib/capyqr/types";
+import { readHandoff } from "@/lib/capytools/handoff";
 import { cn } from "@/lib/utils";
 
 /** The frame shapes the style card offers, in display order. */
@@ -235,6 +236,18 @@ export function CapyQR() {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState({ text: "", file: "" });
+
+  // Arriving from the landing's proof band: the visitor's own text rides in
+  // the URL fragment, which the browser never sends (lib/capytools/handoff).
+  const hydrateHandoff = useCallback(() => {
+    const text = readHandoff();
+    if (text) {
+      setKind("link");
+      setFields((prev) => ({ ...prev, link: { ...prev.link, text } }));
+    };
+  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(hydrateHandoff, [hydrateHandoff]);
 
   const engineRef = useRef<QrEngine | null>(null);
   // The engine's own canvas lives in a hidden host (frames are composed over

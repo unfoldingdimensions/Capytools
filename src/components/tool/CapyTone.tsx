@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { readHandoff } from "@/lib/capytools/handoff";
 
 import { StageCard, StageChip } from "@/components/stage-card";
 import { ExampleCards } from "@/components/capytone/ExampleCards";
@@ -90,12 +91,17 @@ function CapyToneInner() {
   }, [genHex, genHarmony, genField, genJitter]);
 
   // Deep-link: ?mood=&s= reproduces the card exactly.
+  // A proof-band hand-off arrives in the fragment instead, so the phrase is
+  // never sent with the page request (lib/capytools/handoff).
   const applyDeepLink = useCallback(() => {
     const moodParam = searchParams.get("mood");
     if (moodParam) {
       setSeed(searchParams.get("s"));
       setSubmitted(moodParam);
+      return;
     }
+    const handed = readHandoff();
+    if (handed) setSubmitted(handed);
   }, [searchParams]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect

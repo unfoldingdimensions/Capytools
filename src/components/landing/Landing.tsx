@@ -1,6 +1,7 @@
 import "./landing.css";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/landing/Hero";
+import { ProofBand } from "@/components/landing/ProofBand";
 import { LiveWire } from "@/components/landing/LiveWire";
 import { About } from "@/components/landing/About";
 import { Capabilities } from "@/components/landing/Capabilities";
@@ -44,6 +45,8 @@ export function Landing() {
 
       <main id="main">
         <Hero />
+        {/* The claim, demonstrated: three tools live, beside a request counter. */}
+        <ProofBand />
         <LiveWire />
         {/* The manifesto band — one surface for the two reading sections,
             breaking the long cream run before the catalog. */}
