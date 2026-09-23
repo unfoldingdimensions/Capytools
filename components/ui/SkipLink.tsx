@@ -12,7 +12,7 @@ export function SkipLink() {
         'fixed left-4 top-4 z-[100] -translate-y-[150%] transition-transform focus:translate-y-0'
       )}
     >
-      <a href="#main-content">Skip to content</a>
+      <a href="#main-content">skip to content</a>
     </Button>
   );
 }

@@ -300,7 +300,7 @@ export function CapyResume() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main id="main-content" className="mx-auto max-w-6xl px-6 py-8">
         <p className="mb-6 rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
           <strong className="text-foreground">Stored in this browser only.</strong> Your details are
           never uploaded — there is nothing to upload them to. Clearing your browser data deletes
@@ -707,22 +707,24 @@ export function CapyResume() {
             </p>
           </section>
         </div>
+      </main>
 
-        <footer className="mt-12 border-t border-border pt-6 text-xs text-muted-foreground">
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-6xl px-6 py-6 text-xs text-muted-foreground">
           <p className="leading-relaxed">
             {SITE.name} — free, open source, and yours. Your résumé stays in this browser.{' '}
             <Link href="/privacy" className="underline underline-offset-4">
-              Privacy
+              privacy
             </Link>{' '}
             <Link href="/terms" className="underline underline-offset-4">
-              Terms
+              terms
             </Link>{' '}
             <Link href="/cookies" className="underline underline-offset-4">
-              Cookies
+              cookies
             </Link>
           </p>
-        </footer>
-      </main>
+        </div>
+      </footer>
     </div>
   );
 }

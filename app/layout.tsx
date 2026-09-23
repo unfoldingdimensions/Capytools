@@ -78,8 +78,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SkipLink />
         {/* No `disableTransitionOnChange`: the 150ms colour interpolation IS the design
             language (DESIGN.md §Layout), and it never touches layout properties. */}
+        {/* The landmark itself lives in each shell, never here — the site group puts
+            banner and contentinfo outside its `main`, and the builder owns its own. */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <main id="main-content">{children}</main>
+          {children}
         </ThemeProvider>
       </body>
     </html>

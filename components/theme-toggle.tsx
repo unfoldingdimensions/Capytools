@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+/** Lowercase labels, and the icon swap animates on transform only — never `all`. */
 export function ThemeToggle() {
   const { setTheme } = useTheme();
 
@@ -18,15 +19,15 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-transform duration-move ease-entrance dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-transform duration-move ease-entrance dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">change theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('light')}>light</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('dark')}>dark</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('system')}>system</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
