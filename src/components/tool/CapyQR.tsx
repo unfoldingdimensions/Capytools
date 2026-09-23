@@ -1344,7 +1344,9 @@ export function CapyQR() {
         <div className="mt-4 text-center" aria-live="polite">
           {payload.ok && proof?.ok && !proof.inverted ? (
             <ScanNote tone="sage">
-              verified scannable — decoded:
+              {/* The space is invisible before a block, but a screen reader
+                  needs it: without it the verdict read "decoded:https…". */}
+              verified scannable — decoded:{" "}
               <code className="mt-0.5 block font-mono text-[12px] [overflow-wrap:anywhere]">
                 {truncateForChip(proof.data)}
               </code>
