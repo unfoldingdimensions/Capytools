@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * The house card: 24px radius, a hairline border, and `shadow-sm` at rest. With
+ * `hover` it lifts 2px and settles onto `shadow-md` over 350ms on the entrance curve.
+ * Only transform and box-shadow are transitioned, so the lift never triggers layout.
+ */
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
@@ -13,16 +18,14 @@ const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'rounded-2xl bg-card text-card-foreground transition-all duration-300',
+        'rounded-3xl bg-card text-card-foreground transition-[transform,box-shadow] duration-move ease-entrance',
         {
-          'border border-black/[0.08] bg-card shadow-swiss dark:border-white/[0.08]':
-            variant === 'elevated' || variant === 'default',
-          'border border-black/[0.08] bg-transparent dark:border-white/[0.08]':
-            variant === 'outlined',
+          'border border-border bg-card shadow-sm': variant === 'elevated' || variant === 'default',
+          'border border-border bg-transparent': variant === 'outlined',
           'border-none bg-muted/50': variant === 'flat',
         },
-        hover && 'interactive-hover',
-        gradient && 'bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950',
+        hover && 'hover:-translate-y-0.5 hover:shadow-md',
+        gradient && 'bg-gradient-to-br from-card to-muted',
         className
       )}
       {...props}
@@ -42,7 +45,7 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn('font-display text-2xl font-semibold leading-none tracking-tight', className)}
+      className={cn('font-display text-title-md font-normal leading-tight', className)}
       {...props}
     />
   )
@@ -53,7 +56,7 @@ const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />
+  <p ref={ref} className={cn('text-body-sm text-muted-foreground', className)} {...props} />
 ));
 CardDescription.displayName = 'CardDescription';
 

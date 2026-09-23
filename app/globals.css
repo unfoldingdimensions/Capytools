@@ -38,15 +38,14 @@
     --input: 43.6 16.9% 87.3%; /* #e4e1d9 */
     --ring: 86.9 12.7% 55.1%; /* #8e9b7e */
 
-    /* Named palette — full hex values, for gradients and accents */
-    --sage-deep: #4a6741;
-    --sage-mid: #7a8e6e;
-    --sage-tan: #c2b2a3;
-    --water: #5f7a72;
-    --clay: #c07952;
-    --gold: #d9a441;
-    --brand-disc: #8e9b7e;
-    --brand-ink: #f9f9f7;
+    /* Named palette — triplets, so Tailwind's opacity modifiers compile
+       (bg-clay/15, text-sage-deep); the suite's hex rides along in the comment. */
+    --sage-deep: 105.8 22.6% 32.9%; /* #4a6741 */
+    --sage-mid: 97.5 12.7% 49.4%; /* #7a8e6e */
+    --sage-tan: 29 20.3% 70%; /* #c2b2a3 */
+    --water: 162.2 12.4% 42.5%; /* #5f7a72 */
+    --clay: 21.3 46.6% 53.7%; /* #c07952 */
+    --gold: 39.1 66.7% 55.3%; /* #d9a441 */
 
     /* Derived sage ramp — temporary compatibility for brand-* consumers */
     --brand-50: 75 12.5% 93.7%; /* #f0f1ed */
@@ -61,6 +60,16 @@
     --brand-900: 106.7 22.3% 23.7%; /* #354a2f */
 
     --radius: 0.75rem;
+
+    /* The suite's v4 box-shadow scale — one source of truth, referenced by
+       tailwind.config.ts (shadow-sm..xl) and by .interactive-hover below. */
+    --shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
     /* 4px baseline spacing scale */
     --space-xs: 4px;
@@ -109,15 +118,13 @@
     --input: 45 4.1% 19.2%; /* #33322f */
     --ring: 94 15.2% 61.2%; /* #9aab8d */
 
-    /* Named palette, dark — the sage/water/clay/gold lifts; the mark INVERTS */
-    --sage-deep: #7a8e6e;
-    --sage-mid: #9aab8d;
-    --sage-tan: #6b5f50;
-    --water: #7fa9a3;
-    --clay: #d68f66;
-    --gold: #e3b25e;
-    --brand-disc: #f9f9f7;
-    --brand-ink: #121212;
+    /* Named palette, dark — the sage/water/clay/gold lifts; every value round-trips */
+    --sage-deep: 97.5 12.7% 49.4%; /* #7a8e6e */
+    --sage-mid: 94 15.2% 61.2%; /* #9aab8d */
+    --sage-tan: 33.3 14.4% 36.7%; /* #6b5f50 */
+    --water: 171.4 19.6% 58%; /* #7fa9a3 */
+    --clay: 22 57.7% 62%; /* #d68f66 */
+    --gold: 37.9 70.4% 62.9%; /* #e3b25e */
 
     /* Derived sage ramp — temporary compatibility for brand-* consumers */
     --brand-50: 90 3.4% 11.4%; /* #1d1e1c */
@@ -292,17 +299,12 @@
 
   .interactive-hover:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-pop);
+    box-shadow: var(--shadow-xl);
   }
 
   .interactive-hover:active {
     transform: translateY(0);
     box-shadow: var(--shadow-md);
-  }
-
-  /* Button press effect */
-  .btn-press:active {
-    transform: scale(0.98);
   }
 
   @keyframes shimmer {

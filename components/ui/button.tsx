@@ -4,40 +4,43 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * The house button (DESIGN.md §Components): a full-round pill, sentence case, and no
+ * shadow of its own — emphasis comes from the sage fill, not from elevation. The
+ * primary is the one high-emphasis action on a screen, and `destructive` is a tinted
+ * wash rather than a solid red.
+ *
+ * Motion is colour-only (`--dur-fade`, `--ease-ui`) plus a 1px press nudge, so a
+ * button never shifts its neighbours. Focus is the global `:focus-visible` outline —
+ * nothing here sets `outline-none`, or it would erase that ring.
+ */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed btn-press',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-fade ease-ui active:translate-y-px disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        // Primary action - intentionally monochrome (matches the brand system)
-        default:
-          'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-sm hover:shadow-md interactive-hover',
+        // The single high-emphasis action: sage fill, dark ink.
+        default: 'bg-primary text-primary-foreground hover:bg-primary/80',
         destructive:
-          'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 shadow-sm interactive-hover',
-        outline:
-          'border-2 border-gray-200 text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-100 dark:hover:bg-gray-800 bg-transparent',
-        secondary:
-          'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 shadow-sm interactive-hover',
-        ghost:
-          'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100',
-        ghostSubtle:
-          'text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-100 dark:hover:bg-gray-800',
-        link: 'text-black dark:text-white underline-offset-4 hover:underline',
-        // Aliases for the primary action (kept for API compatibility; same styling as default)
-        gradient:
-          'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-sm hover:shadow-md interactive-hover border-none',
-        brand:
-          'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black shadow-sm interactive-hover border-none',
+          'bg-destructive/10 text-destructive hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30',
+        outline: 'border border-border bg-background hover:bg-muted hover:text-foreground',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'hover:bg-muted hover:text-foreground',
+        ghostSubtle: 'text-muted-foreground hover:bg-muted hover:text-foreground',
+        link: 'text-sage-deep underline-offset-4 hover:underline dark:text-primary',
+        // Aliases for the primary action, kept so older call sites keep working.
+        gradient: 'bg-primary text-primary-foreground hover:bg-primary/80',
+        brand: 'bg-primary text-primary-foreground hover:bg-primary/80',
         softLanding:
-          'bg-white/90 backdrop-blur text-black hover:bg-white shadow-lg inner-border border-gray-200 dark:bg-black/90 dark:text-white dark:border-gray-800',
+          'border border-border bg-card/90 text-foreground shadow-lg backdrop-blur hover:bg-card',
       },
       size: {
-        default: 'h-10 px-5',
-        xs: 'h-8 rounded-md px-3 text-xs',
-        sm: 'h-9 rounded-lg px-4',
-        lg: 'h-11 rounded-lg px-8 text-base',
-        xl: 'h-12 rounded-xl px-8 text-lg font-semibold',
-        icon: 'h-10 w-10 rounded-lg',
+        xs: 'h-6 px-2.5 text-label-caps',
+        sm: 'h-8 px-3 text-ui-sm',
+        default: 'h-9 px-5 text-ui-sm',
+        lg: 'h-12 px-6 text-ui-md',
+        xl: 'h-12 px-6 text-ui-md',
+        icon: 'h-9 w-9',
       },
     },
     defaultVariants: {
@@ -74,7 +77,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         {...props}
       >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
         {children}
       </button>
     );

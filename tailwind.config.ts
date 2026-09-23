@@ -60,6 +60,13 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           elevated: 'hsl(var(--popover))',
         },
+        /* Named palette (DESIGN.md) — triplets, so bg-sage-deep/10 and friends compile */
+        'sage-deep': 'hsl(var(--sage-deep))',
+        'sage-mid': 'hsl(var(--sage-mid))',
+        'sage-tan': 'hsl(var(--sage-tan))',
+        water: 'hsl(var(--water))',
+        clay: 'hsl(var(--clay))',
+        gold: 'hsl(var(--gold))',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -71,9 +78,18 @@ const config: Config = {
         normal: 'var(--duration-normal)',
         slow: 'var(--duration-slow)',
         slower: 'var(--duration-slower)',
+        // House motion tokens (DESIGN.md) — mirrored in lib/capytools/motion.ts
+        fade: 'var(--dur-fade)',
+        move: 'var(--dur-move)',
+        entrance: 'var(--dur-entrance)',
+        hero: 'var(--dur-hero)',
+        stagger: 'var(--dur-stagger)',
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        ui: 'var(--ease-ui)',
+        entrance: 'var(--ease-entrance)',
+        drift: 'var(--ease-drift)',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
@@ -81,10 +97,12 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
-        swiss: 'var(--shadow-swiss)',
-        'swiss-hover': '0 20px 40px -8px rgba(0, 0, 0, 0.1)',
-        card: 'var(--shadow-card)',
-        pop: 'var(--shadow-pop)',
+        // The suite's v4 scale, via the stylesheet's tokens. The override matters:
+        // Tailwind v3's `sm` is not v4's, and the house rule is "cards rest at sm".
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
       },
       // The suite's size ramp (DESIGN.md §Typography). Every fixed size the site is
       // allowed to use lives here; nothing below 10px, and a new size joins the ramp

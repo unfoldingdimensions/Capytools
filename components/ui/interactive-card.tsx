@@ -11,7 +11,7 @@ interface InteractiveCardProps {
 export function InteractiveCard({ front, back }: InteractiveCardProps) {
   return (
     <motion.div
-      className="relative h-full w-full rounded-xl shadow-sm"
+      className="relative h-full w-full rounded-2xl shadow-sm"
       style={{ perspective: 1000 }}
     >
       <motion.div
@@ -27,7 +27,7 @@ export function InteractiveCard({ front, back }: InteractiveCardProps) {
 
         {/* Back of the card */}
         <motion.div
-          className="absolute inset-0 rounded-xl bg-white/10"
+          className="absolute inset-0 rounded-2xl bg-card/10"
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',

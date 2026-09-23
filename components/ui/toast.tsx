@@ -101,7 +101,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
 
   return (
     <div
-      className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-black/[0.08] bg-card p-4 shadow-swiss duration-200 animate-in fade-in slide-in-from-bottom-2 dark:border-white/[0.08]"
+      className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-md duration-move ease-entrance animate-in fade-in slide-in-from-bottom-2"
       role="status"
     >
       <Icon

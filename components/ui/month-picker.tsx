@@ -132,7 +132,7 @@ export function MonthPicker({
             animate={{ opacity: 1, y: 4, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-black/[0.05] bg-white p-4 shadow-swiss dark:border-white/[0.1] dark:bg-gray-950"
+            className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-md"
           >
             {/* Header */}
             <div className="mb-4 flex items-center justify-between px-1">

@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Same surface as Input, one step taller. The old grey fills (`gray-50/80`,
+ * `dark:bg-gray-800/80`) were the last raw Tailwind palette in the kit — every colour
+ * now comes from a semantic token.
+ */
 export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
@@ -8,7 +13,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         className={cn(
-          'flex min-h-[100px] w-full resize-y rounded-xl border border-transparent bg-gray-50/80 px-4 py-3 text-sm shadow-sm ring-offset-background transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:border-gray-200 focus-visible:bg-white focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-800/80 dark:focus-visible:border-gray-700 dark:focus-visible:bg-gray-900',
+          'flex min-h-[100px] w-full resize-y rounded-xl border border-input bg-card px-3.5 py-3 text-ui-md text-foreground transition-[color,background-color,border-color] duration-fade ease-ui placeholder:text-muted-foreground/60 focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50',
           className
         )}
         ref={ref}

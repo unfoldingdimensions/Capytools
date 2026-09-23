@@ -30,19 +30,19 @@ export function AmbientBackground() {
       <div
         className="ambient-wash ambient-wash-a"
         style={{
-          background: 'radial-gradient(closest-side, var(--sage-mid), transparent)',
+          background: 'radial-gradient(closest-side, hsl(var(--sage-mid)), transparent)',
         }}
       />
       <div
         className="ambient-wash ambient-wash-b"
         style={{
-          background: 'radial-gradient(closest-side, var(--water), transparent)',
+          background: 'radial-gradient(closest-side, hsl(var(--water)), transparent)',
         }}
       />
       <div
         className="ambient-wash ambient-wash-c"
         style={{
-          background: 'radial-gradient(closest-side, var(--sage-tan), transparent)',
+          background: 'radial-gradient(closest-side, hsl(var(--sage-tan)), transparent)',
         }}
       />
       <div
