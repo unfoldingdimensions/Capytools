@@ -8,8 +8,7 @@ import { cn } from '@/lib/utils';
  * quiet — the outline and sage tints carry almost everything.
  *
  * The palette has no emerald/amber/sky, so the old `success`/`warning`/`info`
- * variants are gone rather than re-tinted off-hue; `brand` is kept, now on sage, so
- * the temporary `--brand-*` ramp has one fewer consumer.
+ * variants are gone rather than re-tinted off-hue; `brand` is kept, now on sage.
  */
 const badgeVariants = cva(
   'inline-flex items-center gap-1 border font-mono uppercase tracking-[0.18em] transition-colors duration-fade',

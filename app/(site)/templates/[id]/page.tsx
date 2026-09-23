@@ -59,6 +59,8 @@ export default async function TemplatePage({ params }: PageProps) {
         ))}
       </ul>
 
+      {/* Paper: white stock and black ink regardless of the page's theme — this is the
+          document as it will be exported, not a themed surface. */}
       <div
         className="mt-10 overflow-hidden rounded-md border border-border bg-white text-black shadow-sm"
         style={previewPaperStyle(spec)}

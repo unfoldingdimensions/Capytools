@@ -2,9 +2,11 @@
 
 import * as React from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from './button';
 import { AnimatePresence, motion } from 'framer-motion';
+
+import { cn } from '@/lib/utils';
+import { dur, ease } from '@/lib/capytools/motion';
+import { Button } from './button';
 
 interface MonthPickerProps {
   value?: string; // YYYY-MM
@@ -80,14 +82,14 @@ export function MonthPicker({
       <div
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={cn(
-          'group peer relative w-full cursor-pointer rounded-xl border-2 border-gray-200 bg-white px-4 py-3 pt-6 transition-all focus-within:border-brand-500 dark:border-gray-700 dark:bg-gray-900',
+          'group peer relative w-full cursor-pointer rounded-xl border border-input bg-card px-4 py-3 pt-6 transition-[color,background-color,border-color] duration-fade ease-ui focus-within:border-ring',
           disabled && 'cursor-not-allowed opacity-50',
-          isOpen && 'border-brand-500 ring-4 ring-brand-500/10',
+          isOpen && 'border-ring ring-4 ring-ring/10',
           leftIcon && 'pl-11'
         )}
       >
         {leftIcon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-hover:text-brand-500 dark:text-gray-500">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors duration-fade ease-ui group-hover:text-sage-deep dark:group-hover:text-primary">
             {leftIcon}
           </div>
         )}
@@ -95,28 +97,30 @@ export function MonthPicker({
         <div className="flex items-center justify-between">
           <span
             className={cn(
-              'text-base font-medium transition-colors',
+              'text-ui-md font-medium transition-colors duration-fade ease-ui',
               displayValue ? 'text-foreground' : 'text-muted-foreground',
               !displayValue && !isOpen && !placeholder && 'opacity-0'
             )}
           >
-            {displayValue || placeholder || 'Select date'}
+            {displayValue || placeholder || 'select month'}
           </span>
           {value && !disabled && (
             <button
+              type="button"
               onClick={handleClear}
-              className="text-gray-300 transition-colors hover:text-gray-500"
+              aria-label={`clear ${label.toLowerCase()}`}
+              className="p-1 text-muted-foreground/60 transition-colors duration-fade ease-ui hover:text-foreground"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
         </div>
 
         <label
           className={cn(
-            'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-sm text-muted-foreground transition-all duration-200',
+            'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 cursor-pointer text-ui-sm text-muted-foreground transition-[top,color] duration-move ease-entrance',
             displayValue || isOpen || !!placeholder
-              ? 'top-2.5 -translate-y-1/2 text-[10px] font-bold uppercase tracking-wider text-brand-600'
+              ? 'top-3.5 -translate-y-1/2 text-label-micro font-medium uppercase tracking-[0.24em] text-sage-deep dark:text-primary'
               : 'top-1/2',
             leftIcon && 'left-11'
           )}
@@ -131,8 +135,8 @@ export function MonthPicker({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 4, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-md"
+            transition={{ duration: dur.fade / 1000, ease: ease.slowOut }}
+            className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl"
           >
             {/* Header */}
             <div className="mb-4 flex items-center justify-between px-1">
@@ -140,38 +144,41 @@ export function MonthPicker({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-full"
+                aria-label="previous year"
                 onClick={() => setViewYear((v) => v - 1)}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               </Button>
-              <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-white">
+              <span className="font-display text-title-sm tabular-nums text-foreground">
                 {viewYear}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-full"
+                aria-label="next year"
                 onClick={() => setViewYear((v) => v + 1)}
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
 
-            {/* Months Grid */}
+            {/* Months grid */}
             <div className="grid grid-cols-3 gap-2">
               {MONTHS.map((m, i) => {
                 const isSelected = selectedYear === viewYear && selectedMonth === i;
                 return (
                   <motion.button
                     key={m}
+                    type="button"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleMonthClick(i)}
                     className={cn(
-                      'h-10 rounded-lg text-sm font-semibold transition-all',
+                      'h-10 rounded-lg text-ui-sm font-medium transition-colors duration-fade ease-ui',
                       isSelected
-                        ? 'bg-black text-white shadow-lg dark:bg-white dark:text-black'
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )}
                   >
                     {m}
@@ -180,17 +187,17 @@ export function MonthPicker({
               })}
             </div>
 
-            {/* Quick Jumps or Footer if needed */}
-            <div className="mt-4 flex justify-center border-t border-gray-50 pt-4 dark:border-white/5">
+            {/* Footer */}
+            <div className="mt-4 flex justify-center border-t border-border pt-4">
               <button
+                type="button"
                 onClick={() => {
                   const now = new Date();
                   setViewYear(now.getFullYear());
-                  // Optionally select current month too
                 }}
-                className="text-[10px] font-bold uppercase tracking-widest text-brand-600 transition-colors hover:text-brand-700"
+                className="text-label-micro font-medium uppercase tracking-[0.24em] text-sage-deep transition-colors duration-fade ease-ui hover:text-foreground dark:text-primary"
               >
-                Go to Today
+                go to this year
               </button>
             </div>
           </motion.div>

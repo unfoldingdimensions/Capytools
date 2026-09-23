@@ -7,7 +7,7 @@ interface ScoreProgressRingProps {
   score: number;
   /** Size of the ring: 'sm' = 80px, 'md' = 120px, 'lg' = 160px */
   size?: 'sm' | 'md' | 'lg';
-  /** Color theme based on score */
+  /** Emphasis based on score band */
   color?: 'red' | 'yellow' | 'green' | 'auto';
   /** Label to display below the score */
   label?: string;
@@ -18,32 +18,27 @@ interface ScoreProgressRingProps {
 }
 
 const sizeConfig = {
-  sm: { diameter: 80, strokeWidth: 6, fontSize: 'text-xl', labelSize: 'text-xs' },
-  md: { diameter: 120, strokeWidth: 8, fontSize: 'text-3xl', labelSize: 'text-sm' },
-  lg: { diameter: 160, strokeWidth: 10, fontSize: 'text-4xl', labelSize: 'text-base' },
+  sm: { diameter: 80, strokeWidth: 6, fontSize: 'text-title-sm', labelSize: 'text-caption' },
+  md: { diameter: 120, strokeWidth: 8, fontSize: 'text-title-md', labelSize: 'text-ui-sm' },
+  lg: { diameter: 160, strokeWidth: 10, fontSize: 'text-display-sm', labelSize: 'text-ui-md' },
 };
 
+/**
+ * The score bands use the palette rather than a traffic-light ramp: sage when the score
+ * reads well, clay when it wants attention, the destructive hue when it does not. The
+ * track is the same hairline as every other border, so the ring sits on the page instead
+ * of floating above it.
+ */
 const colorConfig = {
-  red: {
-    stroke: 'stroke-zinc-900 dark:stroke-white',
-    bg: 'stroke-zinc-100 dark:stroke-zinc-800',
-    text: 'text-zinc-900 dark:text-white',
-  },
-  yellow: {
-    stroke: 'stroke-zinc-900 dark:stroke-white',
-    bg: 'stroke-zinc-100 dark:stroke-zinc-800',
-    text: 'text-zinc-900 dark:text-white',
-  },
-  green: {
-    stroke: 'stroke-zinc-900 dark:stroke-white',
-    bg: 'stroke-zinc-100 dark:stroke-zinc-800',
-    text: 'text-zinc-900 dark:text-white',
-  },
+  red: { stroke: 'stroke-destructive', text: 'text-destructive' },
+  yellow: { stroke: 'stroke-clay', text: 'text-clay' },
+  green: { stroke: 'stroke-primary', text: 'text-sage-deep dark:text-primary' },
 };
 
-function getAutoColor(_score: number): 'red' | 'yellow' | 'green' {
-  // In monochrome mode, we use the same color config for all
-  return 'green';
+function getAutoColor(score: number): 'red' | 'yellow' | 'green' {
+  if (score >= 75) return 'green';
+  if (score >= 50) return 'yellow';
+  return 'red';
 }
 
 export function ScoreProgressRing({
@@ -70,17 +65,18 @@ export function ScoreProgressRing({
         height={diameter}
         viewBox={`0 0 ${diameter} ${diameter}`}
         className="-rotate-90 transform"
+        aria-hidden="true"
       >
-        {/* Background circle */}
+        {/* Track */}
         <circle
           cx={diameter / 2}
           cy={diameter / 2}
           r={radius}
           fill="none"
           strokeWidth={strokeWidth}
-          className={colors.bg}
+          className="stroke-border"
         />
-        {/* Progress circle */}
+        {/* Progress */}
         <circle
           cx={diameter / 2}
           cy={diameter / 2}
@@ -88,7 +84,10 @@ export function ScoreProgressRing({
           fill="none"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          className={cn(colors.stroke, 'transition-all duration-700 ease-out')}
+          className={cn(
+            colors.stroke,
+            'transition-[stroke-dashoffset] duration-hero ease-entrance'
+          )}
           style={{
             strokeDasharray: circumference,
             strokeDashoffset: isLoading ? circumference : strokeDashoffset,
@@ -99,16 +98,11 @@ export function ScoreProgressRing({
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {isLoading ? (
           <div className="animate-pulse">
-            <div
-              className={cn(
-                'h-6 w-12 rounded bg-gray-200 dark:bg-gray-700',
-                size === 'sm' && 'h-4 w-8'
-              )}
-            />
+            <div className={cn('h-6 w-12 rounded bg-muted', size === 'sm' && 'h-4 w-8')} />
           </div>
         ) : (
           <>
-            <span className={cn(fontSize, 'font-bold', colors.text)}>{Math.round(score)}</span>
+            <span className={cn('font-display', fontSize, colors.text)}>{Math.round(score)}</span>
             {label && (
               <span className={cn(labelSize, 'font-medium text-muted-foreground')}>{label}</span>
             )}

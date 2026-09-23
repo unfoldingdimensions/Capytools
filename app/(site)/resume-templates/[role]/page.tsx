@@ -70,7 +70,7 @@ export default async function RolePage({ params }: PageProps) {
           href="/capyresume"
           className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
         >
-          Open the builder
+          open the builder
         </Link>
         <Link
           href="/templates"

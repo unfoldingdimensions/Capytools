@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * The same field surface as Input, with the label doing the work: it sits in the field
+ * until there is focus or a value, then rises into the label voice above it. Only the
+ * properties that actually change are transitioned — never `all`, which would drag
+ * layout into a hover.
+ */
 export interface FloatingLabelInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   helperText?: string;
@@ -34,7 +40,7 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
       <div className={cn('relative w-full', className)}>
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
               {leftIcon}
             </div>
           )}
@@ -53,7 +59,7 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
               onBlur?.(e);
             }}
             className={cn(
-              'peer w-full rounded-xl border-2 border-gray-200 bg-transparent px-4 py-3 pt-6 text-base text-foreground transition-all placeholder:opacity-0 focus:border-brand-500 focus:outline-none focus:ring-0 focus:placeholder:opacity-100 dark:border-gray-700',
+              'peer w-full rounded-xl border border-input bg-card px-4 pb-2.5 pt-6 text-ui-md text-foreground transition-[color,background-color,border-color] duration-fade ease-ui placeholder:opacity-0 focus:border-ring focus:placeholder:opacity-100',
               leftIcon && 'pl-11',
               rightIcon && 'pr-11'
             )}
@@ -63,9 +69,9 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
           <label
             htmlFor={inputId}
             className={cn(
-              'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 cursor-text text-sm text-muted-foreground transition-all duration-200',
+              'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 cursor-text text-ui-sm text-muted-foreground transition-[top,color] duration-move ease-entrance',
               hasValue || focused || !!props.placeholder
-                ? 'top-2.5 -translate-y-1/2 text-[10px] font-bold uppercase tracking-wider text-brand-600'
+                ? 'top-3.5 -translate-y-1/2 text-label-micro font-medium uppercase tracking-[0.24em] text-sage-deep dark:text-primary'
                 : 'top-1/2',
               leftIcon && 'left-11'
             )}
@@ -73,13 +79,15 @@ const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInput
             {label}
           </label>
           {rightIcon && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
               {rightIcon}
             </div>
           )}
         </div>
 
-        {helperText && <p className="mt-1 pl-4 text-xs text-muted-foreground">{helperText}</p>}
+        {helperText && (
+          <p className="mt-1.5 pl-4 text-caption text-muted-foreground">{helperText}</p>
+        )}
       </div>
     );
   }

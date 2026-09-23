@@ -1,7 +1,9 @@
 import { cn } from '@/lib/utils';
 
 /**
- * A sophisticated, multi-layered glowing loader designed for AI thinking states.
+ * Loading states, in the palette. The old version was the last place still using zinc,
+ * white and a `blur-xl` glow — a filter blur on an animating element forces a backdrop
+ * re-sample every frame, so the halo is now a plain tinted disc that pulses instead.
  */
 export function AIGlowingLoader({
   size = 'md',
@@ -19,20 +21,20 @@ export function AIGlowingLoader({
 
   return (
     <div className={cn('relative flex items-center justify-center', sizes[size], className)}>
-      {/* Outer Glow Pulse */}
-      <div className="absolute inset-0 animate-pulse rounded-full bg-zinc-400/20 blur-xl dark:bg-white/10" />
+      {/* Halo — a tint, never a blur filter */}
+      <div className="absolute inset-0 animate-pulse rounded-full bg-primary/15" />
 
-      {/* Morphing Background Layer */}
-      <div className="absolute inset-2 animate-[spin_4s_linear_infinite] rounded-full border border-zinc-200 bg-gradient-to-br from-zinc-100/10 to-transparent dark:border-white/5" />
+      {/* Morphing background layer */}
+      <div className="absolute inset-2 animate-[spin_4s_linear_infinite] rounded-full border border-border bg-gradient-to-br from-primary/5 to-transparent" />
 
-      {/* Rotating Outer Ring */}
-      <div className="absolute inset-0 animate-[spin_2s_ease-in-out_infinite] rounded-full border-2 border-transparent border-l-zinc-900/10 border-t-zinc-900/30 dark:border-l-white/10 dark:border-t-white/30" />
+      {/* Rotating outer ring */}
+      <div className="absolute inset-0 animate-[spin_2s_ease-in-out_infinite] rounded-full border-2 border-transparent border-l-border border-t-primary/40" />
 
-      {/* Counter-Rotating Inner Ring */}
-      <div className="absolute inset-3 animate-[spin_1.5s_ease-in-out_infinite_reverse] rounded-full border border-transparent border-b-zinc-400/40 border-r-zinc-400/20 dark:border-b-zinc-500/40 dark:border-r-zinc-500/20" />
+      {/* Counter-rotating inner ring */}
+      <div className="absolute inset-3 animate-[spin_1.5s_ease-in-out_infinite_reverse] rounded-full border border-transparent border-b-muted-foreground/30 border-r-muted-foreground/15" />
 
-      {/* Solid Center Core */}
-      <div className="h-2.5 w-2.5 rounded-full bg-zinc-900 shadow-[0_0_15px_rgba(0,0,0,0.2)] dark:bg-white dark:shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+      {/* Solid centre */}
+      <div className="h-2.5 w-2.5 rounded-full bg-primary" />
     </div>
   );
 }
@@ -44,8 +46,8 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
   return (
     <div
       className={cn(
-        'relative animate-pulse overflow-hidden rounded-md bg-gray-200/60 dark:bg-gray-800/60',
-        'after:absolute after:inset-0 after:animate-[shimmer_2s_infinite] after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent dark:after:via-white/5',
+        'relative animate-pulse overflow-hidden rounded-md bg-muted',
+        'after:absolute after:inset-0 after:animate-[shimmer_2s_infinite] after:bg-gradient-to-r after:from-transparent after:via-foreground/[0.06] after:to-transparent',
         className
       )}
       {...props}
@@ -55,14 +57,9 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 
 export function ProgressBar({ value, className }: { value: number; className?: string }) {
   return (
-    <div
-      className={cn(
-        'h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800',
-        className
-      )}
-    >
+    <div className={cn('h-1.5 w-full overflow-hidden rounded-full bg-muted', className)}>
       <div
-        className="cubic-bezier(0.65, 0, 0.35, 1) h-full bg-brand-600 transition-all duration-700"
+        className="h-full bg-primary transition-[width] duration-move ease-entrance"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -84,10 +81,10 @@ export function CircularLoader({
 
   return (
     <div className={cn('relative', className)}>
-      <div className={cn('rounded-full border-gray-100 dark:border-gray-800', sizeClasses[size])} />
+      <div className={cn('rounded-full border-border', sizeClasses[size])} />
       <div
         className={cn(
-          'animate-spin-fast absolute inset-0 rounded-full border-brand-600 border-t-transparent',
+          'animate-spin-fast absolute inset-0 rounded-full border-primary border-t-transparent',
           sizeClasses[size]
         )}
       />
@@ -97,12 +94,7 @@ export function CircularLoader({
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div
-      className={cn(
-        'rounded-2xl border border-black/[0.05] bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-gray-900',
-        className
-      )}
-    >
+    <div className={cn('rounded-3xl border border-border bg-card p-6 shadow-sm', className)}>
       <div className="flex items-center space-x-4">
         <Skeleton className="h-12 w-12 rounded-xl" />
         <div className="space-y-2">
@@ -122,7 +114,7 @@ export function SkeletonCard({ className }: { className?: string }) {
 export function LoadingSpinner({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center justify-center', className)}>
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" />
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
     </div>
   );
 }

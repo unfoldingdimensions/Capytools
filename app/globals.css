@@ -4,11 +4,6 @@
  * Tokens below are ported from the suite's src/app/tokens.css (both themes); the chrome
  * rules (selection, focus ring, scrollbars, the 150ms colour-only theme transition) are
  * ported from the suite's globals.css.
- *
- * `--brand-*` is a legacy compatibility ramp still consumed by four components
- * (badge, floating-label-input, loading-states, month-picker). It is derived from this
- * palette's sage — never an outside colour — and is removed once those components move
- * onto semantic tokens.
  */
 
 @tailwind base;
@@ -46,18 +41,6 @@
     --water: 162.2 12.4% 42.5%; /* #5f7a72 */
     --clay: 21.3 46.6% 53.7%; /* #c07952 */
     --gold: 39.1 66.7% 55.3%; /* #d9a441 */
-
-    /* Derived sage ramp — temporary compatibility for brand-* consumers */
-    --brand-50: 75 12.5% 93.7%; /* #f0f1ed */
-    --brand-100: 80 12.5% 90.6%; /* #e8eae4 */
-    --brand-200: 84 12.8% 84.7%; /* #d9ddd3 */
-    --brand-300: 85.7 13% 78.8%; /* #cad0c2 */
-    --brand-400: 85.3 12.9% 71.2%; /* #b7bfac */
-    --brand-500: 86.9 12.7% 55.1%; /* #8e9b7e */
-    --brand-600: 97.5 12.7% 49.4%; /* #7a8e6e */
-    --brand-700: 105.8 22.6% 32.9%; /* #4a6741 */
-    --brand-800: 105.5 22.8% 28.4%; /* #405938 */
-    --brand-900: 106.7 22.3% 23.7%; /* #354a2f */
 
     --radius: 0.75rem;
 
@@ -125,18 +108,6 @@
     --water: 171.4 19.6% 58%; /* #7fa9a3 */
     --clay: 22 57.7% 62%; /* #d68f66 */
     --gold: 37.9 70.4% 62.9%; /* #e3b25e */
-
-    /* Derived sage ramp — temporary compatibility for brand-* consumers */
-    --brand-50: 90 3.4% 11.4%; /* #1d1e1c */
-    --brand-100: 90 5% 15.7%; /* #282a26 */
-    --brand-200: 93.3 7.6% 23.3%; /* #3b4037 */
-    --brand-300: 92.3 8% 32%; /* #51584b */
-    --brand-400: 94 15.2% 61.2%; /* #9aab8d */
-    --brand-500: 94 15.2% 61.2%; /* #9aab8d */
-    --brand-600: 86.9 12.7% 55.1%; /* #8e9b7e */
-    --brand-700: 97.5 12.7% 49.4%; /* #7a8e6e */
-    --brand-800: 105.8 22.6% 32.9%; /* #4a6741 */
-    --brand-900: 93.3 7.6% 23.3%; /* #3b4037 */
   }
 
   html {

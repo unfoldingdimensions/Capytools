@@ -121,7 +121,7 @@ export function AiAssist({
         <div className="flex flex-wrap gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium" htmlFor={`${ids}-provider`}>
-              Provider
+              provider
             </label>
             <select
               id={`${ids}-provider`}
@@ -163,7 +163,7 @@ export function AiAssist({
 
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium" htmlFor={`${ids}-model`}>
-              Model
+              model
             </label>
             <input
               id={`${ids}-model`}
@@ -180,7 +180,7 @@ export function AiAssist({
         {provider?.id === 'openai-compatible' && (
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium" htmlFor={`${ids}-base`}>
-              Endpoint base URL
+              endpoint base URL
             </label>
             <input
               id={`${ids}-base`}
@@ -201,14 +201,14 @@ export function AiAssist({
             onClick={saveKey}
             disabled={credentialsProblem !== null}
           >
-            Save key
+            save key
           </button>
           <button
             type="button"
             className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
             onClick={removeKey}
           >
-            Remove key
+            remove key
           </button>
 
           {keyIsSet ? (
@@ -249,7 +249,7 @@ export function AiAssist({
               <div className="flex flex-wrap gap-3">
                 <div className="flex min-w-[240px] flex-1 flex-col gap-1">
                   <label className="text-xs font-medium" htmlFor={`${ids}-target`}>
-                    Text to improve
+                    text to improve
                   </label>
                   <select
                     id={`${ids}-target`}
@@ -270,7 +270,7 @@ export function AiAssist({
 
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium" htmlFor={`${ids}-action`}>
-                    Do what
+                    what to do
                   </label>
                   <select
                     id={`${ids}-action`}
@@ -323,14 +323,14 @@ export function AiAssist({
                         setSuggestion(null);
                       }}
                     >
-                      Use this
+                      use this
                     </button>
                     <button
                       type="button"
                       className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
                       onClick={() => setSuggestion(null)}
                     >
-                      Discard
+                      discard
                     </button>
                     <span className="text-xs text-muted-foreground">
                       {suggestion.before.length} → {suggestion.after.length} characters. Read it

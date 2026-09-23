@@ -1,13 +1,26 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Modal } from '@/components/ui/modal/Modal';
-import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
-import { ModalFooter } from '@/components/ui/modal/ModalFooter';
 import { ModalBody } from '@/components/ui/modal/ModalBody';
+import { ModalFooter } from '@/components/ui/modal/ModalFooter';
+import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
 
 export type AlertType = 'success' | 'error' | 'info';
+
+/**
+ * Tints from the palette only: sage for success, the destructive hue for errors, water
+ * for information. The icon inherits its colour from the disc it sits in, so the two can
+ * never disagree. There is no emerald/red/sky here — the language has no such hues.
+ */
+const TONES: Record<AlertType, string> = {
+  success: 'bg-primary/15 text-sage-deep dark:bg-primary/25 dark:text-primary',
+  error: 'bg-destructive/10 text-destructive',
+  info: 'bg-water/15 text-water',
+};
 
 interface AlertDialogProps {
   isOpen: boolean;
@@ -23,46 +36,24 @@ export function AlertDialog({
   title,
   message,
   type = 'info',
-  buttonText = 'OK',
+  buttonText = 'ok',
   onClose,
 }: AlertDialogProps) {
-  const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle className="h-6 w-6 text-green-600" />;
-      case 'error':
-        return <AlertCircle className="h-6 w-6 text-red-600" />;
-      default:
-        return <Info className="h-6 w-6 text-blue-600" />;
-    }
-  };
-
-  const getBgColor = () => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-100';
-      case 'error':
-        return 'bg-red-100';
-      default:
-        return 'bg-blue-100';
-    }
-  };
+  const Icon = type === 'success' ? CheckCircle : type === 'error' ? AlertCircle : Info;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm">
       <ModalHeader className="flex-row items-center gap-3 space-y-0">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${getBgColor()}`}>
-          {getIcon()}
+        <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', TONES[type])}>
+          <Icon className="h-5 w-5" aria-hidden="true" />
         </div>
         <ModalTitle>{title}</ModalTitle>
       </ModalHeader>
       <ModalBody>
-        <p className="whitespace-pre-wrap text-gray-600">{message}</p>
+        <p className="whitespace-pre-wrap text-body-md text-muted-foreground">{message}</p>
       </ModalBody>
       <ModalFooter>
-        <Button onClick={onClose} variant="default">
-          {buttonText}
-        </Button>
+        <Button onClick={onClose}>{buttonText}</Button>
       </ModalFooter>
     </Modal>
   );

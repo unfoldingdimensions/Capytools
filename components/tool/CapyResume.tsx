@@ -284,7 +284,7 @@ export function CapyResume() {
               className="rounded-md border border-border px-3 py-2 text-sm"
               onClick={() => edit(() => ({ ...DEMO_RESUME }))}
             >
-              Load demo
+              load demo
             </button>
             <button
               type="button"
@@ -294,7 +294,7 @@ export function CapyResume() {
                 setNotice('Cleared. Nothing of yours is left in this browser.');
               }}
             >
-              Clear
+              clear
             </button>
           </div>
         </div>
@@ -340,7 +340,7 @@ export function CapyResume() {
                   ['name', 'Full name'],
                   ['email', 'Email'],
                   ['phone', 'Phone'],
-                  ['location', 'Location'],
+                  ['location', 'location'],
                 ] as const
               ).map(([field, label]) => (
                 <label key={field} className="text-sm">
@@ -356,16 +356,16 @@ export function CapyResume() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Links</span>
+                <span className="text-sm text-muted-foreground">links</span>
                 <button type="button" className="text-sm underline" onClick={addLink}>
-                  Add link
+                  add link
                 </button>
               </div>
               {doc.contact.links.map((link, index) => (
                 <div key={index} className="flex gap-2">
                   <input
                     className="w-1/3 rounded-md border border-border bg-background px-3 py-2 text-sm"
-                    placeholder="Label"
+                    placeholder="label"
                     value={link.label}
                     onChange={(event) => setLink(index, 'label', event.target.value)}
                   />
@@ -380,7 +380,7 @@ export function CapyResume() {
                     className="rounded-md border border-border px-3 text-sm"
                     onClick={() => removeLink(index)}
                   >
-                    Remove
+                    remove
                   </button>
                 </div>
               ))}
@@ -393,7 +393,7 @@ export function CapyResume() {
                     className="min-w-[10rem] flex-1 rounded-md border border-border bg-background px-3 py-2 font-medium"
                     value={section.title}
                     onChange={(event) => setSectionTitle(section.id, event.target.value)}
-                    aria-label="Section title"
+                    aria-label="section title"
                   />
                   <button
                     type="button"
@@ -416,7 +416,7 @@ export function CapyResume() {
                     className="rounded-md border border-border px-2 py-1 text-sm"
                     onClick={() => removeSection(section.id)}
                   >
-                    Remove
+                    remove
                   </button>
                 </div>
 
@@ -440,7 +440,7 @@ export function CapyResume() {
                         />
                         <input
                           className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-                          placeholder="Organisation"
+                          placeholder="organisation"
                           value={entry.organisation ?? ''}
                           onChange={(event) =>
                             setEntryField(section.id, entry.id, 'organisation', event.target.value)
@@ -448,7 +448,7 @@ export function CapyResume() {
                         />
                         <input
                           className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-                          placeholder="Location"
+                          placeholder="location"
                           value={entry.location ?? ''}
                           onChange={(event) =>
                             setEntryField(section.id, entry.id, 'location', event.target.value)
@@ -483,13 +483,13 @@ export function CapyResume() {
                             setEntryField(section.id, entry.id, 'current', event.target.checked)
                           }
                         />
-                        Current
+                        current
                       </label>
 
                       <textarea
                         className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                         rows={2}
-                        placeholder="Description / summary text"
+                        placeholder="description / summary text"
                         value={entry.text ?? ''}
                         onChange={(event) =>
                           setEntryField(section.id, entry.id, 'text', event.target.value)
@@ -498,7 +498,7 @@ export function CapyResume() {
 
                       <input
                         className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                        placeholder="Skills, comma separated"
+                        placeholder="skills, comma separated"
                         value={entry.tags.join(', ')}
                         onChange={(event) => setTags(section.id, entry.id, event.target.value)}
                       />
@@ -508,7 +508,7 @@ export function CapyResume() {
                           <div key={bullet.id} className="flex gap-2">
                             <input
                               className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
-                              placeholder="Achievement"
+                              placeholder="achievement"
                               value={bullet.text}
                               onChange={(event) =>
                                 setBullet(section.id, entry.id, bullet.id, event.target.value)
@@ -518,7 +518,7 @@ export function CapyResume() {
                               type="button"
                               className="rounded-md border border-border px-2 text-sm"
                               onClick={() => removeBullet(section.id, entry.id, bullet.id)}
-                              aria-label="Remove bullet"
+                              aria-label="remove bullet"
                             >
                               ×
                             </button>
@@ -529,7 +529,7 @@ export function CapyResume() {
                           className="text-sm underline"
                           onClick={() => addBullet(section.id, entry.id)}
                         >
-                          Add bullet
+                          add bullet
                         </button>
                       </div>
 
@@ -538,7 +538,7 @@ export function CapyResume() {
                           type="button"
                           className="rounded-md border border-border px-2 py-1 text-sm"
                           onClick={() => moveEntry(section.id, entry.id, -1)}
-                          aria-label="Move entry up"
+                          aria-label="move entry up"
                         >
                           ↑
                         </button>
@@ -546,7 +546,7 @@ export function CapyResume() {
                           type="button"
                           className="rounded-md border border-border px-2 py-1 text-sm"
                           onClick={() => moveEntry(section.id, entry.id, 1)}
-                          aria-label="Move entry down"
+                          aria-label="move entry down"
                         >
                           ↓
                         </button>
@@ -555,7 +555,7 @@ export function CapyResume() {
                           className="rounded-md border border-border px-2 py-1 text-sm"
                           onClick={() => removeEntry(section.id, entry.id)}
                         >
-                          Remove entry
+                          remove entry
                         </button>
                       </div>
                     </div>
@@ -566,14 +566,14 @@ export function CapyResume() {
                     className="text-sm underline"
                     onClick={() => addEntry(section.id)}
                   >
-                    Add entry
+                    add entry
                   </button>
                 </div>
               </div>
             ))}
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground">Add section:</span>
+              <span className="text-sm text-muted-foreground">add section:</span>
               {SECTION_CHOICES.map((choice) => (
                 <button
                   key={choice.type}
@@ -598,7 +598,7 @@ export function CapyResume() {
 
             <div className="flex flex-wrap gap-3">
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Template</span>
+                <span className="mb-1 block text-muted-foreground">template</span>
                 <select
                   className="rounded-md border border-border bg-background px-3 py-2"
                   value={doc.templateId}
@@ -617,7 +617,7 @@ export function CapyResume() {
               </label>
 
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Paper</span>
+                <span className="mb-1 block text-muted-foreground">paper</span>
                 <select
                   className="rounded-md border border-border bg-background px-3 py-2"
                   value={paperSize}
@@ -639,6 +639,8 @@ export function CapyResume() {
               <li>✓ A real PDF text layer, so the text can be selected and read</li>
             </ul>
 
+            {/* The paper itself: white stock and black ink in both themes, because this is
+                the document, not the interface. */}
             <div
               className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
               style={previewPaperStyle(spec)}
@@ -687,7 +689,7 @@ export function CapyResume() {
                 className="min-w-[84px] rounded-md border border-border px-4 py-2"
                 onClick={() => fileInputRef.current?.click()}
               >
-                Import JSON
+                import JSON
               </button>
               <input
                 ref={fileInputRef}

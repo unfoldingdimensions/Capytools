@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal/Modal';
-import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
-import { ModalFooter } from '@/components/ui/modal/ModalFooter';
 import { ModalBody } from '@/components/ui/modal/ModalBody';
+import { ModalFooter } from '@/components/ui/modal/ModalFooter';
+import { ModalHeader, ModalTitle } from '@/components/ui/modal/ModalHeader';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -22,8 +22,8 @@ export function ConfirmDialog({
   isOpen,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText = 'confirm',
+  cancelText = 'cancel',
   confirmVariant = 'default',
   onConfirm,
   onCancel,
@@ -35,14 +35,14 @@ export function ConfirmDialog({
         <ModalTitle>{title}</ModalTitle>
       </ModalHeader>
       <ModalBody>
-        <p className="whitespace-pre-wrap text-gray-600">{message}</p>
+        <p className="whitespace-pre-wrap text-body-md text-muted-foreground">{message}</p>
       </ModalBody>
       <ModalFooter>
         <Button variant="outline" onClick={onCancel} disabled={isLoading}>
           {cancelText}
         </Button>
-        <Button variant={confirmVariant} onClick={onConfirm} disabled={isLoading}>
-          {isLoading ? 'Processing...' : confirmText}
+        <Button variant={confirmVariant} onClick={onConfirm} loading={isLoading}>
+          {confirmText}
         </Button>
       </ModalFooter>
     </Modal>

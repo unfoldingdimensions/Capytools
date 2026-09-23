@@ -85,7 +85,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         className="fixed bottom-4 left-4 right-4 z-[200] flex flex-col gap-2 sm:left-auto sm:right-4 sm:w-96"
         role="region"
         aria-live="polite"
-        aria-label="Notifications"
+        aria-label="notifications"
       >
         {toasts.map((t) => (
           <ToastCard key={t.id} item={t} onDismiss={() => dismiss(t.id)} />
@@ -107,7 +107,11 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
       <Icon
         className={cn(
           'mt-0.5 h-5 w-5 shrink-0',
-          item.variant === 'error' ? 'text-red-600' : 'text-foreground'
+          item.variant === 'error'
+            ? 'text-destructive'
+            : item.variant === 'success'
+              ? 'text-sage-deep dark:text-primary'
+              : 'text-foreground'
         )}
       />
       <div className="min-w-0 flex-1">
@@ -117,8 +121,8 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
       <button
         type="button"
         onClick={onDismiss}
-        className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-        aria-label="Dismiss notification"
+        className="shrink-0 text-muted-foreground transition-colors duration-fade ease-ui hover:text-foreground"
+        aria-label="dismiss notification"
       >
         <X className="h-4 w-4" />
       </button>
