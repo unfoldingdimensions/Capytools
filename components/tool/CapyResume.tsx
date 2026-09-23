@@ -7,7 +7,8 @@
  * `localStorage`, and the PDF/DOCX/JSON are produced locally. There is no
  * server call anywhere in this file.
  *
- * Styling is deliberately plain — the visual pass comes later.
+ * Styling follows the suite language: DESIGN.md at the repo root, with the tokens in
+ * app/globals.css and the vocabulary in the kit under components/ui.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -273,10 +274,15 @@ export function CapyResume() {
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6">
           <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">CapyResume</h1>
-            <p className="text-sm text-muted-foreground">
-              A CV that&rsquo;s actually yours. Made in your tab.
-            </p>
+            <h1 className="font-display text-2xl font-semibold tracking-tight">
+              <Link
+                href="/"
+                className="transition-colors duration-fade ease-ui hover:text-sage-deep dark:hover:text-primary"
+              >
+                CapyResume
+              </Link>
+            </h1>
+            <p className="text-sm text-muted-foreground">{SITE.tagline}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -725,6 +731,35 @@ export function CapyResume() {
               cookies
             </Link>
           </p>
+          {/* The builder is where most people land, and it should not be a dead end: these
+              are the same four links the site header carries. The wordmark above goes
+              home, the legal links stay inline in the sentence. */}
+          <nav aria-label="site" className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
+            <Link
+              href="/templates"
+              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
+            >
+              templates
+            </Link>
+            <Link
+              href="/ats-resume-format"
+              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
+            >
+              ats resume format
+            </Link>
+            <Link
+              href="/resume-templates"
+              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
+            >
+              by role
+            </Link>
+            <Link
+              href="/free-cv-builder"
+              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
+            >
+              by country
+            </Link>
+          </nav>
         </div>
       </footer>
     </div>

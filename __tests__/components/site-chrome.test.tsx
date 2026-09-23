@@ -187,3 +187,29 @@ describe('primary navigation', () => {
     expect(footer).toMatch(/className="inline-block py-1 text-ui-sm/);
   });
 });
+
+describe('tool shell', () => {
+  const tool = readFileSync(
+    path.join(process.cwd(), 'components', 'tool', 'CapyResume.tsx'),
+    'utf8'
+  );
+
+  it('lets you get back to the site from the builder', () => {
+    // Measured live: the tool header had zero links and its footer carried only the
+    // legal three, so the page most people land on was a dead end.
+    expect(tool).toMatch(/<h1[\s\S]{0,400}<Link[\s\S]{0,80}href="\/"/);
+    for (const href of [
+      '/templates',
+      '/ats-resume-format',
+      '/resume-templates',
+      '/free-cv-builder',
+    ]) {
+      expect(tool).toContain(`href="${href}"`);
+    }
+  });
+
+  it('takes its tagline from SITE rather than a second copy of the words', () => {
+    expect(tool).toContain('{SITE.tagline}');
+    expect(tool).not.toMatch(/Made in your tab/);
+  });
+});
