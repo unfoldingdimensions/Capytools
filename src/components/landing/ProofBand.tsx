@@ -59,8 +59,10 @@ function useServerRequests(armed: boolean): number | null {
 }
 
 /**
- * The landing's proof, directly under the hero: CapyQR, CapyToken and CapyTone
- * running in the band itself, beside a counter watching for your text to leave.
+ * The landing's proof, in the hero's right column: CapyQR, CapyToken and
+ * CapyTone running right there, above a counter watching for your text to
+ * leave. It used to be its own band under the hero, behind a decorative plate
+ * — "lean into proof", and the first screen led with a marble bust.
  *
  * Rotation is the brief's (auto-advance, owner's call) held to WCAG 2.2.2: it
  * only runs while the band is on screen, never under reduced motion, stops
@@ -73,7 +75,7 @@ function useServerRequests(armed: boolean): number | null {
  */
 export function ProofBand() {
   const reduced = useReducedMotion();
-  const band = useRef<HTMLElement>(null);
+  const band = useRef<HTMLDivElement>(null);
   const engines = useRef<Promise<Engines> | null>(null);
   const loadEngines = useCallback(() => (engines.current ??= import("./proof-engines")), []);
 
@@ -148,37 +150,24 @@ export function ProofBand() {
   };
 
   return (
-    <section
+    // A region, not a <section>: it sits inside the hero's section, and the
+    // hero is the first <section> the LCP test measures up to.
+    <div
       ref={band}
-      className="lp-proof lp-band"
+      className="lp-proof-hero"
       id="proof"
+      role="region"
       aria-labelledby="proof-heading"
       // Any pointer inside the band ends the rotation — reading counts too.
       onPointerDown={() => setTouched(true)}
     >
-      <div className="lp-container lp-proof-grid">
-        <div className="lp-proof-copy">
-          <span className="lp-label">{PROOF.label}</span>
-          <h2 id="proof-heading">
-            {PROOF.headline.map((seg, i) =>
-              seg.em ? <em key={i}>{seg.text}</em> : <span key={i}>{seg.text}</span>,
-            )}
-            <span className="lp-dot">.</span>
-          </h2>
-          <p className="lp-lead">{PROOF.lead}</p>
-
-          <div className="lp-proof-counter" role="status" aria-live="polite">
-            <span className="lp-proof-counter-n">{requests ?? "—"}</span>
-            <span className="lp-proof-counter-label">
-              <b>{PROOF.counter.label}</b>
-              {armed ? PROOF.counter.note : "starts counting when you type in any demo."}
-            </span>
-          </div>
-          <a className="lp-proof-open lp-proof-source" href={PROOF.source.href}>
-            {PROOF.source.label}
-            <ArrowUpRight />
-          </a>
-        </div>
+      <h2 id="proof-heading">
+        {PROOF.headline.map((seg, i) =>
+          seg.em ? <em key={i}>{seg.text}</em> : <span key={i}>{seg.text}</span>,
+        )}
+        <span className="lp-dot">.</span>
+      </h2>
+      <p className="lp-proof-lead">{PROOF.lead}</p>
 
         <div className="lp-proof-stage">
           <div className="lp-proof-bar">
@@ -263,8 +252,19 @@ export function ProofBand() {
             the page to try again.
           </p>
         </div>
+
+      <div className="lp-proof-counter" role="status" aria-live="polite">
+        <span className="lp-proof-counter-n">{requests ?? "—"}</span>
+        <span className="lp-proof-counter-label">
+          <b>{PROOF.counter.label}</b>
+          {armed ? PROOF.counter.note : "starts counting when you type in any demo."}
+        </span>
       </div>
-    </section>
+      <a className="lp-proof-open lp-proof-source" href={PROOF.source.href}>
+        {PROOF.source.label}
+        <ArrowUpRight />
+      </a>
+    </div>
   );
 }
 

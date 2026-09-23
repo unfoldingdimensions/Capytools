@@ -6,6 +6,7 @@ import { HERO, HERO_PLATE } from "@/lib/capytools/landing";
 import { ease } from "@/lib/capytools/motion";
 import { ArrowUpRight } from "@/components/landing/icons";
 import { TransitionLink } from "@/components/TransitionLink";
+import { ProofBand } from "@/components/landing/ProofBand";
 
 const EASE = ease.slowOut;
 
@@ -111,28 +112,25 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <motion.div
-          className="lp-hero-art"
-          initial={reduced ? undefined : { scale: 0.96 }}
-          animate={reduced ? undefined : { scale: 1 }}
-          transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
-        >
-          <div className="lp-plate">
-            <span className="lp-corner lp-corner-tl" aria-hidden="true" />
-            <span className="lp-corner lp-corner-tr" aria-hidden="true" />
-            <span className="lp-corner lp-corner-bl" aria-hidden="true" />
-            <span className="lp-corner lp-corner-br" aria-hidden="true" />
-            <Image
-              src={HERO_PLATE.src}
-              alt=""
-              aria-hidden="true"
-              width={HERO_PLATE.width}
-              height={HERO_PLATE.height}
-              priority
-              sizes="(max-width: 880px) 100vw, 46vw"
-            />
-          </div>
-        </motion.div>
+        <ProofBand />
+      </div>
+
+      {/* The cover plate, after the proof. At desktop widths the demos took
+          its column; on a phone it would otherwise stand a full screen
+          between the lead and the evidence. */}
+      <div className="lp-container lp-hero-plate">
+        <div className="lp-plate">
+          <span className="lp-corner lp-corner-tl" aria-hidden="true" />
+          <span className="lp-corner lp-corner-br" aria-hidden="true" />
+          <Image
+            src={HERO_PLATE.src}
+            alt=""
+            aria-hidden="true"
+            width={HERO_PLATE.width}
+            height={HERO_PLATE.height}
+            sizes="(max-width: 880px) 100vw, 520px"
+          />
+        </div>
       </div>
     </section>
   );

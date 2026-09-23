@@ -117,3 +117,15 @@ describe("the demos run the tools' own engines", () => {
     expect(paletteForProof(initial).note ?? "").not.toMatch(/improvis|nothing matched/);
   });
 });
+
+describe("the proof leads the page", () => {
+  it("renders inside the hero, before the first section closes", async () => {
+    const { Landing } = await import("@/components/landing/Landing");
+    const page = renderToStaticMarkup(<Landing />);
+    const heroEnd = page.indexOf("</section>");
+    expect(page.indexOf('id="proof"')).toBeGreaterThan(0);
+    expect(page.indexOf('id="proof"')).toBeLessThan(heroEnd);
+    // The cover plate comes after the demos, never between the lead and them.
+    expect(page.indexOf("hero.webp")).toBeGreaterThan(page.indexOf('id="proof"'));
+  });
+});

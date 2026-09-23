@@ -1,7 +1,6 @@
 import "./landing.css";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/landing/Hero";
-import { ProofBand } from "@/components/landing/ProofBand";
 import { LiveWire } from "@/components/landing/LiveWire";
 import { Capabilities } from "@/components/landing/Capabilities";
 import { Labs } from "@/components/landing/Labs";
@@ -13,7 +12,8 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 /**
  * The editorial landing — assembled from the OpenDesign export, section for
  * section: cover plate, the proof band, live wire, promises, tool catalog,
- * house rules, the colophon, and the closing plate. The manifesto and the
+ * house rules, the colophon, and the closing plate. The proof band lives in
+ * the hero's right column (Hero.tsx). The manifesto and the
  * "Selected Tools" slab were cut: one restated the promises, the other
  * repeated two catalog cards — a 26-screen phone page listed the suite four
  * times.
@@ -45,8 +45,6 @@ export function Landing() {
 
       <main id="main">
         <Hero />
-        {/* The claim, demonstrated: three tools live, beside a request counter. */}
-        <ProofBand />
         <LiveWire />
         {/* One card-coloured band breaks the long cream run before the catalog. */}
         <div className="lp-band">

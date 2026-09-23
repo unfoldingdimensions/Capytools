@@ -90,7 +90,6 @@ export const HERO = {
  * demo is the claim.
  */
 export const PROOF = {
-  label: "Try it here",
   headline: [
     { text: "Nothing you type " },
     { text: "leaves this tab", em: true },
