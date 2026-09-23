@@ -57,6 +57,9 @@ export function ScrollReveal({
   return (
     <motion.div
       className={className}
+      // Server markup ships this at opacity 0; `data-reveal` is what the
+      // no-script rule in globals.css keys on to show it anyway.
+      data-reveal=""
       initial={HIDDEN[direction]}
       whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0.12, margin: "0px 0px -8% 0px" }}

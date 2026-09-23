@@ -49,6 +49,25 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * No script, no entrance — and nothing left hidden.
+ *
+ * Three reveals ship their starting state in the server markup: ScrollReveal
+ * at opacity 0, and the hero's and every tool page's headline words at
+ * blur(6px). With JavaScript the entrance runs and settles; without it —
+ * script blocked, disabled, or a reader that never executes it — they would
+ * stay invisible and blurred for good, the landing's sections and the tool
+ * h1s among them. Each carries `data-reveal`; `!important` beats motion's
+ * inline starting style. Visitors with scripting on are untouched.
+ */
+@media (scripting: none) {
+  [data-reveal] {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
 @layer base {
   /*
     Browser surfaces. Selection, the focus ring and the scrollbar ship defaults

@@ -1057,6 +1057,16 @@
   }
 }
 
+/* Without a script the engines never load, so "loading the qr engine…" and
+   the request counter would be a status that never resolves. The <noscript>
+   note says what is true instead. */
+@media (scripting: none) {
+  .lp-proof-out,
+  .lp-proof-counter {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-proof-tab,
   .lp-proof-field input,

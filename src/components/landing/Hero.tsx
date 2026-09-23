@@ -58,6 +58,7 @@ export function Hero() {
               seg.em ? (
                 <motion.em
                   key={i}
+                  data-reveal=""
                   // The h1 is the LCP element. Blur only — a blurred word is
                   // painted, a transparent one is not, and LCP was waiting on it.
                   initial={reduced ? undefined : { filter: "blur(6px)" }}
