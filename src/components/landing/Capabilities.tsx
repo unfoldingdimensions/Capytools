@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SUITE } from "@/lib/capytools/suite";
 import { CAPABILITIES, CAPABILITIES_PLATE } from "@/lib/capytools/landing";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 import { SectionRule } from "@/components/landing/SectionRule";
@@ -65,7 +66,10 @@ export function Capabilities() {
                     <TransitionLink
                       href={card.href}
                       className="lp-arrow-mark"
-                      aria-label={`Learn more about ${card.tag}`}
+                      // Named for the destination. "Learn more about ${card.tag}"
+                      // read "Every tool" twice, for two different pages, once
+                      // the tags became scopes.
+                      aria-label={`See it in ${SUITE.find((tool) => tool.href === card.href)?.name ?? "the suite"}`}
                     >
                       <ArrowUpRight />
                     </TransitionLink>

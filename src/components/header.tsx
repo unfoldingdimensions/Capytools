@@ -216,7 +216,9 @@ export function Header({
           </span>
         </Link>
 
-        <nav className="lp-nav-links" aria-label="Tools">
+        {/* The landing passes its section anchors; everywhere else the nav is
+            the way round the site. "Tools" named neither. */}
+        <nav className="lp-nav-links" aria-label={links === TOOL_LINKS ? "Site" : "On this page"}>
           {links.map((link) => (
             <Link
               key={link.href}
