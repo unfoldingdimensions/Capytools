@@ -14,6 +14,10 @@ export const STATIC_PATHS = [
   '/cookies',
   '/templates',
   '/ats-resume-format',
+  // The two index hubs: without them the 24 role/country pages would be
+  // reachable only from the sitemap, which is not a navigation path.
+  '/resume-templates',
+  '/free-cv-builder',
 ] as const;
 
 /**
