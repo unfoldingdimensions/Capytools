@@ -11,8 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <LegalPage
-      current="privacy"
-      title="Privacy Policy"
+      title="Privacy policy"
       lead="CapyResume is a résumé builder that runs entirely in your browser. This page describes what happens to your data — which is, deliberately, almost nothing. It is written to be read, not to be skipped."
     >
       <LegalSection heading="1. The short version">

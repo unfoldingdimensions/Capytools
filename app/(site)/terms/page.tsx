@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 export default function TermsOfServicePage() {
   return (
     <LegalPage
-      current="terms"
-      title="Terms of Service"
+      title="Terms of service"
       lead="Plain terms for a small, free tool. CapyResume runs in your browser, keeps your résumé there, and charges nothing. These terms are short because there is very little for them to govern."
     >
       <LegalSection heading="1. Acceptance">

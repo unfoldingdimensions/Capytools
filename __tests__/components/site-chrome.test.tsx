@@ -142,3 +142,22 @@ describe('builder landmarks', () => {
     expect(source.indexOf('<footer')).toBeGreaterThan(source.indexOf('</main>'));
   });
 });
+
+describe('legal pages', () => {
+  const legal = readFileSync(
+    path.join(process.cwd(), 'components', 'legal', 'LegalPage.tsx'),
+    'utf8'
+  );
+
+  it('leaves the contentinfo to the shell instead of rendering a second one', () => {
+    // Strip comments first — the file's own doc comment talks about the old `<main>`.
+    const code = legal.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(code).not.toContain('<footer');
+    expect(code).not.toContain('<main');
+  });
+
+  it('styles its headings from the house ramp rather than stock sizes', () => {
+    expect(legal).toContain('font-display text-display-lg font-light');
+    expect(legal).toContain('text-title-md font-normal');
+  });
+});

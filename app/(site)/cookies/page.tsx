@@ -24,8 +24,7 @@ function Key({ children }: { children: string }) {
 export default function CookiePolicyPage() {
   return (
     <LegalPage
-      current="cookies"
-      title="Cookie Policy"
+      title="Cookie policy"
       lead="CapyResume sets no cookies. Not for functionality, not for analytics, not for advertising. This page exists to tell you that precisely, and to describe the browser storage the tool does use instead."
     >
       <LegalSection heading="1. The short version">
