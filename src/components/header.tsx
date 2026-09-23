@@ -5,22 +5,22 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SUITE } from "@/lib/capytools/suite";
 
 export type NavLink = { href: string; label: string; active?: boolean };
 
 /**
- * The suite's tool switcher, derived from the registry so a new tool appears
- * here the moment it appears in `SUITE` — the row measures its own fit and
- * folds into the disclosure, so nothing here needs editing for tool #9 either.
- * Notes is the one non-tool destination the chrome carries.
+ * Every page but the landing navigates the suite through two links, not
+ * thirteen.
+ *
+ * It used to carry every tool by name, derived from `SUITE`. At eleven tools
+ * that row needed ~1,370px, so it folded into the menu button at every common
+ * laptop width: most visitors saw no navigation at all on a tool page, and
+ * opening the menu meant choosing from thirteen entries. /tools is the
+ * switcher now: a searchable index of the whole suite, one click from any
+ * page. The brand line ("Capytools · CapyQR") says where you are.
  */
 const TOOL_LINKS: NavLink[] = [
-  // First, and before the individual tools: on a narrow screen the row folds
-  // into the disclosure, and the index is the one entry that gets you to any
-  // of the others.
   { href: "/tools", label: "All Tools" },
-  ...SUITE.map((tool) => ({ href: tool.href, label: tool.short })),
   { href: "/notes", label: "Notes" },
 ];
 

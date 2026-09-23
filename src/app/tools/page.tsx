@@ -38,7 +38,7 @@ export default function ToolsPage() {
       </a>
 
       <AmbientBackground />
-      <Header />
+      <Header tool="All Tools" />
 
       <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-6 pb-24 pt-16">
         <span className="lp-label">All Tools · The suite</span>

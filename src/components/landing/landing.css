@@ -417,8 +417,9 @@
   gap: 14px;
 }
 
-/* Nav disclosure. The row carries any number of tools down to 1180px; below
-   that the same links stack into a panel rather than disappearing. The old
+/* Nav disclosure. The row shows while it fits (measured) and above the 760px
+   no-JS floor; otherwise the same links stack into a panel rather than
+   disappearing. The old
    chrome simply removed the nav — the landing dropped its four anchors at
    880px and the tool header dropped its five pills at 768px, which left the
    tool switcher absent on every phone. */
@@ -526,9 +527,11 @@
   visibility: visible;
 }
 
-/* No-JS floor. The measurement would fold the row below this width anyway, but
-   the page has to be right before hydration. */
-@media (max-width: 1179px) {
+/* No-JS floor: the page has to be right before hydration, when nothing has
+   been measured yet. It was 1179px when the row carried all thirteen links;
+   it carries two now (five on the landing), so above 760px the row fits and
+   the measured `is-crowded` fold handles anything tighter once JS runs. */
+@media (max-width: 760px) {
   .lp-nav-links {
     display: none;
   }

@@ -37,7 +37,7 @@ export default function NotesPage() {
       </a>
 
       <AmbientBackground />
-      <Header />
+      <Header tool="Notes" />
 
       <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-6 pb-24 pt-16">
         <span className="lp-label">Notes · The project</span>

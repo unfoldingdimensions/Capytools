@@ -119,9 +119,18 @@ describe("/tools is reachable from the chrome", () => {
     expect(markup).toContain(">All Tools<");
   });
 
-  it("is the first entry, so a folded row still leads somewhere useful", () => {
+  it("is the switcher: the masthead carries All Tools and Notes, nothing else", () => {
+    // It carried all eleven tools by name, needed ~1,370px, and folded into
+    // the menu at every common laptop width.
     const markup = renderToStaticMarkup(<Header tool="CapyQR" />);
-    expect(markup.indexOf(">All Tools<")).toBeLessThan(markup.indexOf(">Wrapped<"));
+    const row = markup.match(/<nav class="lp-nav-links"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
+    const labels = [...row.matchAll(/>([^<>]+)<\/a>/g)].map((m) => m[1]);
+    expect(labels).toEqual(["All Tools", "Notes"]);
+  });
+
+  it("marks itself as the current page on /tools", () => {
+    const markup = renderToStaticMarkup(<ToolsPage />);
+    expect(markup).toContain('<a class="is-active" aria-current="page" href="/tools">');
   });
 
   it("carries no persistent CTA — All Tools already reaches the suite", () => {

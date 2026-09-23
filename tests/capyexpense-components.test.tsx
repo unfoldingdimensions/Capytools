@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ExpenseDashboard } from "../src/components/capyexpense/ExpenseDashboard";
-import { Header } from "../src/components/header";
+import { ToolsGrid } from "../src/components/tools/ToolsGrid";
 import { HERO, LABS } from "../src/lib/capytools/landing";
 import { SUITE } from "../src/lib/capytools/suite";
 import { buildDashboard } from "../src/lib/capyexpense/aggregate";
@@ -128,8 +128,9 @@ describe("registration parity", () => {
     // The hero names jobs now, not products; CapyExpense keeps its own quiet
     // link beside the meta line instead of a place in the lead.
     expect(HERO.aside.href).toBe("/capyexpense");
-    // And the switcher is built from the registry, not hand-listed: render it.
-    expect(renderToStaticMarkup(<Header />)).toContain('href="/capyexpense"');
+    // And the switcher — /tools, since the masthead carries two links — is
+    // built from the registry, not hand-listed: render it.
+    expect(renderToStaticMarkup(<ToolsGrid />)).toContain('href="/capyexpense"');
   });
 
   it("no longer claims every tool runs in the browser", () => {

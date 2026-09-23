@@ -180,8 +180,9 @@ describe("shared chrome", () => {
     expect(html).not.toContain("lp-nav-cta");
     // One brand mark for the whole site (the interim capybara seal).
     expect(html).toContain("lp-brand-glyph");
-    // An app surface has to say which room you are standing in.
-    expect(html).toContain('aria-current="page"');
+    // An app surface has to say which room you are standing in: the brand
+    // line names the tool, now that the masthead no longer lists every tool.
+    expect(html).toContain("· CapyWrapped");
     // The nav collapses rather than disappearing.
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain('aria-controls="site-nav-menu"');
@@ -196,8 +197,8 @@ describe("shared chrome", () => {
     expect(html).toContain("lp-brand-glyph");
     expect(html).toContain('href="/tools"');
     expect(html).not.toContain("lp-nav-cta");
-    // The tool page marks the current tool; the landing has no current tool.
-    expect(html).toContain('aria-current="page"');
+    // The tool page names the current tool in the brand line.
+    expect(html).toContain("· CapyWrapped");
   });
 
   it("expense showcase keeps its a11y switcher contract", () => {
