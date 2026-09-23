@@ -252,9 +252,12 @@ export function ProofBand() {
             </div>
           ))}
 
-          <noscript>
-            <p className="lp-proof-note">these demos run in your browser, so they need javascript.</p>
-          </noscript>
+          {/* Shown by CSS only when the demos cannot run: scripting off, or a
+              script that never hydrated (landing.css). Otherwise display:none. */}
+          <p className="lp-proof-note lp-proof-failsafe">
+            these demos run in your browser, and their script did not start. refresh
+            the page to try again.
+          </p>
         </div>
       </div>
     </section>

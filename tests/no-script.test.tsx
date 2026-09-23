@@ -53,3 +53,37 @@ describe("nothing on the page needs a script to become readable", () => {
     }
   });
 });
+
+/**
+ * JavaScript that ran but never hydrated is a different failure from no
+ * JavaScript at all, and the (scripting: none) rule cannot see it. It
+ * happened: opened over the LAN, the dev server refused its own assets and
+ * the landing rendered blank below section II.
+ */
+describe("a page that never hydrates still shows its content", () => {
+  const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+
+  it("the root layout mounts the hydration mark", () => {
+    const layout = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf8");
+    expect(layout).toContain("<HydrationMark />");
+  });
+
+  it("unhydrated reveals fade in after a grace period", () => {
+    expect(css).toMatch(/html:not\(\[data-hydrated\]\) \[data-reveal\] \{\s*animation: reveal-failsafe [^;]* 3s forwards;/);
+    const frames = css.match(/@keyframes reveal-failsafe \{[\s\S]*?\n\}/)?.[0] ?? "";
+    for (const prop of ["opacity: 1", "filter: none", "transform: none"]) expect(frames).toContain(prop);
+  });
+
+  it("the proof band trades its stuck spinner for an honest note", () => {
+    const landing = readFileSync(join(process.cwd(), "src/components/landing/landing.css"), "utf8");
+    expect(landing).toMatch(/html:not\(\[data-hydrated\]\) \.lp-proof-failsafe \{/);
+    expect(landing).toMatch(/\.lp-proof-failsafe \{\s*display: none;/);
+  });
+});
+
+describe("the dev server serves the LAN", () => {
+  it("allows private 192.168/16 origins, so a phone on the network hydrates", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    expect(config).toContain('allowedDevOrigins: ["192.168.*.*"]');
+  });
+});

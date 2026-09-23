@@ -1059,14 +1059,47 @@
   }
 }
 
-/* Without a script the engines never load, so "loading the qr engine…" and
-   the request counter would be a status that never resolves. The <noscript>
-   note says what is true instead. */
+/* Without a running script the engines never load, so "loading the qr
+   engine…" and the request counter would be a status that never resolves.
+   The failsafe note says what is true instead — at once with scripting off,
+   and after the same 3s grace period when a script ran but never hydrated
+   (see the reveal failsafe in globals.css). */
+.lp-proof-failsafe {
+  display: none;
+}
+
 @media (scripting: none) {
   .lp-proof-out,
   .lp-proof-counter {
     display: none;
   }
+
+  .lp-proof-failsafe {
+    display: block;
+  }
+}
+
+@keyframes lp-proof-give-up {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes lp-proof-explain {
+  to {
+    opacity: 1;
+  }
+}
+
+html:not([data-hydrated]) .lp-proof-out,
+html:not([data-hydrated]) .lp-proof-counter {
+  animation: lp-proof-give-up 0s linear 3s forwards;
+}
+
+html:not([data-hydrated]) .lp-proof-failsafe {
+  display: block;
+  opacity: 0;
+  animation: lp-proof-explain 0.4s ease-out 3s forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

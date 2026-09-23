@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MotionProvider } from "@/components/motion-provider";
+import { HydrationMark } from "@/components/hydration-mark";
 import { OG_DEFAULTS, TWITTER_DEFAULTS } from "@/lib/capytools/og";
 import { SITE_URL } from "@/lib/utils";
 import { NAME_SHIM } from "@/lib/capytools/theme-shim";
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* One reduced-motion contract for every motion.* in the app. */}
           <MotionProvider>{children}</MotionProvider>
+          <HydrationMark />
         </ThemeProvider>
       </body>
     </html>
