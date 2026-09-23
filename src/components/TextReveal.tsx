@@ -11,11 +11,13 @@ import { ease, dur } from "@/lib/capytools/motion";
  * naturally and screen readers read one continuous string (the source text is
  * exposed via aria-label; the animated spans are hidden from the a11y tree).
  *
- * Under `prefers-reduced-motion` the words render as plain text inside the
- * same wrapper — no blur, no rise — so the head of every tool page is static
- * for a reader who asked for stillness. The markup shape is deliberately
- * identical either way, so the a11y contract does not change with the motion
- * preference.
+ * Under `prefers-reduced-motion` the words settle at once — no blur, no rise
+ * — so the head of every tool page is static for a reader who asked for
+ * stillness. The server cannot know the motion preference, so it always renders the
+ * starting state; rendering different markup for reduced motion on the client
+ * is a hydration mismatch React does not patch (it stranded the landing at
+ * opacity 0). One tree for everyone: reduced motion only zeroes the transition
+ * here, and the `[data-reveal]` rule in globals.css shows the finished state.
  */
 export function TextReveal({
   text,
@@ -33,18 +35,6 @@ export function TextReveal({
 }) {
   const reduced = useReducedMotion();
   const words = text.split(/(\s+)/); // keep separators so spacing survives
-
-  if (reduced) {
-    return (
-      <Tag
-        className={className}
-        role={Tag === "span" ? "text" : undefined}
-        aria-label={text}
-      >
-        <span aria-hidden>{text}</span>
-      </Tag>
-    );
-  }
 
   return (
     <Tag
@@ -65,11 +55,15 @@ export function TextReveal({
               // h1 that LCP was waiting on.
               initial={{ y: "0.35em", filter: "blur(6px)" }}
               animate={{ y: "0em", filter: "blur(0px)" }}
-              transition={{
-                duration: dur.heroReveal / 1000,
-                delay: delay + (i * stagger) / 1000,
-                ease: ease.slowOut,
-              }}
+              transition={
+                reduced
+                  ? { duration: 0 }
+                  : {
+                      duration: dur.heroReveal / 1000,
+                      delay: delay + (i * stagger) / 1000,
+                      ease: ease.slowOut,
+                    }
+              }
             >
               {word}
             </motion.span>

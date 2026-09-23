@@ -87,3 +87,19 @@ describe("the dev server serves the LAN", () => {
     expect(config).toContain('allowedDevOrigins: ["192.168.*.*"]');
   });
 });
+
+describe("reduced motion never hides content", () => {
+  const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+
+  it("forces every reveal to its finished state under prefers-reduced-motion", () => {
+    const block = css.match(/@media \(prefers-reduced-motion: reduce\) \{\s*\[data-reveal\] \{([^}]*)\}/);
+    expect(block).not.toBeNull();
+    expect(block![1]).toMatch(/opacity: 1 !important/);
+    expect(block![1]).toMatch(/transform: none !important/);
+  });
+
+  it("ScrollReveal renders one tree for everyone, so hydration cannot strand opacity:0", () => {
+    const src = readFileSync(join(process.cwd(), "src/components/landing/ScrollReveal.tsx"), "utf8");
+    expect(src).not.toMatch(/if \(reduced\)/);
+  });
+});

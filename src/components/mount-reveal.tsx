@@ -16,6 +16,12 @@ import { ease, dur } from "@/lib/capytools/motion";
  * Compositor-only (opacity and a 0.99 scale, never height), shorter than a page
  * entrance, and static under `prefers-reduced-motion` — the same contract as
  * the rest of the motion layer.
+ *
+ * The server cannot know the motion preference, so it always renders the
+ * starting state; rendering different markup for reduced motion on the client
+ * is a hydration mismatch React does not patch (it stranded the landing at
+ * opacity 0). One tree for everyone: reduced motion only zeroes the transition
+ * here, and the `[data-reveal]` rule in globals.css shows the finished state.
  */
 export function MountReveal({
   children,
@@ -28,17 +34,14 @@ export function MountReveal({
 }) {
   const reduced = useReducedMotion();
 
-  if (reduced) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       className={className}
       // Scale only — see Reveal.tsx for why the fade went.
+      data-reveal=""
       initial={{ scale: 0.99 }}
       animate={{ scale: 1 }}
-      transition={{ duration: dur.entrance / 1000, delay, ease: ease.slowOut }}
+      transition={reduced ? { duration: 0 } : { duration: dur.entrance / 1000, delay, ease: ease.slowOut }}
     >
       {children}
     </motion.div>
