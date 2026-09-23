@@ -141,7 +141,10 @@ the missing Content-Security-Policy (D6) and the lagging `eslint-config-next`
 1. **A GitHub personal access token is embedded in `.git/config`** as part of the
    remote URL. It must be revoked and the remote switched to SSH. The value is
    deliberately not reproduced here, and it was never printed to a transcript.
-2. **The repository and product rename.** The application is branded CapyResume
-   throughout; the repository slug and local directory still reflect the old name.
+2. **The GitHub repository rename.** The application, the local directory and every
+   reference in the tree are now CapyResume; the slug on GitHub is still
+   `Handcraftresume`. Until that is changed there, the clone command in `README.md`
+   and the two URLs in `lib/site.ts` point at a repository that does not exist.
+   Rotate the credential in item 1 first.
 3. **The paid tier is unbuilt** — template packs, cover-letter bundle, saved
    versions and bulk tailoring are scoped, documented and deliberately absent.

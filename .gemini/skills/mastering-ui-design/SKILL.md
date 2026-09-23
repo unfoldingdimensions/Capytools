@@ -5,7 +5,7 @@ description: Enforces the project's strict monochrome design system, animation p
 
 # Master UI/UX Design System
 
-This skill encapsulates the "Handcraft Resume" design language: a premium, monochrome aesthetic that relies on depth, lighting, and texture rather than vibrant colors to create a "wow" factor.
+This skill encapsulates the "CapyResume" design language: a premium, monochrome aesthetic that relies on depth, lighting, and texture rather than vibrant colors to create a "wow" factor.
 
 ## When to Use This Skill
 - Creating new UI components (Buttons, Cards, Modals).

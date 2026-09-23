@@ -10,8 +10,8 @@ export const SITE = {
   name: 'CapyResume',
   tagline: "a CV that's actually yours. made in your tab.",
   /** Source of truth for the code. Also the contact channel — it is an open-source project. */
-  repo: 'https://github.com/unfoldingdimensions/Handcraftresume',
-  issues: 'https://github.com/unfoldingdimensions/Handcraftresume/issues',
+  repo: 'https://github.com/unfoldingdimensions/CapyResume',
+  issues: 'https://github.com/unfoldingdimensions/CapyResume/issues',
   license: 'Apache-2.0',
   licenseUrl: 'https://www.apache.org/licenses/LICENSE-2.0',
   /** Shown as "Last updated" on every legal page. Bump when the text changes. */

@@ -90,8 +90,8 @@ will say so before they ship. Getting your résumé out the door stays free.
 Requires **Node.js ≥ 18**.
 
 ```bash
-git clone https://github.com/unfoldingdimensions/Handcraftresume.git
-cd Handcraftresume
+git clone https://github.com/unfoldingdimensions/CapyResume.git
+cd CapyResume
 npm install
 npm run dev
 ```

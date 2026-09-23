@@ -25,7 +25,7 @@ npx shadcn@latest init
 Recommended settings for this project (Monochrome/Zinc):
 - **Typography**: Slate (or Zinc)
 - **Style**: New York (usually preferred for professional look) or Default
-- **Color**: Zinc (matches the "Handcraft Resume" aesthetic)
+- **Color**: Zinc (matches the "CapyResume" aesthetic)
 - **CSS Variables**: Yes (Required)
 
 ## 3. Adding Components
@@ -40,7 +40,7 @@ This will create `src/components/ui/button.tsx`.
 
 ## 4. Theming & Customization
 
-### The "Handcraft Resume" Connection
+### The "CapyResume" Connection
 This project uses a strict Monochrome design system (see `mastering-ui-design` skill). Shadcn's default "Zinc" theme aligns well with this.
 
 **To customize:**
