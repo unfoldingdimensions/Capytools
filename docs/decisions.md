@@ -128,11 +128,14 @@ not obvious:**
 **Verified:** 72 files linted, 0 errors and 0 warnings under `npm run lint`,
 alongside a clean `tsc`, 247 passing tests and a clean build.
 
-**Not done deliberately:** the `lint` script still carries `--max-warnings=1000`
-rather than `0`. Warnings currently sit at zero, so tightening it would be a
-one-character change with real effect — a stray `console.log` in product code
-would then fail the gate — but that is a change to how strictly the project
-gates itself, not part of this migration.
+**Since tightened:** the `lint` script now uses `--max-warnings=0` rather than
+the `1000` it carried, so a warning fails the gate — including a stray
+`console.log`, which is what `no-console` exists to catch in product code. It was
+deferred during the migration only because changing how strictly the project
+gates itself does not belong in a tooling change; it was done as its own commit
+while the warning count was still zero, and verified in both directions: the
+real tree passes (72 files, 0 errors, 0 warnings), and a scratch file containing
+a `console.log` exits 1 with "ESLint found too many warnings (maximum: 0)".
 
 ## Paper size is a UI preference, not document data
 
