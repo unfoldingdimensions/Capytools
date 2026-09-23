@@ -110,7 +110,7 @@ export function SubscriptionPanel({
                   {formatDay(l.nextDue)}
                 </span>
                 <span className="flex-1 truncate text-sm text-foreground">{l.label}</span>
-                <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                   {l.interval}
                 </span>
                 <span className="shrink-0 font-mono text-xs tabular-nums text-foreground">

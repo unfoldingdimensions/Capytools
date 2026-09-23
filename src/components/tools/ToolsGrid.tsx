@@ -95,7 +95,7 @@ export function ToolsGrid() {
                   <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
                     {tool.no}
                   </span>
-                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                     {tool.cat === "desktop" ? "Desktop" : "Browser"}
                   </span>
                 </span>
