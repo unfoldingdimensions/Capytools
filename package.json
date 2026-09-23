@@ -1,7 +1,7 @@
 {
   "name": "capytools",
   "version": "0.1.0",
-  "description": "A home for small, quiet tools. Eleven so far \u2014 all run in your browser and keep nothing.",
+  "description": "A home for small, quiet tools. Eleven so far \u2014 ten run in your browser and keep nothing; one lives on your desktop.",
   "keywords": [
     "browser-tools",
     "client-side",

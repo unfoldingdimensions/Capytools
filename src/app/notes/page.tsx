@@ -46,8 +46,8 @@ export default function NotesPage() {
           <span className="lp-dot">.</span>
         </h1>
         <p className="lp-lead mt-6 max-w-[42ch]">
-          {SUITE_WORD_CAP} of them so far. All run in your browser and keep
-          nothing — the one documented exception is CapyExpense, which lives on
+          {SUITE_WORD_CAP} of them so far. Ten run in your browser and keep
+          nothing; CapyExpense lives on your desktop and keeps your files on
           your disk instead.
         </p>
 
@@ -176,7 +176,7 @@ export default function NotesPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter here="/notes" />
     </div>
   );
 }

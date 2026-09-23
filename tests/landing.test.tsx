@@ -21,7 +21,7 @@ import { Landing } from "../src/components/landing/Landing";
 import DesignNotesPage from "../src/app/design/page";
 import LicensePage from "../src/app/license/page";
 import NotesPage from "../src/app/notes/page";
-import { CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, PROOF } from "../src/lib/capytools/landing";
+import { COLOPHON, CTA, EXTERNAL, HERO, HERO_JOBS, LABS, LANDING_FOOTER, PLATES, PROOF } from "../src/lib/capytools/landing";
 import {
   SUITE,
   SUITE_INDEX,
@@ -63,7 +63,7 @@ describe("Landing", () => {
     expect(HERO.lead).toContain(`${numberWord(SUITE.length - HERO_JOBS.length)} more small jobs`);
     expect(HERO.lead).toContain(`${numberWord(countByCategory("browser"))} of them done right in your browser`);
     expect(HERO.stats[0].value).toBe(SUITE_INDEX);
-    expect(LABS.meta[1]).toBe(`${SUITE_INDEX} of ${SUITE_INDEX} shipped`);
+    expect(LABS.meta[1]).toBe(`${countByCategory("browser")} of ${SUITE_INDEX} shipped · ${countByCategory("desktop")} coming`);
     expect(LABS.foot).toBe(`${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`);
     expect(LABS.residence.ring).toBe(SUITE_INDEX);
     expect(LABS.pills[0].count).toBe(SUITE_INDEX);
@@ -165,6 +165,13 @@ describe("Landing assets", () => {
     for (const name of PLATES) {
       expect(html).toContain(`/plates/${name}.webp`);
     }
+  });
+
+  it("quotes the README's first line exactly, and it scopes the desktop tool", () => {
+    const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
+    const quote = COLOPHON.quote.map((seg) => seg.text).join("").replace(/[“”]/g, "");
+    expect(readme).toContain(`${quote}\n`);
+    expect(quote).not.toMatch(/\bAll run in your browser/);
   });
 
   it("keeps the README quote in sync with the README itself", () => {
