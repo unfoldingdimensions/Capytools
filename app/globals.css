@@ -148,6 +148,22 @@
   h3,
   h4 {
     font-weight: 700;
+    /* Keeps a heading from leaving one word alone on its last line. `balance` is for
+       short text like this; long prose would be reflowed on every resize for nothing. */
+    text-wrap: balance;
+  }
+
+  /* Buttons, links and form controls: `manipulation` drops the ~300ms wait browsers
+     hold after a tap in case a double-tap zoom is coming. It does not disable
+     pinch-zoom, so the viewport is still not restricting anyone. */
+  a,
+  button,
+  [role='button'],
+  input,
+  select,
+  textarea,
+  summary {
+    touch-action: manipulation;
   }
 
   * {

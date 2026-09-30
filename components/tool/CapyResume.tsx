@@ -503,7 +503,7 @@ export function CapyResume() {
                         />
                         <div className="flex gap-2">
                           <input
-                            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
                             name={`${entry.id}-start`}
                             aria-label={`${section.title}, entry ${entryIndex + 1}, start date, YYYY-MM`}
                             inputMode="text"
@@ -515,7 +515,7 @@ export function CapyResume() {
                             }
                           />
                           <input
-                            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
                             name={`${entry.id}-end`}
                             aria-label={`${section.title}, entry ${entryIndex + 1}, end date, YYYY-MM`}
                             inputMode="text"
