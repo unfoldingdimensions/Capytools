@@ -30,7 +30,7 @@
     "docx": "^9.0.2",
     "framer-motion": "^12.29.0",
     "lucide-react": "^0.462.0",
-    "next": "^16.0.7",
+    "next": "^16.3.7",
     "next-themes": "^0.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -69,6 +69,7 @@
     "qs": "^6.14.1",
     "glob": "^10.5.0",
     "jszip": "^3.10.1",
-    "lodash.merge": "^4.6.2"
+    "lodash.merge": "^4.6.2",
+    "handlebars": "^4.7.9"
   }
 }
