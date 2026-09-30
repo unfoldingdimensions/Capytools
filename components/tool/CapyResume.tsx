@@ -24,6 +24,8 @@ import {
 } from '@/lib/capyresume/store';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { lintResume } from '@/lib/capyresume/hints';
+import { isResumeEmpty } from '@/lib/capyresume/schema';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import {
   addBullet as addBulletTo,
   addEntry as addEntryTo,
@@ -74,6 +76,13 @@ export function CapyResume() {
   const paperSize = usePaperSize();
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** The destructive action awaiting confirmation; null when nothing is pending. */
+  const [confirming, setConfirming] = useState<{
+    title: string;
+    message: string;
+    confirmText: string;
+    run: () => void;
+  } | null>(null);
   const seeded = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -205,8 +214,21 @@ export function CapyResume() {
     try {
       const text = await readFileAsText(file);
       const imported = importResumeJson(text);
-      saveResume(imported);
-      setNotice('Imported. Your résumé is back.');
+      const commit = () => {
+        saveResume(imported);
+        setNotice('Imported. Your résumé is back.');
+      };
+      // Importing replaces the open document outright, so gate it the same way as
+      // the other destructive actions rather than silently discarding edits.
+      if (isResumeEmpty(doc)) commit();
+      else
+        setConfirming({
+          title: 'replace the open résumé?',
+          message:
+            'The file replaces what is open in the editor now. Export a JSON backup first if you want to keep it.',
+          confirmText: 'replace it',
+          run: commit,
+        });
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'That file could not be read.');
     }
@@ -231,7 +253,18 @@ export function CapyResume() {
             <button
               type="button"
               className="rounded-md border border-border px-3 py-2 text-sm"
-              onClick={() => edit(() => ({ ...DEMO_RESUME }))}
+              onClick={() => {
+                const replace = () => edit(() => ({ ...DEMO_RESUME }));
+                if (isResumeEmpty(doc)) replace();
+                else
+                  setConfirming({
+                    title: 'load the example résumé?',
+                    message:
+                      'It replaces what is open in the editor now. Export a JSON backup first if you want to keep it.',
+                    confirmText: 'load example',
+                    run: replace,
+                  });
+              }}
             >
               load demo
             </button>
@@ -239,8 +272,19 @@ export function CapyResume() {
               type="button"
               className="rounded-md border border-border px-3 py-2 text-sm"
               onClick={() => {
-                clearResume();
-                setNotice('Cleared. Nothing of yours is left in this browser.');
+                const clear = () => {
+                  clearResume();
+                  setNotice('Cleared. Nothing of yours is left in this browser.');
+                };
+                if (isResumeEmpty(doc)) clear();
+                else
+                  setConfirming({
+                    title: 'delete this résumé?',
+                    message:
+                      'It is removed from this browser for good, and there is no copy anywhere else. Export a JSON backup first if you might want it back.',
+                    confirmText: 'delete it',
+                    run: clear,
+                  });
               }}
             >
               clear
@@ -705,6 +749,19 @@ export function CapyResume() {
           </nav>
         </div>
       </footer>
+
+      <ConfirmDialog
+        isOpen={confirming !== null}
+        title={confirming?.title ?? ''}
+        message={confirming?.message ?? ''}
+        confirmText={confirming?.confirmText}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          confirming?.run();
+          setConfirming(null);
+        }}
+        onCancel={() => setConfirming(null)}
+      />
     </div>
   );
 }

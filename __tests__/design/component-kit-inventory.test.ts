@@ -39,7 +39,6 @@ const SOURCE_ROOTS = ['app', 'components', 'lib', 'hooks', '__tests__'];
  */
 const RESERVED: string[] = [
   'AlertDialog.tsx',
-  'ConfirmDialog.tsx',
   'empty-state.tsx',
   'floating-label-input.tsx',
   'interactive-card.tsx',
@@ -51,10 +50,6 @@ const RESERVED: string[] = [
   'score-progress-ring.tsx',
   'toast.tsx',
   'tooltip.tsx',
-  'modal/Modal.tsx',
-  'modal/ModalBody.tsx',
-  'modal/ModalFooter.tsx',
-  'modal/ModalHeader.tsx',
 ];
 
 /** Every `.tsx`/`.ts` file that could import a kit component. */

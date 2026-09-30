@@ -13,6 +13,7 @@
  */
 
 import { useId, useMemo, useState } from 'react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { AiRequestError, improveText, validateCredentials } from '@/lib/capyresume/ai/client';
 import {
   clearAiSettings,
@@ -60,6 +61,8 @@ export function AiAssist({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  /** Removing the stored key is irreversible here, so it asks first. */
+  const [confirmingRemoval, setConfirmingRemoval] = useState(false);
 
   const update = (patch: Partial<AiSettings>) => setDraft({ ...form, ...patch });
 
@@ -206,7 +209,12 @@ export function AiAssist({
           <button
             type="button"
             className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
-            onClick={removeKey}
+            onClick={() => {
+              // Only worth confirming when a key is actually stored; otherwise this
+              // is a no-op button and a dialog would be noise.
+              if (keyIsSet) setConfirmingRemoval(true);
+              else removeKey();
+            }}
           >
             remove key
           </button>
@@ -349,6 +357,19 @@ export function AiAssist({
           {error !== null && <p className="text-sm text-destructive">{error}</p>}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmingRemoval}
+        title="remove the saved key?"
+        message="The key is deleted from this browser. You will need to paste it again to use the AI assist, and there is no copy anywhere else."
+        confirmText="remove it"
+        confirmVariant="destructive"
+        onConfirm={() => {
+          removeKey();
+          setConfirmingRemoval(false);
+        }}
+        onCancel={() => setConfirmingRemoval(false)}
+      />
     </div>
   );
 }

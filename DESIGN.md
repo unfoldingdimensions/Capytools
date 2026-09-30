@@ -349,8 +349,7 @@ roles are what the components reference, so the keys stay.
   `useCallback` + `useEffect` hydrate pattern (see AGENTS.md §3) — never
   during render.
 - **Reserved kit — built, not yet wired.** `components/ui/` also holds a component
-  set the editor does not use yet: dialogs (`AlertDialog`, `ConfirmDialog`, and the
-  `modal/` parts they compose), `toast` + `useToast`, `tooltip`,
+  set the editor does not use yet: `AlertDialog`, `toast` + `useToast`, `tooltip`,
   `floating-label-input` + `label`, `month-picker`, `score-progress-ring`,
   `empty-state`, `loading-states` (`Skeleton`, `ProgressBar`, `CircularLoader`,
   `LoadingSpinner`, `AIGlowingLoader`, `SkeletonCard`) and `interactive-card`. They
@@ -361,6 +360,10 @@ roles are what the components reference, so the keys stay.
   app starts importing must come off it. Reachability is measured from the app's
   entry points, so a file used only by another reserved file still counts as
   reserved.
+- `ConfirmDialog` and the `modal/` parts it composes **have** been wired: the editor
+  confirms before anything destructive — clearing the stored résumé, loading the
+  example over the open document, importing a JSON backup over it, and removing a
+  stored API key. That is the pattern for the reserved dialogs as the rest arrive.
 
 ## Plates
 
