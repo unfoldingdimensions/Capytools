@@ -36,6 +36,14 @@ graphify-out/
 dogfood-output/
 .mimosa/
 
+# `npx skills add` writes the skills to `.agents/skills/` (the copy we commit,
+# pinned by skills-lock.json) and then symlinks them into `.claude/skills/` for
+# Claude Code. That second tree is only a shim, and git here runs with
+# `core.symlinks=false`, so committing it would dereference every link and store
+# a duplicate of the whole payload. Use `npx skills experimental_install` to
+# recreate both trees from skills-lock.json.
+.claude/
+
 # Local-only recovery bundles. These are git bundles containing branch history
 # that is deliberately not on the remote; they are tens of megabytes and are
 # machine-specific, so they must never be committed.
