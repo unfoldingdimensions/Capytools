@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Albert_Sans, Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 
 import './globals.css';
 import React from 'react';
@@ -7,32 +7,52 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SkipLink } from '@/components/ui/SkipLink';
 import { siteUrl } from '@/lib/site';
 
+// The type system is self-hosted. These three families were previously loaded
+// through the Google font loader, which fetches from fonts.googleapis.com and
+// fonts.gstatic.com at build time — so every build, CI run and deploy depended on
+// reaching Google's CDN. When that fetch failed, the build resolved a `gstatic.com`
+// URL as a module and died with a module-not-found error. The files are now
+// committed, so the build is offline and deterministic.
+//
+// Referred to by description, not by module path: the guard in
+// __tests__/design/font-hosting.test.ts reads this file as text and fails on any
+// import of that loader, so naming it exactly here would trip the tripwire.
+//
+// Each file is the variable font, so one file covers the whole weight axis rather
+// than one file per weight: 4 files, ~100 KB, `latin` subset only — the same
+// coverage the previous `subsets: ['latin']` gave. Paths must stay literal
+// strings: the font loader reads them at compile time and rejects an expression.
+
 // The Capytools type system (DESIGN.md): Fraunces for titles, Plus Jakarta Sans at
 // weight 500 for all UI, Albert Sans as the label voice. The token names are the
 // suite's — --font-display / --font-sans / --font-mono — so one utility maps each role.
-const sans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
+const sans = localFont({
+  src: '../app/fonts/plus-jakarta-sans-latin-var.woff2',
   variable: '--font-sans',
-  weight: ['500', '600', '700', '800'],
+  // The axis runs 200–800; 500–800 is the range the original Google request asked for.
+  weight: '500 800',
   display: 'swap',
   preload: true,
 });
 
 // Italic is loaded deliberately: the brief's headline voice carries an <em> emphasis
 // word, and a synthesized oblique would undo the whole point of a light serif.
-const display = Fraunces({
-  subsets: ['latin'],
+const display = localFont({
+  src: [
+    { path: '../app/fonts/fraunces-latin-var.woff2', weight: '100 900', style: 'normal' },
+    { path: '../app/fonts/fraunces-latin-italic-var.woff2', weight: '100 900', style: 'italic' },
+  ],
   variable: '--font-display',
-  style: ['normal', 'italic'],
   display: 'swap',
   preload: true,
 });
 
 // The label voice (eyebrows, tags, code). The token keeps its `--font-mono` name, so
-// every `font-mono` utility resolves to Albert Sans in one place.
-const label = Albert_Sans({
-  subsets: ['latin'],
+// every `font-mono` utility resolves to Albert Sans in one place. Its axis is 100–900.
+const label = localFont({
+  src: '../app/fonts/albert-sans-latin-var.woff2',
   variable: '--font-mono',
+  weight: '100 900',
   display: 'swap',
   preload: true,
 });
