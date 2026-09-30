@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 
-import "@/components/landing/landing.css";
-import { AmbientBackground } from "@/components/AmbientBackground";
 import { CapyArt } from "@/components/mascot/CapyArt";
-import { Header } from "@/components/header";
-import { SiteFooter } from "@/components/site-footer";
+import { PageShell } from "@/components/page-shell";
 import { ToolsGrid } from "@/components/tools/ToolsGrid";
 import { OG_DEFAULTS } from "@/lib/capytools/og";
 import { SUITE, SUITE_WORD, SUITE_WORD_CAP, countByCategory, numberWord } from "@/lib/capytools/suite";
@@ -32,48 +29,37 @@ export default function ToolsPage() {
   const browser = countByCategory("browser");
 
   return (
-    <div className="lp flex min-h-dvh flex-col text-foreground">
-      <a className="lp-skip-link" href="#main">
-        Skip to content
-      </a>
+    <PageShell tool="All Tools" width="5xl" footerHere="/tools">
+      <span className="lp-label">All Tools · The suite</span>
+      <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
+        Every tool, <em>one page</em>
+        <span className="lp-dot">.</span>
+        {/* Inline, so it follows "one page." at every width — on a phone the
+            headline wraps and the capybara stays on its last line, feet on
+            the baseline. alt="" + aria-hidden keeps the heading's name. */}
+        <CapyArt pose="awake" className="ml-4 inline-block w-16 sm:ml-6 sm:w-20" />
+      </h1>
+      <p className="lp-lead mt-6 max-w-[52ch]">
+        {SUITE_WORD_CAP} of them. {numberWord(browser)[0].toUpperCase() + numberWord(browser).slice(1)} run
+        in your browser and keep nothing — no signup, no cookies, no uploads.
+        The one documented exception is CapyExpense, which lives on your own
+        disk instead.
+      </p>
 
-      <AmbientBackground />
-      <Header tool="All Tools" />
+      <div className="lp-divider mt-12" aria-hidden="true" />
 
-      <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-6 pb-24 pt-16">
-        <span className="lp-label">All Tools · The suite</span>
-        <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
-          Every tool, <em>one page</em>
-          <span className="lp-dot">.</span>
-          {/* Inline, so it follows "one page." at every width — on a phone the
-              headline wraps and the capybara stays on its last line, feet on
-              the baseline. alt="" + aria-hidden keeps the heading's name. */}
-          <CapyArt pose="awake" className="ml-4 inline-block w-16 sm:ml-6 sm:w-20" />
-        </h1>
-        <p className="lp-lead mt-6 max-w-[52ch]">
-          {SUITE_WORD_CAP} of them. {numberWord(browser)[0].toUpperCase() + numberWord(browser).slice(1)} run
-          in your browser and keep nothing — no signup, no cookies, no uploads.
-          The one documented exception is CapyExpense, which lives on your own
-          disk instead.
-        </p>
+      <ToolsGrid />
 
-        <div className="lp-divider mt-12" aria-hidden="true" />
-
-        <ToolsGrid />
-
-        <p className="mt-14 text-sm text-muted-foreground">
-          {SUITE.length} tools and counting. Release notes for each one live on{" "}
-          <a
-            href="/notes"
-            className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
-          >
-            the notes page
-          </a>
-          .
-        </p>
-      </main>
-
-      <SiteFooter here="/tools" wide />
-    </div>
+      <p className="mt-14 text-sm text-muted-foreground">
+        {SUITE.length} tools and counting. Release notes for each one live on{" "}
+        <a
+          href="/notes"
+          className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+        >
+          the notes page
+        </a>
+        .
+      </p>
+    </PageShell>
   );
 }

@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import "@/components/landing/landing.css";
-import { AmbientBackground } from "@/components/AmbientBackground";
 import { CapyArt } from "@/components/mascot/CapyArt";
-import { Header } from "@/components/header";
-import { SiteFooter } from "@/components/site-footer";
+import { PageShell } from "@/components/page-shell";
 import { EXTERNAL } from "@/lib/capytools/landing";
 import { SUITE, SUITE_WORD_CAP, pad2 } from "@/lib/capytools/suite";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -31,152 +28,141 @@ const RULES = [
 
 export default function NotesPage() {
   return (
-    <div className="lp flex min-h-dvh flex-col text-foreground">
-      <a className="lp-skip-link" href="#main">
-        Skip to content
-      </a>
+    <PageShell tool="Notes" footerHere="/notes">
+      <span className="lp-label">Notes · The project</span>
+      <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
+        A home for <em>small, quiet tools</em>
+        <span className="lp-dot">.</span>
+      </h1>
+      <p className="lp-lead mt-6 max-w-[42ch]">
+        {SUITE_WORD_CAP} of them so far. Ten run in your browser and keep
+        nothing; CapyExpense lives on your desktop and keeps your files on
+        your disk instead.
+      </p>
 
-      <AmbientBackground />
-      <Header tool="Notes" />
+      {/* The quiet page has room for the animal the suite is named after. */}
+      <CapyArt pose="awake" className="mt-10 w-28" />
 
-      <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-6 pb-24 pt-16">
-        <span className="lp-label">Notes · The project</span>
-        <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
-          A home for <em>small, quiet tools</em>
-          <span className="lp-dot">.</span>
-        </h1>
-        <p className="lp-lead mt-6 max-w-[42ch]">
-          {SUITE_WORD_CAP} of them so far. Ten run in your browser and keep
-          nothing; CapyExpense lives on your desktop and keeps your files on
-          your disk instead.
-        </p>
+      <div className="lp-divider mt-14" aria-hidden="true" />
 
-        {/* The quiet page has room for the animal the suite is named after. */}
-        <CapyArt pose="awake" className="mt-10 w-28" />
+      <section className="mt-12">
+        <span className="lp-label">The suite</span>
+        <ul className="mt-6 divide-y divide-border">
+          {TOOLS.map((tool) => (
+            <li key={tool.name}>
+              <TransitionLink
+                href={tool.href}
+                className="flex items-baseline gap-4 py-4 transition-colors hover:text-primary"
+              >
+                <span className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
+                  {tool.no}
+                </span>
+                <span className="font-display text-xl font-normal">{tool.name}</span>
+                <span className="ml-auto hidden text-right text-sm text-muted-foreground sm:block">
+                  {tool.line}
+                </span>
+              </TransitionLink>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        <div className="lp-divider mt-14" aria-hidden="true" />
-
-        <section className="mt-12">
-          <span className="lp-label">The suite</span>
-          <ul className="mt-6 divide-y divide-border">
-            {TOOLS.map((tool) => (
-              <li key={tool.name}>
-                <TransitionLink
-                  href={tool.href}
-                  className="flex items-baseline gap-4 py-4 transition-colors hover:text-primary"
-                >
-                  <span className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
-                    {tool.no}
-                  </span>
-                  <span className="font-display text-xl font-normal">{tool.name}</span>
-                  <span className="ml-auto hidden text-right text-sm text-muted-foreground sm:block">
-                    {tool.line}
-                  </span>
-                </TransitionLink>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="mt-12">
-          <span className="lp-label">House rules</span>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {RULES.map((rule) => (
-              <div key={rule.num} className="lp-card">
-                <div className="lp-card-num">
-                  {rule.num}
-                  <span className="lp-card-tag">{rule.title}</span>
-                </div>
-                <p>{rule.copy}</p>
+      <section className="mt-12">
+        <span className="lp-label">House rules</span>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {RULES.map((rule) => (
+            <div key={rule.num} className="lp-card">
+              <div className="lp-card-num">
+                {rule.num}
+                <span className="lp-card-tag">{rule.title}</span>
               </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-12" id="issues">
-          <span className="lp-label">Found a bug?</span>
-          <h2 className="font-display mt-4 text-3xl font-light">
-            Open an issue <em>— quietly</em>
-            <span className="lp-dot">.</span>
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Capytools is open source (Apache-2.0). If something breaks, the fastest
-            fix is an issue with the tool name and what you expected:{" "}
-            <a
-              href={EXTERNAL.issues}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
-            >
-              github.com/unfoldingdimensions/Capytools/issues
-            </a>
-            . The repo lives at{" "}
-            <a
-              href={EXTERNAL.repo}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
-            >
-              github.com/unfoldingdimensions/Capytools
-            </a>
-            .
-          </p>
-        </section>
-
-        <section className="mt-12">
-          <span className="lp-label">Colophon</span>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Built as a Next.js app, deployed on Cloudflare Workers,
-            Apache-2.0-licensed, version
-            0.1.0. Set in Fraunces, Plus Jakarta Sans and Albert Sans. The
-            editorial collage plates were generated from{" "}
-            <TransitionLink href="/design" className="underline decoration-border underline-offset-4">
-              the design notes
-            </TransitionLink>
-            .
-          </p>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Nothing you type, drop or upload into a tool leaves the tab.
-          </p>
-        </section>
-
-        <section className="mt-12">
-          <span className="lp-label">Running your own copy</span>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            The three GitHub-backed API routes are rate limited to 10 requests
-            every ten seconds per visitor. That is enforced by a Cloudflare rule at
-            the edge, before any of this code runs &mdash; the in-app limiter in{" "}
-            <code className="font-mono text-[13px]">src/proxy.ts</code> keeps its
-            counts in memory, and on Workers that memory is per isolate, so it
-            damps bursts rather than enforcing a limit. Run this anywhere else and
-            you will want your platform&rsquo;s own equivalent; do not rely on the
-            code alone.
-          </p>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            What actually protects the upstream quota is caching: repeat requests
-            for the same profile are answered from the edge without the server
-            calling GitHub at all. Set{" "}
-            <code className="font-mono text-[13px]">GITHUB_TOKEN</code> as well, or
-            the card routes run on GitHub&rsquo;s 60-an-hour anonymous quota.
-          </p>
-        </section>
-
-        <div className="lp-divider mt-14" aria-hidden="true" />
-
-        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
-          <TransitionLink href="/" className="lp-read-more">
-            ← Back to the landing
-          </TransitionLink>
-          <TransitionLink href="/design" className="lp-read-more">
-            Design notes
-          </TransitionLink>
-          <TransitionLink href="/license" className="lp-read-more">
-            Apache License
-          </TransitionLink>
+              <p>{rule.copy}</p>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
 
-      <SiteFooter here="/notes" />
-    </div>
+      <section className="mt-12" id="issues">
+        <span className="lp-label">Found a bug?</span>
+        <h2 className="font-display mt-4 text-3xl font-light">
+          Open an issue <em>— quietly</em>
+          <span className="lp-dot">.</span>
+        </h2>
+        <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+          Capytools is open source (Apache-2.0). If something breaks, the fastest
+          fix is an issue with the tool name and what you expected:{" "}
+          <a
+            href={EXTERNAL.issues}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+          >
+            github.com/unfoldingdimensions/Capytools/issues
+          </a>
+          . The repo lives at{" "}
+          <a
+            href={EXTERNAL.repo}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+          >
+            github.com/unfoldingdimensions/Capytools
+          </a>
+          .
+        </p>
+      </section>
+
+      <section className="mt-12">
+        <span className="lp-label">Colophon</span>
+        <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+          Built as a Next.js app, deployed on Cloudflare Workers,
+          Apache-2.0-licensed, version
+          0.1.0. Set in Fraunces, Plus Jakarta Sans and Albert Sans. The
+          editorial collage plates were generated from{" "}
+          <TransitionLink href="/design" className="underline decoration-border underline-offset-4">
+            the design notes
+          </TransitionLink>
+          .
+        </p>
+        <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+          Nothing you type, drop or upload into a tool leaves the tab.
+        </p>
+      </section>
+
+      <section className="mt-12">
+        <span className="lp-label">Running your own copy</span>
+        <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+          The three GitHub-backed API routes are rate limited to 10 requests
+          every ten seconds per visitor. That is enforced by a Cloudflare rule at
+          the edge, before any of this code runs &mdash; the in-app limiter in{" "}
+          <code className="font-mono text-[13px]">src/proxy.ts</code> keeps its
+          counts in memory, and on Workers that memory is per isolate, so it
+          damps bursts rather than enforcing a limit. Run this anywhere else and
+          you will want your platform&rsquo;s own equivalent; do not rely on the
+          code alone.
+        </p>
+        <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+          What actually protects the upstream quota is caching: repeat requests
+          for the same profile are answered from the edge without the server
+          calling GitHub at all. Set{" "}
+          <code className="font-mono text-[13px]">GITHUB_TOKEN</code> as well, or
+          the card routes run on GitHub&rsquo;s 60-an-hour anonymous quota.
+        </p>
+      </section>
+
+      <div className="lp-divider mt-14" aria-hidden="true" />
+
+      <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <TransitionLink href="/" className="lp-read-more">
+          ← Back to the landing
+        </TransitionLink>
+        <TransitionLink href="/design" className="lp-read-more">
+          Design notes
+        </TransitionLink>
+        <TransitionLink href="/license" className="lp-read-more">
+          Apache License
+        </TransitionLink>
+      </div>
+    </PageShell>
   );
 }
