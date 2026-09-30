@@ -348,6 +348,19 @@ roles are what the components reference, so the keys stay.
 - Client hydration: read `localStorage` / random seeds on mount via the
   `useCallback` + `useEffect` hydrate pattern (see AGENTS.md §3) — never
   during render.
+- **Reserved kit — built, not yet wired.** `components/ui/` also holds a component
+  set the editor does not use yet: dialogs (`AlertDialog`, `ConfirmDialog`, and the
+  `modal/` parts they compose), `toast` + `useToast`, `tooltip`,
+  `floating-label-input` + `label`, `month-picker`, `score-progress-ring`,
+  `empty-state`, `loading-states` (`Skeleton`, `ProgressBar`, `CircularLoader`,
+  `LoadingSpinner`, `AIGlowingLoader`, `SkeletonCard`) and `interactive-card`. They
+  are deliberately kept for the editor work below rather than deleted, and
+  `__tests__/design/component-kit-inventory.test.ts` enforces that this stays a
+  decision instead of an accident: a new `components/ui` file the app cannot reach
+  must be listed here or in that test, and anything on the reserved list that the
+  app starts importing must come off it. Reachability is measured from the app's
+  entry points, so a file used only by another reserved file still counts as
+  reserved.
 
 ## Plates
 
