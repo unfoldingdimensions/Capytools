@@ -1,0 +1,34 @@
+# Line endings, settled once.
+#
+# Every tracked text file lives in the repository as LF and checks out as LF on
+# every platform. Without this file the checkout is at the mercy of each
+# machine's core.autocrlf: Windows defaults to true, so LICENSE arrived with
+# CRLF while src/lib/capytools/license-text.ts — generated from that file at
+# build time and committed — carried the endings of whatever machine last ran
+# the generator. tests/license-text.test.ts compares the two byte for byte, so
+# a Windows clone failed a test Linux CI passed, and "fixing" it locally by
+# re-running the generator flipped the failure onto CI instead.
+#
+# eol=lf wins over core.autocrlf, so the fix belongs here and not in anyone's
+# git config. A checkout that already holds CRLF needs one renormalisation pass
+# to pick this up:
+#
+#   git rm -r --cached . -q && git reset --hard HEAD
+#
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF rather than inheriting the rule above: .bat
+# and .cmd parsing is the one place it still matters in practice.
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# Assets are binary — state it, so `text=auto` is never asked to guess.
+*.png   binary
+*.ico   binary
+*.icns  binary
+*.webp  binary
+*.jpg   binary
+*.jpeg  binary
+*.woff  binary
+*.woff2 binary
