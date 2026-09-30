@@ -51,7 +51,7 @@ export function LiveWire() {
                 <span key={copy} style={{ display: "inline-flex", gap: 36 }}>
                   {WIRE.tools.map((tool) => (
                     <span key={tool.name} className="lp-wire-item">
-                      <span className="lp-wire-dot" aria-hidden="true">
+                      <span aria-hidden="true">
                         ·
                       </span>
                       <span className="lp-wire-no">{tool.no}</span>

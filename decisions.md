@@ -39,8 +39,9 @@
 
 ## D7 — The landing owns its chrome · **decided**
 
-**Decision:** the landing ships `LandingMasthead` (headroom hide-on-scroll, anchor links, Albert Sans CTA pill) and `LandingFooter` (link columns + mega wordmark). Tool pages and the meta pages keep the shared `Header`/`SiteFooter`.
-**Consequence:** the editorial page gets its nav language; the rest of the site stays consistent.
+**Decision:** the landing renders the shared `Header` — given section anchors in place of the suite switcher, and a brand pointing at `#top` rather than home — plus its own `LandingFooter` (link columns + mega wordmark). Tool pages and the meta pages keep the shared `Header`/`SiteFooter`.
+**Consequence:** one masthead for the whole site, and the landing gets its nav language through the shared component's props rather than a second component that drifts from it.
+**Amended:** this entry originally named a `LandingMasthead` component (headroom hide-on-scroll, Albert Sans CTA pill). That duplicate was deleted once `Header` absorbed what the landing actually needed; the decision — the landing owns its chrome — stands, but the component it named no longer exists.
 
 ## D8 — Albert Sans replaces IBM Plex Mono, under the `--font-mono` name · **decided**
 

@@ -6,7 +6,7 @@ import { SectionRule } from "@/components/landing/SectionRule";
 /** V. Method / House Rules — arrive, compute, forget, keep. */
 export function Method() {
   return (
-    <section className="lp-section lp-method" id="method">
+    <section className="lp-section" id="method">
       <div className="lp-container">
         <SectionRule roman={METHOD.roman} meta={METHOD.meta} />
 

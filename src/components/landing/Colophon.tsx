@@ -23,7 +23,7 @@ export function Colophon() {
         <SectionRule roman={COLOPHON.roman} meta={COLOPHON.meta} />
 
         <div className="lp-testimonial-grid">
-          <ScrollReveal className="lp-testimonial-copy">
+          <ScrollReveal>
             <h2 className="lp-label">
               {COLOPHON.label} <span className="lp-ix">{COLOPHON.ix}</span>
             </h2>
@@ -50,7 +50,7 @@ export function Colophon() {
             </TransitionLink>
           </ScrollReveal>
 
-          <ScrollReveal className="lp-testimonial-art" direction="right">
+          <ScrollReveal direction="right">
             <div className="lp-plate">
               <Image
                 src={TESTIMONIAL_PLATE.src}

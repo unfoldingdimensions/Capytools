@@ -1,0 +1,28 @@
+chore(landing): drop five class hooks no stylesheet defines
+
+The landing was ported from a design export whose class hooks were kept but
+never given rules, so five of them have been no-ops since fc24fb3: nothing
+styles them, no test mentions them, and no script selects them.
+
+Proof they are inert rather than merely untidy: none of the five appears as a
+selector anywhere in the 268KB of CSS the landing actually loads, while every
+live sibling does (.lp-method-head 12, .lp-plate 24, .lp-section 9). No rule
+could have applied, so no computed style can change. A substring grep says
+otherwise — `.lp-method-head` contains `lp-method` — which is exactly why the
+guard matches on the selector boundary and not the substring.
+
+Adds tests/landing-classes.test.ts, which is what should have caught these: a
+class with no rule fails silently where a missing class fails visibly, so
+lp-method survived several design passes. It resolves every `lp-` class applied
+in src/ against every stylesheet and fails on any that resolves to nothing.
+
+Corrects two docs that named a deleted component as current:
+- decisions.md D7 said the landing ships `LandingMasthead`, deleted in f979dda
+  once `Header` absorbed what the landing needed. The decision itself stands,
+  so the entry is amended rather than rewritten.
+- handover.md's file map listed `LandingMasthead (headroom)` as a landing
+  component.
+
+docs/design-review-tool-pages.md names it too, but inside that review's own
+findings ("3.1 There are two headers") — a record of what was found at the
+time. Rewriting it would falsify the record, so it is left as written.
