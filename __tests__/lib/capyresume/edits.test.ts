@@ -369,3 +369,44 @@ describe('capyresume/edits — the contract every function keeps', () => {
     expect(setLink(linked, 0, 'label', linked.contact.links[0]!.label)).toBe(linked);
   });
 });
+
+describe('capyresume/edits — the no-op identity the editor relies on', () => {
+  /**
+   * The editor skips a storage write and a re-render when an edit returns the same
+   * reference, so identity is load-bearing rather than an optimisation detail. These
+   * assert it for the calls a user can trigger without changing anything.
+   */
+  const sectionId = (doc: ResumeDoc) => doc.sections[0]!.id;
+
+  it('returns the same document for an out-of-range move', () => {
+    const doc = emptyResume();
+    expect(moveSection(doc, sectionId(doc), -1)).toBe(doc);
+    expect(moveSection(doc, 'no-such-section', 1)).toBe(doc);
+    expect(moveEntry(doc, sectionId(doc), 'no-such-entry', 1)).toBe(doc);
+  });
+
+  it('returns the same document when a field is set to the value it holds', () => {
+    const doc = setContactField(emptyResume(), 'name', 'Ada');
+    expect(setContactField(doc, 'name', 'Ada')).toBe(doc);
+    expect(setSectionTitle(doc, sectionId(doc), doc.sections[0]!.title)).toBe(doc);
+  });
+
+  it('returns the same document when a removal matches nothing', () => {
+    const doc = emptyResume();
+    expect(removeSection(doc, 'no-such-section')).toBe(doc);
+    expect(removeLink(doc, 3)).toBe(doc);
+    expect(removeEntry(doc, sectionId(doc), 'no-such-entry')).toBe(doc);
+    expect(removeBullet(doc, sectionId(doc), 'no-entry', 'no-bullet')).toBe(doc);
+  });
+
+  it('returns the same document when tag text re-parses to the same tags', () => {
+    // Ids come from uid(), so two emptyResume() calls never share one. Derive every id
+    // from the single document being edited.
+    const base = emptyResume();
+    const experienceId = base.sections.find((s) => s.type === 'experience')!.id;
+    const withEntry = addEntry(base, experienceId);
+    const entryId = withEntry.sections.find((s) => s.id === experienceId)!.entries[0]!.id;
+    const tagged = setTags(withEntry, experienceId, entryId, 'a,b');
+    expect(setTags(tagged, experienceId, entryId, 'a, b')).toBe(tagged);
+  });
+});

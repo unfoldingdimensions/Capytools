@@ -105,10 +105,26 @@ export function CapyResume() {
   const blocks = useMemo(() => composeDocument(doc, spec), [doc, spec]);
   const hints = useMemo(() => lintResume(doc), [doc]);
 
-  /** Apply a change and persist it. Storage failures are surfaced, never swallowed. */
+  /**
+   * Apply a change and persist it. Storage failures are surfaced, never swallowed.
+   *
+   * An edit that changed nothing never reaches storage. `edits.ts` goes to trouble to
+   * return the *same* document reference for a no-op — a move off the end of a list, a
+   * removal that matches nothing, a text field set to the value it already holds — and
+   * `replaceTargetText` keeps the same contract. That guarantee was being thrown away
+   * here: `saveResume` restamps `updatedAt` and notifies unconditionally, so an
+   * untouched document was still re-serialised in full, written to localStorage, and
+   * every subscriber re-rendered.
+   *
+   * Identity is the whole test. Comparing bodies instead would mean serialising the
+   * document twice on every genuine keystroke to catch a case the modules already
+   * handle by returning the reference, which is strictly cheaper and cannot drift.
+   */
   const edit = (mutate: (draft: ResumeDoc) => ResumeDoc) => {
+    const next = mutate(doc);
+    if (next === doc) return;
     try {
-      saveResume(mutate(doc));
+      saveResume(next);
       setNotice(null);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not save to this browser.');

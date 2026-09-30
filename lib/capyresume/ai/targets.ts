@@ -79,6 +79,11 @@ export function findTarget(doc: ResumeDoc, id: string): TextTarget | undefined {
 export function replaceTargetText(doc: ResumeDoc, id: string, next: string): ResumeDoc {
   const target = findTarget(doc, id);
   if (target === undefined) return doc;
+  // Applying a suggestion that matches the text already there is not an edit. Returning
+  // `doc` unchanged keeps the reference stable, which is what lets the caller skip a
+  // storage write and a re-render — the same no-op contract `lib/capyresume/edits.ts`
+  // keeps. Without it this is the one caller that rebuilds an identical document.
+  if (target.text === next) return doc;
 
   return {
     ...doc,
