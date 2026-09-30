@@ -300,11 +300,19 @@ export function CapyResume() {
           this résumé, so use <em>JSON backup</em> to move it between devices.
         </p>
 
-        {notice && (
-          <p role="status" className="mb-6 rounded-md border border-border bg-muted/60 p-3 text-sm">
-            {notice}
-          </p>
-        )}
+        {/* The live region is mounted empty from the first paint and filled later.
+            A polite region that appears already populated is not reliably announced:
+            assistive tech has to be subscribed before the content changes. Once
+            there is no message it stays in the tree, just out of sight. */}
+        <p
+          role="status"
+          aria-live="polite"
+          className={
+            notice ? 'mb-6 rounded-md border border-border bg-muted/60 p-3 text-sm' : 'sr-only'
+          }
+        >
+          {notice}
+        </p>
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* ---------------------------------------------------- card 1 */}

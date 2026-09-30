@@ -157,6 +157,8 @@ export function AiAssist({
               type="password"
               autoComplete="off"
               spellCheck={false}
+              aria-invalid={credentialsProblem !== null}
+              aria-describedby={credentialsProblem !== null ? `${ids}-key-problem` : undefined}
               placeholder={
                 keyIsSet ? 'Key saved — paste a new one to replace it' : 'Paste your key'
               }
@@ -237,7 +239,9 @@ export function AiAssist({
         </div>
 
         {draft !== null && credentialsProblem !== null && (
-          <p className="text-xs text-muted-foreground">{credentialsProblem}</p>
+          <p id={`${ids}-key-problem`} className="text-xs text-muted-foreground">
+            {credentialsProblem}
+          </p>
         )}
 
         {provider?.keysUrl ? (
@@ -363,7 +367,16 @@ export function AiAssist({
             </p>
           )}
 
-          {error !== null && <p className="text-sm text-destructive">{error}</p>}
+          {/* Mounted from the first paint and filled when a request fails. An
+              assertive region matters here: the user has just asked the provider
+              for something and needs to be told it did not work. */}
+          <p
+            role="alert"
+            aria-live="assertive"
+            className={error !== null ? 'text-sm text-destructive' : 'sr-only'}
+          >
+            {error}
+          </p>
         </div>
       )}
 
