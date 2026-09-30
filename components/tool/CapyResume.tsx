@@ -53,7 +53,7 @@ import {
   resumeBackupFileName,
   resumeFileName,
 } from '@/lib/capyresume/json';
-import { setPaperSize, usePaperSize } from '@/lib/capyresume/prefs';
+import { getPaperSize, setPaperSize, usePaperSize } from '@/lib/capyresume/prefs';
 import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/download';
 import { formatBytes } from '@/lib/capyresume/format';
 import type { Entry, ResumeDoc, ResumeLink, SectionType, TemplateId } from '@/lib/capyresume/types';
@@ -83,6 +83,29 @@ const ConfirmDialog = dynamic(
   { ssr: false }
 );
 
+/**
+ * The paper-size control, subscribing to the prefs store on its own.
+ *
+ * It is separate because the value is needed in exactly two places: here, and inside
+ * the export handlers, which can read it at click time. Subscribing at the top of the
+ * editor instead made a paper change re-render every control in the form plus the
+ * preview, all to move one `<select>`.
+ */
+function PaperSizeSelect() {
+  const paperSize = usePaperSize();
+  return (
+    <select
+      className="rounded-md border border-border bg-background px-3 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+      name="paper"
+      value={paperSize}
+      onChange={(event) => setPaperSize(event.target.value === 'LETTER' ? 'LETTER' : 'A4')}
+    >
+      <option value="A4">A4</option>
+      <option value="LETTER">US Letter</option>
+    </select>
+  );
+}
+
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: 'summary', label: 'Summary' },
   { type: 'experience', label: 'Experience' },
@@ -97,7 +120,6 @@ export function CapyResume() {
   // The demo is the server snapshot, so the first paint has real content and
   // hydration matches; React then swaps in whatever is actually stored.
   const stored = useResumeWithServerSnapshot(DEMO_RESUME);
-  const paperSize = usePaperSize();
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   /** The destructive action awaiting confirmation; null when nothing is pending. */
@@ -216,7 +238,10 @@ export function CapyResume() {
     setNotice(null);
     try {
       const { buildResumePdf } = await import('@/lib/capyresume/pdf');
-      const blob = await buildResumePdf(doc, { paperSize });
+      // Read at click time rather than subscribing: the paper size is only needed when
+      // an export runs, and subscribing at this level re-rendered the whole editor —
+      // form, hints and preview — every time someone touched the paper `<select>`.
+      const blob = await buildResumePdf(doc, { paperSize: getPaperSize() });
       downloadBlob(blob, resumeFileName(doc, 'pdf'));
       setNotice(`PDF ready — ${formatBytes(blob.size)}.`);
     } catch (error) {
@@ -231,7 +256,7 @@ export function CapyResume() {
     setNotice(null);
     try {
       const { buildResumeDocx } = await import('@/lib/capyresume/docx');
-      const blob = await buildResumeDocx(doc, { paperSize });
+      const blob = await buildResumeDocx(doc, { paperSize: getPaperSize() });
       downloadBlob(blob, resumeFileName(doc, 'docx'));
       setNotice(`DOCX ready — ${formatBytes(blob.size)}.`);
     } catch (error) {
@@ -722,17 +747,10 @@ export function CapyResume() {
 
               <label className="text-sm">
                 <span className="mb-1 block text-muted-foreground">paper</span>
-                <select
-                  className="rounded-md border border-border bg-background px-3 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                  name="paper"
-                  value={paperSize}
-                  onChange={(event) => {
-                    setPaperSize(event.target.value === 'LETTER' ? 'LETTER' : 'A4');
-                  }}
-                >
-                  <option value="A4">A4</option>
-                  <option value="LETTER">US Letter</option>
-                </select>
+                {/* Its own component so the prefs subscription is scoped to this control.
+                    Subscribing at the top of the editor meant changing paper re-rendered
+                    the entire form, hints and preview to update one `<select>`. */}
+                <PaperSizeSelect />
               </label>
             </div>
 
