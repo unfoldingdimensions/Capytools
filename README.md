@@ -94,9 +94,9 @@ build fail below it.
 
 ### Environment
 
-| Variable               | Default   | What it does                                                                                                                                                                                          |
-| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL` | _(unset)_ | The production origin. While it is unset, `metadataBase`, canonical links and `/sitemap.xml` stay off rather than pointing at an invented domain. Set it once at deploy time — no code change needed. |
+| Variable               | Default   | What it does                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | _(unset)_ | The production origin. Setting it is optional, and locally you can leave it unset. While it is unset, `/sitemap.xml` is emitted empty, `robots.txt` omits its `Sitemap:` line, canonicals fall back to relative hrefs, and social image URLs point at localhost — the app degrades rather than inventing a domain. Set it once at deploy time — no code change needed. |
 
 ```bash
 git clone https://github.com/unfoldingdimensions/CapyResume.git
@@ -107,8 +107,11 @@ npm run dev
 
 Then open <http://localhost:3000>.
 
-**No environment variables are needed.** There is no database, no auth provider
-and no API key to configure — that is the point. `.env.example` says so.
+There is **no secret to configure**: no database, no auth provider and no
+server-side API key. `NEXT_PUBLIC_SITE_URL` is the only variable, it is optional,
+and the app runs without it. Set it once after deploying so the sitemap,
+canonicals and social cards point at your real domain instead of staying off —
+see [`.env.example`](.env.example) for what changes when it is unset.
 
 ### Scripts
 
