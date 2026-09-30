@@ -13,8 +13,10 @@ import "@/components/landing/landing.css";
  *
  * Every non-landing page needs the same seven-element opener, in the same order:
  * the `lp` wrapper, a skip-link to `#main`, the ambient layer, the Header,
- * `<main id="main">`, the content, and the footer. Eight files used to restate it
- * by hand and carry its three layering invariants in prose comments, which is how
+ * `<main id="main">`, the content, and the footer. The tool pages put a six-item
+ * nav in front of the content, so that skip-link is the bypass that keeps them
+ * reachable by keyboard. Eight files used to restate the opener by hand and carry
+ * its three layering invariants in prose comments, which is how
  * /u/[username] came to ship without the skip-link, without the ambient layer and
  * without the `lp` class.
  *

@@ -1,20 +1,13 @@
 import Link from "next/link";
 import { Fragment } from "react";
 
-import { AmbientBackground } from "@/components/AmbientBackground";
-import { Header } from "@/components/header";
 import { JsonLd } from "@/components/JsonLd";
-import { SiteFooter } from "@/components/site-footer";
+import { PageShell } from "@/components/page-shell";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { softwareApplicationLd } from "@/lib/capytools/structured-data";
 import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
 import { cn } from "@/lib/utils";
-// The whole editorial stylesheet, on every tool page — deliberately. Turbopack
-// emits it into the same shared CSS chunk the landing already loads (~5KB
-// gzipped of it), so a visitor arriving from the landing pays nothing, and
-// splitting it per route would trade that cache hit for a second request.
-import "@/components/landing/landing.css";
 
 /**
  * The editorial chrome every tool page shares, in the landing's voice: a
@@ -74,91 +67,76 @@ export function ToolPageShell({
   const width = large ? "max-w-5xl" : "max-w-4xl";
 
   return (
-    // No `bg-background` here on purpose: body already paints it, and an opaque
-    // wrapper would cover the fixed ambient layer sitting at -z-10. `.lp`
-    // activates the landing stylesheet's custom properties.
-    <div className="lp flex min-h-dvh flex-col text-foreground">
-      {/* The landing has always offered this; the tool pages put a six-item nav
-          in front of the content and offered no way past it. */}
-      <a className="lp-skip-link" href="#main">
-        Skip to content
-      </a>
+    <PageShell tool={tool} layout="editorial">
 
       {/* Every tool page describes ITS tool, from the same registry row that
           named it above — so a twelfth tool is described without touching a
           page, and none of them can drift from the catalog. */}
       <JsonLd data={softwareApplicationLd(tool)} />
 
-      <AmbientBackground />
-      <Header tool={tool} />
+      {/* Cover plate — the cream canvas, as the landing's hero has it. */}
+      <section
+        className={cn(
+          "mx-auto flex w-full flex-col items-center px-6 text-center",
+          width,
+          large ? "pt-8 sm:pt-14" : "pt-5 sm:pt-8",
+        )}
+      >
+        <Reveal>
+          <p className="lp-label">{label}</p>
+        </Reveal>
 
-      <main id="main" className="flex w-full flex-1 flex-col">
-        {/* Cover plate — the cream canvas, as the landing's hero has it. */}
-        <section
+        <h1
           className={cn(
-            "mx-auto flex w-full flex-col items-center px-6 text-center",
-            width,
-            large ? "pt-8 sm:pt-14" : "pt-5 sm:pt-8",
+            "lp-display mt-6",
+            large ? "lp-tool-display-lg" : "text-5xl sm:text-6xl",
           )}
         >
-          <Reveal>
-            <p className="lp-label">{label}</p>
-          </Reveal>
-
-          <h1
-            className={cn(
-              "lp-display mt-6",
-              large ? "lp-tool-display-lg" : "text-5xl sm:text-6xl",
-            )}
-          >
-            {headline.map((segment, i) => (
-              <Fragment key={segment.text}>
-                {i > 0 && <br />}
-                {segment.em ? (
-                  <em>
-                    <TextReveal text={segment.text} delay={i === 0 ? 0.1 : 0.32} />
-                  </em>
-                ) : (
+          {headline.map((segment, i) => (
+            <Fragment key={segment.text}>
+              {i > 0 && <br />}
+              {segment.em ? (
+                <em>
                   <TextReveal text={segment.text} delay={i === 0 ? 0.1 : 0.32} />
-                )}
-                {segment.dot ? <span className="lp-dot">.</span> : null}
-              </Fragment>
-            ))}
-          </h1>
+                </em>
+              ) : (
+                <TextReveal text={segment.text} delay={i === 0 ? 0.1 : 0.32} />
+              )}
+              {segment.dot ? <span className="lp-dot">.</span> : null}
+            </Fragment>
+          ))}
+        </h1>
 
-          <Reveal delay={0.2}>
-            <p className={cn("lp-lead mt-5 text-center", large && "lp-lead-lg")}>{lead}</p>
-          </Reveal>
-        </section>
+        <Reveal delay={0.2}>
+          <p className={cn("lp-lead mt-5 text-center", large && "lp-lead-lg")}>{lead}</p>
+        </Reveal>
+      </section>
 
-        {/* The stage, on the band. */}
-        <div className="lp-tool-band mt-9">
-          <div className={cn("mx-auto w-full px-6 py-10 sm:py-14", width)}>
-            {entrance ? (
-              <Reveal delay={0.3} className={cn("w-full", align === "left" && "text-left")}>
-                {children}
-              </Reveal>
-            ) : (
-              // Expense's own entrance is the chart drawing itself; no container fade.
-              <div className={cn("w-full", align === "left" && "text-left")}>{children}</div>
-            )}
-          </div>
+      {/* The stage, on the band. */}
+      <div className="lp-tool-band mt-9">
+        <div className={cn("mx-auto w-full px-6 py-10 sm:py-14", width)}>
+          {entrance ? (
+            <Reveal delay={0.3} className={cn("w-full", align === "left" && "text-left")}>
+              {children}
+            </Reveal>
+          ) : (
+            // Expense's own entrance is the chart drawing itself; no container fade.
+            <div className={cn("w-full", align === "left" && "text-left")}>{children}</div>
+          )}
         </div>
+      </div>
 
-        {/* The closing accent, and where the sign-off lives. */}
-        <div className="lp-tool-signoff">
-          <div className={cn("lp-tool-foot mx-auto w-full px-6", width)}>
-            {/* The index, not the landing: someone who just finished one tool
-                is looking for the next, and /tools is where the suite is. */}
-            <Link href="/tools" className="lp-read-more">
-              ← back to the suite
-            </Link>
-            <span className="lp-tool-foot-ix">{index}</span>
-          </div>
+      {/* The closing accent, and where the sign-off lives. */}
+      <div className="lp-tool-signoff">
+        <div className={cn("lp-tool-foot mx-auto w-full px-6", width)}>
+          {/* The index, not the landing: someone who just finished one tool
+              is looking for the next, and /tools is where the suite is. */}
+          <Link href="/tools" className="lp-read-more">
+            ← back to the suite
+          </Link>
+          <span className="lp-tool-foot-ix">{index}</span>
         </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+      </div>
+    </PageShell>
   );
 }
