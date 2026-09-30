@@ -109,9 +109,11 @@ Then open <http://localhost:3000>.
 
 There is **no secret to configure**: no database, no auth provider and no
 server-side API key. `NEXT_PUBLIC_SITE_URL` is the only variable, it is optional,
-and the app runs without it. Set it once after deploying so the sitemap,
-canonicals and social cards point at your real domain instead of staying off —
-see [`.env.example`](.env.example) for what changes when it is unset.
+and the app runs without it. Set it once after deploying so absolute URLs — the
+sitemap, canonicals and social cards — name your real domain. Unset, those
+surfaces do not switch off; they degrade: the sitemap is empty, `robots.txt`
+drops its `Sitemap:` line, canonicals fall back to relative hrefs and social
+cards point at localhost. See [`.env.example`](.env.example) for the full list.
 
 ### Scripts
 
