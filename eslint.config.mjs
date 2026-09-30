@@ -12,10 +12,16 @@ const tsconfigRootDir = dirname(fileURLToPath(import.meta.url));
 
 export default tseslint.config(
   // Flat config replaces `.eslintrc`'s `ignorePatterns`. These are generated,
-  // vendored or local-only, and two of them (the Next types and `.hermes/`) are
-  // owned by something else entirely — `.hermes/` in particular is gitignored
-  // working material that would otherwise be linted and warned at for
-  // `console.log` in throwaway scripts.
+  // vendored or local-only, and several of them (the Next types and the agent
+  // trees) are owned by something else entirely — `.hermes/` in particular is
+  // gitignored working material that would otherwise be linted and warned at
+  // for `console.log` in throwaway scripts.
+  //
+  // `.agents/` and `.claude/` hold the vendored skills from `npx skills add`,
+  // pinned by `skills-lock.json`. They are third-party content and already
+  // excluded from Prettier and git for the same reason. They carry no lintable
+  // source today, but a skill that ships a `.ts` or `.js` file would otherwise
+  // be linted and could fail the gate on code we do not own.
   {
     ignores: [
       '.next/**',
@@ -29,6 +35,9 @@ export default tseslint.config(
       'postcss.config.js',
       'eslint.config.mjs',
       '.hermes/**',
+      '.agents/**',
+      '.claude/**',
+      'backups/**',
     ],
   },
 
