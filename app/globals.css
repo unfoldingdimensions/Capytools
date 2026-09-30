@@ -113,9 +113,24 @@
   html {
     scrollbar-gutter: stable;
     overflow-x: hidden;
+    /* The site header is `sticky top-0`, and below `md` its nav wraps onto a second
+       row so it is roughly twice as tall. Without this, an in-page jump or a
+       keyboard focus that scrolls lands the target underneath the header — measured
+       at 0px against a 77px header on desktop. `scroll-margin-top` on each anchor
+       would work too, but the offset belongs to the scroll container, and a value
+       here is correct for fragments, `.focus()` and `scrollIntoView` alike. */
+    --site-header-height: 9.5rem;
+    scroll-padding-top: var(--site-header-height);
     /* Thin tinted scrollbars — browser chrome, themed from the palette */
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklab, hsl(var(--foreground)) 22%, transparent) transparent;
+  }
+
+  /* From `md` up the nav sits inline, so the header is a single row. */
+  @media (min-width: 768px) {
+    html {
+      --site-header-height: 4.8125rem;
+    }
   }
 
   body {
