@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Header } from "@/components/header";
-import { SiteFooter } from "@/components/site-footer";
 import { notFound } from "next/navigation";
+import { PageShell } from "@/components/page-shell";
 import { ShareCardView } from "@/components/share/ShareCardView";
 import { OG_DEFAULTS } from "@/lib/capytools/og";
 import { SITE_URL, sanitizeUsername } from "@/lib/utils";
@@ -51,19 +50,13 @@ export default async function SharePage({
   if (!clean) notFound();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <Header tool="CapyWrapped" />
-
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-5">
-        <div className="mb-6 text-center">
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            CapyWrapped · @{clean}
-          </p>
-        </div>
-        <ShareCardView username={clean} />
-      </main>
-
-      <SiteFooter />
-    </div>
+    <PageShell tool="CapyWrapped" width="4xl" layout="card">
+      <div className="mb-6 text-center">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          CapyWrapped · @{clean}
+        </p>
+      </div>
+      <ShareCardView username={clean} />
+    </PageShell>
   );
 }
