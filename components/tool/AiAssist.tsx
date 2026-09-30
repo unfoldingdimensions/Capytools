@@ -129,7 +129,7 @@ export function AiAssist({
             <select
               id={`${ids}-provider`}
               name={`${ids}-provider`}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
               value={form.providerId}
               onChange={(event) => {
                 const next = getProvider(event.target.value);
@@ -160,7 +160,7 @@ export function AiAssist({
               placeholder={
                 keyIsSet ? 'Key saved — paste a new one to replace it' : 'Paste your key'
               }
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
               value={draft ? form.apiKey : ''}
               onChange={(event) => update({ apiKey: event.target.value })}
             />
@@ -177,7 +177,7 @@ export function AiAssist({
               autoComplete="off"
               spellCheck={false}
               placeholder={provider?.defaultModel ?? 'model name'}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
               value={form.model}
               onChange={(event) => update({ model: event.target.value })}
             />
@@ -197,7 +197,7 @@ export function AiAssist({
               autoComplete="off"
               spellCheck={false}
               placeholder="http://localhost:11434"
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
               value={form.baseUrl}
               onChange={(event) => update({ baseUrl: event.target.value })}
             />
@@ -207,7 +207,7 @@ export function AiAssist({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
+            className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
             onClick={saveKey}
             disabled={credentialsProblem !== null}
           >
@@ -215,7 +215,7 @@ export function AiAssist({
           </button>
           <button
             type="button"
-            className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
+            className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
             onClick={() => {
               // Only worth confirming when a key is actually stored; otherwise this
               // is a no-op button and a dialog would be noise.
@@ -269,7 +269,7 @@ export function AiAssist({
                   <select
                     id={`${ids}-target`}
                     name={`${ids}-target`}
-                    className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                     value={activeTarget.id}
                     onChange={(event) => {
                       setTargetId(event.target.value);
@@ -291,7 +291,7 @@ export function AiAssist({
                   <select
                     id={`${ids}-action`}
                     name={`${ids}-action`}
-                    className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                     value={actionId}
                     onChange={(event) => {
                       const next = getAction(event.target.value);
@@ -311,7 +311,7 @@ export function AiAssist({
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
+                  className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                   onClick={() => {
                     void run();
                   }}
@@ -334,7 +334,7 @@ export function AiAssist({
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
-                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
+                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                       onClick={() => {
                         onApply(suggestion.targetId, suggestion.after);
                         setSuggestion(null);
@@ -344,7 +344,7 @@ export function AiAssist({
                     </button>
                     <button
                       type="button"
-                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm"
+                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                       onClick={() => setSuggestion(null)}
                     >
                       discard

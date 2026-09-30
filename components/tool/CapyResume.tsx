@@ -252,7 +252,7 @@ export function CapyResume() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="rounded-md border border-border px-3 py-2 text-sm"
+              className="rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
               onClick={() => {
                 const replace = () => edit(() => ({ ...DEMO_RESUME }));
                 if (isResumeEmpty(doc)) replace();
@@ -270,7 +270,7 @@ export function CapyResume() {
             </button>
             <button
               type="button"
-              className="rounded-md border border-border px-3 py-2 text-sm"
+              className="rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
               onClick={() => {
                 const clear = () => {
                   clearResume();
@@ -368,7 +368,11 @@ export function CapyResume() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">links</span>
-                <button type="button" className="text-sm underline" onClick={addLink}>
+                <button
+                  type="button"
+                  className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
+                  onClick={addLink}
+                >
                   add link
                 </button>
               </div>
@@ -403,7 +407,7 @@ export function CapyResume() {
                   </label>
                   <button
                     type="button"
-                    className="rounded-md border border-border px-3 text-sm"
+                    className="rounded-md border border-border px-3 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                     onClick={() => removeLink(index)}
                     aria-label={`remove link ${index + 1}`}
                   >
@@ -425,7 +429,7 @@ export function CapyResume() {
                   />
                   <button
                     type="button"
-                    className="rounded-md border border-border px-2 py-1 text-sm"
+                    className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                     onClick={() => moveSection(section.id, -1)}
                     aria-label={`Move ${section.title} up`}
                   >
@@ -433,7 +437,7 @@ export function CapyResume() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-border px-2 py-1 text-sm"
+                    className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                     onClick={() => moveSection(section.id, 1)}
                     aria-label={`Move ${section.title} down`}
                   >
@@ -441,7 +445,7 @@ export function CapyResume() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-border px-2 py-1 text-sm"
+                    className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                     onClick={() => removeSection(section.id)}
                   >
                     remove
@@ -453,7 +457,7 @@ export function CapyResume() {
                     <div key={entry.id} className="rounded-md bg-muted/30 p-3">
                       <div className="grid gap-2 sm:grid-cols-2">
                         <input
-                          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                           name={`${entry.id}-title`}
                           aria-label={`${section.title}, entry ${entryIndex + 1}, title`}
                           placeholder={
@@ -469,7 +473,7 @@ export function CapyResume() {
                           }
                         />
                         <input
-                          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                           name={`${entry.id}-organisation`}
                           aria-label={`${section.title}, entry ${entryIndex + 1}, organisation`}
                           placeholder="organisation"
@@ -479,7 +483,7 @@ export function CapyResume() {
                           }
                         />
                         <input
-                          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                           name={`${entry.id}-location`}
                           aria-label={`${section.title}, entry ${entryIndex + 1}, location`}
                           autoComplete="off"
@@ -567,7 +571,7 @@ export function CapyResume() {
                             />
                             <button
                               type="button"
-                              className="rounded-md border border-border px-2 text-sm"
+                              className="rounded-md border border-border px-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                               onClick={() => removeBullet(section.id, entry.id, bullet.id)}
                               aria-label={`remove achievement ${bulletIndex + 1} from ${section.title}, entry ${entryIndex + 1}`}
                             >
@@ -577,7 +581,7 @@ export function CapyResume() {
                         ))}
                         <button
                           type="button"
-                          className="text-sm underline"
+                          className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
                           onClick={() => addBullet(section.id, entry.id)}
                         >
                           add bullet
@@ -587,7 +591,7 @@ export function CapyResume() {
                       <div className="mt-2 flex gap-2">
                         <button
                           type="button"
-                          className="rounded-md border border-border px-2 py-1 text-sm"
+                          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                           onClick={() => moveEntry(section.id, entry.id, -1)}
                           aria-label="move entry up"
                         >
@@ -595,7 +599,7 @@ export function CapyResume() {
                         </button>
                         <button
                           type="button"
-                          className="rounded-md border border-border px-2 py-1 text-sm"
+                          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                           onClick={() => moveEntry(section.id, entry.id, 1)}
                           aria-label="move entry down"
                         >
@@ -603,7 +607,7 @@ export function CapyResume() {
                         </button>
                         <button
                           type="button"
-                          className="rounded-md border border-border px-2 py-1 text-sm"
+                          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                           onClick={() => removeEntry(section.id, entry.id)}
                         >
                           remove entry
@@ -614,7 +618,7 @@ export function CapyResume() {
 
                   <button
                     type="button"
-                    className="text-sm underline"
+                    className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
                     onClick={() => addEntry(section.id)}
                   >
                     add entry
@@ -629,7 +633,7 @@ export function CapyResume() {
                 <button
                   key={choice.type}
                   type="button"
-                  className="rounded-md border border-border px-3 py-1.5 text-sm"
+                  className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                   onClick={() => addSection(choice.type)}
                 >
                   {choice.label}
@@ -651,7 +655,7 @@ export function CapyResume() {
               <label className="text-sm">
                 <span className="mb-1 block text-muted-foreground">template</span>
                 <select
-                  className="rounded-md border border-border bg-background px-3 py-2"
+                  className="rounded-md border border-border bg-background px-3 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                   name="template"
                   value={doc.templateId}
                   onChange={(event) =>
@@ -671,7 +675,7 @@ export function CapyResume() {
               <label className="text-sm">
                 <span className="mb-1 block text-muted-foreground">paper</span>
                 <select
-                  className="rounded-md border border-border bg-background px-3 py-2"
+                  className="rounded-md border border-border bg-background px-3 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                   name="paper"
                   value={paperSize}
                   onChange={(event) => {
@@ -712,7 +716,7 @@ export function CapyResume() {
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2"
+                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                 onClick={() => {
                   void exportPdf();
                 }}
@@ -722,7 +726,7 @@ export function CapyResume() {
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2"
+                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                 onClick={() => {
                   void exportDocx();
                 }}
@@ -732,14 +736,14 @@ export function CapyResume() {
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2"
+                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                 onClick={exportJson}
               >
                 JSON backup
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2"
+                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
                 onClick={() => fileInputRef.current?.click()}
               >
                 import JSON
