@@ -167,25 +167,43 @@ describe("PNG text inflation is bounded", () => {
   });
 
   it.skipIf(!hasStreams)("charges an over-limit chunk the whole file budget", async () => {
-    // The budget is per FILE. A bomb that trips the ceiling must exhaust it,
-    // or a PNG carrying hundreds of small bombs pays 4MB of inflation each
-    // time: 500 chunks measured 4.3s before this, 0.24s after.
-    const bomb = deflateSync(Buffer.alloc(5 * 1024 * 1024));
+    // The budget is per FILE, so a bomb that trips the ceiling spends it — the
+    // case that matters is a PNG carrying many SMALL bombs, each individually
+    // under the ceiling, which must still stop inflating once the file's 4MB is
+    // gone. Otherwise the tab pays 4MB per chunk instead of 4MB once.
+    //
+    // Asserted on the inflated output, never on the clock. This test used to
+    // time the run and assert `Date.now() - started < 2_000`, which measured the
+    // machine rather than the code: the correct behaviour takes ~0.2s idle and
+    // 4.4s with every core busy, so the suite went red under load while nothing
+    // was wrong. Raising the bound was not available as a fix either — the fault
+    // it guards against cost ~4.3s, ABOVE that bound, so a bigger number would
+    // have blinded the test to the very regression it exists to catch.
+    const CHUNK_TEXT = 100 * 1024; // one bomb's inflated size; the 4MB budget holds ~40
+    const BOMBS = 200; // 20MB of inflation if nothing capped it per file
+    const bomb = deflateSync(Buffer.alloc(CHUNK_TEXT));
     const body = new Uint8Array(
       Buffer.concat([Buffer.from("parameters\0\0", "latin1"), bomb]),
     );
     const out = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
-    for (let i = 0; i < 200; i += 1) {
+    for (let i = 0; i < BOMBS; i += 1) {
       const len = body.length;
       out.push((len >>> 24) & 255, (len >>> 16) & 255, (len >>> 8) & 255, len & 255);
       for (const ch of "zTXt") out.push(ch.charCodeAt(0));
       out.push(...body, 0, 0, 0, 0);
     }
 
-    const started = Date.now();
     const chunks = await readPngText(new Uint8Array(out));
-    expect(chunks).toHaveLength(200);
-    expect(Date.now() - started).toBeLessThan(2_000);
+    expect(chunks).toHaveLength(BOMBS);
+
+    const inflated = chunks.filter((chunk) => !chunk.value.includes("too large"));
+    const bytes = inflated.reduce((n, chunk) => n + chunk.value.length, 0);
+    // Some text gets through, so the cap is not simply refusing everything...
+    expect(inflated.length).toBeGreaterThan(0);
+    // ...but far short of all of it: ~40 chunks fit the budget, not 200, and the
+    // whole file stays under 5MB where an uncapped read would return 20MB.
+    expect(inflated.length).toBeLessThan(60);
+    expect(bytes).toBeLessThan(5 * 1024 * 1024);
   });
 });
 
