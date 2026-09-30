@@ -24,8 +24,11 @@ import {
 } from '@/lib/capyresume/ai/keys';
 import { IMPROVE_ACTIONS, getAction, type ImproveAction } from '@/lib/capyresume/ai/prompts';
 import { PROVIDERS, getProvider } from '@/lib/capyresume/ai/providers';
-import { collectTextTargets } from '@/lib/capyresume/ai/targets';
+import { collectTextTargets, type TextTarget } from '@/lib/capyresume/ai/targets';
 import type { ResumeDoc } from '@/lib/capyresume/types';
+
+/** Stable empty list, so the no-key path returns one reference rather than a new array. */
+const EMPTY_TARGETS: readonly TextTarget[] = Object.freeze([]);
 
 /** Deferred for the same reason as the editor's copy: nothing to render until pending. */
 const ConfirmDialog = dynamic(
@@ -58,7 +61,14 @@ export function AiAssist({
   const credentialsProblem = validateCredentials(form);
   const keyIsSet = settings.apiKey.trim().length > 0;
 
-  const targets = useMemo(() => collectTextTargets(doc), [doc]);
+  // The target list is only ever read inside the key-saved branch below and in `run()`,
+  // so with no key stored this walk over the whole document was dead work — and `doc`
+  // changes on every keystroke, so the memo could never hit. Skipping it keeps typing
+  // in the editor from paying for a feature the user has not configured.
+  const targets = useMemo(
+    () => (keyIsSet ? collectTextTargets(doc) : EMPTY_TARGETS),
+    [doc, keyIsSet]
+  );
   const [targetId, setTargetId] = useState('');
   const [actionId, setActionId] = useState<ImproveAction>(IMPROVE_ACTIONS[0]?.id ?? 'tighten');
 
