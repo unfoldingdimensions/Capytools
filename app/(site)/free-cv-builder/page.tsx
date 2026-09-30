@@ -34,7 +34,7 @@ export default function FreeCvBuilderIndexPage() {
         {COUNTRY_PAGES.map((page) => (
           <li key={page.slug} className="flex">
             <Card hover className="flex h-full w-full flex-col p-6">
-              <CardTitle>
+              <CardTitle as="h2">
                 <Link href={`/free-cv-builder/${page.slug}`} className="hover:underline">
                   {page.heading}
                 </Link>

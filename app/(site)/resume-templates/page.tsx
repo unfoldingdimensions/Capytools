@@ -33,7 +33,7 @@ export default function ResumeTemplatesIndexPage() {
         {ROLE_PAGES.map((page) => (
           <li key={page.slug} className="flex">
             <Card hover className="flex h-full w-full flex-col p-6">
-              <CardTitle>
+              <CardTitle as="h2">
                 <Link href={`/resume-templates/${page.slug}`} className="hover:underline">
                   {page.heading}
                 </Link>

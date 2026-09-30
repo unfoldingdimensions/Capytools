@@ -41,15 +41,23 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 );
 CardHeader.displayName = 'CardHeader';
 
-const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3
-      ref={ref}
-      className={cn('font-display text-title-md font-normal leading-tight', className)}
-      {...props}
-    />
-  )
-);
+/**
+ * The card heading. Level is a prop because a card title is not inherently an `h3`:
+ * it is whatever level the card sits at. The landing page nests cards under an `h2`,
+ * so `h3` is right there; the two index hubs put a card grid straight under the `h1`,
+ * and a hardcoded `h3` there skipped a level — twelve `h3`s and no `h2` on
+ * `/free-cv-builder`. Default stays `h3` so existing usage is unchanged.
+ */
+const CardTitle = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement> & { as?: 'h2' | 'h3' | 'h4' }
+>(({ className, as: Tag = 'h3', ...props }, ref) => (
+  <Tag
+    ref={ref}
+    className={cn('font-display text-title-md font-normal leading-tight', className)}
+    {...props}
+  />
+));
 CardTitle.displayName = 'CardTitle';
 
 const CardDescription = React.forwardRef<
