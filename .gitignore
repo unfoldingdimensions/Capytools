@@ -35,3 +35,8 @@ graphify-out/
 .opencode/
 dogfood-output/
 .mimosa/
+
+# Local-only recovery bundles. These are git bundles containing branch history
+# that is deliberately not on the remote; they are tens of megabytes and are
+# machine-specific, so they must never be committed.
+backups/
