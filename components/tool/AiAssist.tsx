@@ -13,7 +13,7 @@
  */
 
 import { useId, useMemo, useState } from 'react';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import dynamic from 'next/dynamic';
 import { AiRequestError, improveText, validateCredentials } from '@/lib/capyresume/ai/client';
 import {
   clearAiSettings,
@@ -26,6 +26,12 @@ import { IMPROVE_ACTIONS, getAction, type ImproveAction } from '@/lib/capyresume
 import { PROVIDERS, getProvider } from '@/lib/capyresume/ai/providers';
 import { collectTextTargets } from '@/lib/capyresume/ai/targets';
 import type { ResumeDoc } from '@/lib/capyresume/types';
+
+/** Deferred for the same reason as the editor's copy: nothing to render until pending. */
+const ConfirmDialog = dynamic(
+  () => import('@/components/ui/ConfirmDialog').then((m) => m.ConfirmDialog),
+  { ssr: false }
+);
 
 interface Suggestion {
   targetId: string;

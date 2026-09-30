@@ -25,7 +25,7 @@ import {
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { lintResume } from '@/lib/capyresume/hints';
 import { isResumeEmpty } from '@/lib/capyresume/schema';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import dynamic from 'next/dynamic';
 import {
   addBullet as addBulletTo,
   addEntry as addEntryTo,
@@ -58,6 +58,30 @@ import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/dow
 import { formatBytes } from '@/lib/capyresume/format';
 import type { Entry, ResumeDoc, ResumeLink, SectionType, TemplateId } from '@/lib/capyresume/types';
 import type { ContactField } from '@/lib/capyresume/edits';
+
+/**
+ * Warm the exporter a user is about to ask for.
+ *
+ * The heavy modules are already split out of first load - `@react-pdf/renderer` is
+ * 433 KB gzip and `docx` 90 KB - but nothing asked for them until the click, so a
+ * first export stalled on the whole fetch plus parse. The import itself is what
+ * preloads, so these are fire-and-forget and safe to call repeatedly: the module
+ * registry keeps the result. Pointing at the button is the signal; a user who never
+ * exports never pays.
+ */
+const preloadPdfExporter = () => void import('@/lib/capyresume/pdf');
+const preloadDocxExporter = () => void import('@/lib/capyresume/docx');
+
+/**
+ * The confirmation dialog is only reachable from an action that needs confirming, so
+ * Radix Dialog — with react-remove-scroll and its focus machinery — does not belong in
+ * first load. `ssr: false` because it renders null until a confirmation is pending, so
+ * there is nothing to server-render and no cost to deferring it.
+ */
+const ConfirmDialog = dynamic(
+  () => import('@/components/ui/ConfirmDialog').then((m) => m.ConfirmDialog),
+  { ssr: false }
+);
 
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: 'summary', label: 'Summary' },
@@ -744,6 +768,8 @@ export function CapyResume() {
                 onClick={() => {
                   void exportPdf();
                 }}
+                onMouseEnter={preloadPdfExporter}
+                onFocus={preloadPdfExporter}
                 disabled={busy !== null}
               >
                 {busy === 'pdf' ? 'Making PDF…' : 'Download PDF'}
@@ -754,6 +780,8 @@ export function CapyResume() {
                 onClick={() => {
                   void exportDocx();
                 }}
+                onMouseEnter={preloadDocxExporter}
+                onFocus={preloadDocxExporter}
                 disabled={busy !== null}
               >
                 {busy === 'docx' ? 'Making DOCX…' : 'Download DOCX'}
