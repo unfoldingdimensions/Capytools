@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-
 import { PageShell } from "@/components/page-shell";
 import { TransitionLink } from "@/components/TransitionLink";
 import { LICENSE_TEXT } from "@/lib/capytools/license-text";
