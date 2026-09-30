@@ -4,6 +4,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import React from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeColorMeta } from '@/components/theme-color-meta';
 import { SkipLink } from '@/components/ui/SkipLink';
 import { siteUrl } from '@/lib/site';
 
@@ -109,6 +110,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* The landmark itself lives in each shell, never here — the site group puts
             banner and contentinfo outside its `main`, and the builder owns its own. */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeColorMeta />
           {children}
         </ThemeProvider>
       </body>
