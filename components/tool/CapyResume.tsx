@@ -11,12 +11,13 @@
  * app/globals.css and the vocabulary in the kit under components/ui.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AiAssist } from '@/components/tool/AiAssist';
 import { replaceTargetText } from '@/lib/capyresume/ai/targets';
 import { SITE } from '@/lib/site';
 import {
+  getSnapshot,
   saveResume,
   clearResume,
   hasStoredResume,
@@ -56,7 +57,14 @@ import {
 import { getPaperSize, setPaperSize, usePaperSize } from '@/lib/capyresume/prefs';
 import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/download';
 import { formatBytes } from '@/lib/capyresume/format';
-import type { Entry, ResumeDoc, ResumeLink, SectionType, TemplateId } from '@/lib/capyresume/types';
+import type {
+  Bullet,
+  Entry,
+  ResumeDoc,
+  ResumeLink,
+  SectionType,
+  TemplateId,
+} from '@/lib/capyresume/types';
 import type { ContactField } from '@/lib/capyresume/edits';
 
 /**
@@ -116,6 +124,252 @@ const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: 'custom', label: 'Custom section' },
 ];
 
+/**
+ * The helpers below exist so the memoized rows can be handed stable functions only.
+ * That is what makes `memo` work at all: `EntryRow` receives its handlers as props
+ * rather than closing over them, so a row can only re-render when its own `entry`
+ * object changes — which `edits.ts` guarantees is only the row that was edited.
+ */
+type FieldEdit = (
+  sectionId: string,
+  entryId: string,
+  field: keyof Entry,
+  value: string | boolean
+) => void;
+
+type TextEdit = (sectionId: string, entryId: string, text: string) => void;
+
+/** Bullet text, which is its own edit — an Entry's `text` field is different prose. */
+type BulletTextEdit = (sectionId: string, entryId: string, bulletId: string, text: string) => void;
+
+/**
+ * One achievement. Split out from the entry so typing in a bullet re-renders that
+ * bullet rather than the whole entry.
+ */
+const BulletRow = memo(function BulletRow({
+  sectionTitle,
+  entryIndex,
+  bullet,
+  bulletIndex,
+  entryId,
+  sectionId,
+  onBulletText,
+  onRemove,
+}: {
+  sectionTitle: string;
+  entryIndex: number;
+  bullet: Bullet;
+  bulletIndex: number;
+  entryId: string;
+  sectionId: string;
+  onBulletText: BulletTextEdit;
+  onRemove: (sectionId: string, entryId: string, bulletId: string, label: string) => void;
+}) {
+  const label = `${sectionTitle}, entry ${entryIndex + 1}, achievement ${bulletIndex + 1}`;
+  return (
+    <div className="flex gap-2">
+      <input
+        className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
+        name={`${bullet.id}-text`}
+        aria-label={label}
+        placeholder="achievement"
+        value={bullet.text}
+        onChange={(event) => onBulletText(sectionId, entryId, bullet.id, event.target.value)}
+      />
+      <button
+        type="button"
+        className="rounded-md border border-border px-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+        onClick={() => onRemove(sectionId, entryId, bullet.id, label)}
+        aria-label={`remove ${label}`}
+      >
+        ×
+      </button>
+    </div>
+  );
+});
+
+/**
+ * One entry — a job, degree, project or certification.
+ *
+ * Takes `sectionTitle` and `sectionType` as primitives rather than the whole section:
+ * passing the section would mean every entry in it re-renders whenever any one of them
+ * is edited, since the parent replaces the section object on a child edit. The ids are
+ * primitives already, so a keystroke here propagates to this row and the preview only.
+ *
+ * Handlers are the two stable functions from the parent, not the per-edit helpers —
+ * those are already bound to this row's section and entry, so they change identity
+ * every render and would defeat the memo.
+ */
+const EntryRow = memo(function EntryRow({
+  sectionId,
+  sectionTitle,
+  sectionType,
+  entry,
+  entryIndex,
+  onField,
+  onTags,
+  onBulletText,
+  onAddBullet,
+  onRemoveBullet,
+  onMove,
+  onRemove,
+}: {
+  sectionId: string;
+  sectionTitle: string;
+  sectionType: SectionType;
+  entry: Entry;
+  entryIndex: number;
+  onField: FieldEdit;
+  onTags: TextEdit;
+  onBulletText: BulletTextEdit;
+  onAddBullet: (sectionId: string, entryId: string) => void;
+  onRemoveBullet: (sectionId: string, entryId: string, bulletId: string, label: string) => void;
+  onMove: (sectionId: string, entryId: string, delta: number) => void;
+  onRemove: (sectionId: string, entryId: string) => void;
+}) {
+  const prefix = `${sectionTitle}, entry ${entryIndex + 1}`;
+  const titlePlaceholder =
+    sectionType === 'skills'
+      ? 'Group name (optional)'
+      : sectionType === 'summary'
+        ? 'Summary heading (optional)'
+        : 'Title / role / degree';
+
+  return (
+    <div className="rounded-md bg-muted/30 p-3">
+      <div className="grid gap-2 sm:grid-cols-2">
+        <input
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          name={`${entry.id}-title`}
+          aria-label={`${prefix}, title`}
+          placeholder={titlePlaceholder}
+          value={entry.title ?? ''}
+          onChange={(event) => onField(sectionId, entry.id, 'title', event.target.value)}
+        />
+        <input
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          name={`${entry.id}-organisation`}
+          aria-label={`${prefix}, organisation`}
+          placeholder="organisation"
+          value={entry.organisation ?? ''}
+          onChange={(event) => onField(sectionId, entry.id, 'organisation', event.target.value)}
+        />
+        <input
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          name={`${entry.id}-location`}
+          aria-label={`${prefix}, location`}
+          autoComplete="off"
+          placeholder="location"
+          value={entry.location ?? ''}
+          onChange={(event) => onField(sectionId, entry.id, 'location', event.target.value)}
+        />
+        <div className="flex gap-2">
+          <input
+            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
+            name={`${entry.id}-start`}
+            aria-label={`${prefix}, start date, YYYY-MM`}
+            inputMode="text"
+            autoComplete="off"
+            placeholder="YYYY-MM"
+            value={entry.startDate ?? ''}
+            onChange={(event) => onField(sectionId, entry.id, 'startDate', event.target.value)}
+          />
+          <input
+            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
+            name={`${entry.id}-end`}
+            aria-label={`${prefix}, end date, YYYY-MM`}
+            inputMode="text"
+            autoComplete="off"
+            placeholder="YYYY-MM"
+            value={entry.endDate ?? ''}
+            disabled={entry.current === true}
+            onChange={(event) => onField(sectionId, entry.id, 'endDate', event.target.value)}
+          />
+        </div>
+      </div>
+
+      <label className="mt-2 flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          name={`${entry.id}-current`}
+          checked={entry.current === true}
+          onChange={(event) => onField(sectionId, entry.id, 'current', event.target.checked)}
+        />
+        current
+      </label>
+
+      <textarea
+        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+        name={`${entry.id}-text`}
+        aria-label={`${prefix}, description`}
+        rows={2}
+        placeholder="description / summary text"
+        value={entry.text ?? ''}
+        onChange={(event) => onField(sectionId, entry.id, 'text', event.target.value)}
+      />
+
+      <input
+        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+        name={`${entry.id}-tags`}
+        aria-label={`${prefix}, skills, comma separated`}
+        autoComplete="off"
+        placeholder="skills, comma separated"
+        value={entry.tags.join(', ')}
+        onChange={(event) => onTags(sectionId, entry.id, event.target.value)}
+      />
+
+      <div className="mt-2 space-y-2">
+        {entry.bullets.map((bullet, bulletIndex) => (
+          <BulletRow
+            key={bullet.id}
+            sectionId={sectionId}
+            sectionTitle={sectionTitle}
+            entryId={entry.id}
+            entryIndex={entryIndex}
+            bullet={bullet}
+            bulletIndex={bulletIndex}
+            onBulletText={onBulletText}
+            onRemove={onRemoveBullet}
+          />
+        ))}
+        <button
+          type="button"
+          className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
+          onClick={() => onAddBullet(sectionId, entry.id)}
+        >
+          add bullet
+        </button>
+      </div>
+
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          onClick={() => onMove(sectionId, entry.id, -1)}
+          aria-label={`move ${prefix} up`}
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          onClick={() => onMove(sectionId, entry.id, 1)}
+          aria-label={`move ${prefix} down`}
+        >
+          ↓
+        </button>
+        <button
+          type="button"
+          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          onClick={() => onRemove(sectionId, entry.id)}
+        >
+          remove entry
+        </button>
+      </div>
+    </div>
+  );
+});
+
 export function CapyResume() {
   // The demo is the server snapshot, so the first paint has real content and
   // hydration matches; React then swaps in whatever is actually stored.
@@ -166,16 +420,78 @@ export function CapyResume() {
    * document twice on every genuine keystroke to catch a case the modules already
    * handle by returning the reference, which is strictly cheaper and cannot drift.
    */
-  const edit = (mutate: (draft: ResumeDoc) => ResumeDoc) => {
-    const next = mutate(doc);
-    if (next === doc) return;
+  const edit = useCallback((mutate: (draft: ResumeDoc) => ResumeDoc) => {
+    // Read the document at call time rather than closing over it. That keeps `edit`
+    // stable for the app's lifetime, which is what lets the memoized rows below take
+    // it as a prop without a new function identity defeating them every render — while
+    // still editing the current document. `getSnapshot` is cached on the stored bytes,
+    // so this is not a storage read per keystroke.
+    const current = getSnapshot();
+    const next = mutate(current);
+    if (next === current) return;
     try {
       saveResume(next);
       setNotice(null);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not save to this browser.');
     }
-  };
+  }, []);
+
+  /**
+   * The two per-edit helpers the rows receive, both stable.
+   *
+   * `EntryRow` and `BulletRow` are memoized, so their props have to keep their identity
+   * across a render that only changed a sibling. Handing them the already-bound
+   * helpers below would give them a new function every render and the memo would never
+   * hit; these take the ids as arguments instead and pass them straight through.
+   */
+  const editEntryField = useCallback<FieldEdit>(
+    (sectionId, entryId, field, value) =>
+      edit((d) => setEntryFieldOn(d, sectionId, entryId, field, value as never)),
+    [edit]
+  );
+
+  /** The tags input is a comma-separated string, not a field assignment. */
+  const editEntryTags = useCallback<TextEdit>(
+    (sectionId, entryId, raw) => edit((d) => setTagsOn(d, sectionId, entryId, raw)),
+    [edit]
+  );
+
+  const handleAddBullet = useCallback(
+    (sectionId: string, entryId: string) => edit((d) => addBulletTo(d, sectionId, entryId)),
+    [edit]
+  );
+
+  const handleRemoveBullet = useCallback(
+    (sectionId: string, entryId: string, bulletId: string) =>
+      edit((d) => removeBulletFrom(d, sectionId, entryId, bulletId)),
+    [edit]
+  );
+
+  /**
+   * Bullet text is `setBullet`, not `setEntryField(..., 'text', ...)`.
+   *
+   * Routing it through the generic field setter writes the enclosing Entry's prose
+   * `text` instead of the bullet's — the bullet never changes, so React re-renders the
+   * input back to its old value and typing appears to do nothing. The two are different
+   * fields on different objects and need different edits.
+   */
+  const handleBulletText = useCallback<BulletTextEdit>(
+    (sectionId, entryId, bulletId, text) =>
+      edit((d) => setBulletText(d, sectionId, entryId, bulletId, text)),
+    [edit]
+  );
+
+  const handleMoveEntry = useCallback(
+    (sectionId: string, entryId: string, delta: number) =>
+      edit((d) => moveEntryIn(d, sectionId, entryId, delta)),
+    [edit]
+  );
+
+  const handleRemoveEntry = useCallback(
+    (sectionId: string, entryId: string) => edit((d) => removeEntryFrom(d, sectionId, entryId)),
+    [edit]
+  );
 
   // ---------------------------------------------------------------- contact
   // Each handler names the edit and hands the document to ./edits, which owns the
@@ -204,33 +520,10 @@ export function CapyResume() {
     edit((d) => setSectionTitleOn(d, id, title));
 
   // ---------------------------------------------------------------- entries
+  // Only `addEntry` is still needed here: adding a row is a section-level control. Every
+  // other entry and bullet edit is passed to `EntryRow` as one of the stable helpers
+  // above, so the row can stay memoized.
   const addEntry = (sectionId: string) => edit((d) => addEntryTo(d, sectionId));
-
-  const removeEntry = (sectionId: string, entryId: string) =>
-    edit((d) => removeEntryFrom(d, sectionId, entryId));
-
-  const moveEntry = (sectionId: string, entryId: string, delta: number) =>
-    edit((d) => moveEntryIn(d, sectionId, entryId, delta));
-
-  const setEntryField = (
-    sectionId: string,
-    entryId: string,
-    field: keyof Entry,
-    value: string | boolean
-  ) => edit((d) => setEntryFieldOn(d, sectionId, entryId, field, value));
-
-  // ---------------------------------------------------------------- bullets
-  const addBullet = (sectionId: string, entryId: string) =>
-    edit((d) => addBulletTo(d, sectionId, entryId));
-
-  const setBullet = (sectionId: string, entryId: string, bulletId: string, text: string) =>
-    edit((d) => setBulletText(d, sectionId, entryId, bulletId, text));
-
-  const removeBullet = (sectionId: string, entryId: string, bulletId: string) =>
-    edit((d) => removeBulletFrom(d, sectionId, entryId, bulletId));
-
-  const setTags = (sectionId: string, entryId: string, raw: string) =>
-    edit((d) => setTagsOn(d, sectionId, entryId, raw));
 
   // ------------------------------------------------------------- exports
   const exportPdf = async () => {
@@ -527,166 +820,21 @@ export function CapyResume() {
 
                 <div className="space-y-4">
                   {section.entries.map((entry, entryIndex) => (
-                    <div key={entry.id} className="rounded-md bg-muted/30 p-3">
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <input
-                          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                          name={`${entry.id}-title`}
-                          aria-label={`${section.title}, entry ${entryIndex + 1}, title`}
-                          placeholder={
-                            section.type === 'skills'
-                              ? 'Group name (optional)'
-                              : section.type === 'summary'
-                                ? 'Summary heading (optional)'
-                                : 'Title / role / degree'
-                          }
-                          value={entry.title ?? ''}
-                          onChange={(event) =>
-                            setEntryField(section.id, entry.id, 'title', event.target.value)
-                          }
-                        />
-                        <input
-                          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                          name={`${entry.id}-organisation`}
-                          aria-label={`${section.title}, entry ${entryIndex + 1}, organisation`}
-                          placeholder="organisation"
-                          value={entry.organisation ?? ''}
-                          onChange={(event) =>
-                            setEntryField(section.id, entry.id, 'organisation', event.target.value)
-                          }
-                        />
-                        <input
-                          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                          name={`${entry.id}-location`}
-                          aria-label={`${section.title}, entry ${entryIndex + 1}, location`}
-                          autoComplete="off"
-                          placeholder="location"
-                          value={entry.location ?? ''}
-                          onChange={(event) =>
-                            setEntryField(section.id, entry.id, 'location', event.target.value)
-                          }
-                        />
-                        <div className="flex gap-2">
-                          <input
-                            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
-                            name={`${entry.id}-start`}
-                            aria-label={`${section.title}, entry ${entryIndex + 1}, start date, YYYY-MM`}
-                            inputMode="text"
-                            autoComplete="off"
-                            placeholder="YYYY-MM"
-                            value={entry.startDate ?? ''}
-                            onChange={(event) =>
-                              setEntryField(section.id, entry.id, 'startDate', event.target.value)
-                            }
-                          />
-                          <input
-                            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
-                            name={`${entry.id}-end`}
-                            aria-label={`${section.title}, entry ${entryIndex + 1}, end date, YYYY-MM`}
-                            inputMode="text"
-                            autoComplete="off"
-                            placeholder="YYYY-MM"
-                            value={entry.endDate ?? ''}
-                            disabled={entry.current === true}
-                            onChange={(event) =>
-                              setEntryField(section.id, entry.id, 'endDate', event.target.value)
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <label className="mt-2 flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          name={`${entry.id}-current`}
-                          checked={entry.current === true}
-                          onChange={(event) =>
-                            setEntryField(section.id, entry.id, 'current', event.target.checked)
-                          }
-                        />
-                        current
-                      </label>
-
-                      <textarea
-                        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                        name={`${entry.id}-text`}
-                        aria-label={`${section.title}, entry ${entryIndex + 1}, description`}
-                        rows={2}
-                        placeholder="description / summary text"
-                        value={entry.text ?? ''}
-                        onChange={(event) =>
-                          setEntryField(section.id, entry.id, 'text', event.target.value)
-                        }
-                      />
-
-                      <input
-                        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                        name={`${entry.id}-tags`}
-                        aria-label={`${section.title}, entry ${entryIndex + 1}, skills, comma separated`}
-                        autoComplete="off"
-                        placeholder="skills, comma separated"
-                        value={entry.tags.join(', ')}
-                        onChange={(event) => setTags(section.id, entry.id, event.target.value)}
-                      />
-
-                      <div className="mt-2 space-y-2">
-                        {entry.bullets.map((bullet, bulletIndex) => (
-                          <div key={bullet.id} className="flex gap-2">
-                            <input
-                              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
-                              name={`${bullet.id}-text`}
-                              aria-label={`${section.title}, entry ${entryIndex + 1}, achievement ${bulletIndex + 1}`}
-                              placeholder="achievement"
-                              value={bullet.text}
-                              onChange={(event) =>
-                                setBullet(section.id, entry.id, bullet.id, event.target.value)
-                              }
-                            />
-                            <button
-                              type="button"
-                              className="rounded-md border border-border px-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                              onClick={() => removeBullet(section.id, entry.id, bullet.id)}
-                              aria-label={`remove achievement ${bulletIndex + 1} from ${section.title}, entry ${entryIndex + 1}`}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
-                          onClick={() => addBullet(section.id, entry.id)}
-                        >
-                          add bullet
-                        </button>
-                      </div>
-
-                      <div className="mt-2 flex gap-2">
-                        <button
-                          type="button"
-                          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                          onClick={() => moveEntry(section.id, entry.id, -1)}
-                          aria-label="move entry up"
-                        >
-                          ↑
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                          onClick={() => moveEntry(section.id, entry.id, 1)}
-                          aria-label="move entry down"
-                        >
-                          ↓
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-                          onClick={() => removeEntry(section.id, entry.id)}
-                        >
-                          remove entry
-                        </button>
-                      </div>
-                    </div>
+                    <EntryRow
+                      key={entry.id}
+                      sectionId={section.id}
+                      sectionTitle={section.title}
+                      sectionType={section.type}
+                      entry={entry}
+                      entryIndex={entryIndex}
+                      onField={editEntryField}
+                      onTags={editEntryTags}
+                      onBulletText={handleBulletText}
+                      onAddBullet={handleAddBullet}
+                      onRemoveBullet={handleRemoveBullet}
+                      onMove={handleMoveEntry}
+                      onRemove={handleRemoveEntry}
+                    />
                   ))}
 
                   <button
