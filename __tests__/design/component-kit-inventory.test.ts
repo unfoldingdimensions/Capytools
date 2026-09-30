@@ -50,6 +50,9 @@ const RESERVED: string[] = [
   'score-progress-ring.tsx',
   'toast.tsx',
   'tooltip.tsx',
+  // Was the theme switcher's menu until that became a native <select>: the Radix
+  // dropdown was 18.3 KB gzip on every marketing route for three options.
+  'dropdown-menu.tsx',
 ];
 
 /** Every `.tsx`/`.ts` file that could import a kit component. */

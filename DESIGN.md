@@ -349,8 +349,8 @@ roles are what the components reference, so the keys stay.
   `useCallback` + `useEffect` hydrate pattern (see AGENTS.md §3) — never
   during render.
 - **Reserved kit — built, not yet wired.** `components/ui/` also holds a component
-  set the editor does not use yet: `AlertDialog`, `toast` + `useToast`, `tooltip`,
-  `floating-label-input` + `label`, `month-picker`, `score-progress-ring`,
+  set the editor does not use yet: `AlertDialog`, `dropdown-menu`, `toast` + `useToast`,
+  `tooltip`, `floating-label-input` + `label`, `month-picker`, `score-progress-ring`,
   `empty-state`, `loading-states` (`Skeleton`, `ProgressBar`, `CircularLoader`,
   `LoadingSpinner`, `AIGlowingLoader`, `SkeletonCard`) and `interactive-card`. They
   are deliberately kept for the editor work below rather than deleted, and
@@ -359,7 +359,9 @@ roles are what the components reference, so the keys stay.
   must be listed here or in that test, and anything on the reserved list that the
   app starts importing must come off it. Reachability is measured from the app's
   entry points, so a file used only by another reserved file still counts as
-  reserved.
+  reserved. `dropdown-menu` joined the list when the theme switcher became a native
+  `<select>` — the Radix dropdown cost 18.3 KB gzip on every marketing route for
+  three options.
 - `ConfirmDialog` and the `modal/` parts it composes **have** been wired: the editor
   confirms before anything destructive — clearing the stored résumé, loading the
   example over the open document, importing a JSON backup over it, and removing a
