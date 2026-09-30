@@ -330,18 +330,36 @@ export function CapyResume() {
             <div className="grid gap-3 sm:grid-cols-2">
               {(
                 [
-                  ['name', 'Full name'],
-                  ['email', 'Email'],
-                  ['phone', 'Phone'],
-                  ['location', 'location'],
+                  { field: 'name', label: 'Full name', autocomplete: 'name' },
+                  {
+                    field: 'email',
+                    label: 'Email',
+                    type: 'email',
+                    inputMode: 'email',
+                    autocomplete: 'email',
+                    spellCheck: false,
+                  },
+                  {
+                    field: 'phone',
+                    label: 'Phone',
+                    type: 'tel',
+                    inputMode: 'tel',
+                    autocomplete: 'tel',
+                  },
+                  { field: 'location', label: 'location', autocomplete: 'address-level2' },
                 ] as const
-              ).map(([field, label]) => (
-                <label key={field} className="text-sm">
-                  <span className="mb-1 block text-muted-foreground">{label}</span>
+              ).map((spec) => (
+                <label key={spec.field} className="text-sm">
+                  <span className="mb-1 block text-muted-foreground">{spec.label}</span>
                   <input
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
-                    value={doc.contact[field] ?? ''}
-                    onChange={(event) => setContact(field, event.target.value)}
+                    name={spec.field}
+                    type={'type' in spec ? spec.type : 'text'}
+                    inputMode={'inputMode' in spec ? spec.inputMode : undefined}
+                    autoComplete={spec.autocomplete}
+                    spellCheck={'spellCheck' in spec ? spec.spellCheck : undefined}
+                    value={doc.contact[spec.field] ?? ''}
+                    onChange={(event) => setContact(spec.field, event.target.value)}
                   />
                 </label>
               ))}
@@ -356,22 +374,38 @@ export function CapyResume() {
               </div>
               {doc.contact.links.map((link, index) => (
                 <div key={index} className="flex gap-2">
-                  <input
-                    className="w-1/3 rounded-md border border-border bg-background px-3 py-2 text-sm"
-                    placeholder="label"
-                    value={link.label}
-                    onChange={(event) => setLink(index, 'label', event.target.value)}
-                  />
-                  <input
-                    className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
-                    placeholder="URL"
-                    value={link.url}
-                    onChange={(event) => setLink(index, 'url', event.target.value)}
-                  />
+                  {/* Visible label is the placeholder; the real name comes from an
+                      sr-only label so screen readers get more than "label". */}
+                  <label className="w-1/3">
+                    <span className="sr-only">{`link ${index + 1} label`}</span>
+                    <input
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                      name={`link-${index}-label`}
+                      autoComplete="off"
+                      placeholder="label"
+                      value={link.label}
+                      onChange={(event) => setLink(index, 'label', event.target.value)}
+                    />
+                  </label>
+                  <label className="flex-1">
+                    <span className="sr-only">{`link ${index + 1} URL`}</span>
+                    <input
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                      name={`link-${index}-url`}
+                      type="url"
+                      inputMode="url"
+                      autoComplete="url"
+                      spellCheck={false}
+                      placeholder="URL"
+                      value={link.url}
+                      onChange={(event) => setLink(index, 'url', event.target.value)}
+                    />
+                  </label>
                   <button
                     type="button"
                     className="rounded-md border border-border px-3 text-sm"
                     onClick={() => removeLink(index)}
+                    aria-label={`remove link ${index + 1}`}
                   >
                     remove
                   </button>
@@ -384,6 +418,7 @@ export function CapyResume() {
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   <input
                     className="min-w-[10rem] flex-1 rounded-md border border-border bg-background px-3 py-2 font-medium"
+                    name={`${section.id}-title`}
                     value={section.title}
                     onChange={(event) => setSectionTitle(section.id, event.target.value)}
                     aria-label="section title"
@@ -414,11 +449,13 @@ export function CapyResume() {
                 </div>
 
                 <div className="space-y-4">
-                  {section.entries.map((entry) => (
+                  {section.entries.map((entry, entryIndex) => (
                     <div key={entry.id} className="rounded-md bg-muted/30 p-3">
                       <div className="grid gap-2 sm:grid-cols-2">
                         <input
                           className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                          name={`${entry.id}-title`}
+                          aria-label={`${section.title}, entry ${entryIndex + 1}, title`}
                           placeholder={
                             section.type === 'skills'
                               ? 'Group name (optional)'
@@ -433,6 +470,8 @@ export function CapyResume() {
                         />
                         <input
                           className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                          name={`${entry.id}-organisation`}
+                          aria-label={`${section.title}, entry ${entryIndex + 1}, organisation`}
                           placeholder="organisation"
                           value={entry.organisation ?? ''}
                           onChange={(event) =>
@@ -441,6 +480,9 @@ export function CapyResume() {
                         />
                         <input
                           className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+                          name={`${entry.id}-location`}
+                          aria-label={`${section.title}, entry ${entryIndex + 1}, location`}
+                          autoComplete="off"
                           placeholder="location"
                           value={entry.location ?? ''}
                           onChange={(event) =>
@@ -450,6 +492,10 @@ export function CapyResume() {
                         <div className="flex gap-2">
                           <input
                             className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                            name={`${entry.id}-start`}
+                            aria-label={`${section.title}, entry ${entryIndex + 1}, start date, YYYY-MM`}
+                            inputMode="text"
+                            autoComplete="off"
                             placeholder="YYYY-MM"
                             value={entry.startDate ?? ''}
                             onChange={(event) =>
@@ -458,6 +504,10 @@ export function CapyResume() {
                           />
                           <input
                             className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                            name={`${entry.id}-end`}
+                            aria-label={`${section.title}, entry ${entryIndex + 1}, end date, YYYY-MM`}
+                            inputMode="text"
+                            autoComplete="off"
                             placeholder="YYYY-MM"
                             value={entry.endDate ?? ''}
                             disabled={entry.current === true}
@@ -471,6 +521,7 @@ export function CapyResume() {
                       <label className="mt-2 flex items-center gap-2 text-sm">
                         <input
                           type="checkbox"
+                          name={`${entry.id}-current`}
                           checked={entry.current === true}
                           onChange={(event) =>
                             setEntryField(section.id, entry.id, 'current', event.target.checked)
@@ -481,6 +532,8 @@ export function CapyResume() {
 
                       <textarea
                         className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                        name={`${entry.id}-text`}
+                        aria-label={`${section.title}, entry ${entryIndex + 1}, description`}
                         rows={2}
                         placeholder="description / summary text"
                         value={entry.text ?? ''}
@@ -491,16 +544,21 @@ export function CapyResume() {
 
                       <input
                         className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                        name={`${entry.id}-tags`}
+                        aria-label={`${section.title}, entry ${entryIndex + 1}, skills, comma separated`}
+                        autoComplete="off"
                         placeholder="skills, comma separated"
                         value={entry.tags.join(', ')}
                         onChange={(event) => setTags(section.id, entry.id, event.target.value)}
                       />
 
                       <div className="mt-2 space-y-2">
-                        {entry.bullets.map((bullet) => (
+                        {entry.bullets.map((bullet, bulletIndex) => (
                           <div key={bullet.id} className="flex gap-2">
                             <input
                               className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                              name={`${bullet.id}-text`}
+                              aria-label={`${section.title}, entry ${entryIndex + 1}, achievement ${bulletIndex + 1}`}
                               placeholder="achievement"
                               value={bullet.text}
                               onChange={(event) =>
@@ -511,7 +569,7 @@ export function CapyResume() {
                               type="button"
                               className="rounded-md border border-border px-2 text-sm"
                               onClick={() => removeBullet(section.id, entry.id, bullet.id)}
-                              aria-label="remove bullet"
+                              aria-label={`remove achievement ${bulletIndex + 1} from ${section.title}, entry ${entryIndex + 1}`}
                             >
                               ×
                             </button>
@@ -594,6 +652,7 @@ export function CapyResume() {
                 <span className="mb-1 block text-muted-foreground">template</span>
                 <select
                   className="rounded-md border border-border bg-background px-3 py-2"
+                  name="template"
                   value={doc.templateId}
                   onChange={(event) =>
                     edit((d) => ({ ...d, templateId: event.target.value as TemplateId }))
@@ -613,6 +672,7 @@ export function CapyResume() {
                 <span className="mb-1 block text-muted-foreground">paper</span>
                 <select
                   className="rounded-md border border-border bg-background px-3 py-2"
+                  name="paper"
                   value={paperSize}
                   onChange={(event) => {
                     setPaperSize(event.target.value === 'LETTER' ? 'LETTER' : 'A4');

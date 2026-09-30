@@ -128,6 +128,7 @@ export function AiAssist({
             </label>
             <select
               id={`${ids}-provider`}
+              name={`${ids}-provider`}
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
               value={form.providerId}
               onChange={(event) => {
@@ -152,6 +153,7 @@ export function AiAssist({
             </label>
             <input
               id={`${ids}-key`}
+              name={`${ids}-key`}
               type="password"
               autoComplete="off"
               spellCheck={false}
@@ -170,7 +172,9 @@ export function AiAssist({
             </label>
             <input
               id={`${ids}-model`}
+              name={`${ids}-model`}
               type="text"
+              autoComplete="off"
               spellCheck={false}
               placeholder={provider?.defaultModel ?? 'model name'}
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
@@ -187,7 +191,10 @@ export function AiAssist({
             </label>
             <input
               id={`${ids}-base`}
-              type="text"
+              name={`${ids}-base`}
+              type="url"
+              inputMode="url"
+              autoComplete="off"
               spellCheck={false}
               placeholder="http://localhost:11434"
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
@@ -261,6 +268,7 @@ export function AiAssist({
                   </label>
                   <select
                     id={`${ids}-target`}
+                    name={`${ids}-target`}
                     className="rounded-md border border-border bg-background px-3 py-2 text-sm"
                     value={activeTarget.id}
                     onChange={(event) => {
@@ -282,6 +290,7 @@ export function AiAssist({
                   </label>
                   <select
                     id={`${ids}-action`}
+                    name={`${ids}-action`}
                     className="rounded-md border border-border bg-background px-3 py-2 text-sm"
                     value={actionId}
                     onChange={(event) => {
