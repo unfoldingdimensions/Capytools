@@ -23,8 +23,25 @@ import {
   useResumeWithServerSnapshot,
 } from '@/lib/capyresume/store';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
-import { emptyBullet, emptyEntry, emptySection } from '@/lib/capyresume/schema';
 import { lintResume } from '@/lib/capyresume/hints';
+import {
+  addBullet as addBulletTo,
+  addEntry as addEntryTo,
+  addLink as addLinkTo,
+  addSection as addSectionTo,
+  moveEntry as moveEntryIn,
+  moveSection as moveSectionIn,
+  removeBullet as removeBulletFrom,
+  removeEntry as removeEntryFrom,
+  removeLink as removeLinkFrom,
+  removeSection as removeSectionFrom,
+  setBullet as setBulletText,
+  setContactField,
+  setEntryField as setEntryFieldOn,
+  setLink as setLinkOn,
+  setSectionTitle as setSectionTitleOn,
+  setTags as setTagsOn,
+} from '@/lib/capyresume/edits';
 import { TEMPLATE_LIST, getTemplate, isPackUnlocked } from '@/lib/capyresume/templates';
 import { composeDocument } from '@/lib/capyresume/document';
 import { BlockView, previewPaperStyle } from '@/components/tool/BlockView';
@@ -37,7 +54,8 @@ import {
 import { setPaperSize, usePaperSize } from '@/lib/capyresume/prefs';
 import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/download';
 import { formatBytes } from '@/lib/capyresume/format';
-import type { Entry, ResumeDoc, Section, SectionType, TemplateId } from '@/lib/capyresume/types';
+import type { Entry, ResumeDoc, ResumeLink, SectionType, TemplateId } from '@/lib/capyresume/types';
+import type { ContactField } from '@/lib/capyresume/edits';
 
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: 'summary', label: 'Summary' },
@@ -89,134 +107,59 @@ export function CapyResume() {
   };
 
   // ---------------------------------------------------------------- contact
-  const setContact = (field: 'name' | 'email' | 'phone' | 'location', value: string) =>
-    edit((d) => ({ ...d, contact: { ...d.contact, [field]: value } }));
+  // Each handler names the edit and hands the document to ./edits, which owns the
+  // tree. Nothing here spreads a section, an entry or a bullet.
+  const setContact = (field: ContactField, value: string) =>
+    edit((d) => setContactField(d, field, value));
 
-  const addLink = () =>
-    edit((d) => ({
-      ...d,
-      contact: { ...d.contact, links: [...d.contact.links, { label: '', url: '' }] },
-    }));
+  const addLink = () => edit(addLinkTo);
 
-  const setLink = (index: number, field: 'label' | 'url', value: string) =>
-    edit((d) => ({
-      ...d,
-      contact: {
-        ...d.contact,
-        links: d.contact.links.map((link, i) => (i === index ? { ...link, [field]: value } : link)),
-      },
-    }));
+  const setLink = (index: number, field: keyof ResumeLink, value: string) =>
+    edit((d) => setLinkOn(d, index, field, value));
 
-  const removeLink = (index: number) =>
-    edit((d) => ({
-      ...d,
-      contact: { ...d.contact, links: d.contact.links.filter((_, i) => i !== index) },
-    }));
+  const removeLink = (index: number) => edit((d) => removeLinkFrom(d, index));
 
   // --------------------------------------------------------------- sections
-  const mapSections = (d: ResumeDoc, fn: (section: Section) => Section): ResumeDoc => ({
-    ...d,
-    sections: d.sections.map(fn),
-  });
-
   const addSection = (type: SectionType) => {
     const label = SECTION_CHOICES.find((c) => c.type === type)?.label ?? 'Section';
-    edit((d) => ({ ...d, sections: [...d.sections, emptySection(type, label)] }));
+    edit((d) => addSectionTo(d, type, label));
   };
 
-  const removeSection = (id: string) =>
-    edit((d) => ({ ...d, sections: d.sections.filter((s) => s.id !== id) }));
+  const removeSection = (id: string) => edit((d) => removeSectionFrom(d, id));
 
-  const moveSection = (id: string, delta: number) =>
-    edit((d) => {
-      const index = d.sections.findIndex((s) => s.id === id);
-      const target = index + delta;
-      if (index < 0 || target < 0 || target >= d.sections.length) return d;
-      const sections = [...d.sections];
-      const [moved] = sections.splice(index, 1);
-      sections.splice(target, 0, moved!);
-      return { ...d, sections };
-    });
+  const moveSection = (id: string, delta: number) => edit((d) => moveSectionIn(d, id, delta));
 
   const setSectionTitle = (id: string, title: string) =>
-    edit((d) => mapSections(d, (s) => (s.id === id ? { ...s, title } : s)));
+    edit((d) => setSectionTitleOn(d, id, title));
 
-  const addEntry = (sectionId: string) =>
-    edit((d) =>
-      mapSections(d, (s) =>
-        s.id === sectionId ? { ...s, entries: [...s.entries, emptyEntry()] } : s
-      )
-    );
+  // ---------------------------------------------------------------- entries
+  const addEntry = (sectionId: string) => edit((d) => addEntryTo(d, sectionId));
 
   const removeEntry = (sectionId: string, entryId: string) =>
-    edit((d) =>
-      mapSections(d, (s) =>
-        s.id === sectionId ? { ...s, entries: s.entries.filter((e) => e.id !== entryId) } : s
-      )
-    );
+    edit((d) => removeEntryFrom(d, sectionId, entryId));
 
   const moveEntry = (sectionId: string, entryId: string, delta: number) =>
-    edit((d) =>
-      mapSections(d, (s) => {
-        if (s.id !== sectionId) return s;
-        const index = s.entries.findIndex((e) => e.id === entryId);
-        const target = index + delta;
-        if (index < 0 || target < 0 || target >= s.entries.length) return s;
-        const entries = [...s.entries];
-        const [moved] = entries.splice(index, 1);
-        entries.splice(target, 0, moved!);
-        return { ...s, entries };
-      })
-    );
-
-  const mapEntries = (d: ResumeDoc, sectionId: string, fn: (entry: Entry) => Entry): ResumeDoc =>
-    mapSections(d, (s) => (s.id === sectionId ? { ...s, entries: s.entries.map(fn) } : s));
+    edit((d) => moveEntryIn(d, sectionId, entryId, delta));
 
   const setEntryField = (
     sectionId: string,
     entryId: string,
     field: keyof Entry,
     value: string | boolean
-  ) =>
-    edit((d) => mapEntries(d, sectionId, (e) => (e.id === entryId ? { ...e, [field]: value } : e)));
+  ) => edit((d) => setEntryFieldOn(d, sectionId, entryId, field, value));
 
+  // ---------------------------------------------------------------- bullets
   const addBullet = (sectionId: string, entryId: string) =>
-    edit((d) =>
-      mapEntries(d, sectionId, (e) =>
-        e.id === entryId ? { ...e, bullets: [...e.bullets, emptyBullet()] } : e
-      )
-    );
+    edit((d) => addBulletTo(d, sectionId, entryId));
 
   const setBullet = (sectionId: string, entryId: string, bulletId: string, text: string) =>
-    edit((d) =>
-      mapEntries(d, sectionId, (e) =>
-        e.id === entryId
-          ? { ...e, bullets: e.bullets.map((b) => (b.id === bulletId ? { ...b, text } : b)) }
-          : e
-      )
-    );
+    edit((d) => setBulletText(d, sectionId, entryId, bulletId, text));
 
   const removeBullet = (sectionId: string, entryId: string, bulletId: string) =>
-    edit((d) =>
-      mapEntries(d, sectionId, (e) =>
-        e.id === entryId ? { ...e, bullets: e.bullets.filter((b) => b.id !== bulletId) } : e
-      )
-    );
+    edit((d) => removeBulletFrom(d, sectionId, entryId, bulletId));
 
   const setTags = (sectionId: string, entryId: string, raw: string) =>
-    edit((d) =>
-      mapEntries(d, sectionId, (e) =>
-        e.id === entryId
-          ? {
-              ...e,
-              tags: raw
-                .split(',')
-                .map((t) => t.trim())
-                .filter((t) => t.length > 0),
-            }
-          : e
-      )
-    );
+    edit((d) => setTagsOn(d, sectionId, entryId, raw));
 
   // ------------------------------------------------------------- exports
   const exportPdf = async () => {
