@@ -1,67 +1,193 @@
-# handover.md — Capytools, landing-page-revamp
+# handover.md — Capytools
 
-*Written 2026-09-09 for the next agent picking up this work. Read this first, then [decisions.md](decisions.md) (why things are the way they are), [learning.md](learning.md) (how not to burn time), and `AGENTS.md` + `DESIGN.md` (the standing rules).*
+*Rewritten 2026-10-02. This is the **state** file: what exists, what is verified, what is open. It is
+deliberately not a rules file — the rules live in their own documents and are linked, because a second copy
+of a rule is a copy that drifts. (The previous version, dated 2026-09-09, described the landing revamp; it is
+in git history — `git show 67bf494:handover.md` — and its why-and-what-happened material lives in
+[decisions.md](decisions.md) and [learning.md](learning.md).)*
+
+Everything in §1 and §2 was verified by running the commands on 2026-10-02, not read out of an earlier
+document. Where something could not be checked from here, it says so.
 
 ---
 
 ## 0. The 60-second version
 
-Capytools is a suite of five calm little browser tools (CapyWrapped, CapyImagine, CapyCreator, CapyStrip, CapyExpense-desktop) — no signup, no cookies, no telemetry, nothing leaves the machine. This session rebuilt the home page as an **editorial "magazine" landing** ported from a design archive, swapped the label font to **Albert Sans**, removed the Blender renders the owner rejected, made **every landing link route natively** (three new meta pages), and added a research-backed **surface arc** so the long scroll has chapters. All work is on branch `landing-page-revamp`, pushed, tests green. **Nothing is merged — and nothing may be merged without the owner** (merging triggers the Vercel production deploy).
+Capytools is a suite of **eleven** small tools at **capytools.app**. Ten run 100% in the browser tab and keep
+nothing; the eleventh, **CapyExpense**, is the documented exception — a Tauri desktop app that writes only to
+the user's own disk and states its own promise ("stored on your machine, never ours"). No accounts, no
+cookies, no telemetry, no uploads. The whole suite is Apache-2.0.
 
-## 1. Repo & branch state
+The site is a Next.js 16 app deployed to **Cloudflare Workers** (not Vercel — see §4.3), verified by a
+1204-test suite and, after every deploy, by a script that walks every page.
 
-- Working branch: **`landing-page-revamp`**. Parent branch: **`feat/capyexpense`** (the CapyExpense PR — tool no. 5, Tauri desktop app, first pushed to origin on 2026-09-09). Both PRs target `main` and are **open, stacked, unmerged**. On top of the landing sits **`tool-pages-revamp`** (2026-09-09): the five tool pages port the landing's editorial language via a shared `ToolPageShell` — see decisions D15–D18; its PR targets `landing-page-revamp`, so merging it does not deploy.
-- Owner workflow: PRs stay open until the landing is finalised; merging = deploy. Vercel builds a preview per push — previews are the review surface.
-- Recent commits on this branch (newest last): security pass + CapyOnsen + shadcn chore (on the parent) → plates → the editorial landing → design docs → surface arc → Albert Sans → native routing → descender fix → Apache-2.0 license.
-- Untracked on disk (intentional): `Capytools-Editorial-Landing-OpenDesign/` (the design archive this was ported from — includes `assets/imagegen-prompts.md` for regenerating plates), `docs/launch-video/` (a separate effort's logs), `.playwright-mcp/` et al. (gitignored).
+`main` is clean and level with `origin/main`. Nothing is half-finished in the working tree. The open work is
+**four green unmerged PRs** and **four written-but-unbuilt plans** — §4.
 
-## 2. What exists now
+---
 
-**The landing** (`src/app/page.tsx` → `src/components/landing/`): nine sections — Hero, LiveWire marquee, About (manifesto band), Capabilities (band), Labs (filterable catalog, tight 90px rhythm), Method, SelectedWork (ink slab), Colophon (160px), ClosingCta (sage band), LandingFooter (mega wordmark). Surface map: cream → white band → cream → ink slab → cream → sage band → cream.
+## 1. State (verified 2026-10-02)
 
-**File map:**
-- `src/lib/capytools/landing.ts` — **single source of all landing copy and link targets**. Registration-parity tests for CapyStrip/CapyExpense read this file.
-- `src/components/landing/*` — one component per section + `ScrollReveal` (whileInView), `LiveWire` (marquee + WCAG pause), `Labs` (filters), `SectionRule`, `icons`. The landing's masthead is the shared `Header` (`src/components/header.tsx`), not a landing component — the duplicate `LandingMasthead` was deleted with the rest of the two-masthead problem.
-- `src/components/landing/landing.css` — all landing styles, **every class prefixed `lp-`**, export palette remapped onto house tokens.
-- `public/plates/*.webp` — 16 editorial plates (~0.9 MB total).
-- `src/app/design|license|notes/page.tsx` — editorial meta pages (Header/SiteFooter chrome + `lp-` body).
-- `tests/landing.test.tsx` — 13 assertions incl. **zero external hrefs on the landing** and plate-existence checks.
+**Repository** — `E:\New-Personal-Projects\Capytools`, branch `main` at `67bf494`, level with `origin/main`.
+Working tree clean apart from two untracked local tooling artifacts (`.impeccable/` critique logs and a stray
+`CapyTools.lottie`); neither is app code, and neither is in `.gitignore`, which is why they keep showing up.
 
-**New pages this session:** `/notes` (project notes; holds the site's only external links — GitHub issue tracker/repo for contributions), `/design` (design system page), `/license` (Apache-2.0, read from the repo LICENSE at build time).
+**The suite** — eleven tools, all listed in `SUITE` (`src/lib/capytools/suite.ts`). That array is the only
+registry: the landing, masthead, catalog, footer, `/notes`, the sitemap, every count and every `Nº 0N / 11`
+sign-off derive from it. There is no second list to update.
 
-## 3. Standing conventions (violating these = rework)
+| # | Tool | Where it runs |
+|---|---|---|
+| 1 | CapyWrapped | browser (two GitHub proxies) |
+| 2 | CapyImagine | browser |
+| 3 | CapyCreator | browser (+ optional BYO-key LLM polish) |
+| 4 | CapyStrip | browser |
+| 5 | **CapyExpense** | **desktop — Tauri, the suite's one exception** |
+| 6 | CapyOG | browser |
+| 7 | CapyQR | browser |
+| 8 | CapyResize | browser |
+| 9 | CapyToken | browser |
+| 10 | CapyPixel | browser |
+| 11 | CapyTone | browser (one palette-extract fetch) |
 
-1. `AGENTS.md` is law: eyebrow format `Capy<Name> · tool no. X` in `font-mono text-[11px] uppercase tracking-[0.24em]`; hydration pattern (read localStorage on mount via useCallback+useEffect); shared `src/components/capyexpense/` UI imports no `next/*`, no `motion`, no storage (`tests/capyexpense-boundaries.test.ts` enforces).
-2. Colors only via tokens (`tokens.css`); no `prefers-color-scheme`; never invert a big surface with fg/bg swaps — give it local custom props (see the slab).
-3. Motion: expo-out `cubic-bezier(0.16,1,0.3,1)` family, 600/900ms entrances, 350ms hovers; transform/opacity only; everything dies under `prefers-reduced-motion`.
-4. The landing renders **zero external hrefs** — test-enforced. Contribution links live on `/notes` only.
-5. All landing copy comes from `src/lib/capytools/landing.ts`; the Colophon quotes the README "verbatim", so they change together (test-enforced).
-6. Label font is **Albert Sans** under the `--font-mono` token name (owner's swap). Don't reintroduce a mono without asking.
+**Verification run today, on this checkout:**
 
-## 4. Gotchas (details + war stories in learning.md)
+```
+npm run test       50 files, 1204 tests passing (10.6 s)
+npm run lint       clean
+npx tsc --noEmit   clean
+npm run build      clean — every page prerenders; the only dynamic routes are
+                   /api/contributions/[username], /api/languages/[username],
+                   /api/og/[username], /api/extract-palette and /u/[username];
+                   a Proxy (middleware) is present
+```
 
-- **Dev server lies**: `next dev --webpack` + the marquee's duplicated links = prefetch/HMR storm that freezes hydration. Verify with `npm run build && npx next start`. A frozen page can also mean corrupted `.next` → `rm -rf .next`.
-- **Mimosa pre-commit hook** prints partial-scan notices — normal; commits pass. Secret-shaped literals in tests hard-block; keep stubs non-literal.
-- **Automation browser**: viewport emulation persists (don't judge layout in a maximised emulation); cache-bust URLs when comparing builds; synthetic events don't fire CSS `:hover`.
-- Display type at `line-height: 1` clips descenders inside `overflow: hidden` — the mega wordmark carries `padding-bottom: 0.25em` for this; keep it.
+**Live** — `capytools.app` is serving the build from the last `main` push: `wrangler deployments list` shows
+the latest deployment created `2026-09-23T23:11Z`, matching the last `main` CI run at `23:09Z`. Spot-checked
+200s on `/`, `/tools`, `/capyqr`, `/notes`, `/robots.txt`, `/sitemap.xml` and `/u/torvalds`, with
+`Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` and the report-only CSP live.
 
-## 5. Verification playbook
+---
 
-1. `npm test` (457 passing), `npm run lint` (clean), `npm run build` (all routes prerender).
-2. `npx next start -p 3100` → check the landing + one tool page + one meta page.
-3. Playwright audit: unique hrefs → 0 external, all anchors resolve, all routes 200 (360/390/820/1440/1920, no horizontal overflow; dark mode toggle; marquee pause; Labs filters; reduced-motion).
-4. Squint test: each section should read as a chapter (surface map above).
+## 2. How it is built, shipped and verified
 
-## 6. Open items (pick-up points)
+`npm run` targets, as they actually behave today:
 
-1. **`lab-1.webp`** has "2023" baked into the art (decision D13, open). Regenerate from the archive's prompt pack with 2026, re-convert to WebP q82.
-2. **OG image** for `/` not wired — metadata is text-only. A static OG (hero plate or a satori card) is a cheap win.
-3. **`capabilities.webp`** has tiny garbled micro-text (unreadable at size; cosmetic).
-4. **README** documents the five tools but CapyStrip/CapyExpense sections are thin; a fuller rewrite was out of scope.
-5. ~~Tool-page header still has a "made by" GitHub icon (external)~~ — **resolved 2026-09-09 (D18)**: nativised to an internal `/notes` link on `tool-pages-revamp`; tool-page chrome is now zero-external (test-enforced there too).
-6. Full **Mimosa security audit** still pending (hook has only ever passed in compat mode).
-7. Editorial-lite trims are one-way doors only by convention — any dropped furniture (side rails, pagination, hero index) can be restored from the archive if the owner changes taste.
+| Command | What it does |
+|---|---|
+| `npm run dev` | `next dev --webpack`, port 3024 |
+| `npm run test` / `lint` | vitest run / eslint |
+| `npm run build` | `next build` — **this, plus `npx next start`, is how you judge a page** (§5) |
+| `npm run preview` | `opennextjs-cloudflare build && wrangler dev` |
+| `npm run deploy` | `opennextjs-cloudflare build && wrangler deploy` |
+| `npm run cf-clean` | kills orphaned `workerd`/esbuild on Windows (they hold `.open-next` and break the next build) |
 
-## 7. Kickoff prompt for the next agent
+**CI** (`.github/workflows/ci.yml`): a `test` job — lint, test, `next typegen`, `tsc --noEmit`,
+`npm audit --omit=dev --audit-level=high` — gates both other jobs. A PR gets `wrangler versions upload`
+(a staged version on its own URL; production is untouched). A push to `main` gets `wrangler deploy` followed
+by `node scripts/smoke.mjs`, which walks every page and asserts the security headers. Both build steps set
+`NEXT_PUBLIC_SITE_URL`, because it is inlined at **build** time — a Worker secret cannot fix it afterwards.
 
-> You are continuing work on Capytools (E:\New-Personal-Projects\Capytools), branch `landing-page-revamp`. Read `handover.md`, `decisions.md`, `learning.md`, `AGENTS.md`, and `DESIGN.md` before touching anything. The landing is an editorial port of the OpenDesign archive; all copy lives in `src/lib/capytools/landing.ts`; styles are `lp-`-prefixed in `landing.css`; the landing must render zero external hrefs (test-enforced). Verify with `npm test`, `npm run build`, and `npx next start` — never trust `next dev` for hydration judgement. Open items are listed in handover.md §6; the owner has final say on merging anything (merge = production deploy).
+**Rollback** is Cloudflare Worker version history (`wrangler rollback`). There is no other.
+
+The deploy account is pinned in `wrangler.jsonc`; the token is read from a gitignored `.env.cloudflare`
+(template: `.env.cloudflare.example`). `wrangler.jsonc` is part of the security surface — see AGENTS.md.
+
+---
+
+## 3. Where the truth lives
+
+| Document | Holds | Written |
+|---|---|---|
+| [AGENTS.md](AGENTS.md) | **The law.** Brand ethos, design tokens, the React 19 hydration pattern, tool registration, and the Cloudflare Workers runtime rules. `CLAUDE.md` is just `@AGENTS.md`. | 2026-09-19 |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | The promise in two versions, the test-enforced boundaries, and the single copy of the **"Adding a tool"** recipe. | 2026-09-18 |
+| [DESIGN.md](DESIGN.md) | The design system as built. | 2026-09-23 |
+| [PRODUCT.md](PRODUCT.md) | Product truth: users, positioning, operating context, what evidence exists and what must not be fabricated. | 2026-09-23 |
+| [README.md](README.md) | User-facing. Its first-line count ("Eleven so far") is asserted against `COLOPHON.quote` in `src/lib/capytools/landing.ts` and `package.json`'s `description` — all three change together. | 2026-09-24 |
+| [decisions.md](decisions.md), [learning.md](learning.md) | Dated records of the **2026-09-09 landing revamp**. Read them for *why things are the way they are* and for debugging war stories — not for current state: D1–D2 still describe a Vercel deploy and a five-tool suite, and D9 still calls the licence MIT (D14 changed it to Apache-2.0). | 2026-09-09 |
+| `docs/research/**` | The expansion roadmap, the tiered tool pipeline, the monetisation spec, and a research dir for each candidate tool. **Gitignored — local to this machine, not backed up by the repo.** | through 2026-09-21 |
+
+---
+
+## 4. Open work
+
+### 4.1 Four PRs, all green and mergeable as of today
+
+| PR | Title | Open since | Divergence |
+|---|---|---|---|
+| #60 | settle line endings, stop the suite flaking under load | Sep 30 | 2 commits |
+| #61 | one `PageShell` for every page's opener | Sep 30 | 10 commits |
+| #62 | drop five class hooks no stylesheet defines | Sep 30 | 2 commits |
+| #11 | capyexpense: see and restore an earlier copy of a workbook | Sep 12 | stale |
+
+#60/#61/#62 are a self-contained stack from one session and are the cheapest thing on this list — merge as a
+train, oldest first. Note that **#61 renames `ToolPageShell` to `PageShell`**: until it lands, CONTRIBUTING.md's
+"Adding a tool" step 1 and AGENTS.md's reference are correct as written.
+
+### 4.2 Written but unbuilt
+
+- **The monetisation platform** — `docs/research/monetisation/implementation-plan.md` (Sep 21). A complete
+  spec: D1 schema, a merchant-of-record checkout (Lemon Squeezy by default), magic-link auth, an entitlement
+  route, client-side batch + streaming ZIP, a file map, a test plan, and a rollout order that ships **CapyQR
+  first**. **Zero code exists.** It is the single spec behind the four per-tool slices in
+  `docs/research/{capyqr,capyresize,capystrip,capyog}/monetisation-plan.md`, so all five move together. Its
+  §9.2 still lists **seven owner decisions as "defaults proposed"** — price ($19 one-time), suite-wide vs
+  per-tool Pro, and provider choice among them. Nothing here can be built before those are answered.
+- **The tool pipeline** — `docs/research/expansion/tool-pipeline-tiers.md` (Sep 21). Fifteen researched,
+  unbuilt tools: Tier 1 CapyCut, CapyPassport, CapyRead, CapyStamp, CapyResume; Tier 2 CapyVeil, CapyCrop,
+  CapyGIF, CapyReel, CapyWave; Tier 3 CapyData, CapyVector, CapyMark, CapyBarcode, CapyCalc. Twenty-three
+  research dirs against eleven shipped tools.
+- **CapyExpense builds** — the page is live and marked "Desktop · soon". The Tauri app exists under `desktop/`
+  and has been built locally (`desktop/src-tauri/target/{debug,release}`), but no build is published. PR #11
+  is its open history feature. PRODUCT.md records the open question: whether it ships builds, and when.
+- **A launch video** — `docs/launch-video/{decision,learning}.md` (Sep 13) plus renders in `.video_agent/`
+  (Sep 8). Scoped, never published; nothing in the repo says whether it is paused or dead.
+- **Two cosmetic carry-overs** from the Sep 9 pass, both still true: `public/plates/lab-1.webp` has "2023"
+  baked into the art while the page says 2026 (decision D13, open — it has never been regenerated: one commit
+  since it landed), and `capabilities.webp` carries unreadable micro-text at display size. Neither breaks
+  anything; both need an image-generation pass, not code.
+
+### 4.3 Documentation that is behind reality
+
+- `docs/research/cloudflare-migration/implementation-plan.md` ends with seven unticked checkboxes. The things
+  they check largely pass live (HSTS with preload, robots + sitemap 200, `/u/[username]` 200). Only the Search
+  Console / Bing verification is unconfirmed from here. Tick them or retire them — as written they imply work.
+- **`vercel.json` is still tracked at the root**, declaring `"framework": "nextjs"` for a host the site left in
+  September. It does nothing, and it is a lie in the tree.
+- **Orphaned plan documents** whose work landed anyway: `.hermes/plans/prompt-generator-*.md` (Aug 21 — still
+  says "awaiting scope confirmation"; CapyImagine and CapyCreator both shipped), `capytone/.hermes/plans/
+  mood-families-plan.md` (Aug 24 — shipped: `engine/families.ts`, `startColors.ts`, `MoodPills.tsx`), and all
+  four `.zcode/plans/` (Sep 5–13 — landing, tool-pages and expansion pre-flight, all executed). One real gap:
+  the Sep 13 CapyQR v2 plan's stated deliverable, `docs/research/capyqr/implementation-plan-v2.md`, was never
+  written, though its code shipped (`capyqr/utf8.ts`, `frame.ts` and the tel/geo/event payloads are in tree).
+
+---
+
+## 5. Things that will bite
+
+- **The dev server lies about hydration-heavy pages.** Under `next dev --webpack`, the marquee's duplicated
+  links feed the prefetcher forever and hydration never settles — frozen motion, dead clicks, and it looks
+  exactly like a hydration bug. Judge pages with `npm run build && npx next start`. A frozen page can also be
+  a corrupted `.next`. Full story: learning.md L1.
+- **Line endings.** There is no `.gitattributes`, and on this machine 257 tracked files check out CRLF over an
+  LF index. PR #60 is the settle. Until it lands, line-ending noise in a diff is expected — not something you
+  caused.
+- **Nothing local blocks a bad commit.** No pre-commit hook is installed (`.git/hooks` holds only git's
+  samples; `core.hooksPath` is unset), so a red suite or a secret-shaped literal reaches GitHub. CI is the gate.
+- **The Workers runtime rules are load-bearing, and each one is a bug that already happened** — no filesystem
+  at module scope, in-memory Maps do not accumulate, `s-maxage`/`revalidate` are inert (use `withEdgeCache`),
+  outbound `fetch` sends no `User-Agent`, `NEXT_PUBLIC_SITE_URL` is inlined at build time, `public/_headers`
+  carries the `/_next/static` headers, and `wrangler.jsonc` is security surface. The list lives in AGENTS.md
+  §Hosting; read it before adding a route rather than after it 500s.
+
+---
+
+## 6. Kickoff prompt for the next agent
+
+> You are continuing work on Capytools (`E:\New-Personal-Projects\Capytools`), branch `main`. Read
+> `handover.md` (this file) first, then `AGENTS.md` — which is law — then `CONTRIBUTING.md` before touching a
+> tool page. Verify with `npm run test`, `npm run lint`, `npx tsc --noEmit` and `npm run build`; judge pages
+> with `npm run build && npx next start`, never `next dev`. The suite is eleven tools, registered in
+> `src/lib/capytools/suite.ts` and nowhere else. `main` is clean; the open work is four green PRs (#60, #61,
+> #62, #11) plus the unbuilt plans in §4.2 — the monetisation spec is blocked on seven owner decisions, so ask
+> before assuming. Merging to `main` deploys to Cloudflare, and the owner has final say on every merge.
