@@ -300,6 +300,12 @@ the headline starts uppercase and the lead starts lowercase.
   `grid gap-4 sm:grid-cols-2 lg:grid-cols-3`, stagger 100ms per card.
 - Header row: `max-w-4xl`, `px-6 py-5`, sticky with `bg-background/80`
   backdrop blur.
+- The tool's live preview pins on `lg:` (`sticky`, `top-6`) and is capped at
+  `calc(100dvh - 3rem)` so the pane never exceeds the viewport; the paper
+  scrolls inside it, because a one-page document at true size (521×1056 on a
+  laptop) is taller than the window. `self-start` on that grid item is
+  load-bearing — a stretched item has no distance left to travel. Below `lg:`
+  the preview stays in normal flow.
 - Tool pages: `AmbientBackground` + `CapyMark` on every page; body paints the
   canvas (no opaque wrapper over the fixed `-z-10` ambient layer).
 - Browser chrome is themed too: sage-tinted `::selection`, sage

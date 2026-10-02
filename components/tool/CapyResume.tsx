@@ -869,7 +869,13 @@ export function CapyResume() {
           </section>
 
           {/* ---------------------------------------------------- card 2 */}
-          <section className="space-y-4">
+          {/* Pinned on `lg:` so the document stays visible while the form scrolls
+              (.hermes/plans/2026-09-24_120000-sticky-preview.md). `self-start` is load-bearing:
+              a grid item stretches to its row height by default, and a stretched item has no
+              distance left to travel, so `sticky` would never engage. Measured before this:
+              the paper is 521x1056 in a 1440x900 viewport and sat 3623px above the viewport
+              top once the form was scrolled. */}
+          <section className="space-y-4 lg:sticky lg:top-6 lg:flex lg:max-h-[calc(100dvh-3rem)] lg:flex-col lg:self-start">
             <h2 className="font-display text-lg font-semibold">2. The page</h2>
 
             <div className="flex flex-wrap gap-3">
@@ -911,15 +917,21 @@ export function CapyResume() {
             </ul>
 
             {/* The paper itself: white stock and black ink in both themes, because this is
-                the document, not the interface. */}
-            <div
-              className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
-              style={previewPaperStyle(spec)}
-            >
-              <div style={{ padding: '28pt 30pt' }}>
-                {blocks.map((block, index) => (
-                  <BlockView key={index} block={block} spec={spec} />
-                ))}
+                the document, not the interface. It is routinely taller than the viewport
+                (521x1056 on a laptop), so the pinned pane scrolls it rather than clipping
+                it — and `min-h-0` is what lets a flex child shrink below its content and
+                become scrollable at all. The scrollbar rides the gutter beside the paper,
+                never inside its border. */}
+            <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+              <div
+                className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
+                style={previewPaperStyle(spec)}
+              >
+                <div style={{ padding: '28pt 30pt' }}>
+                  {blocks.map((block, index) => (
+                    <BlockView key={index} block={block} spec={spec} />
+                  ))}
+                </div>
               </div>
             </div>
           </section>
