@@ -17,23 +17,44 @@ const isProd = process.env.NODE_ENV === 'production';
  * `script-src` and `style-src` need `'unsafe-inline'`: Next's App Router
  * streams its own inline bootstrap and flight data, and React sets style
  * attributes directly. `'unsafe-eval'` is dev-only.
+ *
+ * `'wasm-unsafe-eval'` is not optional, and its absence is invisible until a
+ * production build meets a real browser. The PDF exporter's layout engine is
+ * `yoga-layout` — the WebAssembly build @react-pdf/renderer instantiates at
+ * runtime — and WebAssembly compilation is governed by `script-src`. Without
+ * the token, Download PDF fails with `CompileError: WebAssembly.instantiate():
+ * ... violates the following Content-Security policy directive` while
+ * `npm run dev` (which carries `'unsafe-eval'`) and `npm run verify:pdf` (which
+ * runs in Node, where no CSP applies) both stay green. It permits exactly WASM
+ * compilation and still forbids JS `eval`, which is why it is preferred over
+ * restoring `'unsafe-eval'` in production.
  */
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  isProd
-    ? "connect-src 'self' https: http://localhost:* http://127.0.0.1:*"
-    : "connect-src 'self' https: http: ws: wss:",
-  "worker-src 'self' blob:",
-  "manifest-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join('; ');
+/**
+ * Exported so the guard tests can assert both branches. This file is evaluated
+ * once, with the ambient `NODE_ENV`, so a test run otherwise never sees the
+ * production policy — which is precisely how a WASM-hostile `script-src`
+ * reached a production build with every check green.
+ */
+export function buildContentSecurityPolicy(isProduction: boolean): string {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isProduction ? '' : " 'unsafe-eval'"}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    isProduction
+      ? "connect-src 'self' https: http://localhost:* http://127.0.0.1:*"
+      : "connect-src 'self' https: http: ws: wss:",
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+}
+
+const contentSecurityPolicy = buildContentSecurityPolicy(isProd);
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

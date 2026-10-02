@@ -29,7 +29,7 @@ const rawBase = process.argv[2] ?? process.env.NEXT_PUBLIC_SITE_URL ?? '';
 if (!rawBase) {
   console.error(
     'No origin given. Pass one as an argument or set NEXT_PUBLIC_SITE_URL.\n' +
-      'This script refuses to guess an origin: guessing is the failure it exists to catch.',
+      'This script refuses to guess an origin: guessing is the failure it exists to catch.'
   );
   process.exit(2);
 }
@@ -51,14 +51,18 @@ const record = (name, ok, detail = '') => {
 };
 
 const get = async (url) => {
-  const res = await fetch(url, { redirect: 'follow', headers: { 'user-agent': 'capyresume-deploy-check' } });
+  const res = await fetch(url, {
+    redirect: 'follow',
+    headers: { 'user-agent': 'capyresume-deploy-check' },
+  });
   const body = await res.text();
   return { res, body };
 };
 
 const one = (html, pattern, label) => {
   const matches = [...html.matchAll(pattern)];
-  if (matches.length !== 1) throw new Error(`${label}: expected exactly 1, found ${matches.length}`);
+  if (matches.length !== 1)
+    throw new Error(`${label}: expected exactly 1, found ${matches.length}`);
   return matches[0][1];
 };
 
@@ -70,10 +74,38 @@ try {
   record(
     'robots.txt answers and points at the sitemap',
     res.status === 200 && pointsAtSitemap,
-    `status ${res.status}${pointsAtSitemap ? '' : ', sitemap line missing or wrong origin'}`,
+    `status ${res.status}${pointsAtSitemap ? '' : ', sitemap line missing or wrong origin'}`
   );
 } catch (error) {
   record('robots.txt answers and points at the sitemap', false, String(error.message));
+}
+
+// 1b. the served policy still lets the document engine compile WebAssembly
+try {
+  const res = await fetch(`${base}/`, { redirect: 'follow' });
+  const csp = res.headers.get('content-security-policy') ?? '';
+  const scriptSrc =
+    csp
+      .split(';')
+      .map((part) => part.trim())
+      .find((part) => part.startsWith('script-src')) ?? '';
+  const allowsWasm = scriptSrc.includes("'wasm-unsafe-eval'");
+  const allowsEval = scriptSrc.includes("'unsafe-eval'");
+  record(
+    'policy permits the PDF exporter to compile WebAssembly, without eval',
+    allowsWasm && !allowsEval,
+    allowsWasm
+      ? allowsEval
+        ? "'unsafe-eval' is also present in this build"
+        : 'script-src ok'
+      : "'wasm-unsafe-eval' missing — Download PDF will fail in this build"
+  );
+} catch (error) {
+  record(
+    'policy permits the PDF exporter to compile WebAssembly, without eval',
+    false,
+    String(error.message)
+  );
 }
 
 // 2. sitemap.xml, and every static path from the source is in it
@@ -85,7 +117,7 @@ try {
   record(
     'sitemap.xml answers, is non-empty, and every URL is on this origin',
     res.status === 200 && total > 0 && foreign.length === 0,
-    `${total} URLs${foreign.length ? `, ${foreign.length} off-origin (e.g. ${foreign[0]})` : ''}`,
+    `${total} URLs${foreign.length ? `, ${foreign.length} off-origin (e.g. ${foreign[0]})` : ''}`
   );
 
   const source = readFileSync(path.join(process.cwd(), 'app/sitemap.ts'), 'utf8');
@@ -95,7 +127,7 @@ try {
   record(
     'every STATIC_PATHS entry from app/sitemap.ts is in the sitemap',
     staticPaths.length > 0 && missing.length === 0,
-    missing.length ? `missing ${missing.join(', ')}` : `${staticPaths.length} static paths`,
+    missing.length ? `missing ${missing.join(', ')}` : `${staticPaths.length} static paths`
   );
 } catch (error) {
   record('sitemap.xml', false, String(error.message));
@@ -130,7 +162,9 @@ if (sitemapUrls.length) {
   record(
     'every sitemap URL: 200, self-canonical, no placeholder origin',
     failures.length === 0,
-    failures.length ? `${failures.length} bad of ${sitemapUrls.length}: ${failures.slice(0, 3).join('; ')}` : `${checked} URLs`,
+    failures.length
+      ? `${failures.length} bad of ${sitemapUrls.length}: ${failures.slice(0, 3).join('; ')}`
+      : `${checked} URLs`
   );
 }
 
@@ -147,7 +181,7 @@ try {
   record(
     'social card resolves on this origin as a 1200x630 PNG',
     sameOrigin && card.status === 200 && isPng && width === 1200 && height === 630,
-    `${ogImage} → ${card.status}, ${isPng ? `${width}x${height}` : 'not a PNG'}${sameOrigin ? '' : ' (off-origin!)'}`,
+    `${ogImage} → ${card.status}, ${isPng ? `${width}x${height}` : 'not a PNG'}${sameOrigin ? '' : ' (off-origin!)'}`
   );
 } catch (error) {
   record('social card resolves on this origin as a 1200x630 PNG', false, String(error.message));
@@ -156,6 +190,6 @@ try {
 const failed = results.filter((r) => !r.ok);
 console.log(
   `\n${results.length - failed.length}/${results.length} checks passed against ${base}` +
-    (failed.length ? `\n\nNot deployable yet. Fix the FAIL lines above and re-run.` : `\n`),
+    (failed.length ? `\n\nNot deployable yet. Fix the FAIL lines above and re-run.` : `\n`)
 );
 process.exit(failed.length ? 1 : 0);
