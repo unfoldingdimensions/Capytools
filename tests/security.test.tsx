@@ -166,7 +166,7 @@ describe("PNG text inflation is bounded", () => {
     expect(chunks[0].value.length).toBeLessThan(500);
   });
 
-  it.skipIf(!hasStreams)("charges an over-limit chunk the whole file budget", async () => {
+  it.skipIf(!hasStreams)("stops inflating once the file's budget is spent", async () => {
     // The budget is per FILE, so a bomb that trips the ceiling spends it — the
     // case that matters is a PNG carrying many SMALL bombs, each individually
     // under the ceiling, which must still stop inflating once the file's 4MB is
@@ -204,6 +204,30 @@ describe("PNG text inflation is bounded", () => {
     // whole file stays under 5MB where an uncapped read would return 20MB.
     expect(inflated.length).toBeLessThan(60);
     expect(bytes).toBeLessThan(5 * 1024 * 1024);
+  });
+
+  it.skipIf(!hasStreams)("charges an over-limit chunk the whole file budget", async () => {
+    // The test above cannot see this one: with an over-limit chunk charged only
+    // the ~70 bytes of its sentinel, small bombs still stop at ~40 and the
+    // byte total still stays under 5MB — the regression just costs time, and
+    // time is the one thing a test must not measure. So the property is
+    // asserted where it is observable: after a chunk blows the ceiling, even a
+    // 1KB chunk finds no budget left. Charged the sentinel, it would inflate.
+    const chunk = (raw: Buffer) => {
+      const body = Buffer.concat([Buffer.from("parameters\0\0", "latin1"), deflateSync(raw)]);
+      const len = Buffer.alloc(4);
+      len.writeUInt32BE(body.length);
+      return Buffer.concat([len, Buffer.from("zTXt", "latin1"), body, Buffer.alloc(4)]);
+    };
+    const png = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      chunk(Buffer.alloc(5 * 1024 * 1024)), // past the 4MB ceiling
+      chunk(Buffer.alloc(1024, 0x61)), // fits any budget except a spent one
+    ]);
+
+    const [over, tiny] = await readPngText(new Uint8Array(png));
+    expect(over.value).toContain("too large");
+    expect(tiny.value).toContain("too large");
   });
 });
 
