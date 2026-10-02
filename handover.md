@@ -18,17 +18,18 @@ nothing; the eleventh, **CapyExpense**, is the documented exception — a Tauri 
 the user's own disk and states its own promise ("stored on your machine, never ours"). No accounts, no
 cookies, no telemetry, no uploads. The whole suite is Apache-2.0.
 
-The site is a Next.js 16 app deployed to **Cloudflare Workers** (not Vercel — see §4.3), verified by a
-1204-test suite and, after every deploy, by a script that walks every page.
+The site is a Next.js 16 app (16.3.8) deployed to **Cloudflare Workers** (not Vercel — see §4.3), verified
+by a 1208-test suite and, after every deploy, by a script that walks every page.
 
 `main` is clean and level with `origin/main`. Nothing is half-finished in the working tree. The open work is
-**four green unmerged PRs** and **four written-but-unbuilt plans** — §4.
+**one unmerged PR** (#11) and **four written-but-unbuilt plans** — §4.
 
 ---
 
 ## 1. State (verified 2026-10-02)
 
-**Repository** — `E:\New-Personal-Projects\Capytools`, branch `main` at `67bf494`, level with `origin/main`.
+**Repository** — `E:\New-Personal-Projects\Capytools`, branch `main`, level with `origin/main`. The last
+code change under this file is `4306e88` (#60); see §4.1 for what merged on 2026-10-02.
 Working tree clean apart from two untracked local tooling artifacts (`.impeccable/` critique logs and a stray
 `CapyTools.lottie`); neither is app code, and neither is in `.gitignore`, which is why they keep showing up.
 
@@ -53,7 +54,7 @@ sign-off derive from it. There is no second list to update.
 **Verification run today, on this checkout:**
 
 ```
-npm run test       50 files, 1204 tests passing (10.6 s)
+npm run test       52 files, 1208 tests passing (10.9 s)
 npm run lint       clean
 npx tsc --noEmit   clean
 npm run build      clean — every page prerenders; the only dynamic routes are
@@ -62,9 +63,10 @@ npm run build      clean — every page prerenders; the only dynamic routes are
                    a Proxy (middleware) is present
 ```
 
-**Live** — `capytools.app` is serving the build from the last `main` push: `wrangler deployments list` shows
-the latest deployment created `2026-09-23T23:11Z`, matching the last `main` CI run at `23:09Z`. Spot-checked
-200s on `/`, `/tools`, `/capyqr`, `/notes`, `/robots.txt`, `/sitemap.xml` and `/u/torvalds`, with
+**Live** — `capytools.app` is serving the build from the last `main` push: the CI run for it finished green at
+`2026-10-02T11:01Z`, deploy and smoke (57 passed, 0 failed) included. (Read from the CI run, not from
+`wrangler deployments list`.) Spot-checked 200s on `/`, `/tools`, `/capyqr`, `/notes`, `/robots.txt`,
+`/sitemap.xml`, `/u/torvalds` and `/api/og/octocat`, with
 `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` and the report-only CSP live.
 
 ---
@@ -111,18 +113,25 @@ The deploy account is pinned in `wrangler.jsonc`; the token is read from a gitig
 
 ## 4. Open work
 
-### 4.1 Four PRs, all green and mergeable as of today
+### 4.1 Pull requests
 
-| PR | Title | Open since | Divergence |
+**Open:** one.
+
+| PR | Title | Open since | State |
 |---|---|---|---|
-| #60 | settle line endings, stop the suite flaking under load | Sep 30 | 2 commits |
-| #61 | one `PageShell` for every page's opener | Sep 30 | 10 commits |
-| #62 | drop five class hooks no stylesheet defines | Sep 30 | 2 commits |
-| #11 | capyexpense: see and restore an earlier copy of a workbook | Sep 12 | stale |
+| #11 | capyexpense: see and restore an earlier copy of a workbook | Sep 12 | stale; owned by another agent — leave it |
 
-#60/#61/#62 are a self-contained stack from one session and are the cheapest thing on this list — merge as a
-train, oldest first. Note that **#61 renames `ToolPageShell` to `PageShell`**: until it lands, CONTRIBUTING.md's
-"Adding a tool" step 1 and AGENTS.md's reference are correct as written.
+**Settled on 2026-10-02:**
+
+| PR | Title | Outcome |
+|---|---|---|
+| #62 | drop five class hooks no stylesheet defines | merged |
+| #63 | next 16.3.8 — critical RCE in `next/og` `ImageResponse` ([GHSA-vcvr-r3jv-pc5j](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j)) | merged; CI's `npm audit` gate had started failing on it, blocking every deploy |
+| #60 | settle line endings, stop the suite flaking under load | merged, with a deterministic test for the PNG over-limit charge added in review |
+| #61 | one `PageShell` for every page's opener | **closed unmerged** |
+
+Because #61 closed, the shell is still **`ToolPageShell`**: CONTRIBUTING.md's "Adding a tool" step 1 and
+AGENTS.md's reference are correct as written.
 
 ### 4.2 Written but unbuilt
 
@@ -169,9 +178,11 @@ train, oldest first. Note that **#61 renames `ToolPageShell` to `PageShell`**: u
   links feed the prefetcher forever and hydration never settles — frozen motion, dead clicks, and it looks
   exactly like a hydration bug. Judge pages with `npm run build && npx next start`. A frozen page can also be
   a corrupted `.next`. Full story: learning.md L1.
-- **Line endings.** There is no `.gitattributes`, and on this machine 257 tracked files check out CRLF over an
-  LF index. PR #60 is the settle. Until it lands, line-ending noise in a diff is expected — not something you
-  caused.
+- **Line endings.** `.gitattributes` (from #60) pins `* text=auto eol=lf`, so a fresh clone checks out LF
+  everywhere. A checkout made **before** it still holds CRLF — this one has 249 such files — and needs one
+  renormalisation pass, which discards uncommitted changes to tracked files:
+  `git rm -r --cached . -q && git reset --hard HEAD`. `tests/line-endings.test.ts` names the cause if it
+  bites.
 - **Nothing local blocks a bad commit.** No pre-commit hook is installed (`.git/hooks` holds only git's
   samples; `core.hooksPath` is unset), so a red suite or a secret-shaped literal reaches GitHub. CI is the gate.
 - **The Workers runtime rules are load-bearing, and each one is a bug that already happened** — no filesystem
@@ -188,6 +199,7 @@ train, oldest first. Note that **#61 renames `ToolPageShell` to `PageShell`**: u
 > `handover.md` (this file) first, then `AGENTS.md` — which is law — then `CONTRIBUTING.md` before touching a
 > tool page. Verify with `npm run test`, `npm run lint`, `npx tsc --noEmit` and `npm run build`; judge pages
 > with `npm run build && npx next start`, never `next dev`. The suite is eleven tools, registered in
-> `src/lib/capytools/suite.ts` and nowhere else. `main` is clean; the open work is four green PRs (#60, #61,
-> #62, #11) plus the unbuilt plans in §4.2 — the monetisation spec is blocked on seven owner decisions, so ask
-> before assuming. Merging to `main` deploys to Cloudflare, and the owner has final say on every merge.
+> `src/lib/capytools/suite.ts` and nowhere else. `main` is clean; the open work is one PR (#11, owned by
+> another agent — leave it) plus the unbuilt plans in §4.2 — the monetisation spec is blocked on seven owner
+> decisions, so ask before assuming. Merging to `main` deploys to Cloudflare, and the owner has final say on
+> every merge.
