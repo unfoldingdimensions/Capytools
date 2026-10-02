@@ -28,7 +28,7 @@ export function Capabilities() {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal className="lp-capabilities-copy">
+          <ScrollReveal>
             <span className="lp-label">
               {CAPABILITIES.label} <span className="lp-ix">{CAPABILITIES.ix}</span>
             </span>

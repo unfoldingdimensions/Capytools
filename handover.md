@@ -21,7 +21,7 @@ Capytools is a suite of five calm little browser tools (CapyWrapped, CapyImagine
 
 **File map:**
 - `src/lib/capytools/landing.ts` — **single source of all landing copy and link targets**. Registration-parity tests for CapyStrip/CapyExpense read this file.
-- `src/components/landing/*` — one component per section + `ScrollReveal` (whileInView), `LandingMasthead` (headroom), `LiveWire` (marquee + WCAG pause), `Labs` (filters), `SectionRule`, `icons`.
+- `src/components/landing/*` — one component per section + `ScrollReveal` (whileInView), `LiveWire` (marquee + WCAG pause), `Labs` (filters), `SectionRule`, `icons`. The landing's masthead is the shared `Header` (`src/components/header.tsx`), not a landing component — the duplicate `LandingMasthead` was deleted with the rest of the two-masthead problem.
 - `src/components/landing/landing.css` — all landing styles, **every class prefixed `lp-`**, export palette remapped onto house tokens.
 - `public/plates/*.webp` — 16 editorial plates (~0.9 MB total).
 - `src/app/design|license|notes/page.tsx` — editorial meta pages (Header/SiteFooter chrome + `lp-` body).
