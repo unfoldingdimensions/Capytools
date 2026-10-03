@@ -7,6 +7,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
+import { ToolGuideSection } from "@/components/tool/ToolGuideSection";
+import { TOOL_GUIDES } from "@/lib/capytools/guides";
 import { softwareApplicationLd } from "@/lib/capytools/structured-data";
 import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
 import { cn } from "@/lib/utils";
@@ -72,6 +74,7 @@ export function ToolPageShell({
   // of them and the last one to be forgotten simply lied.
   const index = `Nº ${pad2(SUITE.findIndex((row) => row.name === tool) + 1)} / ${SUITE_INDEX}`;
   const width = large ? "max-w-5xl" : "max-w-4xl";
+  const guide = TOOL_GUIDES[tool];
 
   return (
     // No `bg-background` here on purpose: body already paints it, and an opaque
@@ -144,6 +147,9 @@ export function ToolPageShell({
             )}
           </div>
         </div>
+
+        {/* Below the stage, never around it: the text a crawler reads. */}
+        {guide ? <ToolGuideSection guide={guide} width={width} /> : null}
 
         {/* The closing accent, and where the sign-off lives. */}
         <div className="lp-tool-signoff">
