@@ -58,6 +58,14 @@ export interface ModelSpec {
   sigmoid: boolean;
   /** Backends this model may run on. BiRefNet is WebGPU-only (plan §3.4). */
   backends: readonly Backend[];
+  /**
+   * The smallest `maxStorageBuffersPerShaderStage` a WebGPU adapter must report
+   * for this model to run. Measured, not guessed: BiRefNet_lite's graph needs a
+   * shader with 17 storage buffers, and Chrome on Windows/D3D reports 16 — the
+   * run then never settles (review, 2026-10-04). Checked BEFORE the download,
+   * so nobody pulls 109 MB for a model their GPU cannot run.
+   */
+  minStorageBuffersPerShaderStage?: number;
 }
 
 export const MODELS: Readonly<Record<ModelId, ModelSpec>> = {
@@ -94,6 +102,7 @@ export const MODELS: Readonly<Record<ModelId, ModelSpec>> = {
     std: [0.229, 0.224, 0.225],
     sigmoid: true,
     backends: ["webgpu"],
+    minStorageBuffersPerShaderStage: 17,
   },
 };
 

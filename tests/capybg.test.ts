@@ -1,7 +1,9 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { metadata } from "@/app/capybg/page";
-import { CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU, DETAILED_REFUSED_NOTE, decideBackend, gpuFailureFallback } from "@/lib/capybg/backend";
+import { CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU, DETAILED_REFUSED_NOTE, decideBackend, gpuFailureFallback, modelFits } from "@/lib/capybg/backend";
 import { bgFilename, backdropFill, clampQuality, decideCompose } from "@/lib/capybg/compose";
 import { MAX_ASSET_BYTES, validateManifest } from "@/lib/capybg/manifest";
 import { MODELS, MODEL_IDS, modelUrl, sha8 } from "@/lib/capybg/models";
@@ -370,5 +372,55 @@ describe("registration — the suite knows CapyBg", () => {
     // network" never is, because the model downloads.
     expect(description.toLowerCase()).toContain("never uploaded");
     expect(description.toLowerCase()).not.toMatch(/offline|no network/);
+  });
+});
+
+describe("the detailed model is offered only where it can run", () => {
+  // Measured in review (2026-10-04): BiRefNet_lite needs a 17-storage-buffer
+  // shader; Chrome on Windows/D3D reports 16, and the run then never settles.
+  const real = (n: number) => ({ maxStorageBuffersPerShaderStage: n, isFallbackAdapter: false });
+
+  it("pins the measured requirement on the detailed model, and none on the people model", () => {
+    expect(MODELS.birefnet.minStorageBuffersPerShaderStage).toBe(17);
+    expect(MODELS.modnet.minStorageBuffersPerShaderStage).toBeUndefined();
+  });
+
+  it("refuses the detailed model on a 16-buffer adapter, before any download", () => {
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu", gpu: real(16) })).toBe(false);
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu", gpu: real(17) })).toBe(true);
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu", gpu: real(32) })).toBe(true);
+  });
+
+  it("refuses it on a software fallback adapter and with no adapter limits at all", () => {
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu", gpu: { maxStorageBuffersPerShaderStage: 32, isFallbackAdapter: true } })).toBe(false);
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu" })).toBe(false);
+  });
+
+  it("refuses it on the CPU path, where it would exhaust the wasm heap", () => {
+    expect(modelFits(MODELS.birefnet, { backend: "wasm" })).toBe(false);
+  });
+
+  it("always fits the people model on either backend, whatever the adapter", () => {
+    expect(modelFits(MODELS.modnet, { backend: "webgpu", gpu: real(8) })).toBe(true);
+    expect(modelFits(MODELS.modnet, { backend: "wasm" })).toBe(true);
+  });
+});
+
+describe("no cut can wait forever", () => {
+  const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+
+  it("the worker reports the adapter's storage-buffer limit with its decision", () => {
+    expect(read("src/lib/capybg/worker.ts")).toMatch(/maxStorageBuffersPerShaderStage/);
+  });
+
+  it("loads and runs carry watchdogs, and the page offers a stop", async () => {
+    const client = read("src/lib/capybg/client.ts");
+    expect(client).toMatch(/LOAD_TIMEOUT_MS,\n\s*\);/);
+    expect(client).toMatch(/RUN_TIMEOUT_MS,\n\s*\);/);
+    expect(client).toMatch(/worker\.terminate\(\)/);
+    const { LOAD_TIMEOUT_MS, RUN_TIMEOUT_MS } = await import("@/lib/capybg/client");
+    expect(LOAD_TIMEOUT_MS).toBeGreaterThanOrEqual(60_000);
+    expect(RUN_TIMEOUT_MS).toBeGreaterThanOrEqual(30_000);
+    expect(read("src/components/tool/CapyBg.tsx")).toMatch(/onClick=\{\(\) => cancelCut\(\)\}/);
   });
 });

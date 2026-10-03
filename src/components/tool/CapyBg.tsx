@@ -11,8 +11,8 @@ import { COPIED_MS } from "@/lib/capytools/feedback";
 import { saveBlob } from "@/lib/download";
 import { formatBytes } from "@/lib/capystrip/format";
 import { drawDemoCut, drawDemoSource } from "@/lib/capybg/demo";
-import { clearCut, nameFor, probeBackend, recomposeCut, removeBackground, DetailedModelUnavailableError, UnsupportedImageError } from "@/lib/capybg/client";
-import { DETAILED_REFUSED_NOTE } from "@/lib/capybg/backend";
+import { cancelCut, clearCut, nameFor, probeBackend, recomposeCut, removeBackground, CutCancelledError, DetailedModelUnavailableError, UnsupportedImageError } from "@/lib/capybg/client";
+import { DETAILED_REFUSED_NOTE, DETAILED_UNFIT_NOTE, modelFits } from "@/lib/capybg/backend";
 import { deleteCachedModels } from "@/lib/capybg/loader";
 import { MODELS } from "@/lib/capybg/models";
 import type { Backdrop, BgResult, ModelId, OutputFormat, Progress } from "@/lib/capybg/types";
@@ -118,6 +118,9 @@ export function CapyBg() {
   // GPU refuses the detailed model it stays hidden for the visit.
   const [model, setModel] = useState<ModelId>("modnet");
   const [detailedBlocked, setDetailedBlocked] = useState(false);
+  // Whether this GPU can run the detailed model at all — read from the probe's
+  // adapter limits, so an unfit GPU is never offered a 109 MB download.
+  const [detailedFits, setDetailedFits] = useState(false);
   const [modelNote, setModelNote] = useState<string | null>(null);
 
   const fileInput = useRef<HTMLInputElement>(null);
@@ -140,7 +143,10 @@ export function CapyBg() {
   // promise, not the effect body, so no set-state-in-effect guard is needed.)
   const hydrateBackend = useCallback(() => {
     probeBackend()
-      .then((decision) => setBackend(decision.backend))
+      .then((decision) => {
+        setBackend(decision.backend);
+        setDetailedFits(modelFits(MODELS.birefnet, decision));
+      })
       .catch(() => setBackend(""));
   }, []);
   useEffect(hydrateBackend, [hydrateBackend]);
@@ -253,6 +259,11 @@ export function CapyBg() {
         // The detailed refusal belongs to the caller: it hides the option and
         // starts the people-model re-cut (startCut below).
         if (err instanceof DetailedModelUnavailableError) throw err;
+        if (err instanceof CutCancelledError) {
+          setPhase("error");
+          setError({ title: "Stopped.", body: "the cut was stopped. your photo is still here — try again whenever you like." });
+          return;
+        }
         setPhase("error");
         setError(noticeFor(err));
       }
@@ -402,7 +413,7 @@ export function CapyBg() {
             >
               {MODELS.modnet.label.toLowerCase()} · {formatBytes(MODELS.modnet.bytes)}, once
             </Pill>
-            {backend === "webgpu" && !detailedBlocked ? (
+            {backend === "webgpu" && detailedFits && !detailedBlocked ? (
               <Pill
                 active={model === "birefnet"}
                 disabled={working}
@@ -422,7 +433,9 @@ export function CapyBg() {
               ? "this browser has no GPU support, so the cut runs on your CPU — it works, just slower. the detailed model needs a browser with GPU support."
               : detailedBlocked
                 ? "the detailed model can't run on this GPU — it's hidden for the rest of this visit."
-                : "the only download is the model. your photo never leaves this tab."}
+                : backend === "webgpu" && !detailedFits
+                  ? DETAILED_UNFIT_NOTE
+                  : "the only download is the model. your photo never leaves this tab."}
           </p>
           {modelNote ? (
             <p className="mt-1 text-xs text-[var(--clay)]" role="status">
@@ -480,6 +493,15 @@ export function CapyBg() {
                 a multi-second cut on the CPU is normal — the page stays responsive because it runs off the main thread.
               </p>
             ) : null}
+            {/* A way out of any wait. Stopping tears the worker down; the
+                models stay cached, so trying again does not re-download. */}
+            <button
+              type="button"
+              onClick={() => cancelCut()}
+              className="self-start text-xs text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground pointer-coarse:min-h-11"
+            >
+              stop
+            </button>
           </div>
         ) : error ? (
           <div className="py-4">
@@ -569,7 +591,7 @@ export function CapyBg() {
 
             {/* Copy, not detection (plan §6): the people model can't do products.
                 One click offers the detailed model — it downloads only if taken. */}
-            {result && !isDemo && model === "modnet" && backend === "webgpu" && !detailedBlocked && !working && file ? (
+            {result && !isDemo && model === "modnet" && backend === "webgpu" && detailedFits && !detailedBlocked && !working && file ? (
               <button
                 type="button"
                 onClick={() => {

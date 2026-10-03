@@ -12,7 +12,7 @@
  */
 
 import { MODELS } from "./models";
-import { decideBackend } from "./backend";
+import { decideBackend, type GpuCapabilities } from "./backend";
 import type { Backend, ModelId } from "./types";
 
 // ——— the sliver of onnxruntime-web's shape this worker uses ———
@@ -84,7 +84,7 @@ export interface ReleaseRequest {
 export type WorkerRequest = ProbeRequest | LoadRequest | RunRequest | ReleaseRequest;
 
 export type WorkerResponse =
-  | { type: "backend"; id: number; backend: Backend; note?: string }
+  | { type: "backend"; id: number; backend: Backend; note?: string; gpu?: GpuCapabilities }
   | { type: "ready"; id: number; model: ModelId; backend: Backend }
   | { type: "matte"; id: number; data: Float32Array; width: number; height: number; ms: number }
   | { type: "error"; id: number; message: string; /** Retry the load on the CPU path. */ fallback?: boolean };
@@ -109,18 +109,33 @@ function post(response: WorkerResponse, transfer?: Transferable[]): void {
 
 /** Backend probe: the same truth table as decideBackend, evaluated where the
  *  inference will actually run. */
+interface AdapterLike {
+  limits: { maxStorageBuffersPerShaderStage: number };
+  info?: { isFallbackAdapter?: boolean };
+  isFallbackAdapter?: boolean;
+}
+
 async function probe(id: number): Promise<WorkerResponse> {
   const hasWebGPU = "gpu" in navigator;
-  let adapterOk = false;
+  let adapter: AdapterLike | null = null;
   if (hasWebGPU) {
     try {
-      const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<unknown | null> } }).gpu;
-      adapterOk = Boolean(gpu && (await gpu.requestAdapter()));
+      const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<AdapterLike | null> } }).gpu;
+      adapter = gpu ? await gpu.requestAdapter() : null;
     } catch {
-      adapterOk = false;
+      adapter = null;
     }
   }
-  return { type: "backend", id, ...decideBackend(hasWebGPU, adapterOk) };
+  const decision = decideBackend(hasWebGPU, Boolean(adapter));
+  // The limits travel with the decision: a model gate (modelFits) needs them
+  // to refuse BEFORE a download, not after a run that never settles.
+  const gpu: GpuCapabilities | undefined = adapter
+    ? {
+        maxStorageBuffersPerShaderStage: adapter.limits.maxStorageBuffersPerShaderStage,
+        isFallbackAdapter: Boolean(adapter.info?.isFallbackAdapter ?? adapter.isFallbackAdapter),
+      }
+    : undefined;
+  return { type: "backend", id, ...decision, ...(gpu ? { gpu } : {}) };
 }
 
 async function load(request: LoadRequest): Promise<void> {

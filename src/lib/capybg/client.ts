@@ -1,6 +1,6 @@
 import { canvasIsUsable } from "@/lib/capystrip/clean";
 
-import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, type BackendDecision } from "./backend";
+import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecision } from "./backend";
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
@@ -54,7 +54,27 @@ export class DetailedModelUnavailableError extends Error {
   }
 }
 
+/** The visitor pressed stop. Not an error to explain — a choice to respect. */
+export class CutCancelledError extends Error {
+  constructor() {
+    super("the cut was stopped");
+    this.name = "CutCancelledError";
+  }
+}
+
 // ——— the worker, one per tab, one message in flight at a time ———
+
+/**
+ * Watchdogs. A WebGPU run can fail by never settling — a device-limit error
+ * that ORT does not surface leaves session.run() pending forever (seen on
+ * Chrome/Windows with BiRefNet, review 2026-10-04). Nothing in a worker can
+ * cancel a pending GPU run, so a silent exchange terminates the worker and
+ * takes the normal GPU-failure path. Generous on purpose: the slowest healthy
+ * steps measured were ~20 s to create the detailed session and ~6 s for a
+ * first CPU cut.
+ */
+export const LOAD_TIMEOUT_MS = 90_000;
+export const RUN_TIMEOUT_MS = 60_000;
 
 interface EngineState {
   worker: Worker;
@@ -64,6 +84,8 @@ interface EngineState {
   loaded: Partial<Record<ModelId, Backend>>;
   /** In-flight load per model — three rapid drops must not triple-load. */
   loading: Partial<Record<ModelId, Promise<Backend>>>;
+  /** Every exchange still waiting on this worker — rejected if it is torn down. */
+  pending: Set<(error: Error) => void>;
 }
 
 let engine: EngineState | null = null;
@@ -71,8 +93,25 @@ let engine: EngineState | null = null;
 function getEngine(): EngineState {
   if (engine) return engine;
   const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
-  engine = { worker, tail: Promise.resolve(), loaded: {}, loading: {} };
+  engine = { worker, tail: Promise.resolve(), loaded: {}, loading: {}, pending: new Set() };
   return engine;
+}
+
+/** Tear the worker down (a hung GPU run, or the visitor's stop) and fail every
+ *  exchange still waiting on it. The next call builds a fresh worker; models
+ *  reload from Cache Storage, not the network. */
+function resetEngine(reason: Error): void {
+  const current = engine;
+  if (!current) return;
+  engine = null;
+  current.worker.terminate();
+  for (const reject of current.pending) reject(reason);
+  current.pending.clear();
+}
+
+/** Stop the cut in flight. Safe to call when nothing is running. */
+export function cancelCut(): void {
+  resetEngine(new CutCancelledError());
 }
 
 class EngineError extends Error {
@@ -89,8 +128,13 @@ let nextMessageId = 1;
 /** Omit across the union — plain Omit collapses it to the shared members. */
 type WithoutId<T> = T extends unknown ? Omit<T, "id"> : never;
 
-function send(request: WithoutId<WorkerRequest>, transfer?: Transferable[]): Promise<WorkerResponse> {
-  const { worker } = getEngine();
+function send(
+  request: WithoutId<WorkerRequest>,
+  transfer?: Transferable[],
+  timeoutMs?: number,
+): Promise<WorkerResponse> {
+  const eng = getEngine();
+  const { worker } = eng;
   const id = nextMessageId++;
   // Responses echo the request id: a worker answers one message at a time,
   // but several asks can be in flight, and without the id the first answer
@@ -107,22 +151,36 @@ function send(request: WithoutId<WorkerRequest>, transfer?: Transferable[]): Pro
       cleanup();
       reject(new EngineError("the inference worker crashed", false));
     };
+    const onTeardown = (error: Error) => {
+      cleanup();
+      reject(error);
+    };
     function cleanup() {
       worker.removeEventListener("message", onMessage);
       worker.removeEventListener("error", onError);
+      eng.pending.delete(onTeardown);
     }
     worker.addEventListener("message", onMessage);
     worker.addEventListener("error", onError);
+    eng.pending.add(onTeardown);
   });
   // True single flight: the message is posted only when the previous exchange
   // has settled, so the worker never holds two runs of one session at once —
   // that is the deadlock, not just a politeness rule.
-  const { tail } = getEngine();
-  const delivery = tail.then(() => {
+  const delivery = eng.tail.then(() => {
+    if (engine !== eng) throw new EngineError("the inference worker was restarted", true);
     worker.postMessage({ ...request, id } as WorkerRequest, transfer ?? []);
-    return exchange;
+    if (!timeoutMs) return exchange;
+    // The clock starts when the message is actually posted, not when queued.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const watchdog = new Promise<never>(() => {
+      timer = setTimeout(() => {
+        resetEngine(new EngineError("the GPU stopped answering", true));
+      }, timeoutMs);
+    });
+    return Promise.race([exchange, watchdog]).finally(() => clearTimeout(timer));
   });
-  getEngine().tail = delivery.catch(() => undefined);
+  eng.tail = delivery.catch(() => undefined);
   return delivery;
 }
 
@@ -132,7 +190,7 @@ export function probeBackend(): Promise<BackendDecision> {
   const eng = getEngine();
   eng.probe ??= send({ type: "probe" }).then((response) => {
     if (response.type !== "backend") throw new CutFailedError("unexpected worker reply");
-    return { backend: response.backend, note: response.note };
+    return { backend: response.backend, note: response.note, gpu: response.gpu };
   });
   return eng.probe;
 }
@@ -163,6 +221,7 @@ async function loadOnBackend(
   const response = await send(
     { type: "load", model, backend, modelBytes: modelBytes.buffer as ArrayBuffer, ortBinary: ortBinary.buffer as ArrayBuffer, ortVersion: manifest.ort.version },
     [modelBytes.buffer as ArrayBuffer, ortBinary.buffer as ArrayBuffer],
+    LOAD_TIMEOUT_MS,
   );
   if (response.type !== "ready") throw new CutFailedError("the model could not start");
   eng.loaded[model] = backend;
@@ -183,9 +242,11 @@ function ensureModel(
     const spec = MODELS[model];
     const requested = spec.backends.includes(decision.backend) ? decision.backend : "wasm";
     if (decision.note && notes) notes.push(decision.note);
-    // A WebGPU-only model on a machine without a usable GPU never loads —
-    // handing it to the wasm heap would OOM (R2). The page hides the option.
-    if (!spec.backends.includes(requested)) throw new DetailedModelUnavailableError();
+    // A model this GPU cannot run never downloads: a WebGPU-only model with
+    // no usable GPU would OOM the wasm heap (R2), and one whose shaders exceed
+    // the adapter's storage-buffer limit hangs (review, 2026-10-04). The page
+    // hides the option.
+    if (!modelFits(spec, { backend: requested, gpu: decision.gpu })) throw new DetailedModelUnavailableError();
 
     if (eng.loaded[model] === requested) return requested;
     try {
@@ -392,6 +453,7 @@ export async function removeBackground(
         const response = await send(
           { type: "run", model: opts.model, input: input.buffer as ArrayBuffer, width: size.width, height: size.height },
           [input.buffer as ArrayBuffer],
+          RUN_TIMEOUT_MS,
         );
         if (response.type !== "matte") throw new CutFailedError("unexpected worker reply");
         matte = response.data;
