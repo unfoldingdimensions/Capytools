@@ -1,0 +1,7 @@
+[
+  { "id": 1, "url": "https://www.iloveimg.com/watermark-image", "title": "iLoveIMG — 'Batch watermark your images online, easy and free!' Server-side incumbent (surfaced 2026-09-21, carried from the CapyStamp research)" },
+  { "id": 2, "url": "https://www.fotor.com/", "title": "Fotor — batch watermark, 'supports uploading up to 50' (surfaced 2026-09-21, carried)" },
+  { "id": 3, "url": "https://proton.me/watermark-photos", "title": "Proton — 'Watermark photos online for free using a truly private, browser-based tool with batch processing' (surfaced 2026-09-21, carried). The privacy angle is already taken; craft is the wedge" },
+  { "id": 4, "url": "https://api.github.com/repos/Hopding/pdf-lib", "title": "GitHub API — Hopding/pdf-lib pushed_at 2024-07-17T12:18:51Z, not archived (re-fetched 2026-10-03). Why PDF watermarking stays out of v1" },
+  { "id": 5, "url": "repo:src/lib/capyresize/render.ts + src/lib/capyresize/types.ts + src/app/layout.tsx + package.json", "title": "Repo evidence (read 2026-10-03) — decodeImage (img + decode, EXIF via the <img> path, GIF animation flag), encodeCanvas(canvas, format, quality, { flatten }), zipPack (lazy client-zip, STORE-only), isWebpFallback, outputRefused, MAX_OUTPUT_PIXELS 16.7M, formatBytes; OutputFormat png|jpeg|webp; next/font faces Plus Jakarta Sans (--font-sans), Fraunces (--font-display), Albert Sans (--font-mono); client-zip already a dependency" }
+]
