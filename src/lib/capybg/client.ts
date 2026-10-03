@@ -48,6 +48,8 @@ interface EngineState {
   probe?: Promise<BackendDecision>;
   /** Which backend each model actually loaded on (after any fallback). */
   loaded: Partial<Record<ModelId, Backend>>;
+  /** In-flight load per model — three rapid drops must not triple-load. */
+  loading: Partial<Record<ModelId, Promise<Backend>>>;
 }
 
 let engine: EngineState | null = null;
@@ -55,7 +57,7 @@ let engine: EngineState | null = null;
 function getEngine(): EngineState {
   if (engine) return engine;
   const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
-  engine = { worker, tail: Promise.resolve(), loaded: {} };
+  engine = { worker, tail: Promise.resolve(), loaded: {}, loading: {} };
   return engine;
 }
 
@@ -68,12 +70,22 @@ class EngineError extends Error {
   }
 }
 
-function send(request: WorkerRequest, transfer?: Transferable[]): Promise<WorkerResponse> {
+let nextMessageId = 1;
+
+/** Omit across the union — plain Omit collapses it to the shared members. */
+type WithoutId<T> = T extends unknown ? Omit<T, "id"> : never;
+
+function send(request: WithoutId<WorkerRequest>, transfer?: Transferable[]): Promise<WorkerResponse> {
   const { worker } = getEngine();
+  const id = nextMessageId++;
+  // Responses echo the request id: a worker answers one message at a time,
+  // but several asks can be in flight, and without the id the first answer
+  // used to resolve every waiter (three rapid drops found this).
   const exchange = new Promise<WorkerResponse>((resolve, reject) => {
     const onMessage = (event: MessageEvent<WorkerResponse>) => {
-      cleanup();
       const response = event.data;
+      if (!response || response.id !== id) return;
+      cleanup();
       if (response.type === "error") reject(new EngineError(response.message, response.fallback ?? false));
       else resolve(response);
     };
@@ -87,11 +99,17 @@ function send(request: WorkerRequest, transfer?: Transferable[]): Promise<Worker
     }
     worker.addEventListener("message", onMessage);
     worker.addEventListener("error", onError);
-    worker.postMessage(request, transfer ?? []);
   });
+  // True single flight: the message is posted only when the previous exchange
+  // has settled, so the worker never holds two runs of one session at once —
+  // that is the deadlock, not just a politeness rule.
   const { tail } = getEngine();
-  getEngine().tail = exchange.catch(() => undefined);
-  return tail.then(() => exchange);
+  const delivery = tail.then(() => {
+    worker.postMessage({ ...request, id } as WorkerRequest, transfer ?? []);
+    return exchange;
+  });
+  getEngine().tail = delivery.catch(() => undefined);
+  return delivery;
 }
 
 /** Ask the worker where this tab's inference would run. Safe to call early —
@@ -136,35 +154,39 @@ async function loadOnBackend(
   eng.loaded[model] = backend;
 }
 
-/** Load a model, falling back to the CPU path when the GPU refuses it. */
-async function ensureModel(
+/** Load a model, falling back to the CPU path when the GPU refuses it.
+ *  Memoized per model: three rapid drops must not triple-create sessions. */
+function ensureModel(
   model: ModelId,
   onProgress?: (progress: Progress) => void,
   notes?: string[],
 ): Promise<Backend> {
   const eng = getEngine();
-  const decision = await probeBackend();
-  const spec = MODELS[model];
-  const requested = spec.backends.includes(decision.backend) ? decision.backend : "wasm";
-  if (decision.note && notes) notes.push(decision.note);
+  const existing = eng.loading[model];
+  if (existing) return existing;
+  const task = (async () => {
+    const decision = await probeBackend();
+    const spec = MODELS[model];
+    const requested = spec.backends.includes(decision.backend) ? decision.backend : "wasm";
+    if (decision.note && notes) notes.push(decision.note);
 
-  const already = eng.loaded[model];
-  if (already === requested) return requested;
-  if (already !== undefined) {
-    // Loaded on the other path — reload before running.
-    await loadOnBackend(model, requested, onProgress);
-    return requested;
-  }
-
-  try {
-    await loadOnBackend(model, requested, onProgress);
-    return requested;
-  } catch (error) {
-    if (requested !== "webgpu" || !(error instanceof EngineError) || !error.fallback) throw error;
-    if (notes) notes.push(CPU_NOTE_GPU_REFUSED);
-    await loadOnBackend(model, "wasm", onProgress);
-    return "wasm";
-  }
+    if (eng.loaded[model] === requested) return requested;
+    try {
+      await loadOnBackend(model, requested, onProgress);
+      return requested;
+    } catch (error) {
+      if (requested !== "webgpu" || !(error instanceof EngineError) || !error.fallback) throw error;
+      if (notes) notes.push(CPU_NOTE_GPU_REFUSED);
+      await loadOnBackend(model, "wasm", onProgress);
+      return "wasm";
+    }
+  })();
+  eng.loading[model] = task;
+  // A failed load must not poison the memo — the next cut tries again.
+  task.catch(() => undefined).then(() => {
+    if (eng.loading[model] === task) delete eng.loading[model];
+  });
+  return task;
 }
 
 // ——— decode and the source canvas ———
