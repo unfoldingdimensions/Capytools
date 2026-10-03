@@ -5,7 +5,7 @@ import { CapyArt } from "@/components/mascot/CapyArt";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
 import { EXTERNAL } from "@/lib/capytools/landing";
-import { SUITE, SUITE_WORD_CAP, pad2 } from "@/lib/capytools/suite";
+import { SUITE, SUITE_WORD_CAP, countByCategory, numberWord, pad2 } from "@/lib/capytools/suite";
 import { TransitionLink } from "@/components/TransitionLink";
 
 export const metadata: Metadata = {
@@ -46,9 +46,9 @@ export default function NotesPage() {
           <span className="lp-dot">.</span>
         </h1>
         <p className="lp-lead mt-6 max-w-[42ch]">
-          {SUITE_WORD_CAP} of them so far. Ten run in your browser and keep
-          nothing; CapyExpense lives on your desktop and keeps your files on
-          your disk instead.
+          {SUITE_WORD_CAP} of them so far. {numberWord(countByCategory("browser"))} run in
+          your browser and keep nothing; CapyExpense lives on your desktop and
+          keeps your files on your disk instead.
         </p>
 
         {/* The quiet page has room for the animal the suite is named after. */}

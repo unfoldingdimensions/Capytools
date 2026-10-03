@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { metadata } from "@/app/capybg/page";
 import { CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU, decideBackend } from "@/lib/capybg/backend";
 import { bgFilename, backdropFill, clampQuality, decideCompose } from "@/lib/capybg/compose";
 import { MAX_ASSET_BYTES, validateManifest } from "@/lib/capybg/manifest";
@@ -12,6 +13,7 @@ import {
   resizeMatte,
   sigmoid,
 } from "@/lib/capybg/postprocess";
+import { SUITE } from "@/lib/capytools/suite";
 
 /**
  * The model registry is where CapyBg's licences and pins live, and the
@@ -331,5 +333,28 @@ describe("compose: the decisions", () => {
     expect(bgFilename("photo.JPG", "png")).toBe("photo-nobg.png");
     expect(bgFilename("archive", "jpeg")).toBe("archive-nobg.jpg");
     expect(bgFilename("album.cover.webp", "png")).toBe("album.cover-nobg.png");
+  });
+});
+
+describe("registration — the suite knows CapyBg", () => {
+  it("SUITE row 12 is CapyBg at /capybg, with its plate", () => {
+    expect(SUITE).toHaveLength(12);
+    const row = SUITE[11];
+    expect(row.name).toBe("CapyBg");
+    expect(row.href).toBe("/capybg");
+    expect(row.cat).toBe("browser");
+    expect(row.plate).toEqual({ src: "/plates/lab-12.webp", width: 896, height: 1200 });
+    // (The plate FILE is the owner's image step — the landing's asset test is
+    // the canary that stays red until public/plates/lab-12.webp exists.)
+  });
+
+  it("the page's metadata carries the tool name and the promise", () => {
+    const description = metadata.description ?? "";
+    expect(metadata.title).toContain("CapyBg");
+    expect(description).toContain("100% in your browser");
+    // The copy rules (§3.6): "nothing uploaded" is true; "offline"/"no
+    // network" never is, because the model downloads.
+    expect(description.toLowerCase()).toContain("never uploaded");
+    expect(description.toLowerCase()).not.toMatch(/offline|no network/);
   });
 });

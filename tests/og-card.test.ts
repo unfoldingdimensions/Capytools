@@ -26,6 +26,7 @@ import { SITE_URL } from "../src/lib/utils";
 // vite/client thing this tsconfig does not pull in, and `npx tsc --noEmit`
 // runs in CI. The "covers every row" assertion below is what keeps this list
 // honest when a twelfth tool lands.
+import { metadata as capybg } from "../src/app/capybg/page";
 import { metadata as capycreator } from "../src/app/capycreator/page";
 import { metadata as capyexpense } from "../src/app/capyexpense/page";
 import { metadata as capyimagine } from "../src/app/capyimagine/page";
@@ -39,6 +40,7 @@ import { metadata as capytone } from "../src/app/capytone/page";
 import { metadata as capywrapped } from "../src/app/capywrapped/page";
 
 const TOOL_METADATA: Record<string, Metadata> = {
+  "/capybg": capybg,
   "/capycreator": capycreator,
   "/capyexpense": capyexpense,
   "/capyimagine": capyimagine,
