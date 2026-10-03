@@ -127,7 +127,7 @@ Cut the subject out of a photo and download a transparent PNG — or flatten it 
 - **Finishing without re-cutting**: backdrop (transparent, light, dark, any colour) and format (PNG, or JPEG with a quality slider where transparency allows it) recompose from the kept matte instantly; the before/after sizes are the real bytes.
 - **Demo, not decoy**: before you hand over a photo, the idle state teaches the cut with a hand-drawn capybara and its matte — no model, no download.
 
-The model is [MODNet](https://github.com/ZHKKKe/MODNet) (Apache-2.0), served self-hosted from this site. An opt-in detailed model for products and pets is planned, and ships only when browsers can run it well.
+The default model is [MODNet](https://github.com/ZHKKKe/MODNet) (Apache-2.0, 6.3 MB). An opt-in detailed model for products and pets — [BiRefNet_lite](https://github.com/ZhengPeng7/BiRefNet) (MIT, 109 MB) — is offered on browsers whose GPU can run it; where one can't, the tool tries, says so plainly ("your GPU couldn't run the detailed model"), hides the option for the visit, and the cut finishes on the people model instead. Both are served self-hosted from this site.
 
 ## Privacy
 

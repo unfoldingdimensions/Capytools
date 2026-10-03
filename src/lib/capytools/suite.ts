@@ -212,7 +212,7 @@ export const SUITE: SuiteTool[] = [
     badge: "Bg",
     appCategory: "MultimediaApplication",
     blurb:
-      "Cut the background out of any photo — people in a blink — and download a transparent PNG. The photo never leaves your tab.",
+      "Cut the background out of any photo — people in a blink, products and pets with the detailed model — and download a transparent PNG. The photo never leaves your tab.",
     note: "background remover",
     line: "Remove a photo's background, in your browser.",
     keywords: ["remove background", "background remover", "remove bg", "transparent png",

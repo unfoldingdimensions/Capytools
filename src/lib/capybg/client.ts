@@ -1,6 +1,6 @@
 import { canvasIsUsable } from "@/lib/capystrip/clean";
 
-import { CPU_NOTE_GPU_REFUSED, type BackendDecision } from "./backend";
+import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, type BackendDecision } from "./backend";
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
@@ -37,6 +37,20 @@ export class CutFailedError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "CutFailedError";
+  }
+}
+
+/**
+ * The detailed model's GPU path failed (device shader limits, op coverage).
+ * It has no CPU fallback — the 1024² fp16 graph OOMs the wasm heap (R2,
+ * docs/plans/capybg.md §11.1) — so the page hides the option and re-cuts
+ * with the people model. The reason is always stated; try/hide is not
+ * try/silence.
+ */
+export class DetailedModelUnavailableError extends Error {
+  constructor() {
+    super("your GPU couldn't run the detailed model");
+    this.name = "DetailedModelUnavailableError";
   }
 }
 
@@ -169,6 +183,9 @@ function ensureModel(
     const spec = MODELS[model];
     const requested = spec.backends.includes(decision.backend) ? decision.backend : "wasm";
     if (decision.note && notes) notes.push(decision.note);
+    // A WebGPU-only model on a machine without a usable GPU never loads —
+    // handing it to the wasm heap would OOM (R2). The page hides the option.
+    if (!spec.backends.includes(requested)) throw new DetailedModelUnavailableError();
 
     if (eng.loaded[model] === requested) return requested;
     try {
@@ -176,6 +193,7 @@ function ensureModel(
       return requested;
     } catch (error) {
       if (requested !== "webgpu" || !(error instanceof EngineError) || !error.fallback) throw error;
+      if (gpuFailureFallback(model) === "people") throw new DetailedModelUnavailableError();
       if (notes) notes.push(CPU_NOTE_GPU_REFUSED);
       await loadOnBackend(model, "wasm", onProgress);
       return "wasm";
@@ -380,8 +398,12 @@ export async function removeBackground(
         modelMs = response.ms;
         break;
       } catch (error) {
-        // A GPU run that dies mid-flight gets exactly one CPU retry, said out loud.
+        // A GPU run that dies mid-flight gets exactly one fallback, decided
+        // by the model: the people model drops to the CPU, the detailed model
+        // hands the whole cut back to the page (it re-runs on the people
+        // model and hides the option — never the wasm heap it would OOM).
         if (!(error instanceof EngineError) || !error.fallback || backendUsed !== "webgpu") throw error;
+        if (gpuFailureFallback(opts.model) === "people") throw new DetailedModelUnavailableError();
         notes.push(CPU_NOTE_GPU_REFUSED);
         backendUsed = "wasm";
         await loadOnBackend(opts.model, "wasm", onProgress);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { metadata } from "@/app/capybg/page";
-import { CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU, decideBackend } from "@/lib/capybg/backend";
+import { CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU, DETAILED_REFUSED_NOTE, decideBackend, gpuFailureFallback } from "@/lib/capybg/backend";
 import { bgFilename, backdropFill, clampQuality, decideCompose } from "@/lib/capybg/compose";
 import { MAX_ASSET_BYTES, validateManifest } from "@/lib/capybg/manifest";
 import { MODELS, MODEL_IDS, modelUrl, sha8 } from "@/lib/capybg/models";
@@ -303,6 +303,20 @@ describe("backend: the honest truth table", () => {
       expect(note).toMatch(/CPU \(WebAssembly\)/);
       expect(note.toLowerCase()).not.toMatch(/gpu \(/);
     }
+  });
+
+  it("sends the detailed model's failures to the people model, never the wasm heap", () => {
+    // The owner's try/hide decision (plan §11.1, 2026-10-04): a birefnet GPU
+    // failure must re-run on modnet — the 1024² fp16 graph OOMs the wasm heap.
+    expect(gpuFailureFallback("birefnet")).toBe("people");
+    expect(gpuFailureFallback("modnet")).toBe("cpu");
+  });
+
+  it("states the detailed refusal and where the cut landed", () => {
+    const note = DETAILED_REFUSED_NOTE.toLowerCase();
+    expect(note).toContain("people model");
+    expect(note).toContain("hidden");
+    expect(note).not.toMatch(/offline|no network/);
   });
 });
 

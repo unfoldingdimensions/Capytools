@@ -601,6 +601,13 @@ very likely hit the same 17-buffer shader — it was NOT downloaded or tested). 
 - **(c) Ship BiRefNet fp16 behind a try/hide probe** — offer it, silently hide it where the shader limit hits.
   Rejected by default: it offers a model the owner's own machine cannot run, and hides the reason.
 
+**Decision recorded 2026-10-04: the owner chose (c)**, with the "silently" removed — the shipped policy is
+try/hide-with-a-voice: the detailed pill is offered only where the worker's WebGPU probe answers; when the
+detailed model's GPU run fails, the option hides itself for the visit, the cut **re-runs on the people model
+automatically** (never on the wasm heap, which OOMs — `gpuFailureFallback` in backend.ts is the table-tested
+policy), and the reason is stated twice: a clay line on the cut card and one where the pill was
+(DETAILED_REFUSED_NOTE). The SUITE blurb's "products and pets" clause is restored.
+
 ---
 
 ## 12. Backlog — seams, not v1

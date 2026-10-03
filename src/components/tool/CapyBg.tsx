@@ -11,10 +11,11 @@ import { COPIED_MS } from "@/lib/capytools/feedback";
 import { saveBlob } from "@/lib/download";
 import { formatBytes } from "@/lib/capystrip/format";
 import { drawDemoCut, drawDemoSource } from "@/lib/capybg/demo";
-import { clearCut, nameFor, probeBackend, recomposeCut, removeBackground, UnsupportedImageError } from "@/lib/capybg/client";
+import { clearCut, nameFor, probeBackend, recomposeCut, removeBackground, DetailedModelUnavailableError, UnsupportedImageError } from "@/lib/capybg/client";
+import { DETAILED_REFUSED_NOTE } from "@/lib/capybg/backend";
 import { deleteCachedModels } from "@/lib/capybg/loader";
 import { MODELS } from "@/lib/capybg/models";
-import type { Backdrop, BgResult, OutputFormat, Progress } from "@/lib/capybg/types";
+import type { Backdrop, BgResult, ModelId, OutputFormat, Progress } from "@/lib/capybg/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -112,6 +113,12 @@ export function CapyBg() {
   const [status, setStatus] = useState("");
   const [backend, setBackend] = useState<string>("");
   const [dragOver, setDragOver] = useState(false);
+  // The model choice is lazy: pills only set state, the download happens
+  // when a cut needs it. `detailedBlocked` is try/hide's memory — once the
+  // GPU refuses the detailed model it stays hidden for the visit.
+  const [model, setModel] = useState<ModelId>("modnet");
+  const [detailedBlocked, setDetailedBlocked] = useState(false);
+  const [modelNote, setModelNote] = useState<string | null>(null);
 
   const fileInput = useRef<HTMLInputElement>(null);
   // One cancellation token per run: a new drop replaces the old work.
@@ -188,7 +195,7 @@ export function CapyBg() {
     const key = optionsKey(backdrop, format, quality);
     if (key === appliedKey.current) return;
     const timer = window.setTimeout(() => {
-      recomposeCut({ model: "modnet", backdrop, format, quality: quality / 100 })
+      recomposeCut({ model, backdrop, format, quality: quality / 100 })
         .then((next) => {
           appliedKey.current = key;
           setResult(next);
@@ -202,15 +209,14 @@ export function CapyBg() {
         });
     }, 250);
     return () => window.clearTimeout(timer);
-  }, [phase, file, backdrop, format, quality]);
+  }, [phase, file, backdrop, format, quality, model]);
 
-  const processFile = useCallback(
-    async (blob: Blob, name: string) => {
+  const runCut = useCallback(
+    async (blob: Blob, name: string, modelId: ModelId): Promise<void> => {
       const run = ++runId.current;
       clearCut();
       setError(null);
       setResult(null);
-      setStatus("");
       setShowOriginal(false);
       setIsDemo(false);
       setFile({ blob, name });
@@ -225,7 +231,7 @@ export function CapyBg() {
       try {
         const next = await removeBackground(
           blob,
-          { model: "modnet", backdrop, format, quality: quality / 100 },
+          { model: modelId, backdrop, format, quality: quality / 100 },
           (p) => {
             if (runId.current !== run) return;
             setProgress(p);
@@ -244,11 +250,40 @@ export function CapyBg() {
         }, 50);
       } catch (err) {
         if (runId.current !== run) return;
+        // The detailed refusal belongs to the caller: it hides the option and
+        // starts the people-model re-cut (startCut below).
+        if (err instanceof DetailedModelUnavailableError) throw err;
         setPhase("error");
         setError(noticeFor(err));
       }
     },
     [backdrop, format, quality],
+  );
+
+  /** Every cut entry point goes through here, so try/hide is one policy:
+   *  when the GPU refuses the detailed model, the option hides itself, the
+   *  reason is stated, and the cut finishes on the people model. */
+  const startCut = useCallback(
+    async (blob: Blob, name: string, modelId: ModelId): Promise<void> => {
+      try {
+        await runCut(blob, name, modelId);
+      } catch (err) {
+        if (!(err instanceof DetailedModelUnavailableError)) return;
+        setDetailedBlocked(true);
+        setModel("modnet");
+        setModelNote(DETAILED_REFUSED_NOTE);
+        await runCut(blob, name, "modnet");
+      }
+    },
+    [runCut],
+  );
+
+  const processFile = useCallback(
+    (blob: Blob, name: string) => {
+      setModelNote(null);
+      void startCut(blob, name, model);
+    },
+    [startCut, model],
   );
 
   // Paste is a first-class input — screenshots especially.
@@ -302,7 +337,6 @@ export function CapyBg() {
     setStatus("downloaded models removed from this browser — the next cut downloads them again.");
   }, []);
 
-  const model = MODELS.modnet;
   const working = phase === "working";
   const downloadPct = progress?.total ? Math.min(100, Math.round(((progress.received ?? 0) / progress.total) * 100)) : 0;
   const backendLine =
@@ -360,16 +394,41 @@ export function CapyBg() {
 
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <span className={labelClass}>model</span>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-primary bg-primary/10 px-3 py-1 font-sans text-[13px] text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4">
-              {model.label.toLowerCase()} · {formatBytes(model.bytes)}, once
-            </span>
+          <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Model">
+            <Pill
+              active={model === "modnet"}
+              onClick={() => setModel("modnet")}
+              label={`Model ${MODELS.modnet.label}, ${formatBytes(MODELS.modnet.bytes)} downloaded once`}
+            >
+              {MODELS.modnet.label.toLowerCase()} · {formatBytes(MODELS.modnet.bytes)}, once
+            </Pill>
+            {backend === "webgpu" && !detailedBlocked ? (
+              <Pill
+                active={model === "birefnet"}
+                disabled={working}
+                onClick={() => {
+                  setModel("birefnet");
+                  // Switching model is a new matte: re-cut what is on the table.
+                  if (file && phase === "done") void startCut(file.blob, file.name, "birefnet");
+                }}
+                label={`Model ${MODELS.birefnet.label}, ${formatBytes(MODELS.birefnet.bytes)} downloaded once`}
+              >
+                {MODELS.birefnet.label.toLowerCase()} · {formatBytes(MODELS.birefnet.bytes)}, once
+              </Pill>
+            ) : null}
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {backend === "wasm"
-              ? "this browser has no GPU support, so the cut runs on your CPU — it works, just slower."
-              : "the only download is the model. your photo never leaves this tab."}
+              ? "this browser has no GPU support, so the cut runs on your CPU — it works, just slower. the detailed model needs a browser with GPU support."
+              : detailedBlocked
+                ? "the detailed model can't run on this GPU — it's hidden for the rest of this visit."
+                : "the only download is the model. your photo never leaves this tab."}
           </p>
+          {modelNote ? (
+            <p className="mt-1 text-xs text-[var(--clay)]" role="status">
+              {modelNote}
+            </p>
+          ) : null}
         </div>
       </StageCard>
 
@@ -497,10 +556,30 @@ export function CapyBg() {
             {result && !isDemo ? (
               <div className="text-center">
                 <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{backendLine}</p>
+                {modelNote ? (
+                  <p className="mt-1 text-xs text-[var(--clay)]" role="status">
+                    {modelNote}
+                  </p>
+                ) : null}
                 {result.notes.length > 0 ? (
                   <p className="mt-1 text-xs text-muted-foreground">{result.notes.join(" ")}</p>
                 ) : null}
               </div>
+            ) : null}
+
+            {/* Copy, not detection (plan §6): the people model can't do products.
+                One click offers the detailed model — it downloads only if taken. */}
+            {result && !isDemo && model === "modnet" && backend === "webgpu" && !detailedBlocked && !working && file ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setModel("birefnet");
+                  void startCut(file.blob, file.name, "birefnet");
+                }}
+                className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
+              >
+                not a person? try the detailed model ({formatBytes(MODELS.birefnet.bytes)}, once)
+              </button>
             ) : null}
           </div>
         )}
@@ -628,7 +707,7 @@ export function CapyBg() {
           onClick={() => void handleRemoveModels()}
           className="mt-3 text-xs text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground pointer-coarse:min-h-11"
         >
-          remove downloaded models ({formatBytes(model.bytes)}) from this browser
+          remove downloaded models from this browser
         </button>
       </StageCard>
 
