@@ -708,7 +708,7 @@ import { swatchFractions, fitFontSize, wrapToFitLines } from "@/lib/capytone/ren
 
 describe("registration — the suite knows CapyTone", () => {
   it("SUITE row 11 is CapyTone at /capytone, with its plate", () => {
-    expect(SUITE).toHaveLength(11);
+    expect(SUITE).toHaveLength(12);
     const row = SUITE[10];
     expect(row.name).toBe("CapyTone");
     expect(row.href).toBe("/capytone");
@@ -732,7 +732,7 @@ describe("registration — the suite knows CapyTone", () => {
   it("the README carries the tool's section and the count", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
     expect(readme).toContain("## 11. CapyTone");
-    expect(readme).toContain("Eleven so far");
+    expect(readme).toContain("Twelve so far");
   });
 });
 

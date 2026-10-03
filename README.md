@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Eleven so far. Ten run in your browser and keep nothing; one lives on your desktop and keeps your files there.
+A home for small, quiet tools. Twelve so far. Eleven run in your browser and keep nothing; one lives on your desktop and keeps your files there.
 
 **[capytools.app](https://capytools.app)**
 
@@ -116,6 +116,18 @@ Type a feeling, get a poster. Pick a mood pill — or land from a shared link �
 Colour math runs on [culori](https://github.com/Evercoder/culori) (ISC); contrast guidance uses [apca-w3](https://github.com/Myndex/apca-w3) 0.1.9 (Andrew Somers, Limited W3 License — used for web-content accessibility guidance, polarity preserved as its license requires); extraction parses CSS with [css-tree](https://github.com/csstree/csstree) (MIT).
 
 No server route resolves a mood — the palette engine never touches a server. The one exception is Extract's `/api/extract-palette`, which fetches exactly the public URL you hand it, refuses private address ranges before and during the fetch, and returns counts and hexes while keeping nothing.
+
+## 12. CapyBg
+
+Cut the subject out of a photo and download a transparent PNG — or flatten it onto light, dark or any picked colour. Drop, paste or pick a file; a segmentation model runs in your tab and returns the matte in a blink.
+
+- **The photo never leaves the tab**: there is no upload route in the code — the server never sees a pixel. The only bytes the tool fetches are the model and its runtime, from this site, on first use; the browser's Network panel during a cut, once the model is cached, shows zero requests.
+- **A real download disclosure**: the first cut names the model's exact size (6.3 MB) and shows streamed progress against it. The model is then kept in your browser's Cache Storage and not re-fetched; a quiet link at the bottom of the page removes it again — it's your disk.
+- **Honest about its backend**: the result line says where the cut ran — "on your GPU (WebGPU)" or "on your CPU (WebAssembly)" — with the real milliseconds. It never claims the GPU when it was the CPU.
+- **Finishing without re-cutting**: backdrop (transparent, light, dark, any colour) and format (PNG, or JPEG with a quality slider where transparency allows it) recompose from the kept matte instantly; the before/after sizes are the real bytes.
+- **Demo, not decoy**: before you hand over a photo, the idle state teaches the cut with a hand-drawn capybara and its matte — no model, no download.
+
+The default model is [MODNet](https://github.com/ZHKKKe/MODNet) (Apache-2.0, 6.3 MB). An opt-in detailed model for products and pets — [BiRefNet_lite](https://github.com/ZhengPeng7/BiRefNet) (MIT, 109 MB) — is offered on browsers whose GPU can run it; where one can't, the tool tries, says so plainly ("your GPU couldn't run the detailed model"), hides the option for the visit, and the cut finishes on the people model instead. Both are served self-hosted from this site.
 
 ## Privacy
 

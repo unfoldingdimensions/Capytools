@@ -204,6 +204,21 @@ export const SUITE: SuiteTool[] = [
     keywords: ["palette", "colour", "color", "poster", "mood", "hex", "swatch", "contrast", "brand"],
     plate: { src: "/plates/lab-11.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyBg",
+    short: "Bg",
+    href: "/capybg",
+    cat: "browser",
+    badge: "Bg",
+    appCategory: "MultimediaApplication",
+    blurb:
+      "Cut the background out of any photo — people in a blink, products and pets with the detailed model — and download a transparent PNG. The photo never leaves your tab.",
+    note: "background remover",
+    line: "Remove a photo's background, in your browser.",
+    keywords: ["remove background", "background remover", "remove bg", "transparent png",
+               "cutout", "product photo", "headshot", "no upload", "onnx", "webgpu"],
+    plate: { src: "/plates/lab-12.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
@@ -229,6 +244,7 @@ const WORDS = [
   "nine",
   "ten",
   "eleven",
+  "twelve",
 ] as const;
 
 /** 7 → "seven": any count, spelled out for prose; digits past the table. */

@@ -88,6 +88,10 @@ evolution-drafts/
 /.claude/
 /skills-lock.json
 
+# capybg model/runtime assets (downloaded at build time, never committed —
+# scripts/fetch-capybg-assets.ts is the only thing that writes here)
+/public/capybg/
+
 # cloudflare
 .open-next/
 .wrangler/

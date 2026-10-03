@@ -145,7 +145,7 @@ URL form   https://huggingface.co/<repo>/resolve/<revision>/<path>
 |---|---|---|
 | Input name | `input` | `input_image` |
 | Output name | `output` | `output_image` |
-| Layout | NCHW float32, `1×3×H×W` | NCHW, `1×3×1024×1024` (**fp16 model — confirm whether the input tensor must be `float16`**; see §11 R2) |
+| Layout | NCHW float32, `1×3×H×W` | NCHW, `1×3×1024×1024` (**input is `float32` — verified, see §11.1; "fp16" refers to the internal weights only**) |
 | Resize | **shortest edge 512**, both dims rounded to a **multiple of 32**, aspect kept | fixed **1024×1024** (stretch; restore aspect on the way back) |
 | Rescale / normalise | ×1/255, mean **0.5**, std **0.5** (→ [−1, 1]) | ×1/255, ImageNet mean **[0.485, 0.456, 0.406]**, std **[0.229, 0.224, 0.225]** |
 | Output | alpha matte in **[0, 1]** — use as-is | **logits — apply sigmoid** |
@@ -192,6 +192,13 @@ URL form   https://huggingface.co/<repo>/resolve/<revision>/<path>
   best and op-coverage is not guaranteed; a 1024² swin model on single-threaded CPU would take tens of seconds.
   On the CPU path show an honest line instead: *"the detailed model needs a browser with GPU support; this one
   runs on your CPU."* Verify this decision empirically (§11 R2) and record the result here.
+
+  **R2 verified 2026-10-03 (see §11.1): moot on Windows — BiRefNet_lite fp16 does not run at all on
+  Chrome/Windows (WebGPU storage-buffer limit), and OOMs on the WASM path. The opt-in question is with the
+  owner; nothing in v1 may offer BiRefNet until it is answered.**
+
+- **MODNet verified on both backends** the same day: WebGPU steady-state 512² run ≈ 1.36 s (first run ≈ 5.9 s
+  incl. kernel JIT), WASM ≈ 1.26 s, output float32 `1×1×H×W`, I/O names `input`/`output` as tabled above.
 
 ### 3.5 CSP (report-only today, `next.config.ts`) [11]
 
@@ -558,6 +565,48 @@ trio, `/tools` grid, sitemap). Run the whole suite.
 | R6 | Cache Storage eviction / private mode. | Treat cache as an optimisation; always able to re-download. |
 | R7 | Asset upload size per deploy (~150 MB of shards). | Wrangler uploads only changed (hashed) assets; shards change only on a pin bump. Verify the first deploy's upload time in CI. |
 | R8 | Trademark / naming. | "CapyBg" + generic copy; no competitor names in the UI. |
+
+### 11.1 R2 result — recorded 2026-10-03 (Chrome stable, Windows, onnxruntime-web 1.30.0 = newest stable)
+
+Method: local same-origin harness (`.scratch-capybg/`, not committed) serving the pinned model bytes and
+`node_modules/onnxruntime-web/dist`; real Chrome via DevTools. Both model downloads SHA-256-verified against
+the §3.1 pins before use — **both pins match**.
+
+Findings:
+
+1. **Input type: `float32`.** `session.inputMetadata` reports `{ type: "float32", shape: [1,3,1024,1024] }`;
+   feeding a `float16` tensor is rejected ("expected: (tensor(float))"). The "fp16" in the filename describes
+   the internal weights only. Preprocess stays float32 NCHW.
+2. **WebGPU: the model does not run on Windows/Chrome.** `InferenceSession.create` succeeds, but every `run()`
+   fails with `Too many storage buffers in shader. Current: 17, Max is 16` — a WebGPU device limit
+   (`maxStorageBuffersPerShaderStage = 16` on this D3D adapter), not a session option. Tried and failed:
+   NCHW and NHWC `preferredLayout`, `graphOptimizationLevel` all/basic. Passing ORT a pre-created `GPUDevice`
+   with raised limits cannot help here: the adapter's own maximum **is** 16, and 17 > 16. Metal/Vulkan machines
+   report higher maxima, so the model may run on macOS/Linux — unverified from this machine, and
+   driver-dependent behaviour is not something this suite ships.
+3. **WASM CPU: not slow — broken.** A single-threaded 1024² run dies with `std::bad_alloc` in the wasm heap.
+   The plan's "tens of seconds" estimate was optimistic; there is no CPU fallback for this model.
+4. **No newer ORT to upgrade to.** 1.30.0 is the newest stable npm release (1.31.0 exists only as dev builds);
+   the plan's pin is already current. A fix would land in a future ORT release.
+5. **MODNet (the default) verified healthy** on both backends — see §3.4.
+
+Consequence: the "any subject — detailed" tier of D2 cannot ship as specced. **Owner decision required**
+(task instruction: stop before planning the 213.6 MiB fp32 model, which shares the graph structure and would
+very likely hit the same 17-buffer shader — it was NOT downloaded or tested). Options on the table:
+
+- **(a) v1 ships MODNet only.** The deadline (1 Dec) is met; the detailed tier returns when ORT/WebGPU can
+  run it. Simplest, nothing dishonest to explain.
+- **(b) Replace the opt-in with `u2netp`** (Apache-2.0, 4.4 MiB, general subject; already named in §3.1/R1 as
+  the fallback candidate). Needs its own pin + I/O contract verified, and a quality look before committing.
+- **(c) Ship BiRefNet fp16 behind a try/hide probe** — offer it, silently hide it where the shader limit hits.
+  Rejected by default: it offers a model the owner's own machine cannot run, and hides the reason.
+
+**Decision recorded 2026-10-04: the owner chose (c)**, with the "silently" removed — the shipped policy is
+try/hide-with-a-voice: the detailed pill is offered only where the worker's WebGPU probe answers; when the
+detailed model's GPU run fails, the option hides itself for the visit, the cut **re-runs on the people model
+automatically** (never on the wasm heap, which OOMs — `gpuFailureFallback` in backend.ts is the table-tested
+policy), and the reason is stated twice: a clay line on the cut card and one where the pill was
+(DETAILED_REFUSED_NOTE). The SUITE blurb's "products and pets" clause is restored.
 
 ---
 

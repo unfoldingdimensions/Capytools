@@ -50,6 +50,11 @@ const CSP_REPORT_ONLY = [
   // on every page; flipping to enforcing blocks it. Decide the beacon in the
   // dashboard (and the privacy copy with it) before enforcing.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  // CapyBg note (docs/plans/capybg.md §3.5): 'unsafe-eval' is what lets the
+  // browser compile WebAssembly today. If this policy is ever enforced and
+  // 'unsafe-eval' is dropped, CapyBg's model runtime needs
+  // "script-src ... 'wasm-unsafe-eval'" (same-origin wasmPaths already keep
+  // it off third-party CDNs). Do not change the policy for this in v1.
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://avatars.githubusercontent.com",
   "font-src 'self' data:",
@@ -72,6 +77,24 @@ const nextConfig: NextConfig = {
    * no effect on the production build.
    */
   allowedDevOrigins: ["192.168.*.*"],
+
+  /**
+   * CapyBg: onnxruntime-web's default "bundle" builds carry
+   * `new URL("ort-wasm-simd-threaded.asyncify.wasm", import.meta.url)`, so
+   * Turbopack emits the 25.5 MiB wasm into _next/static/media — over
+   * Cloudflare's 25 MiB per-asset cap, which failed `wrangler versions
+   * upload`. The extern-wasm builds (the package's own
+   * `onnxruntime-web-use-extern-wasm` condition, which Turbopack cannot set)
+   * reference no wasm; they import the glue from `wasmPaths`, which
+   * scripts/fetch-capybg-assets.ts already serves under /capybg/ort/, and the
+   * binary arrives sharded via `env.wasm.wasmBinary`.
+   */
+  turbopack: {
+    resolveAlias: {
+      "onnxruntime-web/webgpu": "./node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs",
+      "onnxruntime-web/wasm": "./node_modules/onnxruntime-web/dist/ort.wasm.min.mjs",
+    },
+  },
 
   /**
    * No image optimizer. The plates are hand-optimized WebP at their display

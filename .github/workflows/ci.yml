@@ -56,6 +56,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # CapyBg's model/runtime assets (~150 MB) are downloaded, verified and
+      # sharded at build time. These steps must be explicit: the build below
+      # calls opennextjs-cloudflare directly, which bypasses npm's prebuild.
+      # A Hugging Face outage fails here loudly instead of deploying a CapyBg
+      # with no model behind it.
+      - name: Restore CapyBg assets
+        uses: actions/cache@v4
+        with:
+          path: public/capybg
+          key: capybg-${{ runner.os }}-${{ hashFiles('src/lib/capybg/models.ts', 'package.json') }}
+      - name: Fetch CapyBg assets
+        run: npx tsx scripts/fetch-capybg-assets.ts
+      - name: Verify CapyBg assets
+        run: npx tsx scripts/fetch-capybg-assets.ts --verify-only
       - run: npx opennextjs-cloudflare build
       # No --env-file here: .env.cloudflare is a local-only convenience and does
       # not exist in CI. The token arrives as an environment variable instead.
@@ -74,6 +88,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # Same as preview: the assets must exist before the Worker build packs
+      # them, and opennextjs-cloudflare bypasses prebuild.
+      - name: Restore CapyBg assets
+        uses: actions/cache@v4
+        with:
+          path: public/capybg
+          key: capybg-${{ runner.os }}-${{ hashFiles('src/lib/capybg/models.ts', 'package.json') }}
+      - name: Fetch CapyBg assets
+        run: npx tsx scripts/fetch-capybg-assets.ts
+      - name: Verify CapyBg assets
+        run: npx tsx scripts/fetch-capybg-assets.ts --verify-only
       - run: npx opennextjs-cloudflare build
       - run: npx wrangler deploy
         env:

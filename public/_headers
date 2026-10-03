@@ -14,3 +14,14 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+# CapyBg's models and ORT runtime. Paths are content-addressed (model sha8,
+# ORT version), so they are immutable; the security table matches the
+# /_next/static/* block above — change one, change both.
+/capybg/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
