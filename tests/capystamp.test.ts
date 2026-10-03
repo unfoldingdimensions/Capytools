@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { FREE_BATCH_LIMIT, runBatch } from "../src/lib/capystamp/batch";
+import { metadata } from "../src/app/capystamp/page";
 import { DEMO_SPEC } from "../src/lib/capystamp/demo";
 import {
   MAX_TILES,
@@ -395,6 +396,15 @@ describe("batch", () => {
     expect(outcome.cancelled).toBe(true);
     expect(outcome.results.map((r) => r.name)).toEqual(["a-stamped.png", "b-stamped.png"]);
     expect(calls).not.toContain("c.jpg");
+  });
+});
+
+// ——— page metadata ———
+
+describe("capystamp page metadata", () => {
+  it("names the tool and scopes the promise", () => {
+    expect(metadata.title).toContain("CapyStamp");
+    expect(metadata.description).toContain("100% in your browser");
   });
 });
 

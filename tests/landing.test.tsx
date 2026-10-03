@@ -82,7 +82,7 @@ describe("Landing", () => {
   });
 
   it("keeps the verbatim README quote out of the derivation", () => {
-    expect(text).toContain("Twelve so far");
+    expect(text).toContain("Thirteen so far");
     expect(text).not.toContain("Eight so far");
   });
 
@@ -177,7 +177,7 @@ describe("Landing assets", () => {
 
   it("keeps the README quote in sync with the README itself", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
-    expect(readme).toContain("Twelve so far");
+    expect(readme).toContain("Thirteen so far");
     expect(readme).toContain("## 5. CapyExpense");
     expect(readme).toContain("## 6. CapyOG");
     expect(readme).toContain("## 7. CapyQR");
@@ -186,6 +186,7 @@ describe("Landing assets", () => {
     expect(readme).toContain("## 10. CapyPixel");
     expect(readme).toContain("## 11. CapyTone");
     expect(readme).toContain("## 12. CapyBg");
+    expect(readme).toContain("## 13. CapyStamp");
   });
 
   // The same sentence lives in three places; the colophon and the README were

@@ -219,6 +219,21 @@ export const SUITE: SuiteTool[] = [
                "cutout", "product photo", "headshot", "no upload", "onnx", "webgpu"],
     plate: { src: "/plates/lab-12.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyStamp",
+    short: "Stamp",
+    href: "/capystamp",
+    cat: "browser",
+    badge: "Stamp",
+    appCategory: "MultimediaApplication",
+    blurb:
+      "Put your mark on one photo or twenty — text or a logo, placed once and carried across every shape of image, tiled if you like. The photos never leave your tab.",
+    note: "watermarks",
+    line: "Watermark one photo or a whole batch, in your browser.",
+    keywords: ["watermark", "add watermark", "logo watermark", "batch watermark",
+               "copyright", "stamp photos", "brand photos", "no upload"],
+    plate: { src: "/plates/lab-13.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
@@ -245,6 +260,7 @@ const WORDS = [
   "ten",
   "eleven",
   "twelve",
+  "thirteen",
 ] as const;
 
 /** 7 → "seven": any count, spelled out for prose; digits past the table. */
