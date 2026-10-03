@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Twelve so far. Eleven run in your browser and keep nothing; one lives on your desktop and keeps your files there.
+A home for small, quiet tools. Thirteen so far. Twelve run in your browser and keep nothing; one lives on your desktop and keeps your files there.
 
 **[capytools.app](https://capytools.app)**
 
@@ -128,6 +128,19 @@ Cut the subject out of a photo and download a transparent PNG — or flatten it 
 - **Demo, not decoy**: before you hand over a photo, the idle state teaches the cut with a hand-drawn capybara and its matte — no model, no download.
 
 The default model is [MODNet](https://github.com/ZHKKKe/MODNet) (Apache-2.0, 6.3 MB). An opt-in detailed model for products and pets — [BiRefNet_lite](https://github.com/ZhengPeng7/BiRefNet) (MIT, 109 MB) — is offered on browsers whose GPU can run it; where one can't, the tool tries, says so plainly ("your GPU couldn't run the detailed model"), hides the option for the visit, and the cut finishes on the people model instead. Both are served self-hosted from this site.
+
+## 13. CapyStamp
+
+Put your mark on it. Watermark one photo or a whole batch — up to twenty at a time — with a text mark or your logo, placed once and carried across every shape of image in the run.
+
+- **Your photos never leave this tab**: there is no upload route in the code, and the tool's sources may not so much as name a request API — a test refuses one. The Network panel during a batch shows only the page's own files.
+- **One design, every shape**: the mark is stored relative to each photo — size as a fraction of the short side, position on a 9-point anchor — so the same design lands proportionally on portrait, landscape and square in one batch. Drag it, nudge it with the arrow keys, tile it in a grid or diagonally.
+- **The preview is the export**: both are drawn by the same function, and the house fonts are asked for by name before anything draws, so what you see is what downloads. PNG, JPEG or WebP, with the real before/after bytes per file and in total.
+- **Honest failures, calm batches**: photos are stamped one at a time with the tab left breathing; a file the browser can't read fails with its reason — "if it's an HEIC, export it as JPEG" — while the rest finish. Over twenty photos, the first twenty queue and the tool says so plainly.
+- **Presets that are only settings**: save a design by name in your browser and apply it next visit. A preset is the design, never your photos or logo — the logo is re-picked on apply.
+- **Demo, not decoy**: the idle state stamps a canvas-painted dusk scene, fetched from nowhere.
+
+A watermark is a deterrent, not protection — CapyStamp puts your mark on your work; it doesn't pretend anyone can't crop it out.
 
 ## Privacy
 

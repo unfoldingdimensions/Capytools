@@ -601,7 +601,7 @@ describe("render decision helpers", () => {
 
 describe("CapyPixel registration", () => {
   it("sits tenth in the SUITE with its plate", () => {
-    expect(SUITE).toHaveLength(12);
+    expect(SUITE).toHaveLength(13);
     const row = SUITE[9];
     expect(row.name).toBe("CapyPixel");
     expect(row.href).toBe("/capypixel");
@@ -621,6 +621,6 @@ describe("CapyPixel registration", () => {
   it("the README carries the tool's section and the count", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
     expect(readme).toContain("## 10. CapyPixel");
-    expect(readme).toContain("Twelve so far");
+    expect(readme).toContain("Thirteen so far");
   });
 });

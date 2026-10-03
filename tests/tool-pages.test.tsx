@@ -11,6 +11,7 @@ import CapyOGPage from "@/app/capyog/page";
 import CapyPixelPage from "@/app/capypixel/page";
 import CapyQRPage from "@/app/capyqr/page";
 import CapyResizePage from "@/app/capyresize/page";
+import CapyStampPage from "@/app/capystamp/page";
 import CapyStripPage from "@/app/capystrip/page";
 import CapyTonePage from "@/app/capytone/page";
 import CapyTokenPage from "@/app/capytoken/page";
@@ -24,18 +25,19 @@ const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
 
 describe("tool pages — editorial shell", () => {
   const pages = [
-    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 12"],
-    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 12"],
-    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 12"],
-    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 12"],
-    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 12"],
-    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 12"],
-    [CapyQRPage, "CapyQR · tool no. 7", "scanning", "Nº 07 / 12"],
-    [CapyResizePage, "CapyResize · tool no. 8", "needs to be", "Nº 08 / 12"],
-    [CapyTokenPage, "CapyToken · tool no. 9", "Count before you", "Nº 09 / 12"],
-    [CapyPixelPage, "CapyPixel · tool no. 10", "in chunks", "Nº 10 / 12"],
-    [CapyTonePage, "CapyTone · tool no. 11", "get a poster", "Nº 11 / 12"],
-    [CapyBgPage, "CapyBg · tool no. 12", "The background,", "Nº 12 / 12"],
+    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 13"],
+    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 13"],
+    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 13"],
+    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 13"],
+    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 13"],
+    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 13"],
+    [CapyQRPage, "CapyQR · tool no. 7", "scanning", "Nº 07 / 13"],
+    [CapyResizePage, "CapyResize · tool no. 8", "needs to be", "Nº 08 / 13"],
+    [CapyTokenPage, "CapyToken · tool no. 9", "Count before you", "Nº 09 / 13"],
+    [CapyPixelPage, "CapyPixel · tool no. 10", "in chunks", "Nº 10 / 13"],
+    [CapyTonePage, "CapyTone · tool no. 11", "get a poster", "Nº 11 / 13"],
+    [CapyBgPage, "CapyBg · tool no. 12", "The background,", "Nº 12 / 13"],
+    [CapyStampPage, "CapyStamp · tool no. 13", "mark on it", "Nº 13 / 13"],
   ] as const;
 
   for (const [Page, eyebrow, headline, index] of pages) {
@@ -135,6 +137,7 @@ describe("tool pages — editorial shell", () => {
       CapyTokenPage,
       CapyPixelPage,
       CapyTonePage,
+      CapyStampPage,
     ]) {
       expect(markup(<Page />)).toContain("lp-corner-tl");
     }
@@ -160,6 +163,7 @@ describe("copy register", () => {
     ["CapyPixel", CapyPixelPage],
     ["CapyTone", CapyTonePage],
     ["CapyBg", CapyBgPage],
+    ["CapyStamp", CapyStampPage],
   ] as const;
 
   for (const [name, Page] of pages) {

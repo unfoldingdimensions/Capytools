@@ -23,7 +23,7 @@ import { SITE_URL } from "@/lib/utils";
  * "when was it served". A build-time `new Date()` would rewrite it on every
  * unrelated deploy and quietly make the claim meaningless.
  */
-const LAST_UPDATED = "2026-09-19";
+const LAST_UPDATED = "2026-10-04";
 
 export const dynamic = "force-static";
 
