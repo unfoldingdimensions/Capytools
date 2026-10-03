@@ -5,33 +5,54 @@
  * sitting on a clay-paper field, and the same capybara on a checkerboard,
  * background gone. Deterministic, so the "demo" chip never lies about being
  * a real cut of a real photo.
+ *
+ * The silhouette is built from plain rounded shapes, not bezier art: the
+ * first bezier attempt rendered as a mangled wing (the critique's P0), and a
+ * loaf + blunt snout + ears + stubby legs reads as a capybara at any size.
  */
 
 export const DEMO_SIZE = 320;
 
-/** The subject, in its own coordinates. */
-function capybaraPath(ctx: CanvasRenderingContext2D, s: number): void {
-  const u = s / 320;
+const SAGE = "#8e9b7e";
+const INK = "#1a1a1a";
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+): void {
   ctx.beginPath();
-  // Body: a loaf with a blunt snout.
-  ctx.moveTo(60 * u, 210 * u);
-  ctx.bezierCurveTo(52 * u, 150 * u, 96 * u, 112 * u, 150 * u, 110 * u);
-  // Ears.
-  ctx.moveTo(150 * u, 110 * u);
-  ctx.lineTo(158 * u, 92 * u);
-  ctx.lineTo(172 * u, 104 * u);
-  ctx.lineTo(186 * u, 90 * u);
-  ctx.lineTo(194 * u, 108 * u);
-  // Head down the snout, then the chest and belly back to the start.
-  ctx.bezierCurveTo(226 * u, 112 * u, 252 * u, 128 * u, 258 * u, 152 * u);
-  ctx.bezierCurveTo(262 * u, 172 * u, 252 * u, 196 * u, 232 * u, 208 * u);
-  ctx.lineTo(232 * u, 248 * u);
-  ctx.lineTo(214 * u, 248 * u);
-  ctx.lineTo(212 * u, 218 * u);
-  ctx.bezierCurveTo(170 * u, 226 * u, 120 * u, 224 * u, 84 * u, 216 * u);
-  ctx.lineTo(82 * u, 250 * u);
-  ctx.lineTo(64 * u, 250 * u);
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
+  ctx.fill();
+}
+
+function circle(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/** The subject: loaf body, blunt snout, two ears, four stubby legs, one eye. */
+function capybara(ctx: CanvasRenderingContext2D): void {
+  ctx.fillStyle = SAGE;
+  roundRect(ctx, 58, 118, 184, 114, 46); // body
+  roundRect(ctx, 208, 136, 66, 56, 22); // snout
+  circle(ctx, 212, 114, 13); // left ear
+  circle(ctx, 240, 110, 13); // right ear
+  ctx.fillRect(92, 224, 20, 42); // hind leg
+  ctx.fillRect(128, 228, 18, 38); // hind leg
+  ctx.fillRect(194, 228, 18, 38); // front leg
+  ctx.fillRect(220, 224, 20, 42); // front leg
+  ctx.fillStyle = INK;
+  circle(ctx, 238, 156, 5); // eye
 }
 
 /** The photo: subject on a warm field, one gold disc behind. */
@@ -44,16 +65,8 @@ export function drawDemoSource(canvas: HTMLCanvasElement): void {
   ctx.fillStyle = "#c07952";
   ctx.fillRect(0, 0, s, s);
   ctx.fillStyle = "#d9a441";
-  ctx.beginPath();
-  ctx.arc(232, 92, 44, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#8e9b7e";
-  capybaraPath(ctx, s);
-  ctx.fill();
-  ctx.fillStyle = "#1a1a1a";
-  ctx.beginPath();
-  ctx.arc(216, 138, 4, 0, Math.PI * 2);
-  ctx.fill();
+  circle(ctx, 252, 84, 42);
+  capybara(ctx);
 }
 
 /** The cut: the same subject on the checkerboard, everything else gone. */
@@ -70,11 +83,5 @@ export function drawDemoCut(canvas: HTMLCanvasElement): void {
       ctx.fillRect(x * tile, y * tile, tile, tile);
     }
   }
-  ctx.fillStyle = "#8e9b7e";
-  capybaraPath(ctx, s);
-  ctx.fill();
-  ctx.fillStyle = "#1a1a1a";
-  ctx.beginPath();
-  ctx.arc(216, 138, 4, 0, Math.PI * 2);
-  ctx.fill();
+  capybara(ctx);
 }

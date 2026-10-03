@@ -111,6 +111,7 @@ export function CapyBg() {
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState("");
   const [backend, setBackend] = useState<string>("");
+  const [dragOver, setDragOver] = useState(false);
 
   const fileInput = useRef<HTMLInputElement>(null);
   // One cancellation token per run: a new drop replaces the old work.
@@ -330,13 +331,21 @@ export function CapyBg() {
         <button
           type="button"
           onClick={() => fileInput.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
             e.preventDefault();
+            setDragOver(false);
             const dropped = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith("image/")) ?? e.dataTransfer.files[0];
             if (dropped) void processFile(dropped, dropped.name);
           }}
-          className="mt-1 flex w-full flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring/50"
+          className={cn(
+            "mt-1 flex w-full flex-col items-center justify-center gap-2 rounded-3xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring/50",
+            dragOver && "border-primary bg-muted/50",
+          )}
         >
           <span className="mt-1 text-sm font-medium text-foreground">Drop a photo here</span>
           <span className="text-xs text-muted-foreground">
@@ -400,12 +409,18 @@ export function CapyBg() {
               </>
             ) : (
               <p className="text-sm text-muted-foreground" aria-live="polite">
-                {progress?.message ?? "reading the photo"} — {elapsed.toFixed(1)} s
+                {/* The clock only means something while the model runs — during
+                    warm-up it is noise, so it appears with the cut phase. */}
+                {progress?.phase === "cut"
+                  ? `${progress.message ?? "cutting"} — ${elapsed.toFixed(1)} s`
+                  : progress?.message ?? "reading the photo"}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              a multi-second cut on the CPU is normal — the page stays responsive because it runs off the main thread.
-            </p>
+            {backend === "wasm" ? (
+              <p className="text-xs text-muted-foreground">
+                a multi-second cut on the CPU is normal — the page stays responsive because it runs off the main thread.
+              </p>
+            ) : null}
           </div>
         ) : error ? (
           <div className="py-4">
@@ -583,6 +598,11 @@ export function CapyBg() {
         {result && file ? (
           <p className="mt-4 font-mono text-[11px] tabular-nums text-muted-foreground">
             {formatBytes(result.bytesBefore)} → {formatBytes(result.bytesAfter)} · {downloadName}
+            {result.bytesAfter > result.bytesBefore ? (
+              <span className="mt-1 block font-sans text-xs normal-case tracking-normal">
+                the cut is bigger than the original — transparency costs bytes.
+              </span>
+            ) : null}
           </p>
         ) : (
           <p className="mt-4 text-xs text-muted-foreground">the download waits for a cut.</p>
@@ -632,6 +652,10 @@ export function CapyBg() {
                     src={resultUrl}
                     alt=""
                     aria-hidden
+                    style={{
+                      background:
+                        "repeating-conic-gradient(var(--border) 0% 25%, var(--card) 0% 50%) 0 0 / 12px 12px",
+                    }}
                     className="size-14 flex-none rounded-lg border border-border object-contain"
                   />
                 ) : (
