@@ -424,3 +424,20 @@ describe("no cut can wait forever", () => {
     expect(read("src/components/tool/CapyBg.tsx")).toMatch(/onClick=\{\(\) => cancelCut\(\)\}/);
   });
 });
+
+describe("the ORT wasm never ships through the bundler", () => {
+  // The default "bundle" builds embed `new URL("…asyncify.wasm", import.meta.url)`,
+  // so Turbopack emitted a 25.5 MiB file and `wrangler versions upload` refused it.
+  it("aliases both backend imports to the extern-wasm builds", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    expect(config).toMatch(/"onnxruntime-web\/webgpu":\s*"\.\/node_modules\/onnxruntime-web\/dist\/ort\.webgpu\.min\.mjs"/);
+    expect(config).toMatch(/"onnxruntime-web\/wasm":\s*"\.\/node_modules\/onnxruntime-web\/dist\/ort\.wasm\.min\.mjs"/);
+  });
+
+  it("the extern builds reference no wasm file of their own", () => {
+    for (const f of ["ort.webgpu.min.mjs", "ort.wasm.min.mjs"]) {
+      const src = readFileSync(join(process.cwd(), "node_modules/onnxruntime-web/dist", f), "utf8");
+      expect(src).not.toMatch(/new URL\("[^"]*\.wasm"/);
+    }
+  });
+});

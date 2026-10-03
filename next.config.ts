@@ -79,6 +79,24 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.*.*"],
 
   /**
+   * CapyBg: onnxruntime-web's default "bundle" builds carry
+   * `new URL("ort-wasm-simd-threaded.asyncify.wasm", import.meta.url)`, so
+   * Turbopack emits the 25.5 MiB wasm into _next/static/media — over
+   * Cloudflare's 25 MiB per-asset cap, which failed `wrangler versions
+   * upload`. The extern-wasm builds (the package's own
+   * `onnxruntime-web-use-extern-wasm` condition, which Turbopack cannot set)
+   * reference no wasm; they import the glue from `wasmPaths`, which
+   * scripts/fetch-capybg-assets.ts already serves under /capybg/ort/, and the
+   * binary arrives sharded via `env.wasm.wasmBinary`.
+   */
+  turbopack: {
+    resolveAlias: {
+      "onnxruntime-web/webgpu": "./node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs",
+      "onnxruntime-web/wasm": "./node_modules/onnxruntime-web/dist/ort.wasm.min.mjs",
+    },
+  },
+
+  /**
    * No image optimizer. The plates are hand-optimized WebP at their display
    * size, so Cloudflare's IMAGES binding would re-encode already-final bytes
    * and bill for the privilege. Without this, the default loader would look
