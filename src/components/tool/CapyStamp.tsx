@@ -235,6 +235,7 @@ export function CapyStamp() {
   const fileInput = useRef<HTMLInputElement>(null);
   const logoInput = useRef<HTMLInputElement>(null);
   const previewCanvas = useRef<HTMLCanvasElement>(null);
+  const dockThumb = useRef<HTMLCanvasElement>(null);
   const stopRef = useRef(false);
   const downloadRefs = useRef<Array<{ url: string }>>([]);
 
@@ -396,6 +397,21 @@ export function CapyStamp() {
 
   // ——— drawing: the demo, then the live preview ———
 
+  /** The dock's 56px stand-in: centre-cropped (cover), never squashed. */
+  const drawDockThumb = useCallback(() => {
+    const thumb = dockThumb.current;
+    const source = previewCanvas.current;
+    if (!thumb || !source || source.width < 2) return;
+    const ctx = thumb.getContext("2d");
+    if (!ctx) return;
+    const s = 56;
+    const crop = Math.min(source.width, source.height);
+    const sx = (source.width - crop) / 2;
+    const sy = (source.height - crop) / 2;
+    ctx.clearRect(0, 0, s, s);
+    ctx.drawImage(source, sx, sy, crop, crop, 0, 0, s, s);
+  }, []);
+
   const drawNow = useCallback(
     (source: HTMLImageElement, width: number, height: number) => {
       const canvas = previewCanvas.current;
@@ -424,7 +440,8 @@ export function CapyStamp() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     drawStamp(ctx, canvas, DEMO_SPEC, null, { vars: faceVars });
-  }, [faceVars]);
+    drawDockThumb();
+  }, [faceVars, drawDockThumb]);
 
   // Decode the selected file (EXIF orientation honoured) when the selection moves.
   useEffect(() => {
@@ -463,11 +480,12 @@ export function CapyStamp() {
       }
       if (cancelled) return;
       drawNow(decoded.img, decoded.width, decoded.height);
+      drawDockThumb();
     })();
     return () => {
       cancelled = true;
     };
-  }, [isDemo, decoded, spec, logo, faceVars, drawNow, drawDemo]);
+  }, [isDemo, decoded, spec, logo, faceVars, drawNow, drawDemo, drawDockThumb]);
 
   // ——— dragging the mark ———
 
@@ -602,9 +620,10 @@ export function CapyStamp() {
   const applyPreset = useCallback(
     (preset: StampPreset) => {
       record(clampSpec(preset.spec));
+      // The logo is never in a preset, by design — point at the picker,
+      // don't yank the visitor into the OS file dialog from a chip click.
       if (preset.spec.kind === "logo") {
-        setStatus(`"${preset.name}" is a logo mark — pick the logo file to finish applying it.`);
-        logoInput.current?.click();
+        setStatus(`"${preset.name}" is a logo mark — pick a logo beside it to finish applying.`);
       } else {
         setStatus(`applied "${preset.name}".`);
       }
@@ -677,12 +696,14 @@ export function CapyStamp() {
     }
     setDownloads(fresh);
     setCancelledRun(outcome.cancelled);
+    // The count itself lives on the results note (one announcement, not two);
+    // the status line carries only what the note doesn't say.
     const notes = outcome.results.flatMap((result) => result.notes);
     setStatus(
       [
         outcome.overflow > 0 ? `${outcome.overflow} file${outcome.overflow === 1 ? " was" : "s were"} past the cap of ${FREE_BATCH_LIMIT} — drop them after this run.` : "",
-        `${outcome.results.length} stamped${outcome.failures.length ? `, ${outcome.failures.length} failed` : ""}.`,
-        outcome.cancelled ? " cancelled — finished files are kept." : "",
+        outcome.results.length === 0 ? "nothing stamped." : "",
+        outcome.cancelled ? "cancelled — finished files are kept." : "",
         ...notes,
       ]
         .filter(Boolean)
@@ -708,7 +729,7 @@ export function CapyStamp() {
   const queueBytes = useMemo(() => items.reduce((sum, item) => sum + item.file.size, 0), [items]);
 
   const stampButtonLabel =
-    items.length > 1 ? `Stamp ${items.length} photos` : "Stamp & download";
+    items.length > 1 ? `stamp ${items.length} photos` : "stamp & download";
 
   const previewHint = isDemo
     ? "a demo — drop a photo to stamp your own."
@@ -805,11 +826,11 @@ export function CapyStamp() {
                     <img src={item.url} alt="" className="size-full object-cover" />
                     <span className="sr-only">{item.file.name}</span>
                     {item.status === "failed" ? (
-                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-[var(--clay)]/85 py-0.5 text-center font-mono text-[9px] uppercase tracking-wide text-white">
+                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-[var(--clay)]/85 py-0.5 text-center font-mono text-[10px] uppercase tracking-wide text-white">
                         failed
                       </span>
                     ) : item.status === "stamping" ? (
-                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-primary/85 py-0.5 text-center font-mono text-[9px] uppercase tracking-wide text-[#141412]">
+                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-primary/85 py-0.5 text-center font-mono text-[10px] uppercase tracking-wide text-[#141412]">
                         stamping
                       </span>
                     ) : null}
@@ -1045,7 +1066,7 @@ export function CapyStamp() {
         </div>
 
         <div className="mt-5">
-          <span className={labelClass} id="capystamp-anchor-label">
+          <span className={cn(labelClass, "block")} id="capystamp-anchor-label">
             position
           </span>
           <div
@@ -1101,52 +1122,62 @@ export function CapyStamp() {
           </div>
         </div>
 
-        {/* Presets: named designs, settings only. */}
-        <div className="mt-6 rounded-2xl border border-border/70 bg-muted/30 p-4">
-          <span className={labelClass}>presets</span>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Input
-              type="text"
-              value={presetName}
-              onChange={(e) => setPresetName(e.target.value)}
-              placeholder="save current design as…"
-              aria-label="Preset name"
-              maxLength={40}
-              className="h-9 w-44 rounded-full bg-muted/40 font-sans"
-            />
-            <Button size="sm" variant="outline" className="rounded-full" onClick={savePreset}>
-              save
-            </Button>
+        {/* Presets: named designs, settings only. Folded — they answer a
+            question a first visit hasn't asked yet. */}
+        <details className="mt-6 rounded-2xl border border-border/70 bg-muted/30 p-4">
+          <summary className="cursor-pointer select-none">
+            <span className={labelClass}>presets</span>
+            {presets.length > 0 ? (
+              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                {presets.length} saved
+              </span>
+            ) : null}
+          </summary>
+          <div className="mt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                type="text"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                placeholder="save current design as…"
+                aria-label="Preset name"
+                maxLength={40}
+                className="h-9 w-44 rounded-full bg-muted/40 font-sans"
+              />
+              <Button size="sm" variant="outline" className="rounded-full" onClick={savePreset}>
+                save
+              </Button>
+            </div>
+            {presets.length > 0 ? (
+              <ul className="mt-3 flex flex-wrap gap-1.5">
+                {presets.map((preset) => (
+                  <li key={preset.id} className="flex items-center gap-1 rounded-full border border-border bg-card pl-1 pr-1">
+                    <button
+                      type="button"
+                      onClick={() => applyPreset(preset)}
+                      className="max-w-40 truncate rounded-full px-2 py-0.5 font-sans text-[13px] text-muted-foreground transition-colors hover:text-foreground pointer-coarse:min-h-11"
+                      title={`Apply ${preset.name}`}
+                    >
+                      {preset.name}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Delete preset ${preset.name}`}
+                      onClick={() => deletePreset(preset.id)}
+                      className="text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <X className="size-3" aria-hidden />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs text-muted-foreground">
+                saved in this browser only — a preset is the design, never your photos or logo.
+              </p>
+            )}
           </div>
-          {presets.length > 0 ? (
-            <ul className="mt-3 flex flex-wrap gap-1.5">
-              {presets.map((preset) => (
-                <li key={preset.id} className="flex items-center gap-1 rounded-full border border-border bg-card pl-1 pr-1">
-                  <button
-                    type="button"
-                    onClick={() => applyPreset(preset)}
-                    className="max-w-40 truncate rounded-full px-2 py-0.5 font-sans text-[13px] text-muted-foreground transition-colors hover:text-foreground pointer-coarse:min-h-11"
-                    title={`Apply ${preset.name}`}
-                  >
-                    {preset.name}
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Delete preset ${preset.name}`}
-                    onClick={() => deletePreset(preset.id)}
-                    className="text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <X className="size-3" aria-hidden />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-2 text-xs text-muted-foreground">
-              saved in this browser only — a preset is the design, never your photos or logo.
-            </p>
-          )}
-        </div>
+        </details>
       </StageCard>
 
       {/* CARD 3: THE PREVIEW AND OUTPUT — sticky on desktop. */}
@@ -1155,7 +1186,15 @@ export function CapyStamp() {
         index="03"
         title="The preview"
         className="lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
-        chips={isDemo ? <StageChip>demo</StageChip> : null}
+        chips={
+          isDemo ? (
+            <StageChip>demo</StageChip>
+          ) : (
+            <StageChip>
+              {running ? `${progress.total} stamping` : `${items.length} queued`}
+            </StageChip>
+          )
+        }
       >
         <div className="relative">
           <canvas
@@ -1223,8 +1262,11 @@ export function CapyStamp() {
         {/* The one sage primary on the screen. */}
         <Button className="mt-4 h-11 w-full rounded-full text-base" onClick={runStamp} disabled={!canRun}>
           <Download className="mr-1.5 size-4" aria-hidden />
-          {running ? `Stamping ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…` : stampButtonLabel}
+          {running ? `stamping ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…` : stampButtonLabel}
         </Button>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          your photos never leave this tab.
+        </p>
         {running ? (
           <Button variant="ghost" className="mt-2 h-11 w-full rounded-full" onClick={cancelRun}>
             cancel — finished files are kept
@@ -1235,12 +1277,14 @@ export function CapyStamp() {
           <p className="mt-2 text-center text-xs text-[var(--clay)]">type the text to stamp first.</p>
         ) : null}
 
-        {/* Results. */}
-        <div aria-live="polite" className="mt-4">
+        {/* Results. The note is the one live region — links stay out of the
+            announcement, and the count is said once. */}
+        <div className="mt-4">
           {stamped.length > 0 && !running ? (
             <div className="flex flex-col gap-3">
-              <p className={cn("rounded-2xl border px-4 py-2 text-[13px] leading-snug", STAGE_TONE.sage)}>
+              <p aria-live="polite" className={cn("rounded-2xl border px-4 py-2 text-[13px] leading-snug", STAGE_TONE.sage)}>
                 {stamped.length} stamped · {formatBytes(totals.before)} → {formatBytes(totals.after)}
+                {totals.after > totals.before ? " — a stamp adds pixels, so sizes can grow." : ""}
                 {cancelledRun ? " · cancelled, finished files kept" : ""}
               </p>
               {downloads?.zip ? (
@@ -1250,7 +1294,7 @@ export function CapyStamp() {
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-primary/20 pointer-coarse:min-h-11"
                 >
                   <FileArchive className="size-4" aria-hidden />
-                  Download {downloads.zip.name}
+                  download {downloads.zip.name}
                 </a>
               ) : null}
               {downloads && downloads.links.length > 0 ? (
@@ -1281,7 +1325,7 @@ export function CapyStamp() {
             </ul>
           ) : null}
           {status ? (
-            <p className="mt-3 min-h-5 text-xs text-muted-foreground">{status}</p>
+            <p aria-live="polite" className="mt-3 min-h-5 text-xs text-muted-foreground">{status}</p>
           ) : null}
         </div>
       </StageCard>
@@ -1300,15 +1344,10 @@ export function CapyStamp() {
             >
               <div className="mx-auto flex max-w-xl items-center gap-3">
                 <canvas
+                  ref={dockThumb}
                   aria-hidden
                   width={56}
                   height={56}
-                  ref={(el) => {
-                    if (el && previewCanvas.current && previewCanvas.current.width > 1) {
-                      const ctx = el.getContext("2d");
-                      ctx?.drawImage(previewCanvas.current, 0, 0, 56, 56);
-                    }
-                  }}
                   className="size-14 flex-none rounded-lg border border-border"
                 />
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
