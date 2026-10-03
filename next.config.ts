@@ -50,6 +50,11 @@ const CSP_REPORT_ONLY = [
   // on every page; flipping to enforcing blocks it. Decide the beacon in the
   // dashboard (and the privacy copy with it) before enforcing.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  // CapyBg note (docs/plans/capybg.md §3.5): 'unsafe-eval' is what lets the
+  // browser compile WebAssembly today. If this policy is ever enforced and
+  // 'unsafe-eval' is dropped, CapyBg's model runtime needs
+  // "script-src ... 'wasm-unsafe-eval'" (same-origin wasmPaths already keep
+  // it off third-party CDNs). Do not change the policy for this in v1.
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://avatars.githubusercontent.com",
   "font-src 'self' data:",
