@@ -8,3 +8,43 @@ export type ModelId = "modnet" | "birefnet";
 
 /** Where inference runs. The copy on the page names both honestly. */
 export type Backend = "webgpu" | "wasm";
+
+/** What goes behind the cut subject. */
+export type Backdrop = "transparent" | "light" | "dark" | { color: string };
+
+export type OutputFormat = "png" | "jpeg";
+
+/** Per-file options (plan §5.1 — the seam stays UI-free). */
+export interface BgOptions {
+  model: ModelId;
+  backdrop: Backdrop;
+  format: OutputFormat;
+  /** JPEG only, clamped to 0.5–1 (compose.ts decides the default). */
+  quality?: number;
+  /** Matte softening in px, 0–3, default 1. */
+  feather?: number;
+}
+
+/** What a finished cut reports — every number in it is the truth. */
+export interface BgResult {
+  blob: Blob;
+  mimeType: string;
+  width: number;
+  height: number;
+  bytesBefore: number;
+  bytesAfter: number;
+  backend: Backend;
+  /** Time the model itself took, not decode/compose. */
+  modelMs: number;
+  /** Honest fallbacks: downscaled, encoder swapped type, GPU fell back… */
+  notes: string[];
+}
+
+/** What the UI shows while the work happens. */
+export interface Progress {
+  phase: "download" | "load" | "cut";
+  /** download only: streamed bytes vs the manifest's known total. */
+  received?: number;
+  total?: number;
+  message?: string;
+}

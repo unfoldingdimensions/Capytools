@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 
+import { CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU, decideBackend } from "@/lib/capybg/backend";
+import { bgFilename, backdropFill, clampQuality, decideCompose } from "@/lib/capybg/compose";
 import { MAX_ASSET_BYTES, validateManifest } from "@/lib/capybg/manifest";
 import { MODELS, MODEL_IDS, modelUrl, sha8 } from "@/lib/capybg/models";
+import { modelInputSize, toModelTensor } from "@/lib/capybg/preprocess";
+import {
+  applyMatte,
+  featherMatte,
+  matteFromModelOutput,
+  resizeMatte,
+  sigmoid,
+} from "@/lib/capybg/postprocess";
 
 /**
  * The model registry is where CapyBg's licences and pins live, and the
@@ -167,5 +177,159 @@ describe("the manifest validator", () => {
 
   it("rejects a wrong manifest version", () => {
     expect(() => validateManifest({ version: 2, ort: { version: "1.30.0", files: {} }, models: {} })).toThrow(/version/);
+  });
+});
+
+describe("preprocess: the size rules", () => {
+  it("lands the shortest MODNet edge on 512, both sides on a multiple of 32", () => {
+    expect(modelInputSize(MODELS.modnet, 4000, 3000)).toEqual({ width: 672, height: 512 });
+    expect(modelInputSize(MODELS.modnet, 3000, 4000)).toEqual({ width: 512, height: 672 });
+    // A hair over square still rounds down to the nearest 32.
+    expect(modelInputSize(MODELS.modnet, 1000, 1001)).toEqual({ width: 512, height: 512 });
+    // Small portrait photos upscale to the same edge.
+    expect(modelInputSize(MODELS.modnet, 160, 90)).toEqual({ width: 896, height: 512 });
+  });
+
+  it("stretches everything to BiRefNet's square 1024", () => {
+    expect(modelInputSize(MODELS.birefnet, 4000, 3000)).toEqual({ width: 1024, height: 1024 });
+    expect(modelInputSize(MODELS.birefnet, 64, 64)).toEqual({ width: 1024, height: 1024 });
+  });
+});
+
+describe("preprocess: RGBA to planar NCHW", () => {
+  it("splits planes and normalises with the model's mean/std", () => {
+    const rgba = new Uint8ClampedArray([
+      255, 0, 0, 255,
+      0, 255, 0, 255,
+      0, 0, 255, 255,
+      128, 128, 128, 255,
+    ]);
+    const tensor = toModelTensor(rgba, MODELS.modnet);
+    expect(tensor.length).toBe(2 * 2 * 3);
+    const half = (v: number) => (v / 255 - 0.5) / 0.5;
+    // R plane first: pixels 0..3.
+    expect(tensor[0]).toBeCloseTo(1);
+    expect(tensor[1]).toBeCloseTo(-1);
+    expect(tensor[2]).toBeCloseTo(-1);
+    expect(tensor[3]).toBeCloseTo(half(128));
+    // Then G, then B — same pixel order within each plane.
+    expect(tensor[4]).toBeCloseTo(-1); // G of pixel 0
+    expect(tensor[8]).toBeCloseTo(-1); // B of pixel 0
+    expect(tensor[5]).toBeCloseTo(1); // G of pixel 1
+    expect(tensor[10]).toBeCloseTo(1); // B of pixel 2
+  });
+
+  it("applies ImageNet normalisation for BiRefNet", () => {
+    const white = new Uint8ClampedArray([255, 255, 255, 255]);
+    const tensor = toModelTensor(white, MODELS.birefnet);
+    expect(tensor[0]).toBeCloseTo((1 - 0.485) / 0.229);
+    expect(tensor[1]).toBeCloseTo((1 - 0.456) / 0.224);
+    expect(tensor[2]).toBeCloseTo((1 - 0.406) / 0.225);
+  });
+});
+
+describe("postprocess: model output to alpha", () => {
+  it("sigs only the logit model, clamps the rest", () => {
+    const logits = new Float32Array([0, 1, -1, 100]);
+    const sig = matteFromModelOutput(logits, true);
+    expect(sig[0]).toBeCloseTo(0.5);
+    expect(sig[1]).toBeCloseTo(sigmoid(1));
+    expect(sig[2]).toBeCloseTo(sigmoid(-1));
+    expect(sig[3]).toBeCloseTo(1);
+    const raw = new Float32Array([-1, 0.5, 2, 0]);
+    const clamped = matteFromModelOutput(raw, false);
+    expect(Array.from(clamped)).toEqual([0, 0.5, 1, 0]);
+  });
+
+  it("resizes the matte bilinearly and monotonically", () => {
+    const one = resizeMatte(new Float32Array([0.5]), 1, 1, 3, 3);
+    expect(one).toHaveLength(9);
+    expect(Array.from(one)).toEqual(new Array(9).fill(0.5));
+    // 1×2 [0,1] → 1×4 walks 0, .25, .75, 1.
+    const ramp = resizeMatte(new Float32Array([0, 1]), 2, 1, 4, 1);
+    expect(Array.from(ramp)).toEqual([0, 0.25, 0.75, 1]);
+    // Same size returns an equal copy.
+    const same = new Float32Array([0.1, 0.9]);
+    const passthrough = resizeMatte(same, 2, 1, 2, 1);
+    expect(passthrough[0]).toBeCloseTo(0.1);
+    expect(passthrough[1]).toBeCloseTo(0.9);
+  });
+
+  it("feathers with a box blur; radius 0 is the identity", () => {
+    const flat = new Float32Array(16).fill(0.7);
+    expect(Array.from(featherMatte(flat, 4, 4, 0))).toEqual(Array.from(flat));
+    expect(Array.from(featherMatte(flat, 4, 4, 2))).toEqual(Array.from(flat)); // constant stays constant
+    const step = new Float32Array(4);
+    step.set([0, 0, 1, 1]);
+    const soft = featherMatte(step, 4, 1, 1);
+    expect(soft[0]).toBeLessThan(0.5);
+    expect(soft[1]).toBeGreaterThan(0);
+    expect(soft[1]).toBeLessThan(0.5);
+    expect(soft[2]).toBeGreaterThan(0.5);
+    expect(soft[2]).toBeLessThan(1);
+  });
+
+  it("writes the matte to channel 3 and nothing else", () => {
+    const rgba = new Uint8ClampedArray([10, 20, 30, 255, 40, 50, 60, 0]);
+    applyMatte(rgba, new Float32Array([0.5, 2]));
+    expect(Array.from(rgba.slice(0, 3))).toEqual([10, 20, 30]);
+    expect(Array.from(rgba.slice(4, 7))).toEqual([40, 50, 60]);
+    expect(rgba[3]).toBe(128); // 0.5 * 255, rounded
+    expect(rgba[7]).toBe(255); // >1 clamps to opaque
+  });
+
+  it("refuses a matte smaller than the image", () => {
+    expect(() => applyMatte(new Uint8ClampedArray(16), new Float32Array(2))).toThrow(/smaller/);
+  });
+});
+
+describe("backend: the honest truth table", () => {
+  it("chooses WebGPU only when the adapter answers", () => {
+    expect(decideBackend(true, true)).toEqual({ backend: "webgpu" });
+    const noAdapter = decideBackend(true, false);
+    expect(noAdapter.backend).toBe("wasm");
+    expect(noAdapter.note).toBe(CPU_NOTE_NO_ADAPTER);
+    const noWebGPU = decideBackend(false, false);
+    expect(noWebGPU.backend).toBe("wasm");
+    expect(noWebGPU.note).toBe(CPU_NOTE_NO_WEBGPU);
+    // A dead combination degrades to the plain no-WebGPU note.
+    expect(decideBackend(false, true)).toEqual(noWebGPU);
+  });
+
+  it("never claims the GPU in a CPU note", () => {
+    for (const note of [CPU_NOTE_NO_ADAPTER, CPU_NOTE_NO_WEBGPU]) {
+      expect(note).toMatch(/CPU \(WebAssembly\)/);
+      expect(note.toLowerCase()).not.toMatch(/gpu \(/);
+    }
+  });
+});
+
+describe("compose: the decisions", () => {
+  it("keeps transparency as PNG, and says why when JPEG was asked", () => {
+    expect(decideCompose("transparent", "png")).toEqual({ format: "png", fill: null });
+    const refused = decideCompose("transparent", "jpeg");
+    expect(refused.format).toBe("png");
+    expect(refused.fill).toBeNull();
+    expect(refused.note).toMatch(/JPEG has no transparency/);
+  });
+
+  it("flattens light, dark and picked colours", () => {
+    expect(decideCompose("light", "jpeg")).toEqual({ format: "jpeg", fill: "#ffffff" });
+    expect(decideCompose("dark", "png")).toEqual({ format: "png", fill: "#121212" });
+    expect(decideCompose({ color: "#abc123" }, "jpeg")).toEqual({ format: "jpeg", fill: "#abc123" });
+    expect(backdropFill({ color: "#abc123" })).toBe("#abc123");
+  });
+
+  it("clamps JPEG quality into the promised 0.5–1 window", () => {
+    expect(clampQuality(undefined)).toBe(0.92);
+    expect(clampQuality(0.3)).toBe(0.5);
+    expect(clampQuality(1.5)).toBe(1);
+    expect(clampQuality(0.8)).toBe(0.8);
+  });
+
+  it("names downloads after the original, with -nobg", () => {
+    expect(bgFilename("photo.JPG", "png")).toBe("photo-nobg.png");
+    expect(bgFilename("archive", "jpeg")).toBe("archive-nobg.jpg");
+    expect(bgFilename("album.cover.webp", "png")).toBe("album.cover-nobg.png");
   });
 });
