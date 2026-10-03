@@ -110,7 +110,7 @@ async function main() {
 
   const llms = await (await get("/llms.txt")).text();
   check("/llms.txt lists every tool",
-    (llms.match(/^## Capy/gm) ?? []).length, 11);
+    (llms.match(/^## Capy/gm) ?? []).length, 12);
 
   console.log("\nsecurity headers (page)");
   const page = await get("/");
