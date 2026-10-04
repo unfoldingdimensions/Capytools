@@ -304,3 +304,70 @@ export function decontaminateEdges(rgba: Uint8ClampedArray, alpha: Float32Array,
     }
   }
 }
+
+/**
+ * Matte cleanup, every model, at model size (owner compared against
+ * remove.bg, 2026-10-05: ours left milky half-transparent haze around people
+ * and stray specks away from them).
+ * - Levels: alpha below 0.15 becomes 0, above 0.85 becomes 1, linear between —
+ *   the model's unsure haze clears, the subject goes solid, the edge band keeps
+ *   its anti-aliasing (and sheer fabric at ~0.6 stays ~0.64).
+ * - Islands: solid pieces (> 0.5, 4-connected) smaller than 2% of the largest
+ *   are dropped, with their soft rims (kept pieces' rims are grown back ~1%).
+ * Measured on the owner's family photo, detailed model: the share of pixels in
+ * 0.02–0.5 ("haze") fell from 6.45% to 0.73%.
+ */
+export function cleanMatte(matte: Float32Array, w: number, h: number): Float32Array {
+  const out = new Float32Array(matte.length);
+  for (let i = 0; i < matte.length; i++) out[i] = Math.min(1, Math.max(0, (matte[i] - 0.15) / 0.7));
+
+  // Label solid pieces; remember each one's size.
+  const label = new Int32Array(out.length);
+  const sizes: number[] = [0];
+  const stack = new Int32Array(out.length);
+  for (let seed = 0; seed < out.length; seed++) {
+    if (out[seed] <= 0.5 || label[seed]) continue;
+    const id = sizes.length;
+    let size = 0;
+    let top = 0;
+    stack[top++] = seed;
+    label[seed] = id;
+    while (top > 0) {
+      const p = stack[--top];
+      size++;
+      const x = p % w;
+      const neighbours = [x > 0 ? p - 1 : -1, x < w - 1 ? p + 1 : -1, p >= w ? p - w : -1, p + w < w * h ? p + w : -1];
+      for (const q of neighbours) {
+        if (q >= 0 && !label[q] && out[q] > 0.5) {
+          label[q] = id;
+          stack[top++] = q;
+        }
+      }
+    }
+    sizes.push(size);
+  }
+  if (sizes.length <= 2) return out; // nothing, or one piece — no specks to drop
+  const largest = Math.max(...sizes);
+  const keep = new Float32Array(out.length);
+  for (let i = 0; i < out.length; i++) keep[i] = label[i] && sizes[label[i]] >= 0.02 * largest ? 1 : 0;
+  const near = morph(keep, w, h, Math.max(2, Math.round(Math.min(w, h) * 0.01)), true);
+  for (let i = 0; i < out.length; i++) out[i] *= near[i];
+  return out;
+}
+
+/**
+ * ISNet + the people model. ISNet (the detailed fallback) kept the owner's
+ * mother's sheer pallu (1.0) but dropped their son's dark trousers (0.02);
+ * MODNet had the trousers (0.98) and only part of the pallu. So keep ISNet's
+ * cut and add back MODNet's pieces (> 0.5, 4-connected) that touch ISNet's
+ * subject (> 0.5), grown ~2% for their soft rims. A logo stays pure ISNet —
+ * MODNet finds nothing there to attach. Both mattes are w×h, in [0, 1].
+ */
+export function attachPeople(detailed: Float32Array, people: Float32Array, w: number, h: number): Float32Array {
+  const sure = new Float32Array(detailed.length);
+  for (let i = 0; i < detailed.length; i++) sure[i] = detailed[i] > 0.5 ? 1 : 0;
+  const attached = morph(touchingPieces(people, sure, w, h), w, h, Math.max(2, Math.round(Math.min(w, h) * 0.02)), true);
+  const out = new Float32Array(detailed.length);
+  for (let i = 0; i < out.length; i++) out[i] = Math.max(detailed[i], people[i] * attached[i]);
+  return out;
+}
