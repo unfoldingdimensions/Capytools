@@ -554,3 +554,34 @@ describe("edge-colour cleanup", () => {
     for (let x = 0; x < W; x++) expect(rgba[x * 4 + 3]).toBe(255);
   });
 });
+
+describe("group mode keeps faint fabric MODNet already has", () => {
+  // A thin pallu: MODNet has it (0.9), the helper only faintly (0.2), next to
+  // a person the helper is sure of.
+  const W = 60;
+  const H = 40;
+  const at = (x: number, y: number) => y * W + x;
+  const people = new Float32Array(W * H);
+  const helper = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 5; x < 25; x++) { helper[at(x, y)] = 1; people[at(x, y)] = 1; }
+  for (let y = 10; y < 30; y++) for (let x = 25; x < 32; x++) { helper[at(x, y)] = 0.2; people[at(x, y)] = 0.9; }
+  const fused = fuseMattes(people, helper, W, H);
+
+  it("keeps the pallu the helper sees only faintly", () => {
+    expect(fused[at(29, 20)]).toBeCloseTo(0.9, 5);
+  });
+
+  it("keeps fabric the helper misses entirely, because it hangs from a person", () => {
+    const blind = helper.slice();
+    for (let y = 10; y < 30; y++) for (let x = 25; x < 45; x++) blind[at(x, y)] = 0;
+    const longPallu = people.slice();
+    for (let y = 10; y < 30; y++) for (let x = 25; x < 45; x++) longPallu[at(x, y)] = 0.9;
+    const out = fuseMattes(longPallu, blind, W, H);
+    expect(out[at(42, 20)]).toBeCloseTo(0.9, 5); // far past any grown gate
+  });
+
+  it("the people pill re-cuts when it leaves group mode", () => {
+    const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+    expect(ui).toMatch(/if \(wasOther && file && phase === "done"\) void startCut\(file\.blob, file\.name, "modnet", false\)/);
+  });
+});

@@ -419,8 +419,12 @@ export function CapyBg() {
             <Pill
               active={model === "modnet" && !group}
               onClick={() => {
+                const wasOther = model !== "modnet" || group;
                 setModel("modnet");
                 setGroup(false);
+                // Leaving group mode (or the detailed model) is a new matte:
+                // re-cut what is on the table, as the other pills do.
+                if (wasOther && file && phase === "done") void startCut(file.blob, file.name, "modnet", false);
               }}
               label={`Model ${MODELS.modnet.label}, ${formatBytes(MODELS.modnet.bytes)} downloaded once`}
             >

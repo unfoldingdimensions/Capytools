@@ -114,21 +114,51 @@ function morph(mask: Float32Array, w: number, h: number, r: number, grow: boolea
   return pass(pass(mask, true), false);
 }
 
+/** The pieces of MODNet's matte (> 0.5, 4-connected) that overlap `sure`. */
+function touchingPieces(people: Float32Array, sure: Float32Array, w: number, h: number): Float32Array {
+  const keep = new Float32Array(people.length);
+  const stack = new Int32Array(people.length);
+  for (let seed = 0; seed < people.length; seed++) {
+    if (!sure[seed] || people[seed] <= 0.5 || keep[seed]) continue;
+    let top = 0;
+    stack[top++] = seed;
+    keep[seed] = 1;
+    while (top > 0) {
+      const p = stack[--top];
+      const x = p % w;
+      const neighbours = [x > 0 ? p - 1 : -1, x < w - 1 ? p + 1 : -1, p >= w ? p - w : -1, p + w < w * h ? p + w : -1];
+      for (const q of neighbours) {
+        if (q >= 0 && !keep[q] && people[q] > 0.5) {
+          keep[q] = 1;
+          stack[top++] = q;
+        }
+      }
+    }
+  }
+  return keep;
+}
+
 /**
  * Group mode: the helper (U²-Net human seg) decides WHO is in the photo, the
  * people model (MODNet) draws the edges. Both mattes are w×h, in [0, 1].
- * - MODNet survives only near the helper's people (`region`, grown by ~2% of
- *   the short side), which drops the backdrop it mistakes for a person.
- * - Inside the helper's sure core (shrunk by the same), the person is opaque
- *   even where MODNet lost them — a black saree on a black backdrop.
- * Prototyped against the owner's photos before it was written (2026-10-04).
+ * - MODNet survives where it is CONNECTED to a person the helper is sure of,
+ *   or where the helper sees even a faint person (> 0.03). A pallu hangs from
+ *   the shoulder, so it survives whole even where the helper scores it 0; a
+ *   threshold gate alone cut it off (owner's photo, 2026-10-04 — and the helper
+ *   scores that fabric 0.09 in the browser against 0.17 in Python, so any
+ *   threshold near it is a coin toss). Pieces touching nobody still drop.
+ * - Inside the helper's sure core (helper > 0.5, shrunk by ~2%), the person is
+ *   opaque even where MODNet lost them — a black saree on a black backdrop.
+ * Measured on all five owner photos, not chosen by eye.
  */
 export function fuseMattes(people: Float32Array, helper: Float32Array, w: number, h: number): Float32Array {
   const r = Math.max(2, Math.round(Math.min(w, h) * 0.02));
-  const mask = new Float32Array(helper.length);
-  for (let i = 0; i < helper.length; i++) mask[i] = helper[i] > 0.5 ? 1 : 0;
-  const region = morph(mask, w, h, r, true);
-  const core = featherMatte(morph(mask, w, h, r, false), w, h, 3);
+  const sure = new Float32Array(helper.length);
+  for (let i = 0; i < helper.length; i++) sure[i] = helper[i] > 0.5 ? 1 : 0;
+  const keep = touchingPieces(people, sure, w, h);
+  for (let i = 0; i < helper.length; i++) if (helper[i] > 0.03) keep[i] = 1;
+  const region = morph(keep, w, h, r, true);
+  const core = featherMatte(morph(sure, w, h, r, false), w, h, 3);
   const out = new Float32Array(people.length);
   for (let i = 0; i < out.length; i++) out[i] = Math.max(people[i] * region[i], core[i]);
   return out;
