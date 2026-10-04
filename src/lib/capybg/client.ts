@@ -4,7 +4,7 @@ import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecisi
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
-import { applyMatte, decontaminateEdges, featherMatte, fuseMattes, matteFromModelOutput, resizeMatte } from "./postprocess";
+import { applyMatte, attachPeople, cleanMatte, decontaminateEdges, featherMatte, fuseMattes, matteFromModelOutput, resizeMatte } from "./postprocess";
 import { modelInputSize, toModelTensor } from "./preprocess";
 import type { Backend, BgOptions, BgResult, ModelId, Progress } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./worker";
@@ -503,6 +503,25 @@ export async function removeBackground(
       matte = fuseMattes(matte, helperMatte, size.width, size.height);
       modelMs += helper.ms;
     }
+
+    if (opts.model === "isnet") {
+      // ISNet drops some people parts MODNet keeps (dark trousers): add back
+      // MODNet's pieces attached to ISNet's subject, in ISNet's 1024² space.
+      const peopleSize = modelInputSize(MODELS.modnet, canvas.width, canvas.height);
+      const people = await runModel("modnet", modelTensor(canvas, "modnet", peopleSize), peopleSize, onProgress, notes);
+      const peopleMatte = resizeMatte(
+        matteFromModelOutput(people.matte, MODELS.modnet.sigmoid),
+        peopleSize.width,
+        peopleSize.height,
+        size.width,
+        size.height,
+      );
+      matte = attachPeople(matte, peopleMatte, size.width, size.height);
+      modelMs += people.ms;
+    }
+
+    // Clear the model's unsure haze and drop stray specks (remove.bg parity).
+    matte = cleanMatte(matte, size.width, size.height);
 
     lastCut = {
       file,

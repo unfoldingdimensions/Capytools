@@ -10,6 +10,8 @@ import { MODELS, MODEL_IDS, modelUrl, sha8 } from "@/lib/capybg/models";
 import { modelInputSize, toModelTensor } from "@/lib/capybg/preprocess";
 import {
   applyMatte,
+  attachPeople,
+  cleanMatte,
   decontaminateEdges,
   featherMatte,
   fuseMattes,
@@ -615,5 +617,63 @@ describe("the detailed model where BiRefNet doesn't fit", () => {
   it("is never the AGPL-labelled onnx-community repack", () => {
     expect(MODELS.isnet.repo).not.toMatch(/onnx-community/i);
     expect(modelUrl(MODELS.isnet)).toMatch(/^https:\/\/github\.com\/danielgatis\/rembg\/releases\//);
+  });
+});
+
+describe("matte cleanup", () => {
+  const W = 40;
+  const H = 20;
+  const at = (x: number, y: number) => y * W + x;
+  const m = new Float32Array(W * H);
+  for (let y = 2; y < 18; y++) for (let x = 2; x < 22; x++) m[at(x, y)] = 0.95; // the subject
+  m[at(23, 10)] = 0.5; // its soft rim
+  for (let y = 0; y < H; y++) for (let x = 25; x < 40; x++) if (!m[at(x, y)]) m[at(x, y)] = 0.1; // haze
+  m[at(35, 3)] = 0.9; // a one-pixel speck in the haze
+  const out = cleanMatte(m, W, H);
+
+  it("clears haze and makes the subject solid", () => {
+    expect(out[at(30, 15)]).toBe(0);
+    expect(out[at(10, 10)]).toBe(1);
+  });
+
+  it("keeps the anti-aliased rim between", () => {
+    expect(out[at(23, 10)]).toBeCloseTo((0.5 - 0.15) / 0.7, 5);
+  });
+
+  it("drops a speck far from the subject", () => {
+    expect(out[at(35, 3)]).toBe(0);
+  });
+});
+
+describe("every cut is cleaned", () => {
+  it("runs cleanMatte on the final matte, after group fusion, before it is kept", () => {
+    const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+    const fuse = client.indexOf("matte = fuseMattes(");
+    const clean = client.indexOf("matte = cleanMatte(matte, size.width, size.height);");
+    const kept = client.indexOf("lastCut = {", clean);
+    expect(fuse).toBeGreaterThan(0);
+    expect(clean).toBeGreaterThan(fuse);
+    expect(kept).toBeGreaterThan(clean);
+  });
+});
+
+describe("the ISNet detailed cut keeps people parts it misses", () => {
+  const W = 30;
+  const H = 30;
+  const at = (x: number, y: number) => y * W + x;
+  const isnet = new Float32Array(W * H);
+  const people = new Float32Array(W * H);
+  for (let y = 2; y < 15; y++) for (let x = 10; x < 20; x++) { isnet[at(x, y)] = 1; people[at(x, y)] = 1; } // torso: both
+  for (let y = 15; y < 28; y++) for (let x = 11; x < 19; x++) people[at(x, y)] = 0.95; // trousers: MODNet only
+  for (let y = 2; y < 6; y++) for (let x = 24; x < 28; x++) people[at(x, y)] = 0.9; // a MODNet speck touching nothing
+  const out = attachPeople(isnet, people, W, H);
+
+  it("adds back the trousers hanging from the subject", () => {
+    expect(out[at(15, 25)]).toBeCloseTo(0.95, 5);
+  });
+
+  it("keeps ISNet's cut, and ignores MODNet pieces attached to nothing", () => {
+    expect(out[at(15, 8)]).toBe(1);
+    expect(out[at(26, 4)]).toBe(0);
   });
 });
