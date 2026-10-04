@@ -18,6 +18,8 @@ import {
   matteFromModelOutput,
   resizeMatte,
   sigmoid,
+  tileStarts,
+  trimapFrom,
 } from "@/lib/capybg/postprocess";
 import { SUITE } from "@/lib/capytools/suite";
 
@@ -61,11 +63,18 @@ const PLAN_PINS = {
     sha256: "60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a",
     bytes: 178648008,
   },
+  vitmatte: {
+    repo: "Xenova/vitmatte-small-composition-1k",
+    revision: "6bc1297f6140f055a227b6d2cfe8c093281f35d2",
+    path: "onnx/model.onnx",
+    sha256: "bf28d2e0be2c073286e88d60ad649d7123da2749a2d99133fd1098d5887e0225",
+    bytes: 103885865,
+  },
 };
 
 describe("the model registry", () => {
   it("has a complete, well-formed spec for every model", () => {
-    expect(MODEL_IDS).toHaveLength(4);
+    expect(MODEL_IDS).toHaveLength(5);
     for (const id of MODEL_IDS) {
       const model = MODELS[id];
       expect(model.id).toBe(id);
@@ -675,5 +684,45 @@ describe("the ISNet detailed cut keeps people parts it misses", () => {
   it("keeps ISNet's cut, and ignores MODNet pieces attached to nothing", () => {
     expect(out[at(15, 8)]).toBe(1);
     expect(out[at(26, 4)]).toBe(0);
+  });
+});
+
+describe("edge refinement (ViTMatte) for the detailed cut", () => {
+  it("lays 512 tiles with overlap end to end", () => {
+    expect(tileStarts(400, 512, 64)).toEqual([0]);
+    expect(tileStarts(1024, 512, 64)).toEqual([0, 256, 512]);
+    const starts = tileStarts(2048, 512, 64);
+    expect(starts[0]).toBe(0);
+    expect(starts[starts.length - 1]).toBe(2048 - 512);
+    for (let i = 1; i < starts.length; i++) expect(starts[i] - starts[i - 1]).toBeLessThanOrEqual(512 - 64);
+  });
+
+  it("marks sure subject 1, sure backdrop 0, and the band between 0.5", () => {
+    const W = 100;
+    const H = 10;
+    const m = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) m[y * W + x] = x < 50 ? 1 : 0;
+    const t = trimapFrom(m, W, H);
+    expect(t[5 * W + 10]).toBe(1);
+    expect(t[5 * W + 90]).toBe(0);
+    expect(t[5 * W + 49]).toBe(0.5);
+    expect(t[5 * W + 50]).toBe(0.5);
+  });
+
+  it("is a webgpu-only refiner that steps aside, not a model choice", () => {
+    expect(MODELS.vitmatte.backends).toEqual(["webgpu"]);
+    expect(MODELS.vitmatte.licence).toBe("MIT");
+    expect(gpuFailureFallback("vitmatte")).toBe("people");
+  });
+
+  it("runs on detailed cuts, after cleanup, and the pill counts its download", () => {
+    const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+    const clean = client.indexOf("matte = cleanMatte(matte, size.width, size.height);");
+    const refine = client.indexOf("await refineEdges(canvas, matte, size, onProgress, notes)");
+    expect(clean).toBeGreaterThan(0);
+    expect(refine).toBeGreaterThan(clean);
+    expect(client).toMatch(/if \(opts\.model === "isnet" \|\| opts\.model === "birefnet"\) \{/);
+    const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+    expect(ui).toMatch(/MODELS\[detailedId\]\.bytes \+ MODELS\.vitmatte\.bytes/);
   });
 });

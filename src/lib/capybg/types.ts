@@ -6,7 +6,7 @@
 /** The segmentation models CapyBg can run (see models.ts for the registry). */
 /** `u2human` is never chosen on its own: it is group mode's helper, deciding
  *  WHO is in the photo while MODNet draws the edges (client.ts). */
-export type ModelId = "modnet" | "birefnet" | "u2human" | "isnet";
+export type ModelId = "modnet" | "birefnet" | "u2human" | "isnet" | "vitmatte";
 
 /** Where inference runs. The copy on the page names both honestly. */
 export type Backend = "webgpu" | "wasm";

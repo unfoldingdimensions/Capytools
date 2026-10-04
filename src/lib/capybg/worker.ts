@@ -205,7 +205,8 @@ async function doRun(
     const tensor = new ort.Tensor(
       "float32",
       new Float32Array(request.input),
-      [1, 3, request.height, request.width],
+      // Channels from the buffer: 3 for the segmenters, 4 (RGB + trimap) for ViTMatte.
+      [1, request.input.byteLength / 4 / (request.width * request.height), request.height, request.width],
     );
     const results = await session.run({ [spec.inputName]: tensor });
     const output = results[spec.outputName];

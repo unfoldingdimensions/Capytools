@@ -371,3 +371,30 @@ export function attachPeople(detailed: Float32Array, people: Float32Array, w: nu
   for (let i = 0; i < out.length; i++) out[i] = Math.max(detailed[i], people[i] * attached[i]);
   return out;
 }
+
+/**
+ * The trimap ViTMatte refines from: 1 where the cut is sure of the subject,
+ * 0 where it is sure of the backdrop, 0.5 in the band between (each sure side
+ * shrunk by ~0.8% of the short side, so the model gets room to decide).
+ */
+export function trimapFrom(matte: Float32Array, w: number, h: number): Float32Array {
+  const r = Math.max(4, Math.round(Math.min(w, h) * 0.008));
+  const fg = new Float32Array(matte.length);
+  const bg = new Float32Array(matte.length);
+  for (let i = 0; i < matte.length; i++) {
+    fg[i] = matte[i] > 0.95 ? 1 : 0;
+    bg[i] = matte[i] < 0.05 ? 1 : 0;
+  }
+  const sureFg = morph(fg, w, h, r, false);
+  const sureBg = morph(bg, w, h, r, false);
+  const out = new Float32Array(matte.length);
+  for (let i = 0; i < out.length; i++) out[i] = sureFg[i] ? 1 : sureBg[i] ? 0 : 0.5;
+  return out;
+}
+
+/** Origins of `tile`-sized windows overlapping by at least `overlap`, covering `total`. */
+export function tileStarts(total: number, tile: number, overlap: number): number[] {
+  if (total <= tile) return [0];
+  const n = Math.ceil((total - overlap) / (tile - overlap));
+  return Array.from({ length: n }, (_, k) => Math.round((k * (total - tile)) / (n - 1)));
+}

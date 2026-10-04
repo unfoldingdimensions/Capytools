@@ -125,6 +125,32 @@ Over a dark backdrop the coverage matches remove.bg's cut.
 See L5. The loader fetches it with `cache: "no-cache"`, and `public/_headers` detaches the year-long header for
 it. The smoke script fails if it ever comes back immutable.
 
+### B10 — ViTMatte re-mattes the detailed cut's edges · **decided**
+
+The owner zoomed into clothing edges: soft, with a strip of backdrop showing (a pink banner smudge at the
+father's ear, a light rim on the groom's suit). The masks come from 1024² inputs stretched to full size.
+ViTMatte-small (MIT, hustvl; Xenova's fp32 ONNX, 99 MB) takes the photo plus a trimap built from our cut, and
+recomputes alpha in the unsure band:
+
+- It runs on 512² tiles (64 px overlap, sine-window hand-off) over a working image ≤ 2048 px. One 2048 pass
+  needs a 2.77 GB buffer, over WebGPU's 2 GB cap. The model was trained on 512² crops, and matting is local
+  given the trimap.
+- 512 tiles match a full 2048 pass to 0.02–0.03 mean alpha in the band. At 1024 (one pass) ViTMatte was
+  *worse* than our cut, so resolution is the point.
+- On the owner's GPU a tile takes 55 ms warm. A detailed cut went from ~0.7 s to ~3.2–3.5 s of model time.
+- It runs on detailed cuts only (BiRefNet or ISNet). If it can't run, the cut stands with a note. The
+  detailed pill counts its download (269.4 MB in all).
+- fp32, not the 27.5 MB int8 build: on screen they looked alike, but the numbers were mixed (one photo better,
+  one worse), and B1 already showed int8 can hide damage.
+
+### R3 — Tiled ISNet at near-full resolution · **rejected**
+
+The idea was to re-run ISNet on 2×2 overlapping tiles and blend them in along the edge band. Python's numbers
+were good. In the real page it was no better than the current cut (crisper shirt, blurrier pallu), cost 1.2 s,
+and first dropped the sheer pallu. A tile only sees a crop, so ISNet stops treating sheer fabric as subject
+(0.02), and the band had been judged on raw rather than cleaned levels. Segmenters need the whole photo;
+matting models don't. That's why B10 tiles ViTMatte instead.
+
 ### R1 — Guided-filter edge refine · **rejected**
 
 He et al.'s guided filter was tried, with a grey guide, r = 8, eps = 1e-3. It was meant to snap the 1024² mask
@@ -212,6 +238,13 @@ limits before the download, and watchdogs (90 s load, 60 s run) tear the worker 
 The plan banned the `onnx-community/ISNet-ONNX` repack, which is labelled AGPL, while upstream DIS is
 Apache-2.0. rembg's release export of the same model is fine. Pin the exact URL and SHA-256 of the file you
 vetted.
+
+### L10 — Tile matting models, not segmenters
+
+A segmenter decides *what* the subject is, and needs the whole photo to do it. On a crop it changes its mind
+(R3). A matting model decides *how much* of each edge pixel is subject, given a trimap, and that's local, so it
+tiles cleanly (B10). And check a model's GPU buffer needs at the target size before planning around it.
+ViTMatte's global attention at 2048 needed one 2.77 GB buffer.
 
 ### L9 — Windows worktree hygiene
 
