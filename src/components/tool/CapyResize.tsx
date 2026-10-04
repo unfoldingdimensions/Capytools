@@ -108,8 +108,12 @@ function ColorField({
 
 const PACK_ZIP_NAME = "favicon-pack.zip";
 
-export function CapyResize() {
-  const [stage, setStage] = useState<StageId>("resize");
+/** The `initial*` props let an intent page (/favicon-generator) open on its preset. */
+export function CapyResize({
+  initialStage = "resize",
+  initialFormat = "png",
+}: { initialStage?: StageId; initialFormat?: OutputFormat } = {}) {
+  const [stage, setStage] = useState<StageId>(initialStage);
 
   const [decoded, setDecoded] = useState<DecodedImage | null>(null);
   const [fileName, setFileName] = useState("");
@@ -125,7 +129,7 @@ export function CapyResize() {
 
   // Stage A — the dial.
   const [width, setWidth] = useState(0);
-  const [format, setFormat] = useState<OutputFormat>("png");
+  const [format, setFormat] = useState<OutputFormat>(initialFormat);
   const [quality, setQuality] = useState(0.85);
   const [flatten, setFlatten] = useState("#ffffff");
   const [result, setResult] = useState<ResizeResult | null>(null);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import type { IntentPage } from "@/lib/capytools/intents";
 import { SUITE } from "@/lib/capytools/suite";
 import { SITE_URL } from "@/lib/utils";
 
@@ -77,10 +78,19 @@ export function toolMetadata(
   // Loud at build time. The silent version of this mistake is the bug above.
   if (!row) throw new Error(`toolMetadata: no SUITE row named ${tool}`);
 
+  return pageMetadata(row.href, meta);
+}
+
+/** An intent page's metadata — its own canonical, from its INTENT_PAGES row. */
+export function intentMetadata({ href, title, description }: IntentPage): Metadata {
+  return pageMetadata(href, { title, description });
+}
+
+function pageMetadata(href: string, meta: { title: string; description: string }): Metadata {
   return {
     ...meta,
-    alternates: { canonical: row.href },
-    openGraph: { ...OG_DEFAULTS, ...meta, url: `${SITE_URL}${row.href}` },
+    alternates: { canonical: href },
+    openGraph: { ...OG_DEFAULTS, ...meta, url: `${SITE_URL}${href}` },
     twitter: { ...TWITTER_DEFAULTS, ...meta },
   };
 }
