@@ -457,9 +457,9 @@ export function CapyBg() {
                   // Switching model is a new matte: re-cut what is on the table.
                   if (file && phase === "done") void startCut(file.blob, file.name, detailedId);
                 }}
-                label={`Model ${MODELS[detailedId].label}, ${formatBytes(MODELS[detailedId].bytes)} downloaded once`}
+                label={`Model ${MODELS[detailedId].label}, ${formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)} downloaded once`}
               >
-                {MODELS[detailedId].label.toLowerCase()} · {formatBytes(MODELS[detailedId].bytes)}, once
+                {MODELS[detailedId].label.toLowerCase()} · {formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once
               </Pill>
             ) : null}
           </div>
@@ -651,7 +651,7 @@ export function CapyBg() {
                 }}
                 className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
               >
-                not a person? try the detailed model ({formatBytes(MODELS[detailedId].bytes)}, once)
+                not a person? try the detailed model ({formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once)
               </button>
             ) : null}
           </div>

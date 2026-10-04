@@ -163,9 +163,35 @@ export const MODELS: Readonly<Record<ModelId, ModelSpec>> = {
     sigmoid: false,
     backends: ["webgpu"],
   },
+  // Edge refinement for the detailed cut (owner, 2026-10-05: "zoom in on the
+  // edges of clothes ... hazy, or some background coming in"). Not a choice on
+  // its own: a trimap matting model (MIT, hustvl/ViTMatte) that recomputes
+  // alpha in the unsure band from the full-resolution photo. Trained on 512²
+  // crops and matting is local, so it runs on 512² tiles over a ≤ 2048 px
+  // working image (one 2048 pass needs a 2.77 GB buffer, over WebGPU's 2 GB);
+  // 55 ms per tile warm on a 16-buffer AMD adapter. Removed a pink banner
+  // smudge at an ear and a light rim on a suit; 512 tiles match a full 2048
+  // pass to 0.02–0.03 mean alpha. Input: RGB (mean/std 0.5) + trimap channel.
+  vitmatte: {
+    id: "vitmatte",
+    label: "Edge refiner",
+    licence: "MIT",
+    repo: "Xenova/vitmatte-small-composition-1k",
+    revision: "6bc1297f6140f055a227b6d2cfe8c093281f35d2",
+    path: "onnx/model.onnx",
+    sha256: "bf28d2e0be2c073286e88d60ad649d7123da2749a2d99133fd1098d5887e0225",
+    bytes: 103885865,
+    inputName: "pixel_values",
+    outputName: "alphas",
+    input: { kind: "fixed", size: 512 },
+    mean: [0.5, 0.5, 0.5],
+    std: [0.5, 0.5, 0.5],
+    sigmoid: false,
+    backends: ["webgpu"],
+  },
 };
 
-export const MODEL_IDS: readonly ModelId[] = ["modnet", "birefnet", "u2human", "isnet"];
+export const MODEL_IDS: readonly ModelId[] = ["modnet", "birefnet", "u2human", "isnet", "vitmatte"];
 
 /** `https://huggingface.co/<repo>/resolve/<revision>/<path>` — the pin form —
  *  unless the model names its own source. */
