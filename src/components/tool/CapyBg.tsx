@@ -292,12 +292,19 @@ export function CapyBg() {
     [runCut],
   );
 
+  // Group mode belongs to one photo. It trades edge quality for coverage (it
+  // cut a draped saree and kept a strip of backdrop by the hair on photos MODNet
+  // handles alone), so a NEW photo after a cut starts on the people model again.
+  // Picked before the first photo, it applies to that photo; a retry of the same
+  // photo keeps whatever mode it used.
   const processFile = useCallback(
     (blob: Blob, name: string) => {
       setModelNote(null);
-      void startCut(blob, name, model, group);
+      const groupMode = group && !file;
+      setGroup(groupMode);
+      void startCut(blob, name, model, groupMode);
     },
-    [startCut, model, group],
+    [startCut, model, group, file],
   );
 
   // Paste is a first-class input — screenshots especially.
@@ -527,7 +534,7 @@ export function CapyBg() {
           <div className="py-4">
             <ErrorCard title={error.title} body={error.body} onRetry={
               file
-                ? () => void processFile(file.blob, file.name)
+                ? () => void startCut(file.blob, file.name, model, group)
                 : undefined
             } />
           </div>

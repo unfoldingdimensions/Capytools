@@ -510,3 +510,16 @@ describe("the manifest is never cached as immutable", () => {
     expect(read("public/_headers")).toMatch(/\/capybg\/manifest\.json\n {2}! Cache-Control\n {2}Cache-Control: no-cache/);
   });
 });
+
+describe("group mode is per photo", () => {
+  const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+
+  it("a new photo after a cut switches it off; picked before the first photo, it applies", () => {
+    const processFile = ui.slice(ui.indexOf("const processFile"), ui.indexOf("const processFile") + 300);
+    expect(processFile).toMatch(/const groupMode = group && !file;\n\s*setGroup\(groupMode\);\n\s*void startCut\(blob, name, model, groupMode\)/);
+  });
+
+  it("a retry of the same photo keeps the mode it used", () => {
+    expect(ui).toMatch(/\? \(\) => void startCut\(file\.blob, file\.name, model, group\)/);
+  });
+});
