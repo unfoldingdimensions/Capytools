@@ -123,7 +123,9 @@ export function CapyBg() {
   const [detailedBlocked, setDetailedBlocked] = useState(false);
   // Whether this GPU can run the detailed model at all — read from the probe's
   // adapter limits, so an unfit GPU is never offered a 109 MB download.
-  const [detailedFits, setDetailedFits] = useState(false);
+  // Which detailed model this GPU can run: BiRefNet where it fits, ISNet where
+  // it doesn't (16-storage-buffer adapters), none without WebGPU.
+  const [detailedId, setDetailedId] = useState<ModelId | null>(null);
   const [modelNote, setModelNote] = useState<string | null>(null);
 
   const fileInput = useRef<HTMLInputElement>(null);
@@ -148,7 +150,9 @@ export function CapyBg() {
     probeBackend()
       .then((decision) => {
         setBackend(decision.backend);
-        setDetailedFits(modelFits(MODELS.birefnet, decision));
+        setDetailedId(
+          modelFits(MODELS.birefnet, decision) ? "birefnet" : modelFits(MODELS.isnet, decision) ? "isnet" : null,
+        );
       })
       .catch(() => setBackend(""));
   }, []);
@@ -443,19 +447,19 @@ export function CapyBg() {
             >
               groups · +{formatBytes(MODELS.u2human.bytes)}, once
             </Pill>
-            {backend === "webgpu" && detailedFits && !detailedBlocked ? (
+            {backend === "webgpu" && detailedId && !detailedBlocked ? (
               <Pill
-                active={model === "birefnet"}
+                active={model === detailedId}
                 disabled={working}
                 onClick={() => {
-                  setModel("birefnet");
+                  setModel(detailedId);
                   setGroup(false);
                   // Switching model is a new matte: re-cut what is on the table.
-                  if (file && phase === "done") void startCut(file.blob, file.name, "birefnet");
+                  if (file && phase === "done") void startCut(file.blob, file.name, detailedId);
                 }}
-                label={`Model ${MODELS.birefnet.label}, ${formatBytes(MODELS.birefnet.bytes)} downloaded once`}
+                label={`Model ${MODELS[detailedId].label}, ${formatBytes(MODELS[detailedId].bytes)} downloaded once`}
               >
-                {MODELS.birefnet.label.toLowerCase()} · {formatBytes(MODELS.birefnet.bytes)}, once
+                {MODELS[detailedId].label.toLowerCase()} · {formatBytes(MODELS[detailedId].bytes)}, once
               </Pill>
             ) : null}
           </div>
@@ -464,7 +468,7 @@ export function CapyBg() {
               ? "this browser has no GPU support, so the cut runs on your CPU — it works, just slower. the detailed model needs a browser with GPU support."
               : detailedBlocked
                 ? "the detailed model can't run on this GPU — it's hidden for the rest of this visit."
-                : backend === "webgpu" && !detailedFits
+                : backend === "webgpu" && !detailedId
                   ? DETAILED_UNFIT_NOTE
                   : "the only download is the model. your photo never leaves this tab."}
           </p>
@@ -638,16 +642,16 @@ export function CapyBg() {
 
             {/* Copy, not detection (plan §6): the people model can't do products.
                 One click offers the detailed model — it downloads only if taken. */}
-            {result && !isDemo && model === "modnet" && backend === "webgpu" && detailedFits && !detailedBlocked && !working && file ? (
+            {result && !isDemo && model === "modnet" && backend === "webgpu" && detailedId && !detailedBlocked && !working && file ? (
               <button
                 type="button"
                 onClick={() => {
-                  setModel("birefnet");
-                  void startCut(file.blob, file.name, "birefnet");
+                  setModel(detailedId);
+                  void startCut(file.blob, file.name, detailedId);
                 }}
                 className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
               >
-                not a person? try the detailed model ({formatBytes(MODELS.birefnet.bytes)}, once)
+                not a person? try the detailed model ({formatBytes(MODELS[detailedId].bytes)}, once)
               </button>
             ) : null}
           </div>

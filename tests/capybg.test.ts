@@ -51,11 +51,19 @@ const PLAN_PINS = {
     sha256: "01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c",
     bytes: 175997641,
   },
+  isnet: {
+    repo: "danielgatis/rembg",
+    revision: "7fb6683169d588f653281d53c3c258838194c950",
+    path: "isnet-general-use.onnx",
+    url: "https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx",
+    sha256: "60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a",
+    bytes: 178648008,
+  },
 };
 
 describe("the model registry", () => {
   it("has a complete, well-formed spec for every model", () => {
-    expect(MODEL_IDS).toHaveLength(3);
+    expect(MODEL_IDS).toHaveLength(4);
     for (const id of MODEL_IDS) {
       const model = MODELS[id];
       expect(model.id).toBe(id);
@@ -583,5 +591,29 @@ describe("group mode keeps faint fabric MODNet already has", () => {
   it("the people pill re-cuts when it leaves group mode", () => {
     const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
     expect(ui).toMatch(/if \(wasOther && file && phase === "done"\) void startCut\(file\.blob, file\.name, "modnet", false\)/);
+  });
+});
+
+describe("the detailed model where BiRefNet doesn't fit", () => {
+  const sixteen = { maxStorageBuffersPerShaderStage: 16, isFallbackAdapter: false };
+
+  it("is ISNet on a 16-buffer WebGPU adapter, and never on the CPU", () => {
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu", gpu: sixteen })).toBe(false);
+    expect(modelFits(MODELS.isnet, { backend: "webgpu", gpu: sixteen })).toBe(true);
+    expect(modelFits(MODELS.isnet, { backend: "wasm" })).toBe(false);
+  });
+
+  it("hides itself and re-cuts on the people model if the GPU refuses it", () => {
+    expect(gpuFailureFallback("isnet")).toBe("people");
+  });
+
+  it("is chosen BiRefNet-first by the page", () => {
+    const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+    expect(ui).toMatch(/modelFits\(MODELS\.birefnet, decision\) \? "birefnet" : modelFits\(MODELS\.isnet, decision\) \? "isnet" : null/);
+  });
+
+  it("is never the AGPL-labelled onnx-community repack", () => {
+    expect(MODELS.isnet.repo).not.toMatch(/onnx-community/i);
+    expect(modelUrl(MODELS.isnet)).toMatch(/^https:\/\/github\.com\/danielgatis\/rembg\/releases\//);
   });
 });
