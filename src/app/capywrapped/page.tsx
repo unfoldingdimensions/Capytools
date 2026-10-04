@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { WrappedFlow } from "@/components/tool/WrappedFlow";
 
 export const metadata = toolMetadata("CapyWrapped", {
-  title: "CapyWrapped — your GitHub year in a calm little card",
+  title: "GitHub Wrapped — your year of contributions in one card | CapyWrapped",
   description:
     "Your GitHub year, wrapped in a calm little card. No signup. No cookies. Nothing stored.",
 });

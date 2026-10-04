@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyResize } from "@/components/tool/CapyResize";
 
 export const metadata = toolMetadata("CapyResize", {
-  title: "CapyResize — image resizer, converter & favicon pack generator",
+  title: "Resize images & make a favicon pack — free, no upload | CapyResize",
   description:
     "Resize and convert images (PNG, JPEG, WebP) with quality you can see, or drop one logo and get every favicon and app icon your site needs in a ZIP. 100% in your browser — files are never uploaded.",
 });
