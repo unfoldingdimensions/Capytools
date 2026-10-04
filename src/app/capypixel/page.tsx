@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyPixel } from "@/components/tool/CapyPixel";
 
 export const metadata = toolMetadata("CapyPixel", {
-  title: "CapyPixel — pixel art converter & image quantizer",
+  title: "Pixel art converter — turn photos into pixel art, free | CapyPixel",
   description:
     "Turn photos and logos into pixel art — Game Boy, 1-bit, brand-ramp and faithful styles with measured presets, live preview and crisp PNG export. 100% in your browser, nothing uploaded.",
 });

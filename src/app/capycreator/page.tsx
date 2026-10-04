@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyCreator } from "@/components/tool/CapyCreator";
 
 export const metadata = toolMetadata("CapyCreator", {
-  title: "CapyCreator — model-aware prompt engineering",
+  title: "AI prompt generator for Claude, GPT, Gemini & DeepSeek | CapyCreator",
   description:
     "A calm, model-aware prompt engineering tool for Gemini, Claude, DeepSeek, GPT, Qwen and open models. No signup, no cookies, nothing stored.",
 });
