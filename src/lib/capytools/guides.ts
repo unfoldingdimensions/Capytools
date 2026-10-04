@@ -353,12 +353,12 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
     heading: "How to remove a background from an image, without uploading it",
     steps: [
       "Drop, paste or pick a photo.",
-      "The first cut downloads the model once (6.3 MB) and keeps it in your browser. Every cut after that runs offline in a blink.",
+      "The first cut downloads the model once (12.4 MB) and keeps it in your browser. Every cut after that runs offline in a blink.",
       "Pick a backdrop — transparent, light, dark or any colour — and download a PNG, or a JPEG with a quality slider.",
     ],
     about: [
       "CapyBg runs a segmentation model inside your browser tab: on your GPU through WebGPU where it can, on your CPU through WebAssembly where it can't. The result line says which one actually ran, with the real milliseconds.",
-      "The default model, MODNet, is tuned for people — portraits, headshots and profile photos. On browsers whose GPU can run it, an opt-in detailed model (BiRefNet_lite) handles products and pets.",
+      "The default model, MODNet, is tuned for people — portraits, headshots and profile photos. For groups, or someone in dark clothes against a dark backdrop, group mode adds a second people model (U²-Net, 167.8 MB, once) that decides who is in the photo while MODNet keeps the fine edges. On browsers whose GPU can run it, an opt-in detailed model (BiRefNet_lite) handles products and pets.",
       "Changing the backdrop or the format recomposes from the kept matte instantly, so you can try a transparent PNG and a white-background JPEG without cutting twice.",
     ],
     faq: [

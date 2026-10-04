@@ -117,6 +117,9 @@ export function CapyBg() {
   // when a cut needs it. `detailedBlocked` is try/hide's memory — once the
   // GPU refuses the detailed model it stays hidden for the visit.
   const [model, setModel] = useState<ModelId>("modnet");
+  // Group mode: the people model plus the group helper (~168 MB, once). Opt-in
+  // — offered as a pill and after a people cut, never downloaded unasked.
+  const [group, setGroup] = useState(false);
   const [detailedBlocked, setDetailedBlocked] = useState(false);
   // Whether this GPU can run the detailed model at all — read from the probe's
   // adapter limits, so an unfit GPU is never offered a 109 MB download.
@@ -218,7 +221,7 @@ export function CapyBg() {
   }, [phase, file, backdrop, format, quality, model]);
 
   const runCut = useCallback(
-    async (blob: Blob, name: string, modelId: ModelId): Promise<void> => {
+    async (blob: Blob, name: string, modelId: ModelId, groupMode = false): Promise<void> => {
       const run = ++runId.current;
       clearCut();
       setError(null);
@@ -237,7 +240,7 @@ export function CapyBg() {
       try {
         const next = await removeBackground(
           blob,
-          { model: modelId, backdrop, format, quality: quality / 100 },
+          { model: modelId, backdrop, format, quality: quality / 100, group: groupMode && modelId === "modnet" },
           (p) => {
             if (runId.current !== run) return;
             setProgress(p);
@@ -275,9 +278,9 @@ export function CapyBg() {
    *  when the GPU refuses the detailed model, the option hides itself, the
    *  reason is stated, and the cut finishes on the people model. */
   const startCut = useCallback(
-    async (blob: Blob, name: string, modelId: ModelId): Promise<void> => {
+    async (blob: Blob, name: string, modelId: ModelId, groupMode = false): Promise<void> => {
       try {
-        await runCut(blob, name, modelId);
+        await runCut(blob, name, modelId, groupMode);
       } catch (err) {
         if (!(err instanceof DetailedModelUnavailableError)) return;
         setDetailedBlocked(true);
@@ -292,9 +295,9 @@ export function CapyBg() {
   const processFile = useCallback(
     (blob: Blob, name: string) => {
       setModelNote(null);
-      void startCut(blob, name, model);
+      void startCut(blob, name, model, group);
     },
-    [startCut, model],
+    [startCut, model, group],
   );
 
   // Paste is a first-class input — screenshots especially.
@@ -407,11 +410,27 @@ export function CapyBg() {
           <span className={labelClass}>model</span>
           <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Model">
             <Pill
-              active={model === "modnet"}
-              onClick={() => setModel("modnet")}
+              active={model === "modnet" && !group}
+              onClick={() => {
+                setModel("modnet");
+                setGroup(false);
+              }}
               label={`Model ${MODELS.modnet.label}, ${formatBytes(MODELS.modnet.bytes)} downloaded once`}
             >
               {MODELS.modnet.label.toLowerCase()} · {formatBytes(MODELS.modnet.bytes)}, once
+            </Pill>
+            <Pill
+              active={model === "modnet" && group}
+              disabled={working}
+              onClick={() => {
+                setModel("modnet");
+                setGroup(true);
+                // Group mode is a new matte: re-cut what is on the table.
+                if (file && phase === "done") void startCut(file.blob, file.name, "modnet", true);
+              }}
+              label={`Group mode: people model plus a ${formatBytes(MODELS.u2human.bytes)} helper, downloaded once`}
+            >
+              groups · +{formatBytes(MODELS.u2human.bytes)}, once
             </Pill>
             {backend === "webgpu" && detailedFits && !detailedBlocked ? (
               <Pill
@@ -419,6 +438,7 @@ export function CapyBg() {
                 disabled={working}
                 onClick={() => {
                   setModel("birefnet");
+                  setGroup(false);
                   // Switching model is a new matte: re-cut what is on the table.
                   if (file && phase === "done") void startCut(file.blob, file.name, "birefnet");
                 }}
@@ -587,6 +607,22 @@ export function CapyBg() {
                   <p className="mt-1 text-xs text-muted-foreground">{result.notes.join(" ")}</p>
                 ) : null}
               </div>
+            ) : null}
+
+            {/* Copy, not detection: MODNet is a single-portrait model, so a group
+                or dark clothes on a dark backdrop can lose someone. One click
+                offers group mode — the helper downloads only if taken. */}
+            {result && !isDemo && model === "modnet" && !group && !working && file ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setGroup(true);
+                  void startCut(file.blob, file.name, "modnet", true);
+                }}
+                className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
+              >
+                missing someone? try group mode (+{formatBytes(MODELS.u2human.bytes)}, once)
+              </button>
             ) : null}
 
             {/* Copy, not detection (plan §6): the people model can't do products.

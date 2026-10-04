@@ -4,7 +4,7 @@ import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecisi
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
-import { applyMatte, featherMatte, matteFromModelOutput, resizeMatte } from "./postprocess";
+import { applyMatte, featherMatte, fuseMattes, matteFromModelOutput, resizeMatte } from "./postprocess";
 import { modelInputSize, toModelTensor } from "./preprocess";
 import type { Backend, BgOptions, BgResult, ModelId, Progress } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./worker";
@@ -412,6 +412,56 @@ async function composeFrom(
   }
 }
 
+// ——— one model, one tensor, one run (with the GPU fallback policy) ———
+
+/** The source drawn at the model's input size, as its float32 tensor. */
+function modelTensor(source: HTMLCanvasElement, model: ModelId, size: { width: number; height: number }): Float32Array {
+  const modelCanvas = document.createElement("canvas");
+  modelCanvas.width = size.width;
+  modelCanvas.height = size.height;
+  const modelCtx = modelCanvas.getContext("2d", { willReadFrequently: true });
+  if (!modelCtx) throw new CutFailedError("this browser wouldn't give the tool a canvas to work on");
+  modelCtx.imageSmoothingEnabled = true;
+  modelCtx.imageSmoothingQuality = "high";
+  modelCtx.drawImage(source, 0, 0, size.width, size.height);
+  return toModelTensor(modelCtx.getImageData(0, 0, size.width, size.height).data, MODELS[model]);
+}
+
+async function runModel(
+  model: ModelId,
+  tensor: Float32Array,
+  size: { width: number; height: number },
+  onProgress: ((progress: Progress) => void) | undefined,
+  notes: string[],
+): Promise<{ matte: Float32Array; ms: number; backend: Backend }> {
+  let backend = await ensureModel(model, onProgress, notes);
+  onProgress?.({ phase: "cut", message: `cutting${backend === "webgpu" ? " on your GPU" : " on your CPU"}` });
+  for (;;) {
+    // A fresh copy every attempt: the previous attempt transferred (and
+    // detached) its buffer on the way to the worker.
+    const input = tensor.slice();
+    try {
+      const response = await send(
+        { type: "run", model, input: input.buffer as ArrayBuffer, width: size.width, height: size.height },
+        [input.buffer as ArrayBuffer],
+        RUN_TIMEOUT_MS,
+      );
+      if (response.type !== "matte") throw new CutFailedError("unexpected worker reply");
+      return { matte: response.data, ms: response.ms, backend };
+    } catch (error) {
+      // A GPU run that dies mid-flight gets exactly one fallback, decided
+      // by the model: the people models drop to the CPU, the detailed model
+      // hands the whole cut back to the page (it re-runs on the people
+      // model and hides the option — never the wasm heap it would OOM).
+      if (!(error instanceof EngineError) || !error.fallback || backend !== "webgpu") throw error;
+      if (gpuFailureFallback(model) === "people") throw new DetailedModelUnavailableError();
+      notes.push(CPU_NOTE_GPU_REFUSED);
+      backend = "wasm";
+      await loadOnBackend(model, "wasm", onProgress);
+    }
+  }
+}
+
 // ——— the seam ———
 
 export async function removeBackground(
@@ -429,53 +479,31 @@ export async function removeBackground(
     notes.push(...sizeNotes);
 
     const size = modelInputSize(spec, canvas.width, canvas.height);
-    const modelCanvas = document.createElement("canvas");
-    modelCanvas.width = size.width;
-    modelCanvas.height = size.height;
-    const modelCtx = modelCanvas.getContext("2d", { willReadFrequently: true });
-    if (!modelCtx) throw new CutFailedError("this browser wouldn't give the tool a canvas to work on");
-    modelCtx.imageSmoothingEnabled = true;
-    modelCtx.imageSmoothingQuality = "high";
-    modelCtx.drawImage(canvas, 0, 0, size.width, size.height);
-    const tensor = toModelTensor(modelCtx.getImageData(0, 0, size.width, size.height).data, spec);
+    const tensor = modelTensor(canvas, opts.model, size);
+    const cut = await runModel(opts.model, tensor, size, onProgress, notes);
+    const backendUsed = cut.backend;
+    let modelMs = cut.ms;
+    let matte = matteFromModelOutput(cut.matte, spec.sigmoid);
 
-    const backend = await ensureModel(opts.model, onProgress, notes);
-    onProgress?.({ phase: "cut", message: `cutting${backend === "webgpu" ? " on your GPU" : " on your CPU"}` });
-
-    let backendUsed = backend;
-    let matte: Float32Array;
-    let modelMs: number;
-    for (;;) {
-      // A fresh copy every attempt: the previous attempt transferred (and
-      // detached) its buffer on the way to the worker.
-      const input = tensor.slice();
-      try {
-        const response = await send(
-          { type: "run", model: opts.model, input: input.buffer as ArrayBuffer, width: size.width, height: size.height },
-          [input.buffer as ArrayBuffer],
-          RUN_TIMEOUT_MS,
-        );
-        if (response.type !== "matte") throw new CutFailedError("unexpected worker reply");
-        matte = response.data;
-        modelMs = response.ms;
-        break;
-      } catch (error) {
-        // A GPU run that dies mid-flight gets exactly one fallback, decided
-        // by the model: the people model drops to the CPU, the detailed model
-        // hands the whole cut back to the page (it re-runs on the people
-        // model and hides the option — never the wasm heap it would OOM).
-        if (!(error instanceof EngineError) || !error.fallback || backendUsed !== "webgpu") throw error;
-        if (gpuFailureFallback(opts.model) === "people") throw new DetailedModelUnavailableError();
-        notes.push(CPU_NOTE_GPU_REFUSED);
-        backendUsed = "wasm";
-        await loadOnBackend(opts.model, "wasm", onProgress);
-      }
+    if (opts.group && opts.model === "modnet") {
+      // Group mode: the helper decides who is in the photo; MODNet keeps the edges.
+      const helperSpec = MODELS.u2human;
+      const helperSize = modelInputSize(helperSpec, canvas.width, canvas.height);
+      const helper = await runModel("u2human", modelTensor(canvas, "u2human", helperSize), helperSize, onProgress, notes);
+      const helperMatte = resizeMatte(
+        matteFromModelOutput(helper.matte, helperSpec.sigmoid),
+        helperSize.width,
+        helperSize.height,
+        size.width,
+        size.height,
+      );
+      matte = fuseMattes(matte, helperMatte, size.width, size.height);
+      modelMs += helper.ms;
     }
 
-    const processed = matteFromModelOutput(matte, spec.sigmoid);
     lastCut = {
       file,
-      matte: processed,
+      matte,
       matteWidth: size.width,
       matteHeight: size.height,
       srcWidth: canvas.width,
