@@ -10,6 +10,7 @@ import { MODELS, MODEL_IDS, modelUrl, sha8 } from "@/lib/capybg/models";
 import { modelInputSize, toModelTensor } from "@/lib/capybg/preprocess";
 import {
   applyMatte,
+  decontaminateEdges,
   featherMatte,
   fuseMattes,
   matteFromModelOutput,
@@ -521,5 +522,35 @@ describe("group mode is per photo", () => {
 
   it("a retry of the same photo keeps the mode it used", () => {
     expect(ui).toMatch(/\? \(\) => void startCut\(file\.blob, file\.name, model, group\)/);
+  });
+});
+
+describe("edge-colour cleanup", () => {
+  // 20×1: a red subject on the left, a blue backdrop on the right, and a soft
+  // edge between whose pixels are a red/blue mix at alpha 0.5.
+  const W = 20;
+  const H = 1;
+  const rgba = new Uint8ClampedArray(W * H * 4);
+  const alpha = new Float32Array(W * H);
+  for (let x = 0; x < W; x++) {
+    const a = x < 9 ? 1 : x > 10 ? 0 : 0.5;
+    alpha[x] = a;
+    rgba[x * 4] = Math.round(255 * a);       // red share
+    rgba[x * 4 + 2] = Math.round(255 * (1 - a)); // blue share
+    rgba[x * 4 + 3] = 255;
+  }
+  const before = rgba.slice();
+  decontaminateEdges(rgba, alpha, W, H);
+
+  it("pulls an edge pixel's colour toward the subject, out of the backdrop", () => {
+    expect(rgba[9 * 4]).toBeGreaterThan(before[9 * 4]); // more red
+    expect(rgba[9 * 4 + 2]).toBeLessThan(before[9 * 4 + 2]); // less blue
+  });
+
+  it("leaves solid, transparent pixels and every alpha byte alone", () => {
+    for (const x of [0, 5, 15, 19]) {
+      for (let c = 0; c < 4; c++) expect(rgba[x * 4 + c]).toBe(before[x * 4 + c]);
+    }
+    for (let x = 0; x < W; x++) expect(rgba[x * 4 + 3]).toBe(255);
   });
 });

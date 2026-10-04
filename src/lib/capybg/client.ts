@@ -4,7 +4,7 @@ import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecisi
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
-import { applyMatte, featherMatte, fuseMattes, matteFromModelOutput, resizeMatte } from "./postprocess";
+import { applyMatte, decontaminateEdges, featherMatte, fuseMattes, matteFromModelOutput, resizeMatte } from "./postprocess";
 import { modelInputSize, toModelTensor } from "./preprocess";
 import type { Backend, BgOptions, BgResult, ModelId, Progress } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./worker";
@@ -391,6 +391,9 @@ async function composeFrom(
       Math.min(3, Math.max(0, opts.feather ?? 1)),
     );
     const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Soft edges keep the backdrop's colour (a purple fringe in hair); swap in
+    // each edge pixel's estimated foreground colour before the alpha goes on.
+    decontaminateEdges(image.data, matte, canvas.width, canvas.height);
     applyMatte(image.data, matte);
     ctx.putImageData(image, 0, 0);
 
