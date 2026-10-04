@@ -43,6 +43,9 @@ export interface ModelSpec {
   repo: string;
   revision: string;
   path: string;
+  /** A non-Hugging Face source (a GitHub release asset). `revision` then pins
+   *  the commit the release tag points at; the SHA-256 pins the bytes. */
+  url?: string;
   /** The pinned file's SHA-256 (a Hugging Face LFS X-Linked-ETag). */
   sha256: string;
   /** The pinned file's exact byte length; the build fails on mismatch. */
@@ -108,13 +111,41 @@ export const MODELS: Readonly<Record<ModelId, ModelSpec>> = {
     backends: ["webgpu"],
     minStorageBuffersPerShaderStage: 17,
   },
+  // Group mode's helper (owner decision, 2026-10-04). MODNet is a single-
+  // portrait model: on a group of four it lost a woman in a black saree against
+  // a black backdrop, and no resolution fixed it. U²-Net human seg kept all four
+  // (and the couple), but at 320² its edges are soft — so it decides WHO is in
+  // the photo and MODNet still draws the edges (fuseMattes). Full fp32 from
+  // rembg's release: the 4.4 MB "U-2-Net-Human-Seg" repack lost both women.
+  // Runs on a 16-storage-buffer adapter (136 ms warm) and on the CPU (~4.7 s).
+  u2human: {
+    id: "u2human",
+    label: "Group helper",
+    // The U²-Net weights are Apache-2.0 (xuebinqin/U-2-Net); rembg, which
+    // publishes this ONNX export, is MIT.
+    licence: "Apache-2.0",
+    repo: "danielgatis/rembg",
+    revision: "7fb6683169d588f653281d53c3c258838194c950",
+    path: "u2net_human_seg.onnx",
+    url: "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx",
+    sha256: "01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c",
+    bytes: 175997641,
+    inputName: "input.1",
+    outputName: "1959",
+    input: { kind: "fixed", size: 320 },
+    mean: [0.485, 0.456, 0.406],
+    std: [0.229, 0.224, 0.225],
+    sigmoid: false,
+    backends: ["webgpu", "wasm"],
+  },
 };
 
-export const MODEL_IDS: readonly ModelId[] = ["modnet", "birefnet"];
+export const MODEL_IDS: readonly ModelId[] = ["modnet", "birefnet", "u2human"];
 
-/** `https://huggingface.co/<repo>/resolve/<revision>/<path>` — the pin form. */
-export function modelUrl(model: Pick<ModelSpec, "repo" | "revision" | "path">): string {
-  return `https://huggingface.co/${model.repo}/resolve/${model.revision}/${model.path}`;
+/** `https://huggingface.co/<repo>/resolve/<revision>/<path>` — the pin form —
+ *  unless the model names its own source. */
+export function modelUrl(model: Pick<ModelSpec, "repo" | "revision" | "path" | "url">): string {
+  return model.url ?? `https://huggingface.co/${model.repo}/resolve/${model.revision}/${model.path}`;
 }
 
 /** `92e49898…` → `92e49898` — the content-addressed directory under /capybg/. */

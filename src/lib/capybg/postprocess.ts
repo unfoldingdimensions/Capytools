@@ -92,3 +92,44 @@ export function applyMatte(rgba: Uint8ClampedArray, matte: Float32Array): void {
     rgba[(i << 2) + 3] = Math.round(Math.min(1, Math.max(0, matte[i])) * 255);
   }
 }
+
+/** Square max (grow) or min (shrink) filter of radius `r`, separable. */
+function morph(mask: Float32Array, w: number, h: number, r: number, grow: boolean): Float32Array {
+  const pick = grow ? Math.max : Math.min;
+  const pass = (src: Float32Array, horizontal: boolean): Float32Array => {
+    const out = new Float32Array(src.length);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let v = src[y * w + x];
+        for (let d = -r; d <= r; d++) {
+          const xx = horizontal ? Math.min(w - 1, Math.max(0, x + d)) : x;
+          const yy = horizontal ? y : Math.min(h - 1, Math.max(0, y + d));
+          v = pick(v, src[yy * w + xx]);
+        }
+        out[y * w + x] = v;
+      }
+    }
+    return out;
+  };
+  return pass(pass(mask, true), false);
+}
+
+/**
+ * Group mode: the helper (U²-Net human seg) decides WHO is in the photo, the
+ * people model (MODNet) draws the edges. Both mattes are w×h, in [0, 1].
+ * - MODNet survives only near the helper's people (`region`, grown by ~2% of
+ *   the short side), which drops the backdrop it mistakes for a person.
+ * - Inside the helper's sure core (shrunk by the same), the person is opaque
+ *   even where MODNet lost them — a black saree on a black backdrop.
+ * Prototyped against the owner's photos before it was written (2026-10-04).
+ */
+export function fuseMattes(people: Float32Array, helper: Float32Array, w: number, h: number): Float32Array {
+  const r = Math.max(2, Math.round(Math.min(w, h) * 0.02));
+  const mask = new Float32Array(helper.length);
+  for (let i = 0; i < helper.length; i++) mask[i] = helper[i] > 0.5 ? 1 : 0;
+  const region = morph(mask, w, h, r, true);
+  const core = featherMatte(morph(mask, w, h, r, false), w, h, 3);
+  const out = new Float32Array(people.length);
+  for (let i = 0; i < out.length; i++) out[i] = Math.max(people[i] * region[i], core[i]);
+  return out;
+}

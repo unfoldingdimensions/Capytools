@@ -11,6 +11,7 @@ import { modelInputSize, toModelTensor } from "@/lib/capybg/preprocess";
 import {
   applyMatte,
   featherMatte,
+  fuseMattes,
   matteFromModelOutput,
   resizeMatte,
   sigmoid,
@@ -41,11 +42,19 @@ const PLAN_PINS = {
     sha256: "d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402",
     bytes: 114538221,
   },
+  u2human: {
+    repo: "danielgatis/rembg",
+    revision: "7fb6683169d588f653281d53c3c258838194c950",
+    path: "u2net_human_seg.onnx",
+    url: "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx",
+    sha256: "01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c",
+    bytes: 175997641,
+  },
 };
 
 describe("the model registry", () => {
   it("has a complete, well-formed spec for every model", () => {
-    expect(MODEL_IDS).toHaveLength(2);
+    expect(MODEL_IDS).toHaveLength(3);
     for (const id of MODEL_IDS) {
       const model = MODELS[id];
       expect(model.id).toBe(id);
@@ -451,5 +460,41 @@ describe("the matte matches the reference, not a backend's shortcut", () => {
 
   it("pins WebGPU to NCHW — the default NHWC transform corrupts MODNet's matte", () => {
     expect(read("src/lib/capybg/worker.ts")).toMatch(/\{ name: "webgpu", preferredLayout: "NCHW" \}/);
+  });
+});
+
+describe("group mode — the helper decides who, MODNet draws the edges", () => {
+  // 40×40: a person (helper says so) MODNet missed on the left, a backdrop
+  // blob MODNet invented on the right, far from any helper person.
+  const W = 40;
+  const H = 40;
+  const at = (x: number, y: number) => y * W + x;
+  const people = new Float32Array(W * H);
+  const helper = new Float32Array(W * H);
+  for (let y = 5; y < 35; y++) for (let x = 3; x < 20; x++) helper[at(x, y)] = 1; // the missed person
+  for (let y = 5; y < 15; y++) for (let x = 30; x < 38; x++) people[at(x, y)] = 1; // the invented blob
+  const fused = fuseMattes(people, helper, W, H);
+
+  it("fills in a person MODNet lost, where the helper is sure", () => {
+    expect(fused[at(11, 20)]).toBeGreaterThan(0.99);
+  });
+
+  it("drops what MODNet kept far from any person the helper saw", () => {
+    expect(fused[at(34, 10)]).toBe(0);
+  });
+
+  it("keeps MODNet's own edge near a person, and stays in [0, 1]", () => {
+    const edge = new Float32Array(W * H);
+    edge[at(20, 20)] = 0.4; // just outside the helper's person — MODNet's soft edge
+    const out = fuseMattes(edge, helper, W, H);
+    expect(out[at(20, 20)]).toBeGreaterThanOrEqual(0.4);
+    for (const v of out) expect(v >= 0 && v <= 1).toBe(true);
+  });
+
+  it("is offered on the people model only, and opt-in", () => {
+    const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+    expect(client).toMatch(/opts\.group && opts\.model === "modnet"/);
+    expect(MODELS.u2human.backends).toEqual(["webgpu", "wasm"]);
+    expect(modelUrl(MODELS.u2human)).toBe(MODELS.u2human.url);
   });
 });

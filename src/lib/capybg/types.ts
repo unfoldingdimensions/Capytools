@@ -4,7 +4,9 @@
  */
 
 /** The segmentation models CapyBg can run (see models.ts for the registry). */
-export type ModelId = "modnet" | "birefnet";
+/** `u2human` is never chosen on its own: it is group mode's helper, deciding
+ *  WHO is in the photo while MODNet draws the edges (client.ts). */
+export type ModelId = "modnet" | "birefnet" | "u2human";
 
 /** Where inference runs. The copy on the page names both honestly. */
 export type Backend = "webgpu" | "wasm";
@@ -23,6 +25,8 @@ export interface BgOptions {
   quality?: number;
   /** Matte softening in px, 0–3, default 1. */
   feather?: number;
+  /** People model only: also run the group helper and fuse the mattes. */
+  group?: boolean;
 }
 
 /** What a finished cut reports — every number in it is the truth. */
