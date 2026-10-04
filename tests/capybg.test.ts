@@ -30,9 +30,9 @@ const PLAN_PINS = {
   modnet: {
     repo: "Xenova/modnet",
     revision: "fa2fa546052fba4c08921230a26cc69a333fca12",
-    path: "onnx/model_quantized.onnx",
-    sha256: "92e49898c3e05a6d7a944fc67a8cb87c4aad754ffb6ebd949528c7d1105fee3a",
-    bytes: 6632188,
+    path: "onnx/model_fp16.onnx",
+    sha256: "25f165da9bfd30830a575f1f0490f1acd995975cb349bc02f3d79332e1fe5cf6",
+    bytes: 12984781,
   },
   birefnet: {
     repo: "onnx-community/BiRefNet_lite-ONNX",
@@ -93,12 +93,12 @@ describe("the model registry", () => {
 
   it("builds the pinned resolve URL", () => {
     expect(modelUrl(MODELS.modnet)).toBe(
-      "https://huggingface.co/Xenova/modnet/resolve/fa2fa546052fba4c08921230a26cc69a333fca12/onnx/model_quantized.onnx",
+      "https://huggingface.co/Xenova/modnet/resolve/fa2fa546052fba4c08921230a26cc69a333fca12/onnx/model_fp16.onnx",
     );
   });
 
   it("content-addresses model directories by the first 8 hash chars", () => {
-    expect(sha8(MODELS.modnet.sha256)).toBe("92e49898");
+    expect(sha8(MODELS.modnet.sha256)).toBe("25f165da");
   });
 });
 
@@ -439,5 +439,17 @@ describe("the ORT wasm never ships through the bundler", () => {
       const src = readFileSync(join(process.cwd(), "node_modules/onnxruntime-web/dist", f), "utf8");
       expect(src).not.toMatch(/new URL\("[^"]*\.wasm"/);
     }
+  });
+});
+
+describe("the matte matches the reference, not a backend's shortcut", () => {
+  const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+
+  it("ships fp16 MODNet, not the int8 build that kept backdrops and dropped people", () => {
+    expect(MODELS.modnet.path).toBe("onnx/model_fp16.onnx");
+  });
+
+  it("pins WebGPU to NCHW — the default NHWC transform corrupts MODNet's matte", () => {
+    expect(read("src/lib/capybg/worker.ts")).toMatch(/\{ name: "webgpu", preferredLayout: "NCHW" \}/);
   });
 });
