@@ -1,6 +1,6 @@
 # handover.md — Capytools
 
-*Rewritten 2026-10-02; CapyBg (tool no. 12) folded in 2026-10-03. This is the **state** file: what exists, what is verified, what is open. It is
+*Rewritten 2026-10-02; CapyBg (tool no. 12) folded in 2026-10-03; its matte fixes and group mode 2026-10-04. This is the **state** file: what exists, what is verified, what is open. It is
 deliberately not a rules file — the rules live in their own documents and are linked, because a second copy
 of a rule is a copy that drifts. (The previous version, dated 2026-09-09, described the landing revamp; it is
 in git history — `git show 67bf494:handover.md` — and its why-and-what-happened material lives in
@@ -19,7 +19,7 @@ the user's own disk and states its own promise ("stored on your machine, never o
 cookies, no telemetry, no uploads. The whole suite is Apache-2.0.
 
 The site is a Next.js 16 app (16.3.8) deployed to **Cloudflare Workers** (not Vercel — see §4.3), verified
-by a 1268-test suite and, after every deploy, by a script that walks every page.
+by a 1286-test suite and, after every deploy, by a script that walks every page.
 
 `main` is clean and level with `origin/main`. Nothing is half-finished in the working tree. The open work is
 **one unmerged PR** (#11) and the written-but-unbuilt plans in §4.2 — two of them (CapyStamp, CapyCrop)
@@ -29,8 +29,8 @@ ready for an implementing agent.
 
 ## 1. State (verified 2026-10-02)
 
-**Repository** — `E:\New-Personal-Projects\Capytools`, `main` at `cf1a5ed` (#65). The last code change
-under this file is CapyBg, `b0bcf13` (#64); see §4.1 for what merged on 2026-10-02 and 10-03. The E:\ checkout
+**Repository** — `E:\New-Personal-Projects\Capytools`, `main` at `572c511` (#72). The last code change
+under this file is the CapyBg manifest fix, `572c511` (#72); see §4.1 for what merged 2026-10-02 to 10-04. The E:\ checkout
 is shared by several agents and is often left on a feature branch — check `git branch --show-current` before
 committing, and commit to `main` from a temporary worktree.
 Working tree clean apart from two untracked local tooling artifacts (`.impeccable/` critique logs and a stray
@@ -56,21 +56,30 @@ themselves** (§5): the share card `public/og.png`, the lab plate, and the count
 | 11 | CapyTone | browser (one palette-extract fetch) |
 | 12 | **CapyBg** | browser — ML background removal (ONNX models, WebGPU or CPU, in a Web Worker) |
 
-**CapyBg in one paragraph** (plan: `docs/plans/capybg.md`). MODNet (people, 6.3 MB) runs on WebGPU or the
-single-threaded wasm CPU path; BiRefNet_lite (any subject, 109 MB) is an opt-in on WebGPU only — owner
-decision (c), plan §11.1. Models and the ORT 1.30.0 runtime are **not in git**: `scripts/fetch-capybg-assets.ts`
+**CapyBg in one paragraph** (plan: `docs/plans/capybg.md`). MODNet fp16 (people, 12.4 MB) runs on WebGPU or
+the single-threaded wasm CPU path; BiRefNet_lite (any subject, 109 MB) is an opt-in on WebGPU only — owner
+decision (c), plan §11.1. **Group mode** (opt-in, owner decision 2026-10-04) adds U²-Net human seg (fp32,
+167.8 MB, rembg's release asset, Apache-2.0 weights): it decides *who* is in the photo and MODNet still draws
+the edges (`fuseMattes` in `postprocess.ts`). It is offered as a "groups" pill and as "missing someone?" after
+a people cut, and never downloads unasked. Models and the ORT 1.30.0 runtime are **not in git**: `scripts/fetch-capybg-assets.ts`
 (run by `prebuild`, `predeploy` and CI, via tsx) downloads, hash-verifies and shards them into
 `public/capybg/` (gitignored) under Cloudflare's 25 MiB per-asset cap; the browser re-verifies and caches them
 in Cache Storage (`capybg-v1`). Nothing is fetched cross-origin. The detailed model is offered **only** when
 the adapter reports ≥ 17 storage buffers per shader stage and is not a fallback adapter — Chrome on
 Windows/D3D reports 16, and there its `run()` silently never settles. Loads and runs carry watchdogs (90 s /
-60 s) that tear the worker down, and the page has a "stop" link. Verified live after deploy: a people cut on
-WebGPU in 1.9 s on capytools.app.
+60 s) that tear the worker down, and the page has a "stop" link. Verified live 2026-10-04: people cut on
+WebGPU ~0.7 s; group mode streams the 7 U²-Net parts into Cache Storage and cuts in ~1 s.
+
+**What the people model can and can't do** — measured on the owner's own photos, not guessed. MODNet is a
+single-portrait model: a standing man cuts clean; a group of four lost a woman in a black saree against a
+black backdrop, the same in Python at any input size. Group mode keeps all four (one patch of backdrop between
+two heads remains — U²-Net calls it a person). Logos and objects need BiRefNet, which this AMD/D3D GPU cannot
+run (16 storage buffers, needs 17 — re-tested with NCHW, it now fails fast instead of hanging).
 
 **Verification run today, on this checkout:**
 
 ```
-npm run test       54 files, 1268 tests passing                       (2026-10-03)
+npm run test       56 files, 1286 tests passing                (CI, 2026-10-04)
 npm run lint       0 errors; 168 warnings, all in the fetched, gitignored
                    public/capybg/ort/*.mjs — not source
 npx tsc --noEmit   clean
@@ -80,8 +89,10 @@ npm run build      clean — every page prerenders; the only dynamic routes are
                    a Proxy (middleware) is present
 ```
 
-**Live** — `capytools.app` serves CapyBg. #64's deploy succeeded but its smoke failed one check (the
-hard-coded tool count in `scripts/smoke.mjs`, still 11); #65 bumped it to 12 and redeployed — CI green at `2026-10-03T16:57Z`, smoke 57 passed, 0 failed.
+**Live** — `capytools.app` serves `572c511` (#72): CI green at `2026-10-04T07:19Z`, smoke 66 passed, 0 failed —
+including the two new checks that `/capybg/manifest.json` is 200 and revalidated, not immutable.
+On 2026-10-03, #64's deploy succeeded but its smoke failed one check (the hard-coded tool count in
+`scripts/smoke.mjs`, still 11); #65 bumped it to 12 and redeployed.
 Earlier: the 2026-10-02 run finished green at `2026-10-02T11:01Z`, deploy and smoke (57 passed, 0 failed). (Read from the CI run, not from
 `wrangler deployments list`.) Spot-checked 200s on `/`, `/tools`, `/capyqr`, `/notes`, `/robots.txt`,
 `/sitemap.xml`, `/u/torvalds` and `/api/og/octocat`, with
@@ -139,6 +150,15 @@ The deploy account is pinned in `wrangler.jsonc`; the token is read from a gitig
 | PR | Title | Open since | State |
 |---|---|---|---|
 | #11 | capyexpense: see and restore an earlier copy of a workbook | Sep 12 | stale; owned by another agent — leave it |
+
+**Settled on 2026-10-04:**
+
+| PR | Title | Outcome |
+|---|---|---|
+| #70 | CapyBg: fp16 MODNet, NCHW on WebGPU | merged. The int8 `model_quantized.onnx` kept backdrop and dropped people; ORT's WebGPU NHWC layout transform corrupted the float matte (§5) |
+| #71 | CapyBg: group mode | merged — U²-Net human seg + MODNet fused; see §1 |
+| #72 | CapyBg: stop caching the manifest as immutable | merged — see §5; the fix that made #70 and #71 reach existing visitors |
+| #66, #68, #69 | SEO: guides, keyword-first titles, intent landing pages | merged by another agent's work stream |
 
 **Settled on 2026-10-03:**
 
@@ -220,6 +240,14 @@ AGENTS.md's reference are correct as written.
 - **Without a GPU limits check, ORT on WebGPU can hang silently.** A shader over the adapter's
   `maxStorageBuffersPerShaderStage` makes `session.run()` never settle, with no error. Gate models on the probe's
   adapter limits (`modelFits` in `src/lib/capybg/backend.ts`), and keep the watchdogs.
+- **ORT's WebGPU EP must run NCHW.** Its default NHWC layout transform silently corrupts MODNet's matte (torso
+  alpha 0.8, backdrop kept) — for fp16 and fp32 alike; int8 happened to dodge it. `preferredLayout: "NCHW"` in
+  `worker.ts` matches the CPU EP exactly. To judge a model, compare its WebGPU output with the CPU EP or
+  Python on the same tensor before blaming the model — this repo shipped a wrong matte for a day.
+- **A fixed URL under `/capybg/*` is cached for a year.** `public/_headers` marks `/capybg/*` immutable — right
+  for the content-addressed model folders, wrong for `manifest.json`, which now detaches it (`! Cache-Control`)
+  and the loader fetches with `cache: "no-cache"`. Any new fixed-URL file there needs the same, or browsers
+  keep a stale copy (it is how #71's group mode first failed live).
 
 - **The dev server lies about hydration-heavy pages.** Under `next dev --webpack`, the marquee's duplicated
   links feed the prefetcher forever and hydration never settles — frozen motion, dead clicks, and it looks
@@ -248,6 +276,7 @@ AGENTS.md's reference are correct as written.
 > with `npm run build && npx next start`, never `next dev`. The suite is twelve tools, registered in
 > `src/lib/capytools/suite.ts` — plus the share card, plate and smoke count in §5, which do not derive. The
 > E:\ checkout is shared, so check the branch before committing. The open work is one PR (#11, owned by
-> another agent — leave it) plus the plans in §4.2: CapyStamp and CapyCrop are ready to build; the
+> another agent — leave it) plus the plans in §4.2: CapyStamp and CapyCrop are ready to build; CapyBg's
+> model choices were all measured on the owner's photos (§1) — re-measure before changing one; the
 > monetisation spec is blocked on seven owner decisions, so ask before assuming. Merging to `main` deploys to Cloudflare, and the owner has final say on
 > every merge.
