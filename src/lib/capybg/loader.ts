@@ -31,7 +31,10 @@ export interface ByteProgress {
 let manifestPromise: Promise<Manifest> | null = null;
 
 export function loadManifest(): Promise<Manifest> {
-  manifestPromise ??= fetch(MANIFEST_URL)
+  // no-cache: revalidate every visit. The manifest's URL never changes while
+  // what it names does, and browsers still hold a year-long immutable copy
+  // from before public/_headers stopped sending one.
+  manifestPromise ??= fetch(MANIFEST_URL, { cache: "no-cache" })
     .then((res) => {
       if (!res.ok) throw new Error(`the asset manifest could not be read (HTTP ${res.status})`);
       return res.json();

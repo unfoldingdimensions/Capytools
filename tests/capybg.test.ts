@@ -498,3 +498,15 @@ describe("group mode — the helper decides who, MODNet draws the edges", () => 
     expect(modelUrl(MODELS.u2human)).toBe(MODELS.u2human.url);
   });
 });
+
+describe("the manifest is never cached as immutable", () => {
+  const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+
+  it("revalidates it on every visit, from the loader", () => {
+    expect(read("src/lib/capybg/loader.ts")).toMatch(/fetch\(MANIFEST_URL, \{ cache: "no-cache" \}\)/);
+  });
+
+  it("detaches the /capybg/* immutable header for it in public/_headers", () => {
+    expect(read("public/_headers")).toMatch(/\/capybg\/manifest\.json\n {2}! Cache-Control\n {2}Cache-Control: no-cache/);
+  });
+});

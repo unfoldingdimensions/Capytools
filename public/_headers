@@ -25,3 +25,10 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+# ...except the manifest: one fixed URL naming the current hashes. Marked
+# immutable, a browser kept its first copy for a year and never learned of a
+# new model (#71's group helper was "missing from the asset manifest").
+/capybg/manifest.json
+  ! Cache-Control
+  Cache-Control: no-cache
