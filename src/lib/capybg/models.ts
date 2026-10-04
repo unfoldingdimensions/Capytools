@@ -75,9 +75,13 @@ export const MODELS: Readonly<Record<ModelId, ModelSpec>> = {
     licence: "Apache-2.0",
     repo: "Xenova/modnet",
     revision: "fa2fa546052fba4c08921230a26cc69a333fca12",
-    path: "onnx/model_quantized.onnx",
-    sha256: "92e49898c3e05a6d7a944fc67a8cb87c4aad754ffb6ebd949528c7d1105fee3a",
-    bytes: 6632188,
+    // fp16, not the int8 `model_quantized.onnx` v1 shipped: on real photos the
+    // int8 matte kept whole slabs of dark backdrop and dropped people in dark
+    // clothes, while fp16 tracks fp32 (measured 2026-10-04, same pipeline).
+    // Input stays float32 — the fp16 is weights-only.
+    path: "onnx/model_fp16.onnx",
+    sha256: "25f165da9bfd30830a575f1f0490f1acd995975cb349bc02f3d79332e1fe5cf6",
+    bytes: 12984781,
     inputName: "input",
     outputName: "output",
     input: { kind: "shortest-edge", edge: 512, multiple: 32 },
