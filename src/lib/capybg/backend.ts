@@ -80,5 +80,5 @@ export function decideBackend(hasWebGPU: boolean, adapterOk: boolean): BackendDe
  *  the page re-cut with modnet â€” the tensor differs per model, so the
  *  re-run is a fresh pipeline, not an inner retry. */
 export function gpuFailureFallback(model: ModelId): "cpu" | "people" {
-  return model === "birefnet" ? "people" : "cpu";
+  return model === "birefnet" || model === "isnet" ? "people" : "cpu";
 }

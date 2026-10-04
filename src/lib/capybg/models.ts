@@ -138,9 +138,34 @@ export const MODELS: Readonly<Record<ModelId, ModelSpec>> = {
     sigmoid: false,
     backends: ["webgpu", "wasm"],
   },
+  // The detailed model for GPUs BiRefNet doesn't fit (owner decision,
+  // 2026-10-04). Chrome on Windows/D3D reports 16 storage buffers and BiRefNet
+  // needs 17; on the CPU it hits std::bad_alloc. ISNet general-use (DIS,
+  // Apache-2.0; rembg's release export, NOT the AGPL-labelled onnx-community
+  // repack banned above) runs there in ~0.36 s warm. On the owner's mother's
+  // hanging pallu it scored 0.99 / 0.89 where MODNet scored 0.90 / 0.82
+  // (BiRefNet 1.0 / 0.97). Output is already a [0, 1] mask.
+  isnet: {
+    id: "isnet",
+    label: "Any subject — detailed",
+    licence: "Apache-2.0",
+    repo: "danielgatis/rembg",
+    revision: "7fb6683169d588f653281d53c3c258838194c950",
+    path: "isnet-general-use.onnx",
+    url: "https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx",
+    sha256: "60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a",
+    bytes: 178648008,
+    inputName: "input_image",
+    outputName: "output_image",
+    input: { kind: "fixed", size: 1024 },
+    mean: [0.5, 0.5, 0.5],
+    std: [1, 1, 1],
+    sigmoid: false,
+    backends: ["webgpu"],
+  },
 };
 
-export const MODEL_IDS: readonly ModelId[] = ["modnet", "birefnet", "u2human"];
+export const MODEL_IDS: readonly ModelId[] = ["modnet", "birefnet", "u2human", "isnet"];
 
 /** `https://huggingface.co/<repo>/resolve/<revision>/<path>` — the pin form —
  *  unless the model names its own source. */
