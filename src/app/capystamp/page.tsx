@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyStamp } from "@/components/tool/CapyStamp";
 
 export const metadata = toolMetadata("CapyStamp", {
-  title: "CapyStamp — watermark photos in your browser",
+  title: "Add a watermark to photos free — logo or text, batch, no upload | CapyStamp",
   description:
     "Add a text or logo watermark to one photo or twenty, with full control over placement, size, opacity and tiling. 100% in your browser — your photos are never uploaded.",
 });

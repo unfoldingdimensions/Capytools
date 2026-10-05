@@ -310,6 +310,45 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
     ],
   },
+  CapyStamp: {
+    heading: "How to add a watermark to your photos",
+    steps: [
+      "Drop one photo, or up to twenty at once.",
+      "Choose a text mark or your logo, then set its size, opacity, rotation and position — drag it, nudge it with the arrow keys, or tile it in a grid or diagonally.",
+      "Pick PNG, JPEG or WebP and download each photo, or the whole batch as a ZIP.",
+    ],
+    about: [
+      "CapyStamp places your watermark relative to each photo rather than in fixed pixels: its size is a share of the photo's short side and its position is one of nine anchors. The same design lands in proportion on portrait, landscape and square shots in one batch.",
+      "The preview and the export are drawn by the same code, with the fonts loaded before anything draws, so the file you download looks exactly like the preview.",
+      "Save a design as a preset and it's there next visit. A preset holds only the settings — never your photos or your logo.",
+    ],
+    faq: [
+      {
+        q: "Are my photos uploaded?",
+        a: "No. There is no upload route in the code, and a test fails if the tool's code even names a network request. Stamping happens in your browser tab.",
+      },
+      {
+        q: "Can I watermark many photos at once?",
+        a: "Yes, up to twenty at a time. Photos are stamped one by one, and if one can't be read it fails with its reason while the rest finish. Download them individually or as one ZIP.",
+      },
+      {
+        q: "Can I use my logo as a watermark?",
+        a: "Yes. Pick a logo image — a PNG or SVG with a transparent background works best — and set its size and opacity like a text mark.",
+      },
+      {
+        q: "Does it reduce my photo's resolution?",
+        a: "No. The stamped photo comes out at its original size. A photo too large for the browser to draw is refused with a note, rather than shrunk without telling you.",
+      },
+      {
+        q: "Can someone remove the watermark?",
+        a: "A determined person can crop or edit one out; no watermark prevents that. Tiling the mark across the whole photo makes it much harder to remove cleanly.",
+      },
+      {
+        q: "Does it work with iPhone HEIC photos?",
+        a: "Only where the browser can read HEIC. If one fails, export it from Photos as JPEG and stamp that.",
+      },
+    ],
+  },
   CapyStrip: {
     heading: "How to remove EXIF metadata from a photo",
     steps: [
