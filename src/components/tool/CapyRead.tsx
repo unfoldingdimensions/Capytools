@@ -413,13 +413,13 @@ export function CapyRead() {
       ? `CapyRead reads the first ${FREE_PAGE_LIMIT} pages of a PDF in one run — this document has ${pdfPages}. Split it, or read it in parts.`
       : "";
 
-  const runLabel = file
-    ? isPdf
-      ? pdfPages === 1
-        ? "read the page"
-        : `read up to ${FREE_PAGE_LIMIT} pages`
-      : "read the page"
-    : "read the page";
+  const runLabel = !file
+    ? "read the page"
+    : !isPdf || pdfPages === 1
+      ? "read the page"
+      : pdfPages !== null && pdfPages <= FREE_PAGE_LIMIT
+        ? `read all ${pdfPages} pages`
+        : `read the first ${FREE_PAGE_LIMIT} pages`;
 
   return (
     <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_368px] lg:items-start">
