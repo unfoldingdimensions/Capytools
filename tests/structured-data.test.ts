@@ -6,6 +6,7 @@ import {
   softwareApplicationLd,
   webSiteLd,
 } from "../src/lib/capytools/structured-data";
+import { AUTHOR } from "../src/lib/capytools/author";
 import { SUITE } from "../src/lib/capytools/suite";
 import { SITE_URL } from "../src/lib/utils";
 
@@ -37,13 +38,30 @@ describe("the homepage ships ONE block", () => {
   // Two sibling <script> blocks validated clean and still lost the
   // Organization: the validator reported numObjects 1. @graph is what keeps
   // both entities, and the publisher reference between them, in the document.
-  it("carries both entities in a single @graph", () => {
+  it("carries every entity in a single @graph", () => {
     const graph = homepageGraphLd();
     expect(graph["@context"]).toBe("https://schema.org");
     expect(graph["@graph"].map((node) => node["@type"])).toEqual([
       "Organization",
       "WebSite",
+      "Person",
     ]);
+  });
+
+  it("names a real maker, with the profiles /notes#author shows", () => {
+    const person = homepageGraphLd()["@graph"].find((node) => node["@type"] === "Person");
+    expect(person?.name).toBe(AUTHOR.name);
+    expect(person && "sameAs" in person ? person.sameAs : []).toEqual([
+      AUTHOR.url,
+      ...AUTHOR.profiles.map((p) => p.href),
+    ]);
+    expect(organizationLd().founder).toEqual({ "@id": person?.["@id"] });
+  });
+
+  it("credits the maker on every tool, inline because tool pages are separate documents", () => {
+    for (const tool of SUITE) {
+      expect(softwareApplicationLd(tool.name)?.author).toMatchObject({ "@type": "Person", name: AUTHOR.name });
+    }
   });
 
   it("drops the inner @context, which is only legal at the top", () => {

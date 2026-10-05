@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AUTHOR } from "@/lib/capytools/author";
 import { SUITE_WORD } from "@/lib/capytools/suite";
 
 /**
@@ -36,6 +37,10 @@ export function SiteFooter({ here, wide = false }: { here?: "/tools" | "/notes";
           </Link>
           <Link href="/notes" aria-current={current("/notes")} className="transition-colors hover:text-foreground aria-[current=page]:text-foreground">
             notes
+          </Link>
+          {/* Internal on purpose (D18): the maker's profiles live on /notes#author. */}
+          <Link href="/notes#author" className="transition-colors hover:text-foreground">
+            made by {AUTHOR.name.toLowerCase()}
           </Link>
         </nav>
       </div>

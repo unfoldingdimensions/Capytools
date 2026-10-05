@@ -21,6 +21,7 @@
  */
 
 import type { ToolGuide } from "@/lib/capytools/guides";
+import { AUTHOR } from "@/lib/capytools/author";
 import { EXTERNAL } from "@/lib/capytools/landing";
 import { SUITE, type SuiteTool } from "@/lib/capytools/suite";
 import { SITE_URL } from "@/lib/utils";
@@ -62,9 +63,33 @@ const ORG_LOGO = "/brand/logo-512.png";
 export function homepageGraphLd() {
   return {
     "@context": "https://schema.org",
-    "@graph": [ORGANIZATION, WEB_SITE],
+    "@graph": [ORGANIZATION, WEB_SITE, PERSON],
   };
 }
+
+/**
+ * The maker, stated as a real person with the profiles that prove it — the
+ * same AUTHOR row /notes#author renders, so the claim is visible on the site.
+ */
+const PERSON = {
+  "@type": "Person",
+  "@id": `${SITE_URL}/#author`,
+  name: AUTHOR.name,
+  url: AUTHOR.url,
+  sameAs: [AUTHOR.url, ...AUTHOR.profiles.map((p) => p.href)],
+} as const;
+
+/**
+ * How other pages point at the maker. A bare `@id` only resolves inside one
+ * document, and a tool page's JSON-LD is not in the homepage's — so the name
+ * and URL travel with the reference.
+ */
+const PERSON_REF = {
+  "@type": "Person",
+  "@id": PERSON["@id"],
+  name: PERSON.name,
+  url: PERSON.url,
+} as const;
 
 const ORGANIZATION = {
   "@type": "Organization",
@@ -74,6 +99,7 @@ const ORGANIZATION = {
   description: SITE_DESCRIPTION,
   logo: `${SITE_URL}${ORG_LOGO}`,
   sameAs: SAME_AS,
+  founder: { "@id": PERSON["@id"] },
 } as const;
 
 const WEB_SITE = {
@@ -136,6 +162,7 @@ export function softwareApplicationLd(toolName: string) {
       availability: availability(tool),
     },
     publisher: { "@id": `${SITE_URL}/#organization` },
+    author: PERSON_REF,
   };
 }
 
