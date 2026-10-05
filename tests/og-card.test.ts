@@ -89,7 +89,7 @@ describe("the share card", () => {
   });
 
   it("does not claim a tool count the registry has outgrown", () => {
-    // The card reads "ELEVEN TOOLS" in pixels. Every other count on the site
+    // The card reads "THIRTEEN TOOLS" in pixels. Every other count on the site
     // derives from SUITE; this one cannot, so it gets a tripwire instead.
     // When this fails, regenerate the card — do not just edit the number.
     expect(OG_CARD_TOOL_COUNT).toBe(SUITE.length);

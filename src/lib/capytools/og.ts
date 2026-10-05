@@ -26,7 +26,7 @@ import { SITE_URL } from "@/lib/utils";
  * fails when this stops matching `SUITE.length` — which is the reminder to
  * regenerate the card, not to edit this number.
  */
-export const OG_CARD_TOOL_COUNT = 12;
+export const OG_CARD_TOOL_COUNT = 13;
 
 export const OG_IMAGE = {
   url: "/og.png",
