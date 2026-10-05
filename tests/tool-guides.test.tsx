@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { ToolGuideSection } from "../src/components/tool/ToolGuideSection";
 import { TOOL_GUIDES } from "../src/lib/capytools/guides";
 import { faqPageLd } from "../src/lib/capytools/structured-data";
-import { SUITE_NAMES } from "../src/lib/capytools/suite";
+import { SUITE, SUITE_NAMES } from "../src/lib/capytools/suite";
 
 describe("tool guides", () => {
   // A misspelt key renders no guide and no error — the page just stays thin.
@@ -36,5 +36,13 @@ describe("FAQPage JSON-LD", () => {
         guide.faq.map((f) => [f.q, f.a]),
       );
     }
+  });
+});
+
+describe("every browser tool ships with a guide", () => {
+  // Without one the page silently renders no guide and is the thin page the
+  // guides were written to fix. CapyExpense (desktop) carries its own FAQ.
+  it.each(SUITE.filter((t) => t.cat === "browser").map((t) => t.name))("%s", (name) => {
+    expect(TOOL_GUIDES[name]).toBeDefined();
   });
 });

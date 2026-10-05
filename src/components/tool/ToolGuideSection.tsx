@@ -29,7 +29,9 @@ export function ToolGuideSection({ guide, width }: { guide: ToolGuide; width: st
         ))}
       </ol>
 
-      <div className="mt-12 max-w-2xl space-y-4 text-[15px] leading-relaxed text-foreground/85">
+      {/* `grid gap`, not `space-y`: landing.css resets `p` margins at higher
+          specificity than Tailwind's :where() spacing, which collapsed it. */}
+      <div className="mt-12 grid max-w-2xl gap-4 text-[15px] leading-relaxed text-foreground/85">
         {guide.about.map((para) => (
           <p key={para}>{para}</p>
         ))}
