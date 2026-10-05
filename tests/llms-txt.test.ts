@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { GET } from "../src/app/llms.txt/route";
+import { INTENT_PAGES } from "../src/lib/capytools/intents";
 import { SUITE } from "../src/lib/capytools/suite";
 import { SITE_URL } from "../src/lib/utils";
 
@@ -25,6 +26,11 @@ describe("/llms.txt", () => {
       expect(body, tool.name).toContain(`## ${tool.name}`);
       expect(body, tool.name).toContain(`${SITE_URL}${tool.href}`);
     }
+  });
+
+  it("lists every intent page", async () => {
+    const body = await text();
+    for (const page of INTENT_PAGES) expect(body, page.href).toContain(`(${SITE_URL}${page.href})`);
   });
 
   it("counts the suite rather than hard-coding it", async () => {
