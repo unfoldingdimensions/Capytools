@@ -4,6 +4,7 @@ import { AmbientBackground } from "@/components/AmbientBackground";
 import { CapyArt } from "@/components/mascot/CapyArt";
 import { Header } from "@/components/header";
 import { SiteFooter } from "@/components/site-footer";
+import { AUTHOR } from "@/lib/capytools/author";
 import { EXTERNAL } from "@/lib/capytools/landing";
 import { SUITE, SUITE_WORD_CAP, countByCategory, numberWord, pad2 } from "@/lib/capytools/suite";
 import { TransitionLink } from "@/components/TransitionLink";
@@ -121,6 +122,33 @@ export default function NotesPage() {
               github.com/unfoldingdimensions/Capytools
             </a>
             .
+          </p>
+        </section>
+
+        <section className="mt-12" id="author">
+          <span className="lp-label">Who makes this</span>
+          <h2 className="font-display mt-4 text-3xl font-light">
+            {AUTHOR.name}
+            <span className="lp-dot">.</span>
+          </h2>
+          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            {AUTHOR.tagline} A business analyst who builds open-source tools on
+            the side. Capytools is the set of small utilities that were hard to
+            find without an upload, an account or a cookie banner &mdash; every
+            one of them built and maintained by one person.
+          </p>
+          <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[15px]">
+            {[{ label: "unfoldingdimensions.com", href: AUTHOR.url }, ...AUTHOR.profiles].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="me noreferrer noopener"
+                className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+              >
+                {link.label}
+              </a>
+            ))}
           </p>
         </section>
 
