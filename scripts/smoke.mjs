@@ -65,7 +65,10 @@ const apiGet = async (path, init) => {
 const PAGES = [
   "/", "/capywrapped", "/capyimagine", "/capycreator", "/capystrip",
   "/capyexpense", "/capyog", "/capyqr", "/capyresize", "/capytoken",
-  "/capypixel", "/capytone", "/notes", "/design", "/license",
+  "/capypixel", "/capytone", "/capybg", "/notes", "/design", "/license",
+  // INTENT_PAGES (src/lib/capytools/intents.ts)
+  "/favicon-generator", "/png-to-webp", "/wifi-qr-code-generator",
+  "/vcard-qr-code-generator", "/og-image-size", "/contrast-checker", "/gradient-generator",
   "/sitemap.xml", "/robots.txt", "/llms.txt", "/og.png",
 ];
 
@@ -111,6 +114,13 @@ async function main() {
   const llms = await (await get("/llms.txt")).text();
   check("/llms.txt lists every tool",
     (llms.match(/^## Capy/gm) ?? []).length, 13);
+
+  // A fixed URL that names content-addressed models must never be immutable,
+  // or browsers keep a stale list of models for a year.
+  const capybgManifest = await get("/capybg/manifest.json");
+  check("/capybg/manifest.json 200", capybgManifest.status, 200);
+  check("/capybg/manifest.json is revalidated, not immutable",
+    /immutable|max-age=[1-9]/.test(capybgManifest.headers.get("cache-control") ?? ""), false);
 
   console.log("\nsecurity headers (page)");
   const page = await get("/");

@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { PromptGen } from "@/components/tool/PromptGen";
 
 export const metadata = toolMetadata("CapyImagine", {
-  title: "CapyImagine — random image & video prompts",
+  title: "Random AI image & video prompt generator — Midjourney, Flux, SDXL | CapyImagine",
   description:
     "A calm random prompt generator for Gemini, Midjourney, Flux, SDXL and video models. No signup, no cookies, nothing stored.",
 });

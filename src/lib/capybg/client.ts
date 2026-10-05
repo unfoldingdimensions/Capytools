@@ -4,7 +4,7 @@ import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecisi
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
-import { applyMatte, featherMatte, matteFromModelOutput, resizeMatte } from "./postprocess";
+import { applyMatte, attachPeople, cleanMatte, decontaminateEdges, featherMatte, fuseMattes, matteFromModelOutput, resizeMatte, tileStarts, trimapFrom } from "./postprocess";
 import { modelInputSize, toModelTensor } from "./preprocess";
 import type { Backend, BgOptions, BgResult, ModelId, Progress } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./worker";
@@ -391,6 +391,9 @@ async function composeFrom(
       Math.min(3, Math.max(0, opts.feather ?? 1)),
     );
     const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Soft edges keep the backdrop's colour (a purple fringe in hair); swap in
+    // each edge pixel's estimated foreground colour before the alpha goes on.
+    decontaminateEdges(image.data, matte, canvas.width, canvas.height);
     applyMatte(image.data, matte);
     ctx.putImageData(image, 0, 0);
 
@@ -412,6 +415,140 @@ async function composeFrom(
   }
 }
 
+// ——— one model, one tensor, one run (with the GPU fallback policy) ———
+
+/** The source drawn at the model's input size, as its float32 tensor. */
+function modelTensor(source: HTMLCanvasElement, model: ModelId, size: { width: number; height: number }): Float32Array {
+  const modelCanvas = document.createElement("canvas");
+  modelCanvas.width = size.width;
+  modelCanvas.height = size.height;
+  const modelCtx = modelCanvas.getContext("2d", { willReadFrequently: true });
+  if (!modelCtx) throw new CutFailedError("this browser wouldn't give the tool a canvas to work on");
+  modelCtx.imageSmoothingEnabled = true;
+  modelCtx.imageSmoothingQuality = "high";
+  modelCtx.drawImage(source, 0, 0, size.width, size.height);
+  return toModelTensor(modelCtx.getImageData(0, 0, size.width, size.height).data, MODELS[model]);
+}
+
+async function runModel(
+  model: ModelId,
+  tensor: Float32Array,
+  size: { width: number; height: number },
+  onProgress: ((progress: Progress) => void) | undefined,
+  notes: string[],
+): Promise<{ matte: Float32Array; ms: number; backend: Backend }> {
+  let backend = await ensureModel(model, onProgress, notes);
+  onProgress?.({ phase: "cut", message: `cutting${backend === "webgpu" ? " on your GPU" : " on your CPU"}` });
+  for (;;) {
+    // A fresh copy every attempt: the previous attempt transferred (and
+    // detached) its buffer on the way to the worker.
+    const input = tensor.slice();
+    try {
+      const response = await send(
+        { type: "run", model, input: input.buffer as ArrayBuffer, width: size.width, height: size.height },
+        [input.buffer as ArrayBuffer],
+        RUN_TIMEOUT_MS,
+      );
+      if (response.type !== "matte") throw new CutFailedError("unexpected worker reply");
+      return { matte: response.data, ms: response.ms, backend };
+    } catch (error) {
+      // A GPU run that dies mid-flight gets exactly one fallback, decided
+      // by the model: the people models drop to the CPU, the detailed model
+      // hands the whole cut back to the page (it re-runs on the people
+      // model and hides the option — never the wasm heap it would OOM).
+      if (!(error instanceof EngineError) || !error.fallback || backend !== "webgpu") throw error;
+      if (gpuFailureFallback(model) === "people") throw new DetailedModelUnavailableError();
+      notes.push(CPU_NOTE_GPU_REFUSED);
+      backend = "wasm";
+      await loadOnBackend(model, "wasm", onProgress);
+    }
+  }
+}
+
+// ——— edge refinement (ViTMatte) for the detailed cut ———
+
+/** The working image's long side for refinement — finer than any segmenter sees. */
+const REFINE_MAX_SIDE = 2048;
+const REFINE_TILE = 512;
+const REFINE_OVERLAP = 64;
+export const REFINE_SKIPPED_NOTE = "the edges couldn't be refined on this GPU, so they come straight from the model.";
+
+/**
+ * Recompute alpha in the cut's unsure band with ViTMatte, on 512² tiles over a
+ * working image whose long side is ≤ 2048 px (each a multiple of 32). Tiles with
+ * no unsure pixel are skipped; overlapping tiles hand off through a sine window.
+ * Sure subject and sure backdrop keep the cut's verdict. Returns null (and adds
+ * a note) when the refiner can't run — the cut is still good without it.
+ */
+async function refineEdges(
+  canvas: HTMLCanvasElement,
+  matte: Float32Array,
+  size: { width: number; height: number },
+  onProgress: ((progress: Progress) => void) | undefined,
+  notes: string[],
+): Promise<{ matte: Float32Array; width: number; height: number; ms: number } | null> {
+  const k = Math.min(1, REFINE_MAX_SIDE / Math.max(canvas.width, canvas.height));
+  const W = Math.max(32, Math.round((canvas.width * k) / 32) * 32);
+  const H = Math.max(32, Math.round((canvas.height * k) / 32) * 32);
+  const trimap = trimapFrom(resizeMatte(matte, size.width, size.height, W, H), W, H);
+
+  const work = document.createElement("canvas");
+  work.width = W;
+  work.height = H;
+  const ctx = work.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(canvas, 0, 0, W, H);
+  const pixels = ctx.getImageData(0, 0, W, H).data;
+
+  const tw = Math.min(REFINE_TILE, W);
+  const th = Math.min(REFINE_TILE, H);
+  const sum = new Float32Array(W * H);
+  const weights = new Float32Array(W * H);
+  let ms = 0;
+  try {
+    onProgress?.({ phase: "cut", message: "refining the edges" });
+    for (const ty of tileStarts(H, th, REFINE_OVERLAP)) {
+      for (const tx of tileStarts(W, tw, REFINE_OVERLAP)) {
+        const P = tw * th;
+        const tensor = new Float32Array(4 * P);
+        let unsure = false;
+        for (let y = 0; y < th; y++) {
+          for (let x = 0; x < tw; x++) {
+            const src = (ty + y) * W + tx + x;
+            const dst = y * tw + x;
+            tensor[dst] = (pixels[src * 4] / 255 - 0.5) / 0.5;
+            tensor[P + dst] = (pixels[src * 4 + 1] / 255 - 0.5) / 0.5;
+            tensor[2 * P + dst] = (pixels[src * 4 + 2] / 255 - 0.5) / 0.5;
+            tensor[3 * P + dst] = trimap[src];
+            if (trimap[src] === 0.5) unsure = true;
+          }
+        }
+        if (!unsure) continue;
+        const run = await runModel("vitmatte", tensor, { width: tw, height: th }, onProgress, notes);
+        ms += run.ms;
+        for (let y = 0; y < th; y++) {
+          const wy = Math.sin(((y + 0.5) / th) * Math.PI);
+          for (let x = 0; x < tw; x++) {
+            const wgt = wy * Math.sin(((x + 0.5) / tw) * Math.PI) + 1e-4;
+            const i = (ty + y) * W + tx + x;
+            sum[i] += Math.min(1, Math.max(0, run.matte[y * tw + x])) * wgt;
+            weights[i] += wgt;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    if (error instanceof CutCancelledError) throw error;
+    notes.push(REFINE_SKIPPED_NOTE);
+    return null;
+  }
+  const out = new Float32Array(W * H);
+  for (let i = 0; i < out.length; i++) out[i] = trimap[i] === 0.5 && weights[i] > 0 ? sum[i] / weights[i] : trimap[i];
+  return { matte: out, width: W, height: H, ms };
+}
+
 // ——— the seam ———
 
 export async function removeBackground(
@@ -429,55 +566,67 @@ export async function removeBackground(
     notes.push(...sizeNotes);
 
     const size = modelInputSize(spec, canvas.width, canvas.height);
-    const modelCanvas = document.createElement("canvas");
-    modelCanvas.width = size.width;
-    modelCanvas.height = size.height;
-    const modelCtx = modelCanvas.getContext("2d", { willReadFrequently: true });
-    if (!modelCtx) throw new CutFailedError("this browser wouldn't give the tool a canvas to work on");
-    modelCtx.imageSmoothingEnabled = true;
-    modelCtx.imageSmoothingQuality = "high";
-    modelCtx.drawImage(canvas, 0, 0, size.width, size.height);
-    const tensor = toModelTensor(modelCtx.getImageData(0, 0, size.width, size.height).data, spec);
+    const tensor = modelTensor(canvas, opts.model, size);
+    const cut = await runModel(opts.model, tensor, size, onProgress, notes);
+    const backendUsed = cut.backend;
+    let modelMs = cut.ms;
+    let matte = matteFromModelOutput(cut.matte, spec.sigmoid);
 
-    const backend = await ensureModel(opts.model, onProgress, notes);
-    onProgress?.({ phase: "cut", message: `cutting${backend === "webgpu" ? " on your GPU" : " on your CPU"}` });
+    if (opts.group && opts.model === "modnet") {
+      // Group mode: the helper decides who is in the photo; MODNet keeps the edges.
+      const helperSpec = MODELS.u2human;
+      const helperSize = modelInputSize(helperSpec, canvas.width, canvas.height);
+      const helper = await runModel("u2human", modelTensor(canvas, "u2human", helperSize), helperSize, onProgress, notes);
+      const helperMatte = resizeMatte(
+        matteFromModelOutput(helper.matte, helperSpec.sigmoid),
+        helperSize.width,
+        helperSize.height,
+        size.width,
+        size.height,
+      );
+      matte = fuseMattes(matte, helperMatte, size.width, size.height);
+      modelMs += helper.ms;
+    }
 
-    let backendUsed = backend;
-    let matte: Float32Array;
-    let modelMs: number;
-    for (;;) {
-      // A fresh copy every attempt: the previous attempt transferred (and
-      // detached) its buffer on the way to the worker.
-      const input = tensor.slice();
-      try {
-        const response = await send(
-          { type: "run", model: opts.model, input: input.buffer as ArrayBuffer, width: size.width, height: size.height },
-          [input.buffer as ArrayBuffer],
-          RUN_TIMEOUT_MS,
-        );
-        if (response.type !== "matte") throw new CutFailedError("unexpected worker reply");
-        matte = response.data;
-        modelMs = response.ms;
-        break;
-      } catch (error) {
-        // A GPU run that dies mid-flight gets exactly one fallback, decided
-        // by the model: the people model drops to the CPU, the detailed model
-        // hands the whole cut back to the page (it re-runs on the people
-        // model and hides the option — never the wasm heap it would OOM).
-        if (!(error instanceof EngineError) || !error.fallback || backendUsed !== "webgpu") throw error;
-        if (gpuFailureFallback(opts.model) === "people") throw new DetailedModelUnavailableError();
-        notes.push(CPU_NOTE_GPU_REFUSED);
-        backendUsed = "wasm";
-        await loadOnBackend(opts.model, "wasm", onProgress);
+    if (opts.model === "isnet") {
+      // ISNet drops some people parts MODNet keeps (dark trousers): add back
+      // MODNet's pieces attached to ISNet's subject, in ISNet's 1024² space.
+      const peopleSize = modelInputSize(MODELS.modnet, canvas.width, canvas.height);
+      const people = await runModel("modnet", modelTensor(canvas, "modnet", peopleSize), peopleSize, onProgress, notes);
+      const peopleMatte = resizeMatte(
+        matteFromModelOutput(people.matte, MODELS.modnet.sigmoid),
+        peopleSize.width,
+        peopleSize.height,
+        size.width,
+        size.height,
+      );
+      matte = attachPeople(matte, peopleMatte, size.width, size.height);
+      modelMs += people.ms;
+    }
+
+    // Clear the model's unsure haze and drop stray specks (remove.bg parity).
+    matte = cleanMatte(matte, size.width, size.height);
+    let matteWidth = size.width;
+    let matteHeight = size.height;
+
+    if (opts.model === "isnet" || opts.model === "birefnet") {
+      // The detailed cut's edges come from a 1024² mask; recompute them at up
+      // to 2048 px with ViTMatte. Optional: if this GPU can't run it, the cut
+      // stands as it is, with a note.
+      const refined = await refineEdges(canvas, matte, size, onProgress, notes);
+      if (refined) {
+        matte = refined.matte;
+        matteWidth = refined.width;
+        matteHeight = refined.height;
+        modelMs += refined.ms;
       }
     }
 
-    const processed = matteFromModelOutput(matte, spec.sigmoid);
     lastCut = {
       file,
-      matte: processed,
-      matteWidth: size.width,
-      matteHeight: size.height,
+      matte,
+      matteWidth,
+      matteHeight,
       srcWidth: canvas.width,
       srcHeight: canvas.height,
       backend: backendUsed,

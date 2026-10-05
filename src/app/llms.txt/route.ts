@@ -1,3 +1,4 @@
+import { INTENT_PAGES } from "@/lib/capytools/intents";
 import { SUITE } from "@/lib/capytools/suite";
 import { SITE_URL } from "@/lib/utils";
 
@@ -23,13 +24,19 @@ import { SITE_URL } from "@/lib/utils";
  * "when was it served". A build-time `new Date()` would rewrite it on every
  * unrelated deploy and quietly make the claim meaningless.
  */
-const LAST_UPDATED = "2026-10-04";
+const LAST_UPDATED = "2026-10-06";
 
 export const dynamic = "force-static";
 
 function body(): string {
   const tools = SUITE.map(
     (tool) => `## ${tool.name}\n\n${tool.line}\n\n${SITE_URL}${tool.href}\n`,
+  ).join("\n");
+
+  // Intent pages: the same tools, opened on one job — the URL a model should
+  // hand someone who asked for exactly that job.
+  const intents = INTENT_PAGES.map(
+    (page) => `- [${page.label}](${SITE_URL}${page.href}): ${page.description}`,
   ).join("\n");
 
   return `# Capytools
@@ -50,6 +57,10 @@ The full suite, the house rules it keeps, and how each tool works.
 ${SITE_URL}
 
 ${tools}
+## By task
+
+${intents}
+
 ## All Tools
 
 Every tool in the suite on one page, one line each, with a search.

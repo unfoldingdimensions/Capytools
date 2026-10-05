@@ -1,6 +1,6 @@
 # handover.md — Capytools
 
-*Rewritten 2026-10-02; CapyBg (tool no. 12) folded in 2026-10-03. This is the **state** file: what exists, what is verified, what is open. It is
+*Rewritten 2026-10-02; CapyBg (tool no. 12) folded in 2026-10-03; its models, modes and matte work 2026-10-04/05 (the why lives in [docs/records/capybg.md](docs/records/capybg.md)). This is the **state** file: what exists, what is verified, what is open. It is
 deliberately not a rules file — the rules live in their own documents and are linked, because a second copy
 of a rule is a copy that drifts. (The previous version, dated 2026-09-09, described the landing revamp; it is
 in git history — `git show 67bf494:handover.md` — and its why-and-what-happened material lives in
@@ -19,18 +19,18 @@ the user's own disk and states its own promise ("stored on your machine, never o
 cookies, no telemetry, no uploads. The whole suite is Apache-2.0.
 
 The site is a Next.js 16 app (16.3.8) deployed to **Cloudflare Workers** (not Vercel — see §4.3), verified
-by a 1268-test suite and, after every deploy, by a script that walks every page.
+by a 1303-test suite and, after every deploy, by a script that walks every page.
 
 `main` is clean and level with `origin/main`. Nothing is half-finished in the working tree. The open work is
-**one unmerged PR** (#11) and the written-but-unbuilt plans in §4.2 — two of them (CapyStamp, CapyCrop)
-ready for an implementing agent.
+**two unmerged PRs owned by other agents** (#11 CapyExpense history, #67 CapyStamp — tool no. 13, in progress)
+and the written-but-unbuilt plans in §4.2.
 
 ---
 
 ## 1. State (verified 2026-10-02)
 
-**Repository** — `E:\New-Personal-Projects\Capytools`, `main` at `cf1a5ed` (#65). The last code change
-under this file is CapyBg, `b0bcf13` (#64); see §4.1 for what merged on 2026-10-02 and 10-03. The E:\ checkout
+**Repository** — `E:\New-Personal-Projects\Capytools`, `main` at `db9707c` (#77). The last code change
+under this file is CapyBg's matte cleanup, `db9707c` (#77); see §4.1 for what merged 2026-10-02 to 10-04. The E:\ checkout
 is shared by several agents and is often left on a feature branch — check `git branch --show-current` before
 committing, and commit to `main` from a temporary worktree.
 Working tree clean apart from two untracked local tooling artifacts (`.impeccable/` critique logs and a stray
@@ -56,21 +56,34 @@ themselves** (§5): the share card `public/og.png`, the lab plate, and the count
 | 11 | CapyTone | browser (one palette-extract fetch) |
 | 12 | **CapyBg** | browser — ML background removal (ONNX models, WebGPU or CPU, in a Web Worker) |
 
-**CapyBg in one paragraph** (plan: `docs/plans/capybg.md`). MODNet (people, 6.3 MB) runs on WebGPU or the
-single-threaded wasm CPU path; BiRefNet_lite (any subject, 109 MB) is an opt-in on WebGPU only — owner
-decision (c), plan §11.1. Models and the ORT 1.30.0 runtime are **not in git**: `scripts/fetch-capybg-assets.ts`
-(run by `prebuild`, `predeploy` and CI, via tsx) downloads, hash-verifies and shards them into
-`public/capybg/` (gitignored) under Cloudflare's 25 MiB per-asset cap; the browser re-verifies and caches them
-in Cache Storage (`capybg-v1`). Nothing is fetched cross-origin. The detailed model is offered **only** when
-the adapter reports ≥ 17 storage buffers per shader stage and is not a fallback adapter — Chrome on
-Windows/D3D reports 16, and there its `run()` silently never settles. Loads and runs carry watchdogs (90 s /
-60 s) that tear the worker down, and the page has a "stop" link. Verified live after deploy: a people cut on
-WebGPU in 1.9 s on capytools.app.
+**CapyBg in one paragraph** (plan: `docs/plans/capybg.md`; decisions and learning:
+[docs/records/capybg.md](docs/records/capybg.md) — read it before changing a model, a threshold or a rule).
+Three choices on the page, people the default:
+
+| Choice | Model(s) | Size, once | Runs on |
+|---|---|---|---|
+| people — fast | MODNet **fp16** | 12.4 MB | WebGPU or the CPU (wasm) |
+| groups | MODNet + U²-Net human seg (rembg fp32), fused | +167.8 MB | WebGPU or CPU — **one photo at a time**: a new photo after a cut starts on people again |
+| any subject — detailed | BiRefNet_lite where the GPU reports ≥ 17 storage buffers; otherwise **ISNet** general-use (rembg), plus MODNet's attached pieces | 109 MB / 170.4 MB | WebGPU only; a refusal hides it and re-cuts on people |
+
+Every cut then gets `cleanMatte` (haze levels + speck removal) and `decontaminateEdges` (backdrop colour out of
+soft edges). WebGPU sessions run **NCHW** (`worker.ts`) — the default NHWC corrupts the matte. Models and the
+ORT 1.30.0 runtime are **not in git**: `scripts/fetch-capybg-assets.ts` (run by `prebuild`, `predeploy` and CI,
+via tsx) downloads, hash-verifies and shards them into `public/capybg/` (gitignored) under Cloudflare's 25 MiB
+per-asset cap — four models, ~480 MB, 21 model files; the browser re-verifies and caches them in Cache Storage
+(`capybg-v1`), and `manifest.json` is revalidated on every visit. Nothing is fetched cross-origin. Loads and runs
+carry watchdogs (90 s / 60 s) and the page has a "stop" link.
+
+**Measured on the owner's own photos** (the test set is listed in the record): the family photo in detailed
+mode keeps the sheer pallu (1.0 / 0.97) and the son's dark trousers (0.98) with 0.95% haze — coverage matching
+remove.bg's cut; group mode keeps the woman in black (1.0) the people model loses (0.06); the logo cuts
+(letters 1.0, background 0). Known limits (record O2): edges softer than remove.bg's server output, ISNet fills
+enclosed holes (a logo's "D"), and training-data terms for U²-Net/ISNet are unread (record O1).
 
 **Verification run today, on this checkout:**
 
 ```
-npm run test       54 files, 1268 tests passing                       (2026-10-03)
+npm run test       56 files, 1303 tests passing                (CI, 2026-10-04)
 npm run lint       0 errors; 168 warnings, all in the fetched, gitignored
                    public/capybg/ort/*.mjs — not source
 npx tsc --noEmit   clean
@@ -80,8 +93,11 @@ npm run build      clean — every page prerenders; the only dynamic routes are
                    a Proxy (middleware) is present
 ```
 
-**Live** — `capytools.app` serves CapyBg. #64's deploy succeeded but its smoke failed one check (the
-hard-coded tool count in `scripts/smoke.mjs`, still 11); #65 bumped it to 12 and redeployed — CI green at `2026-10-03T16:57Z`, smoke 57 passed, 0 failed.
+**Live** — `capytools.app` serves `db9707c` (#77): CI green at `2026-10-04T16:51Z`, smoke 66 passed, 0 failed —
+including the checks that `/capybg/manifest.json` is 200 and revalidated, not immutable. The detailed pill
+(ISNet, 170.4 MB) shows on the owner's 16-buffer GPU, and the live manifest lists all four models.
+On 2026-10-03, #64's deploy succeeded but its smoke failed one check (the hard-coded tool count in
+`scripts/smoke.mjs`, still 11); #65 bumped it to 12 and redeployed.
 Earlier: the 2026-10-02 run finished green at `2026-10-02T11:01Z`, deploy and smoke (57 passed, 0 failed). (Read from the CI run, not from
 `wrangler deployments list`.) Spot-checked 200s on `/`, `/tools`, `/capyqr`, `/notes`, `/robots.txt`,
 `/sitemap.xml`, `/u/torvalds` and `/api/og/octocat`, with
@@ -125,6 +141,7 @@ The deploy account is pinned in `wrangler.jsonc`; the token is read from a gitig
 | [PRODUCT.md](PRODUCT.md) | Product truth: users, positioning, operating context, what evidence exists and what must not be fabricated. | 2026-09-23 |
 | `docs/plans/` | **Tracked** implementation plans with kickoff prompts: `capybg.md` (shipped as v1; §13 Phase 2 desktop still open), `capystamp.md`, `capycrop.md`. Each has a `.sources.json`. | 2026-10-03 |
 | [README.md](README.md) | User-facing. Its first-line count ("Twelve so far") is asserted against `COLOPHON.quote` in `src/lib/capytools/landing.ts` and `package.json`'s `description` — all three change together. | 2026-09-24 |
+| `docs/records/` | **Decision-and-learning records, one per effort.** [capybg.md](docs/records/capybg.md): every CapyBg model/mode/rule decision with the measurement behind it, what was rejected and why, and the learning (compare backends on the same tensor, tune thresholds in the real page, fixed URLs under immutable paths). New efforts add a file here. | 2026-10-05 |
 | [decisions.md](decisions.md), [learning.md](learning.md) | Dated records of the **2026-09-09 landing revamp**. Read them for *why things are the way they are* and for debugging war stories — not for current state: D1–D2 still describe a Vercel deploy and a five-tool suite, and D9 still calls the licence MIT (D14 changed it to Apache-2.0). | 2026-09-09 |
 | `docs/research/**` | The expansion roadmap, the tiered tool pipeline, the monetisation spec, and a research dir for each candidate tool. **Gitignored — local to this machine, not backed up by the repo.** | through 2026-09-21 |
 
@@ -134,11 +151,26 @@ The deploy account is pinned in `wrangler.jsonc`; the token is read from a gitig
 
 ### 4.1 Pull requests
 
-**Open:** one.
+**Open:** two, both owned by other agents — leave them.
 
 | PR | Title | Open since | State |
 |---|---|---|---|
-| #11 | capyexpense: see and restore an earlier copy of a workbook | Sep 12 | stale; owned by another agent — leave it |
+| #11 | capyexpense: see and restore an earlier copy of a workbook | Sep 12 | stale |
+| #67 | CapyStamp, tool no. 13 — engine, tool and registration | Oct 4 | in progress (`feat/capystamp`, the E:\ checkout's current branch) |
+
+**Settled on 2026-10-04:**
+
+| PR | Title | Outcome |
+|---|---|---|
+| #70 | CapyBg: fp16 MODNet, NCHW on WebGPU | merged. The int8 `model_quantized.onnx` kept backdrop and dropped people; ORT's WebGPU NHWC layout transform corrupted the float matte (§5) |
+| #71 | CapyBg: group mode | merged — U²-Net human seg + MODNet fused; see §1 |
+| #72 | CapyBg: stop caching the manifest as immutable | merged — see §5; the fix that made #70 and #71 reach existing visitors |
+| #73 | CapyBg: group mode belongs to one photo | merged — a sticky groups pill leaked its trade-offs onto photos people cut well |
+| #74 | CapyBg: edge-colour cleanup | merged — blur-fusion foreground colour; purple hair fringe 0.115 → 0.034 |
+| #75 | CapyBg: group mode keeps fabric that hangs from a person | merged — connectivity fusion; the people pill re-cuts |
+| #76 | CapyBg: ISNet as the detailed model where BiRefNet doesn't fit | merged — the sheer-pallu fix; BiRefNet OOMs on CPU and needs 17 buffers |
+| #77 | CapyBg: matte cleanup everywhere, people parts back in detailed | merged — remove.bg parity on the family photo |
+| #66, #68, #69 | SEO: guides, keyword-first titles, intent landing pages | merged by another agent's work stream |
 
 **Settled on 2026-10-03:**
 
@@ -168,8 +200,8 @@ AGENTS.md's reference are correct as written.
   `docs/research/{capyqr,capyresize,capystrip,capyog}/monetisation-plan.md`, so all five move together. Its
   §9.2 still lists **seven owner decisions as "defaults proposed"** — price ($19 one-time), suite-wide vs
   per-tool Pro, and provider choice among them. Nothing here can be built before those are answered.
-- **CapyStamp** — `docs/plans/capystamp.md`, with a kickoff prompt. Tool no. 13; free batch, capped. Ready to
-  hand to an implementing agent.
+- **CapyStamp** — `docs/plans/capystamp.md`, with a kickoff prompt. Tool no. 13; free batch, capped. Being
+  built by another agent — PR #67 (`feat/capystamp`), open since 2026-10-04.
 - **CapyCrop** — `docs/plans/capycrop.md`, with a kickoff prompt. **Not a new tool**: a crop & split mode
   inside CapyResize, so the count does not change.
 - **CapyBg Phase 2 (desktop)** — `docs/plans/capybg.md` §13. Specced, deliberately not in v1: a sibling
@@ -220,6 +252,18 @@ AGENTS.md's reference are correct as written.
 - **Without a GPU limits check, ORT on WebGPU can hang silently.** A shader over the adapter's
   `maxStorageBuffersPerShaderStage` makes `session.run()` never settle, with no error. Gate models on the probe's
   adapter limits (`modelFits` in `src/lib/capybg/backend.ts`), and keep the watchdogs.
+- **CapyBg's model and rule choices were each measured on the owner's photos — re-measure before changing
+  one.** Every fusion rule that fixed one photo broke another, and Python's numbers differ from the browser's
+  (the resize differs). The method, the test set and the numbers are in
+  [docs/records/capybg.md](docs/records/capybg.md).
+- **ORT's WebGPU EP must run NCHW.** Its default NHWC layout transform silently corrupts MODNet's matte (torso
+  alpha 0.8, backdrop kept) — for fp16 and fp32 alike; int8 happened to dodge it. `preferredLayout: "NCHW"` in
+  `worker.ts` matches the CPU EP exactly. To judge a model, compare its WebGPU output with the CPU EP or
+  Python on the same tensor before blaming the model — this repo shipped a wrong matte for a day.
+- **A fixed URL under `/capybg/*` is cached for a year.** `public/_headers` marks `/capybg/*` immutable — right
+  for the content-addressed model folders, wrong for `manifest.json`, which now detaches it (`! Cache-Control`)
+  and the loader fetches with `cache: "no-cache"`. Any new fixed-URL file there needs the same, or browsers
+  keep a stale copy (it is how #71's group mode first failed live).
 
 - **The dev server lies about hydration-heavy pages.** Under `next dev --webpack`, the marquee's duplicated
   links feed the prefetcher forever and hydration never settles — frozen motion, dead clicks, and it looks
@@ -247,7 +291,9 @@ AGENTS.md's reference are correct as written.
 > tool page. Verify with `npm run test`, `npm run lint`, `npx tsc --noEmit` and `npm run build`; judge pages
 > with `npm run build && npx next start`, never `next dev`. The suite is twelve tools, registered in
 > `src/lib/capytools/suite.ts` — plus the share card, plate and smoke count in §5, which do not derive. The
-> E:\ checkout is shared, so check the branch before committing. The open work is one PR (#11, owned by
-> another agent — leave it) plus the plans in §4.2: CapyStamp and CapyCrop are ready to build; the
+> E:\ checkout is shared, so check the branch before committing. The open work is two PRs owned by other
+> agents (#11, and #67 CapyStamp in progress — leave both) plus the plans in §4.2: CapyCrop is ready to build;
+> CapyBg's model choices were all measured on the owner's photos — read `docs/records/capybg.md` and
+> re-measure before changing one; the
 > monetisation spec is blocked on seven owner decisions, so ask before assuming. Merging to `main` deploys to Cloudflare, and the owner has final say on
 > every merge.

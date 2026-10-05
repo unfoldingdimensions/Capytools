@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { INTENT_PAGES } from "@/lib/capytools/intents";
 import { LABS } from "@/lib/capytools/landing";
 import { SITE_URL } from "@/lib/utils";
 
@@ -35,7 +36,7 @@ const STATIC_PAGES = ["/tools", "/notes", "/design", "/license"] as const;
  * deploy and makes the claim meaningless again. So: a date a human sets when
  * a page's content actually changes.
  */
-const LAST_UPDATED = "2026-09-22";
+const LAST_UPDATED = "2026-10-04";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = LAST_UPDATED;
@@ -47,6 +48,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,
+    })),
+    ...INTENT_PAGES.map((page) => ({
+      url: `${SITE_URL}${page.href}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
     ...STATIC_PAGES.map((path) => ({
       url: `${SITE_URL}${path}`,

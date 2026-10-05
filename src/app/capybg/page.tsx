@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyBg } from "@/components/tool/CapyBg";
 
 export const metadata = toolMetadata("CapyBg", {
-  title: "CapyBg — remove image backgrounds in your browser",
+  title: "Remove image background free — no upload, transparent PNG | CapyBg",
   description:
     "Cut the background out of a photo and download a transparent PNG. 100% in your browser — your image is never uploaded; the only download is the model.",
 });

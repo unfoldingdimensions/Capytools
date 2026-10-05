@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyTone } from "@/components/tool/CapyTone";
 
 export const metadata = toolMetadata("CapyTone", {
-  title: "CapyTone — type a feeling, get a poster",
+  title: "Colour palette generator from a mood — contrast checker & gradients | CapyTone",
   description:
     "A mood phrase becomes a deterministic five-colour palette and a shareable poster card, drawn by a hand-tuned lexicon — no AI, no signup. 100% in your browser — nothing is stored.",
 });

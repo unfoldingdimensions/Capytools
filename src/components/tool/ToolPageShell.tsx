@@ -7,6 +7,9 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
+import { ToolGuideSection } from "@/components/tool/ToolGuideSection";
+import { TOOL_GUIDES } from "@/lib/capytools/guides";
+import { intentsFor, type IntentPage } from "@/lib/capytools/intents";
 import { softwareApplicationLd } from "@/lib/capytools/structured-data";
 import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
 import { cn } from "@/lib/utils";
@@ -40,6 +43,7 @@ export function ToolPageShell({
   align = "center",
   large = false,
   entrance = true,
+  intent,
   children,
 }: {
   /** Passed to the shared Header to highlight the nav pill. */
@@ -62,6 +66,8 @@ export function ToolPageShell({
   large?: boolean;
   /** Mount entrance on the tool surface; expense's chart entrance draws itself. */
   entrance?: boolean;
+  /** Set on an intent page: its guide replaces the tool's, and its links point home. */
+  intent?: IntentPage;
   children: React.ReactNode;
 }) {
   const position = SUITE.findIndex((row) => row.name === tool);
@@ -72,6 +78,15 @@ export function ToolPageShell({
   // of them and the last one to be forgotten simply lied.
   const index = `Nº ${pad2(SUITE.findIndex((row) => row.name === tool) + 1)} / ${SUITE_INDEX}`;
   const width = large ? "max-w-5xl" : "max-w-4xl";
+  const guide = intent?.guide ?? TOOL_GUIDES[tool];
+  // Every page of a tool links to its siblings, so a crawler that finds one
+  // finds all of them: the tool page lists its intents, an intent page lists
+  // the tool and the other intents.
+  const row = SUITE[position];
+  const related = [
+    ...(intent && row ? [{ href: row.href, label: `${tool} — every option` }] : []),
+    ...intentsFor(tool).filter((page) => page.href !== intent?.href),
+  ];
 
   return (
     // No `bg-background` here on purpose: body already paints it, and an opaque
@@ -144,6 +159,27 @@ export function ToolPageShell({
             )}
           </div>
         </div>
+
+        {/* Below the stage, never around it: the text a crawler reads. */}
+        {guide ? <ToolGuideSection guide={guide} width={width} /> : null}
+
+        {related.length > 0 ? (
+          <nav aria-label={`More with ${tool}`} className={cn("mx-auto w-full px-6 pb-14", width)}>
+            <p className="lp-label">More with {tool}</p>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {related.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="inline-block rounded-full border border-border px-4 py-1.5 text-sm transition-colors hover:bg-muted"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
 
         {/* The closing accent, and where the sign-off lives. */}
         <div className="lp-tool-signoff">

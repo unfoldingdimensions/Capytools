@@ -235,8 +235,9 @@ function ScanNote({ tone = "plain", children }: { tone?: keyof typeof STAGE_TONE
   );
 }
 
-export function CapyQR() {
-  const [kind, setKind] = useState<PayloadKind>("link");
+/** `initialKind` lets an intent page (/wifi-qr-code-generator) open on its payload. */
+export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } = {}) {
+  const [kind, setKind] = useState<PayloadKind>(initialKind);
   const [fields, setFields] = useState<PayloadFields>(DEFAULT_FIELDS);
   const [style, setStyle] = useState<QrStyleState>(DEFAULT_STYLE);
   const [size, setSize] = useState(1024);

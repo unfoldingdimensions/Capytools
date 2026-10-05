@@ -34,7 +34,7 @@ import type { FamilyFilter } from "@/lib/capytone/engine/families";
  * share URLs stay byte-for-byte and no new params exist.
  */
 
-type ModeId = "feel" | "generate" | "check" | "blend" | "extract";
+export type ModeId = "feel" | "generate" | "check" | "blend" | "extract";
 
 const MODES: readonly { id: ModeId; label: string }[] = [
   { id: "feel", label: "feel" },
@@ -47,18 +47,19 @@ const MODES: readonly { id: ModeId; label: string }[] = [
 /** The house sage — Generate mode's deterministic default base colour. */
 const DEFAULT_BASE = "#8e9b7e";
 
-export function CapyTone() {
+/** `initialMode` lets an intent page (/contrast-checker) open on its mode. */
+export function CapyTone({ initialMode = "feel" }: { initialMode?: ModeId }) {
   return (
     <Suspense fallback={null}>
-      <CapyToneInner />
+      <CapyToneInner initialMode={initialMode} />
     </Suspense>
   );
 }
 
-function CapyToneInner() {
+function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
   const searchParams = useSearchParams();
 
-  const [mode, setMode] = useState<ModeId>("feel");
+  const [mode, setMode] = useState<ModeId>(initialMode);
 
   // --- Feel (the mood flow, exactly as Phase A shipped it) ---
   const [submitted, setSubmitted] = useState<string | null>(null);

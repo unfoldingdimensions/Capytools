@@ -34,7 +34,10 @@ interface OrtModule {
   InferenceSession: {
     create(
       source: ArrayBuffer | Uint8Array,
-      options?: { executionProviders: readonly string[]; graphOptimizationLevel?: string },
+      options?: {
+        executionProviders: readonly (string | { name: string; preferredLayout?: "NCHW" | "NHWC" })[];
+        graphOptimizationLevel?: string;
+      },
     ): Promise<OrtSessionLike>;
   };
   Tensor: {
@@ -156,7 +159,10 @@ async function load(request: LoadRequest): Promise<void> {
 
   try {
     const session = await ortModule.InferenceSession.create(request.modelBytes, {
-      executionProviders: [request.backend],
+      // NCHW on WebGPU: the EP's default NHWC layout transform corrupts
+      // MODNet's matte (measured 2026-10-04: torso alpha 0.8 instead of 1.0,
+      // backdrop kept), while NCHW matches the CPU EP and Python exactly.
+      executionProviders: [request.backend === "webgpu" ? { name: "webgpu", preferredLayout: "NCHW" } : request.backend],
       graphOptimizationLevel: "all",
     });
     // Release the session this replaces — duplicate loads used to leak one.
@@ -199,7 +205,8 @@ async function doRun(
     const tensor = new ort.Tensor(
       "float32",
       new Float32Array(request.input),
-      [1, 3, request.height, request.width],
+      // Channels from the buffer: 3 for the segmenters, 4 (RGB + trimap) for ViTMatte.
+      [1, request.input.byteLength / 4 / (request.width * request.height), request.height, request.width],
     );
     const results = await session.run({ [spec.inputName]: tensor });
     const output = results[spec.outputName];

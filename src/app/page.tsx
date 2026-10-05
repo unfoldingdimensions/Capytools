@@ -9,6 +9,9 @@ import { SUITE_WORD_CAP } from "@/lib/capytools/suite";
 const description = `${SUITE_WORD_CAP} small tools that run entirely in your browser and keep nothing. No signup, no cookies, no server.`;
 
 export const metadata: Metadata = {
+  // The search title says what the site is; the share card below keeps the
+  // brand line, which reads well in a feed but matches no query anyone types.
+  title: "Free browser tools that never upload your files | Capytools",
   description,
   alternates: { canonical: "/" },
   openGraph: {

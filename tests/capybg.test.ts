@@ -10,10 +10,16 @@ import { MODELS, MODEL_IDS, modelUrl, sha8 } from "@/lib/capybg/models";
 import { modelInputSize, toModelTensor } from "@/lib/capybg/preprocess";
 import {
   applyMatte,
+  attachPeople,
+  cleanMatte,
+  decontaminateEdges,
   featherMatte,
+  fuseMattes,
   matteFromModelOutput,
   resizeMatte,
   sigmoid,
+  tileStarts,
+  trimapFrom,
 } from "@/lib/capybg/postprocess";
 import { SUITE } from "@/lib/capytools/suite";
 
@@ -30,9 +36,9 @@ const PLAN_PINS = {
   modnet: {
     repo: "Xenova/modnet",
     revision: "fa2fa546052fba4c08921230a26cc69a333fca12",
-    path: "onnx/model_quantized.onnx",
-    sha256: "92e49898c3e05a6d7a944fc67a8cb87c4aad754ffb6ebd949528c7d1105fee3a",
-    bytes: 6632188,
+    path: "onnx/model_fp16.onnx",
+    sha256: "25f165da9bfd30830a575f1f0490f1acd995975cb349bc02f3d79332e1fe5cf6",
+    bytes: 12984781,
   },
   birefnet: {
     repo: "onnx-community/BiRefNet_lite-ONNX",
@@ -41,11 +47,34 @@ const PLAN_PINS = {
     sha256: "d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402",
     bytes: 114538221,
   },
+  u2human: {
+    repo: "danielgatis/rembg",
+    revision: "7fb6683169d588f653281d53c3c258838194c950",
+    path: "u2net_human_seg.onnx",
+    url: "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx",
+    sha256: "01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c",
+    bytes: 175997641,
+  },
+  isnet: {
+    repo: "danielgatis/rembg",
+    revision: "7fb6683169d588f653281d53c3c258838194c950",
+    path: "isnet-general-use.onnx",
+    url: "https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx",
+    sha256: "60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a",
+    bytes: 178648008,
+  },
+  vitmatte: {
+    repo: "Xenova/vitmatte-small-composition-1k",
+    revision: "6bc1297f6140f055a227b6d2cfe8c093281f35d2",
+    path: "onnx/model.onnx",
+    sha256: "bf28d2e0be2c073286e88d60ad649d7123da2749a2d99133fd1098d5887e0225",
+    bytes: 103885865,
+  },
 };
 
 describe("the model registry", () => {
   it("has a complete, well-formed spec for every model", () => {
-    expect(MODEL_IDS).toHaveLength(2);
+    expect(MODEL_IDS).toHaveLength(5);
     for (const id of MODEL_IDS) {
       const model = MODELS[id];
       expect(model.id).toBe(id);
@@ -93,12 +122,12 @@ describe("the model registry", () => {
 
   it("builds the pinned resolve URL", () => {
     expect(modelUrl(MODELS.modnet)).toBe(
-      "https://huggingface.co/Xenova/modnet/resolve/fa2fa546052fba4c08921230a26cc69a333fca12/onnx/model_quantized.onnx",
+      "https://huggingface.co/Xenova/modnet/resolve/fa2fa546052fba4c08921230a26cc69a333fca12/onnx/model_fp16.onnx",
     );
   });
 
   it("content-addresses model directories by the first 8 hash chars", () => {
-    expect(sha8(MODELS.modnet.sha256)).toBe("92e49898");
+    expect(sha8(MODELS.modnet.sha256)).toBe("25f165da");
   });
 });
 
@@ -439,5 +468,261 @@ describe("the ORT wasm never ships through the bundler", () => {
       const src = readFileSync(join(process.cwd(), "node_modules/onnxruntime-web/dist", f), "utf8");
       expect(src).not.toMatch(/new URL\("[^"]*\.wasm"/);
     }
+  });
+});
+
+describe("the matte matches the reference, not a backend's shortcut", () => {
+  const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+
+  it("ships fp16 MODNet, not the int8 build that kept backdrops and dropped people", () => {
+    expect(MODELS.modnet.path).toBe("onnx/model_fp16.onnx");
+  });
+
+  it("pins WebGPU to NCHW — the default NHWC transform corrupts MODNet's matte", () => {
+    expect(read("src/lib/capybg/worker.ts")).toMatch(/\{ name: "webgpu", preferredLayout: "NCHW" \}/);
+  });
+});
+
+describe("group mode — the helper decides who, MODNet draws the edges", () => {
+  // 40×40: a person (helper says so) MODNet missed on the left, a backdrop
+  // blob MODNet invented on the right, far from any helper person.
+  const W = 40;
+  const H = 40;
+  const at = (x: number, y: number) => y * W + x;
+  const people = new Float32Array(W * H);
+  const helper = new Float32Array(W * H);
+  for (let y = 5; y < 35; y++) for (let x = 3; x < 20; x++) helper[at(x, y)] = 1; // the missed person
+  for (let y = 5; y < 15; y++) for (let x = 30; x < 38; x++) people[at(x, y)] = 1; // the invented blob
+  const fused = fuseMattes(people, helper, W, H);
+
+  it("fills in a person MODNet lost, where the helper is sure", () => {
+    expect(fused[at(11, 20)]).toBeGreaterThan(0.99);
+  });
+
+  it("drops what MODNet kept far from any person the helper saw", () => {
+    expect(fused[at(34, 10)]).toBe(0);
+  });
+
+  it("keeps MODNet's own edge near a person, and stays in [0, 1]", () => {
+    const edge = new Float32Array(W * H);
+    edge[at(20, 20)] = 0.4; // just outside the helper's person — MODNet's soft edge
+    const out = fuseMattes(edge, helper, W, H);
+    expect(out[at(20, 20)]).toBeGreaterThanOrEqual(0.4);
+    for (const v of out) expect(v >= 0 && v <= 1).toBe(true);
+  });
+
+  it("is offered on the people model only, and opt-in", () => {
+    const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+    expect(client).toMatch(/opts\.group && opts\.model === "modnet"/);
+    expect(MODELS.u2human.backends).toEqual(["webgpu", "wasm"]);
+    expect(modelUrl(MODELS.u2human)).toBe(MODELS.u2human.url);
+  });
+});
+
+describe("the manifest is never cached as immutable", () => {
+  const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+
+  it("revalidates it on every visit, from the loader", () => {
+    expect(read("src/lib/capybg/loader.ts")).toMatch(/fetch\(MANIFEST_URL, \{ cache: "no-cache" \}\)/);
+  });
+
+  it("detaches the /capybg/* immutable header for it in public/_headers", () => {
+    expect(read("public/_headers")).toMatch(/\/capybg\/manifest\.json\n {2}! Cache-Control\n {2}Cache-Control: no-cache/);
+  });
+});
+
+describe("group mode is per photo", () => {
+  const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+
+  it("a new photo after a cut switches it off; picked before the first photo, it applies", () => {
+    const processFile = ui.slice(ui.indexOf("const processFile"), ui.indexOf("const processFile") + 300);
+    expect(processFile).toMatch(/const groupMode = group && !file;\n\s*setGroup\(groupMode\);\n\s*void startCut\(blob, name, model, groupMode\)/);
+  });
+
+  it("a retry of the same photo keeps the mode it used", () => {
+    expect(ui).toMatch(/\? \(\) => void startCut\(file\.blob, file\.name, model, group\)/);
+  });
+});
+
+describe("edge-colour cleanup", () => {
+  // 20×1: a red subject on the left, a blue backdrop on the right, and a soft
+  // edge between whose pixels are a red/blue mix at alpha 0.5.
+  const W = 20;
+  const H = 1;
+  const rgba = new Uint8ClampedArray(W * H * 4);
+  const alpha = new Float32Array(W * H);
+  for (let x = 0; x < W; x++) {
+    const a = x < 9 ? 1 : x > 10 ? 0 : 0.5;
+    alpha[x] = a;
+    rgba[x * 4] = Math.round(255 * a);       // red share
+    rgba[x * 4 + 2] = Math.round(255 * (1 - a)); // blue share
+    rgba[x * 4 + 3] = 255;
+  }
+  const before = rgba.slice();
+  decontaminateEdges(rgba, alpha, W, H);
+
+  it("pulls an edge pixel's colour toward the subject, out of the backdrop", () => {
+    expect(rgba[9 * 4]).toBeGreaterThan(before[9 * 4]); // more red
+    expect(rgba[9 * 4 + 2]).toBeLessThan(before[9 * 4 + 2]); // less blue
+  });
+
+  it("leaves solid, transparent pixels and every alpha byte alone", () => {
+    for (const x of [0, 5, 15, 19]) {
+      for (let c = 0; c < 4; c++) expect(rgba[x * 4 + c]).toBe(before[x * 4 + c]);
+    }
+    for (let x = 0; x < W; x++) expect(rgba[x * 4 + 3]).toBe(255);
+  });
+});
+
+describe("group mode keeps faint fabric MODNet already has", () => {
+  // A thin pallu: MODNet has it (0.9), the helper only faintly (0.2), next to
+  // a person the helper is sure of.
+  const W = 60;
+  const H = 40;
+  const at = (x: number, y: number) => y * W + x;
+  const people = new Float32Array(W * H);
+  const helper = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 5; x < 25; x++) { helper[at(x, y)] = 1; people[at(x, y)] = 1; }
+  for (let y = 10; y < 30; y++) for (let x = 25; x < 32; x++) { helper[at(x, y)] = 0.2; people[at(x, y)] = 0.9; }
+  const fused = fuseMattes(people, helper, W, H);
+
+  it("keeps the pallu the helper sees only faintly", () => {
+    expect(fused[at(29, 20)]).toBeCloseTo(0.9, 5);
+  });
+
+  it("keeps fabric the helper misses entirely, because it hangs from a person", () => {
+    const blind = helper.slice();
+    for (let y = 10; y < 30; y++) for (let x = 25; x < 45; x++) blind[at(x, y)] = 0;
+    const longPallu = people.slice();
+    for (let y = 10; y < 30; y++) for (let x = 25; x < 45; x++) longPallu[at(x, y)] = 0.9;
+    const out = fuseMattes(longPallu, blind, W, H);
+    expect(out[at(42, 20)]).toBeCloseTo(0.9, 5); // far past any grown gate
+  });
+
+  it("the people pill re-cuts when it leaves group mode", () => {
+    const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+    expect(ui).toMatch(/if \(wasOther && file && phase === "done"\) void startCut\(file\.blob, file\.name, "modnet", false\)/);
+  });
+});
+
+describe("the detailed model where BiRefNet doesn't fit", () => {
+  const sixteen = { maxStorageBuffersPerShaderStage: 16, isFallbackAdapter: false };
+
+  it("is ISNet on a 16-buffer WebGPU adapter, and never on the CPU", () => {
+    expect(modelFits(MODELS.birefnet, { backend: "webgpu", gpu: sixteen })).toBe(false);
+    expect(modelFits(MODELS.isnet, { backend: "webgpu", gpu: sixteen })).toBe(true);
+    expect(modelFits(MODELS.isnet, { backend: "wasm" })).toBe(false);
+  });
+
+  it("hides itself and re-cuts on the people model if the GPU refuses it", () => {
+    expect(gpuFailureFallback("isnet")).toBe("people");
+  });
+
+  it("is chosen BiRefNet-first by the page", () => {
+    const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+    expect(ui).toMatch(/modelFits\(MODELS\.birefnet, decision\) \? "birefnet" : modelFits\(MODELS\.isnet, decision\) \? "isnet" : null/);
+  });
+
+  it("is never the AGPL-labelled onnx-community repack", () => {
+    expect(MODELS.isnet.repo).not.toMatch(/onnx-community/i);
+    expect(modelUrl(MODELS.isnet)).toMatch(/^https:\/\/github\.com\/danielgatis\/rembg\/releases\//);
+  });
+});
+
+describe("matte cleanup", () => {
+  const W = 40;
+  const H = 20;
+  const at = (x: number, y: number) => y * W + x;
+  const m = new Float32Array(W * H);
+  for (let y = 2; y < 18; y++) for (let x = 2; x < 22; x++) m[at(x, y)] = 0.95; // the subject
+  m[at(23, 10)] = 0.5; // its soft rim
+  for (let y = 0; y < H; y++) for (let x = 25; x < 40; x++) if (!m[at(x, y)]) m[at(x, y)] = 0.1; // haze
+  m[at(35, 3)] = 0.9; // a one-pixel speck in the haze
+  const out = cleanMatte(m, W, H);
+
+  it("clears haze and makes the subject solid", () => {
+    expect(out[at(30, 15)]).toBe(0);
+    expect(out[at(10, 10)]).toBe(1);
+  });
+
+  it("keeps the anti-aliased rim between", () => {
+    expect(out[at(23, 10)]).toBeCloseTo((0.5 - 0.15) / 0.7, 5);
+  });
+
+  it("drops a speck far from the subject", () => {
+    expect(out[at(35, 3)]).toBe(0);
+  });
+});
+
+describe("every cut is cleaned", () => {
+  it("runs cleanMatte on the final matte, after group fusion, before it is kept", () => {
+    const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+    const fuse = client.indexOf("matte = fuseMattes(");
+    const clean = client.indexOf("matte = cleanMatte(matte, size.width, size.height);");
+    const kept = client.indexOf("lastCut = {", clean);
+    expect(fuse).toBeGreaterThan(0);
+    expect(clean).toBeGreaterThan(fuse);
+    expect(kept).toBeGreaterThan(clean);
+  });
+});
+
+describe("the ISNet detailed cut keeps people parts it misses", () => {
+  const W = 30;
+  const H = 30;
+  const at = (x: number, y: number) => y * W + x;
+  const isnet = new Float32Array(W * H);
+  const people = new Float32Array(W * H);
+  for (let y = 2; y < 15; y++) for (let x = 10; x < 20; x++) { isnet[at(x, y)] = 1; people[at(x, y)] = 1; } // torso: both
+  for (let y = 15; y < 28; y++) for (let x = 11; x < 19; x++) people[at(x, y)] = 0.95; // trousers: MODNet only
+  for (let y = 2; y < 6; y++) for (let x = 24; x < 28; x++) people[at(x, y)] = 0.9; // a MODNet speck touching nothing
+  const out = attachPeople(isnet, people, W, H);
+
+  it("adds back the trousers hanging from the subject", () => {
+    expect(out[at(15, 25)]).toBeCloseTo(0.95, 5);
+  });
+
+  it("keeps ISNet's cut, and ignores MODNet pieces attached to nothing", () => {
+    expect(out[at(15, 8)]).toBe(1);
+    expect(out[at(26, 4)]).toBe(0);
+  });
+});
+
+describe("edge refinement (ViTMatte) for the detailed cut", () => {
+  it("lays 512 tiles with overlap end to end", () => {
+    expect(tileStarts(400, 512, 64)).toEqual([0]);
+    expect(tileStarts(1024, 512, 64)).toEqual([0, 256, 512]);
+    const starts = tileStarts(2048, 512, 64);
+    expect(starts[0]).toBe(0);
+    expect(starts[starts.length - 1]).toBe(2048 - 512);
+    for (let i = 1; i < starts.length; i++) expect(starts[i] - starts[i - 1]).toBeLessThanOrEqual(512 - 64);
+  });
+
+  it("marks sure subject 1, sure backdrop 0, and the band between 0.5", () => {
+    const W = 100;
+    const H = 10;
+    const m = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) m[y * W + x] = x < 50 ? 1 : 0;
+    const t = trimapFrom(m, W, H);
+    expect(t[5 * W + 10]).toBe(1);
+    expect(t[5 * W + 90]).toBe(0);
+    expect(t[5 * W + 49]).toBe(0.5);
+    expect(t[5 * W + 50]).toBe(0.5);
+  });
+
+  it("is a webgpu-only refiner that steps aside, not a model choice", () => {
+    expect(MODELS.vitmatte.backends).toEqual(["webgpu"]);
+    expect(MODELS.vitmatte.licence).toBe("MIT");
+    expect(gpuFailureFallback("vitmatte")).toBe("people");
+  });
+
+  it("runs on detailed cuts, after cleanup, and the pill counts its download", () => {
+    const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+    const clean = client.indexOf("matte = cleanMatte(matte, size.width, size.height);");
+    const refine = client.indexOf("await refineEdges(canvas, matte, size, onProgress, notes)");
+    expect(clean).toBeGreaterThan(0);
+    expect(refine).toBeGreaterThan(clean);
+    expect(client).toMatch(/if \(opts\.model === "isnet" \|\| opts\.model === "birefnet"\) \{/);
+    const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+    expect(ui).toMatch(/MODELS\[detailedId\]\.bytes \+ MODELS\.vitmatte\.bytes/);
   });
 });

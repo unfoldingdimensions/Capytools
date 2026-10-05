@@ -117,10 +117,15 @@ export function CapyBg() {
   // when a cut needs it. `detailedBlocked` is try/hide's memory — once the
   // GPU refuses the detailed model it stays hidden for the visit.
   const [model, setModel] = useState<ModelId>("modnet");
+  // Group mode: the people model plus the group helper (~168 MB, once). Opt-in
+  // — offered as a pill and after a people cut, never downloaded unasked.
+  const [group, setGroup] = useState(false);
   const [detailedBlocked, setDetailedBlocked] = useState(false);
   // Whether this GPU can run the detailed model at all — read from the probe's
   // adapter limits, so an unfit GPU is never offered a 109 MB download.
-  const [detailedFits, setDetailedFits] = useState(false);
+  // Which detailed model this GPU can run: BiRefNet where it fits, ISNet where
+  // it doesn't (16-storage-buffer adapters), none without WebGPU.
+  const [detailedId, setDetailedId] = useState<ModelId | null>(null);
   const [modelNote, setModelNote] = useState<string | null>(null);
 
   const fileInput = useRef<HTMLInputElement>(null);
@@ -145,7 +150,9 @@ export function CapyBg() {
     probeBackend()
       .then((decision) => {
         setBackend(decision.backend);
-        setDetailedFits(modelFits(MODELS.birefnet, decision));
+        setDetailedId(
+          modelFits(MODELS.birefnet, decision) ? "birefnet" : modelFits(MODELS.isnet, decision) ? "isnet" : null,
+        );
       })
       .catch(() => setBackend(""));
   }, []);
@@ -218,7 +225,7 @@ export function CapyBg() {
   }, [phase, file, backdrop, format, quality, model]);
 
   const runCut = useCallback(
-    async (blob: Blob, name: string, modelId: ModelId): Promise<void> => {
+    async (blob: Blob, name: string, modelId: ModelId, groupMode = false): Promise<void> => {
       const run = ++runId.current;
       clearCut();
       setError(null);
@@ -237,7 +244,7 @@ export function CapyBg() {
       try {
         const next = await removeBackground(
           blob,
-          { model: modelId, backdrop, format, quality: quality / 100 },
+          { model: modelId, backdrop, format, quality: quality / 100, group: groupMode && modelId === "modnet" },
           (p) => {
             if (runId.current !== run) return;
             setProgress(p);
@@ -275,9 +282,9 @@ export function CapyBg() {
    *  when the GPU refuses the detailed model, the option hides itself, the
    *  reason is stated, and the cut finishes on the people model. */
   const startCut = useCallback(
-    async (blob: Blob, name: string, modelId: ModelId): Promise<void> => {
+    async (blob: Blob, name: string, modelId: ModelId, groupMode = false): Promise<void> => {
       try {
-        await runCut(blob, name, modelId);
+        await runCut(blob, name, modelId, groupMode);
       } catch (err) {
         if (!(err instanceof DetailedModelUnavailableError)) return;
         setDetailedBlocked(true);
@@ -289,12 +296,19 @@ export function CapyBg() {
     [runCut],
   );
 
+  // Group mode belongs to one photo. It trades edge quality for coverage (it
+  // cut a draped saree and kept a strip of backdrop by the hair on photos MODNet
+  // handles alone), so a NEW photo after a cut starts on the people model again.
+  // Picked before the first photo, it applies to that photo; a retry of the same
+  // photo keeps whatever mode it used.
   const processFile = useCallback(
     (blob: Blob, name: string) => {
       setModelNote(null);
-      void startCut(blob, name, model);
+      const groupMode = group && !file;
+      setGroup(groupMode);
+      void startCut(blob, name, model, groupMode);
     },
-    [startCut, model],
+    [startCut, model, group, file],
   );
 
   // Paste is a first-class input — screenshots especially.
@@ -407,24 +421,45 @@ export function CapyBg() {
           <span className={labelClass}>model</span>
           <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Model">
             <Pill
-              active={model === "modnet"}
-              onClick={() => setModel("modnet")}
+              active={model === "modnet" && !group}
+              onClick={() => {
+                const wasOther = model !== "modnet" || group;
+                setModel("modnet");
+                setGroup(false);
+                // Leaving group mode (or the detailed model) is a new matte:
+                // re-cut what is on the table, as the other pills do.
+                if (wasOther && file && phase === "done") void startCut(file.blob, file.name, "modnet", false);
+              }}
               label={`Model ${MODELS.modnet.label}, ${formatBytes(MODELS.modnet.bytes)} downloaded once`}
             >
               {MODELS.modnet.label.toLowerCase()} · {formatBytes(MODELS.modnet.bytes)}, once
             </Pill>
-            {backend === "webgpu" && detailedFits && !detailedBlocked ? (
+            <Pill
+              active={model === "modnet" && group}
+              disabled={working}
+              onClick={() => {
+                setModel("modnet");
+                setGroup(true);
+                // Group mode is a new matte: re-cut what is on the table.
+                if (file && phase === "done") void startCut(file.blob, file.name, "modnet", true);
+              }}
+              label={`Group mode: people model plus a ${formatBytes(MODELS.u2human.bytes)} helper, downloaded once`}
+            >
+              groups · +{formatBytes(MODELS.u2human.bytes)}, once
+            </Pill>
+            {backend === "webgpu" && detailedId && !detailedBlocked ? (
               <Pill
-                active={model === "birefnet"}
+                active={model === detailedId}
                 disabled={working}
                 onClick={() => {
-                  setModel("birefnet");
+                  setModel(detailedId);
+                  setGroup(false);
                   // Switching model is a new matte: re-cut what is on the table.
-                  if (file && phase === "done") void startCut(file.blob, file.name, "birefnet");
+                  if (file && phase === "done") void startCut(file.blob, file.name, detailedId);
                 }}
-                label={`Model ${MODELS.birefnet.label}, ${formatBytes(MODELS.birefnet.bytes)} downloaded once`}
+                label={`Model ${MODELS[detailedId].label}, ${formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)} downloaded once`}
               >
-                {MODELS.birefnet.label.toLowerCase()} · {formatBytes(MODELS.birefnet.bytes)}, once
+                {MODELS[detailedId].label.toLowerCase()} · {formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once
               </Pill>
             ) : null}
           </div>
@@ -433,7 +468,7 @@ export function CapyBg() {
               ? "this browser has no GPU support, so the cut runs on your CPU — it works, just slower. the detailed model needs a browser with GPU support."
               : detailedBlocked
                 ? "the detailed model can't run on this GPU — it's hidden for the rest of this visit."
-                : backend === "webgpu" && !detailedFits
+                : backend === "webgpu" && !detailedId
                   ? DETAILED_UNFIT_NOTE
                   : "the only download is the model. your photo never leaves this tab."}
           </p>
@@ -507,7 +542,7 @@ export function CapyBg() {
           <div className="py-4">
             <ErrorCard title={error.title} body={error.body} onRetry={
               file
-                ? () => void processFile(file.blob, file.name)
+                ? () => void startCut(file.blob, file.name, model, group)
                 : undefined
             } />
           </div>
@@ -589,18 +624,34 @@ export function CapyBg() {
               </div>
             ) : null}
 
-            {/* Copy, not detection (plan §6): the people model can't do products.
-                One click offers the detailed model — it downloads only if taken. */}
-            {result && !isDemo && model === "modnet" && backend === "webgpu" && detailedFits && !detailedBlocked && !working && file ? (
+            {/* Copy, not detection: MODNet is a single-portrait model, so a group
+                or dark clothes on a dark backdrop can lose someone. One click
+                offers group mode — the helper downloads only if taken. */}
+            {result && !isDemo && model === "modnet" && !group && !working && file ? (
               <button
                 type="button"
                 onClick={() => {
-                  setModel("birefnet");
-                  void startCut(file.blob, file.name, "birefnet");
+                  setGroup(true);
+                  void startCut(file.blob, file.name, "modnet", true);
                 }}
                 className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
               >
-                not a person? try the detailed model ({formatBytes(MODELS.birefnet.bytes)}, once)
+                missing someone? try group mode (+{formatBytes(MODELS.u2human.bytes)}, once)
+              </button>
+            ) : null}
+
+            {/* Copy, not detection (plan §6): the people model can't do products.
+                One click offers the detailed model — it downloads only if taken. */}
+            {result && !isDemo && model === "modnet" && backend === "webgpu" && detailedId && !detailedBlocked && !working && file ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setModel(detailedId);
+                  void startCut(file.blob, file.name, detailedId);
+                }}
+                className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
+              >
+                not a person? try the detailed model ({formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once)
               </button>
             ) : null}
           </div>
