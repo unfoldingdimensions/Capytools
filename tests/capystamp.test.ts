@@ -7,6 +7,7 @@ import {
   MAX_TILES,
   SAFE_MARGIN,
   anchorPoint,
+  logoAspectOf,
   logoBox,
   markBox,
   textFontSize,
@@ -213,6 +214,12 @@ describe("geometry — logoBox", () => {
     const spec = squareSpec({ size: 0.25 });
     expect(logoBox(1000, 1000, spec, 0)).toEqual({ width: 250, height: 250 });
     expect(logoBox(1000, 1000, spec, Number.NaN)).toEqual({ width: 250, height: 250 });
+  });
+
+  it("logoAspectOf: one rule for preview and export, size-less SVGs included", () => {
+    expect(logoAspectOf(400, 100)).toBe(4);
+    expect(logoAspectOf(0, 0)).toBe(2); // the 300×150 default
+    expect(logoAspectOf(300, 0)).toBe(2);
   });
 });
 

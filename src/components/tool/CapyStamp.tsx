@@ -12,6 +12,7 @@ import { saveBlob } from "@/lib/download";
 import { drawDemoPhoto, DEMO_SPEC } from "@/lib/capystamp/demo";
 import { ensureFontLoaded, FACES, fontString, readFaceVars, resolveFamilyList } from "@/lib/capystamp/fonts";
 import {
+  logoAspectOf,
   logoBox,
   markBox,
   SAFE_MARGIN,
@@ -214,7 +215,7 @@ export function CapyStamp() {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [spec, setSpec] = useState<StampSpec>(DEMO_SPEC);
-  const [beforeDemo, setBeforeDemo] = useState<StampSpec | null>(null);
+  const [beforeDemo, setBeforeDemo] = useState<{ before: StampSpec; after: StampSpec } | null>(null);
   const [output, setOutput] = useState<OutputOptions>({ format: "png", quality: 0.9 });
   const [logo, setLogo] = useState<{ img: HTMLImageElement; name: string; aspect: number } | null>(null);
   const [presets, setPresets] = useState<StampPreset[]>([]);
@@ -240,10 +241,14 @@ export function CapyStamp() {
   const downloadRefs = useRef<Array<{ url: string }>>([]);
 
   const selected = items.find((item) => item.id === selectedId) ?? null;
+  const selectedItemId = selected?.id ?? null;
+  const selectedFile = selected?.file ?? null;
   const isDemo = items.length === 0;
   const stamped = items.filter((item): item is QueueItem & { result: StampResult } => Boolean(item.result));
   const failed = items.filter((item) => item.status === "failed");
-  const canRun = !running && items.length > 0 && !(spec.kind === "text" && !spec.text.trim());
+  const missingText = spec.kind === "text" && !spec.text.trim();
+  const missingLogo = spec.kind === "logo" && !logo;
+  const canRun = !running && items.length > 0 && !missingText && !missingLogo;
 
   // Presets are settings in localStorage — read in a hydrate effect, never in
   // a useState initializer, so the server markup can't depend on them.
@@ -296,6 +301,11 @@ export function CapyStamp() {
     (incoming: File[]) => {
       const images = incoming.filter((f) => f.type.startsWith("image/") || /\.(jpe?g|png|webp|avif|gif|bmp)$/i.test(f.name));
       if (images.length === 0) return;
+      // The run writes results back by queue position — the queue holds still.
+      if (running) {
+        setStatus("wait for this run to finish, then add more.");
+        return;
+      }
       const room = Math.max(0, FREE_BATCH_LIMIT - items.length);
       const accepted = images.slice(0, room);
       const overflow = images.length - accepted.length;
@@ -318,15 +328,17 @@ export function CapyStamp() {
         setSelectedId((current) => current ?? next[0]?.id ?? null);
         return next;
       });
-      setOverCap((prev) => prev + overflow);
+      setOverCap(overflow);
       releaseDownloads();
       setStatus("");
     },
-    [items.length, releaseDownloads],
+    [items.length, running, releaseDownloads],
   );
 
   const removeItem = useCallback(
     (id: string) => {
+      if (running) return;
+      setOverCap(0);
       setItems((prev) => {
         const next = prev.filter((item) => item.id !== id);
         const gone = prev.find((item) => item.id === id);
@@ -336,10 +348,11 @@ export function CapyStamp() {
       });
       releaseDownloads();
     },
-    [selectedId, releaseDownloads],
+    [running, selectedId, releaseDownloads],
   );
 
   const clearAll = useCallback(() => {
+    if (running) return;
     setItems((prev) => {
       for (const item of prev) URL.revokeObjectURL(item.url);
       return [];
@@ -349,7 +362,7 @@ export function CapyStamp() {
     setOverCap(0);
     setStatus("");
     releaseDownloads();
-  }, [releaseDownloads]);
+  }, [running, releaseDownloads]);
 
   // Drop, pick and paste all land here.
   const onDrop = useCallback(
@@ -380,12 +393,9 @@ export function CapyStamp() {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      // An SVG with only a viewBox can report 0×0 or the 300×150 default;
-      // either way, derive the aspect from whatever real numbers exist.
-      const w = img.naturalWidth || 300;
-      const h = img.naturalHeight || 150;
-      const aspect = w > 0 && h > 0 ? w / h : 1;
-      setLogo({ img, name: file.name, aspect });
+      // A loaded image keeps its pixels; the URL is no longer needed.
+      URL.revokeObjectURL(url);
+      setLogo({ img, name: file.name, aspect: logoAspectOf(img.naturalWidth, img.naturalHeight) });
       setStatus(`logo set — ${file.name}. pick it again after a preset applies; presets never store it.`);
     };
     img.onerror = () => {
@@ -447,24 +457,26 @@ export function CapyStamp() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      if (!selected) {
+      if (!selectedFile || !selectedItemId) {
         setDecoded(null);
         return;
       }
       try {
-        const next = await decodeImage(selected.file);
+        const next = await decodeImage(selectedFile);
         if (cancelled) return;
-        setDecoded({ id: selected.id, img: next.img, width: next.width, height: next.height });
+        setDecoded({ id: selectedItemId, img: next.img, width: next.width, height: next.height });
       } catch {
         if (cancelled) return;
         setDecoded(null);
-        setStatus(`couldn't preview ${selected.file.name} — the browser couldn't read it.`);
+        setStatus(`couldn't preview ${selectedFile.name} — the browser couldn't read it.`);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [selected]);
+    // Keyed on the file, not the item: a status change during a run makes a
+    // new item object, and must not re-decode a full-size photo.
+  }, [selectedItemId, selectedFile]);
 
   // Redraw whenever the design, the face variables or the decoded image move.
   useEffect(() => {
@@ -595,15 +607,17 @@ export function CapyStamp() {
     });
   }, []);
 
+  // Undo reverses the last reset or preset — and only while the design is
+  // still exactly what that change left; a later edit supersedes it.
+  const canUndo = beforeDemo !== null && beforeDemo.after === spec;
+
   const undo = useCallback(() => {
-    if (beforeDemo) {
-      setSpec(beforeDemo);
-      setBeforeDemo(null);
-    }
-  }, [beforeDemo]);
+    if (beforeDemo && beforeDemo.after === spec) setSpec(beforeDemo.before);
+    setBeforeDemo(null);
+  }, [beforeDemo, spec]);
 
   const record = useCallback((next: StampSpec) => {
-    setBeforeDemo((prev) => prev ?? spec);
+    setBeforeDemo({ before: spec, after: next });
     setSpec(next);
   }, [spec]);
 
@@ -642,74 +656,83 @@ export function CapyStamp() {
     const queue = items.map((item) => item.file);
     stopRef.current = false;
     setRunning(true);
+    setProgress({ done: 0, total: queue.length });
     setCancelledRun(false);
     releaseDownloads();
     setItems((prev) => prev.map((item) => ({ ...item, status: "queued", reason: undefined, result: undefined })));
     setStatus("");
 
-    // One last font ask before the batch — the export draws with the same
-    // face the preview settled on.
-    if (spec.kind === "text") {
-      await ensureFontLoaded(spec.font, spec.weight, 64, spec.text, faceVars);
+    try {
+      // One last font ask before the batch — the export draws with the same
+      // face the preview settled on.
+      if (spec.kind === "text") {
+        await ensureFontLoaded(spec.font, spec.weight, 64, spec.text, faceVars);
+      }
+  
+      const outcome = await runBatch(queue, spec, output, {
+        logo: spec.kind === "logo" ? logo?.img ?? null : null,
+        vars: faceVars,
+        shouldStop: () => stopRef.current,
+        onItem: (index, itemStatus, payload) => {
+          setProgress((prev) => ({
+            done: itemStatus === "done" || itemStatus === "failed" ? prev.done + 1 : prev.done,
+            total: queue.length,
+          }));
+          setItems((prev) =>
+            prev.map((item, at) =>
+              at === index
+                ? {
+                    ...item,
+                    status: itemStatus,
+                    reason: payload?.reason,
+                    result: payload?.result,
+                  }
+                : item,
+            ),
+          );
+        },
+      });
+  
+      // Direct download for one; a ZIP plus per-file links for a batch.
+      const fresh: Downloadables = { links: [] };
+      for (const result of outcome.results) {
+        const url = URL.createObjectURL(result.blob);
+        fresh.links.push({ name: result.name, url });
+        downloadRefs.current.push({ url });
+      }
+      // Links first, so a failed ZIP still leaves every file downloadable.
+      setDownloads({ links: fresh.links });
+      if (outcome.results.length === 1) {
+        saveBlob(outcome.results[0].blob, outcome.results[0].name);
+      } else if (outcome.results.length > 1) {
+        const pack: PackFiles = outcome.results.map((result) => ({ name: result.name, blob: result.blob }));
+        const zip = await zipPack(pack);
+        const zipUrl = URL.createObjectURL(zip);
+        fresh.zip = { name: `capystamp-${outcome.results.length}-images.zip`, url: zipUrl };
+        downloadRefs.current.push({ url: zipUrl });
+        saveBlob(zip, fresh.zip.name);
+      }
+      setDownloads(fresh);
+      setCancelledRun(outcome.cancelled);
+      // The count itself lives on the results note (one announcement, not two);
+      // the status line carries only what the note doesn't say.
+      const notes = outcome.results.flatMap((result) => result.notes);
+      setStatus(
+        [
+          outcome.overflow > 0 ? `${outcome.overflow} file${outcome.overflow === 1 ? " was" : "s were"} past the cap of ${FREE_BATCH_LIMIT} — drop them after this run.` : "",
+          outcome.results.length === 0 ? "nothing stamped." : "",
+          outcome.cancelled ? "cancelled — finished files are kept." : "",
+          ...notes,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
+    } catch {
+      setStatus("the run stopped unexpectedly — finished files are listed above; try a smaller batch.");
+    } finally {
+      setOverCap(0);
+      setRunning(false);
     }
-
-    const outcome = await runBatch(queue, spec, output, {
-      logo: spec.kind === "logo" ? logo?.img ?? null : null,
-      vars: faceVars,
-      shouldStop: () => stopRef.current,
-      onItem: (index, itemStatus, payload) => {
-        setProgress((prev) => ({
-          done: itemStatus === "done" || itemStatus === "failed" ? prev.done + 1 : prev.done,
-          total: queue.length,
-        }));
-        setItems((prev) =>
-          prev.map((item, at) =>
-            at === index
-              ? {
-                  ...item,
-                  status: itemStatus,
-                  reason: payload?.reason,
-                  result: payload?.result,
-                }
-              : item,
-          ),
-        );
-      },
-    });
-
-    // Direct download for one; a ZIP plus per-file links for a batch.
-    const fresh: Downloadables = { links: [] };
-    for (const result of outcome.results) {
-      const url = URL.createObjectURL(result.blob);
-      fresh.links.push({ name: result.name, url });
-      downloadRefs.current.push({ url });
-    }
-    if (outcome.results.length === 1) {
-      saveBlob(outcome.results[0].blob, outcome.results[0].name);
-    } else if (outcome.results.length > 1) {
-      const pack: PackFiles = outcome.results.map((result) => ({ name: result.name, blob: result.blob }));
-      const zip = await zipPack(pack);
-      const zipUrl = URL.createObjectURL(zip);
-      fresh.zip = { name: `capystamp-${outcome.results.length}-images.zip`, url: zipUrl };
-      downloadRefs.current.push({ url: zipUrl });
-      saveBlob(zip, fresh.zip.name);
-    }
-    setDownloads(fresh);
-    setCancelledRun(outcome.cancelled);
-    // The count itself lives on the results note (one announcement, not two);
-    // the status line carries only what the note doesn't say.
-    const notes = outcome.results.flatMap((result) => result.notes);
-    setStatus(
-      [
-        outcome.overflow > 0 ? `${outcome.overflow} file${outcome.overflow === 1 ? " was" : "s were"} past the cap of ${FREE_BATCH_LIMIT} — drop them after this run.` : "",
-        outcome.results.length === 0 ? "nothing stamped." : "",
-        outcome.cancelled ? "cancelled — finished files are kept." : "",
-        ...notes,
-      ]
-        .filter(Boolean)
-        .join(" "),
-    );
-    setRunning(false);
   }, [canRun, items, spec, output, logo, faceVars, releaseDownloads]);
 
   const cancelRun = useCallback(() => {
@@ -794,10 +817,10 @@ export function CapyStamp() {
                 {items.length} photo{items.length === 1 ? "" : "s"} · {formatBytes(queueBytes)} — more can join, or paste.
               </p>
               <div className="flex items-center gap-1.5">
-                <Button size="sm" variant="ghost" className="rounded-full" onClick={() => fileInput.current?.click()}>
+                <Button size="sm" variant="ghost" className="rounded-full" disabled={running} onClick={() => fileInput.current?.click()}>
                   add
                 </Button>
-                <Button size="sm" variant="ghost" className="rounded-full" onClick={clearAll}>
+                <Button size="sm" variant="ghost" className="rounded-full" disabled={running} onClick={clearAll}>
                   clear all
                 </Button>
               </div>
@@ -838,6 +861,7 @@ export function CapyStamp() {
                   <button
                     type="button"
                     aria-label={`Remove ${item.file.name}`}
+                    disabled={running}
                     onClick={() => removeItem(item.id)}
                     className="mt-1 flex w-full items-center justify-center text-muted-foreground transition-colors hover:text-foreground pointer-coarse:min-h-11"
                   >
@@ -868,7 +892,7 @@ export function CapyStamp() {
         className="lg:col-start-1"
         actions={
           <div className="flex items-center gap-1.5">
-            <Pill active={false} disabled={!beforeDemo} onClick={undo} label="Undo the last design change">
+            <Pill active={false} disabled={!canUndo} onClick={undo} label="Undo the last reset or preset">
               <Undo2 className="mr-1 inline size-3" aria-hidden />
               undo
             </Pill>
@@ -1273,8 +1297,10 @@ export function CapyStamp() {
           </Button>
         ) : null}
 
-        {canRun === false && items.length > 0 && spec.kind === "text" && !spec.text.trim() ? (
-          <p className="mt-2 text-center text-xs text-[var(--clay)]">type the text to stamp first.</p>
+        {!running && items.length > 0 && (missingText || missingLogo) ? (
+          <p className="mt-2 text-center text-xs text-[var(--clay)]">
+            {missingText ? "type the text to stamp first." : "pick a logo to stamp first."}
+          </p>
         ) : null}
 
         {/* Results. The note is the one live region — links stay out of the

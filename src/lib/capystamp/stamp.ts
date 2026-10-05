@@ -1,5 +1,6 @@
 import { DecodeFailedError, decodeImage, encodeCanvas, isWebpFallback, outputRefused } from "@/lib/capyresize/render";
 import { drawStamp } from "./render";
+import { logoAspectOf } from "./geometry";
 import { clampSpec } from "./spec";
 import { stampFilename } from "./names";
 import type { OutputOptions, StampResult, StampSpec } from "./types";
@@ -50,7 +51,7 @@ export async function stampOne(
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new StampError(REASONS.canvas);
 
-  const logoAspect = logo && logo.naturalWidth > 0 ? logo.naturalWidth / logo.naturalHeight : undefined;
+  const logoAspect = logo ? logoAspectOf(logo.naturalWidth, logo.naturalHeight) : undefined;
   drawStamp(ctx, decoded.img, clampSpec(spec), logo, { vars: opts?.vars, logoAspect });
 
   const blob = await encodeCanvas(canvas, output.format, output.quality).catch(() => {

@@ -81,6 +81,15 @@ export function textFontSize(imageW: number, imageH: number, spec: StampSpec): n
   return Math.max(1, spec.size * shortSide(imageW, imageH));
 }
 
+/**
+ * A logo's aspect from its natural size. An SVG with only a viewBox can
+ * report 0 on either axis; that axis falls back to the 300×150 default.
+ * The preview and the export both call this, so they draw the same box.
+ */
+export function logoAspectOf(naturalW: number, naturalH: number): number {
+  return (naturalW || 300) / (naturalH || 150);
+}
+
 /** Logo: px box keeping the logo's aspect, its LONGER side = size × short side. */
 export function logoBox(imageW: number, imageH: number, spec: StampSpec, aspect: number): Box {
   const longer = Math.max(1, spec.size * shortSide(imageW, imageH));
