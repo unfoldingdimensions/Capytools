@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: "Notes — Capytools",
   description:
     "Project notes for Capytools: the suite, the house rules, how to report an issue, and the colophon.",
+  alternates: { canonical: "/notes" },
 };
 
 /** Derived, so the notes page cannot fall behind the suite itself. */

@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Design notes — Capytools",
   description:
     "The Capytools design system: warm-minimal, sage-forward, quiet by default. Color, typography, motion, and the house rules.",
+  alternates: { canonical: "/design" },
 };
 
 const COLORS = [

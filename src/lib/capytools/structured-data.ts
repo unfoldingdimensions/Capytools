@@ -20,6 +20,7 @@
  *   everywhere a browser reads it.
  */
 
+import type { ToolGuide } from "@/lib/capytools/guides";
 import { EXTERNAL } from "@/lib/capytools/landing";
 import { SUITE, type SuiteTool } from "@/lib/capytools/suite";
 import { SITE_URL } from "@/lib/utils";
@@ -135,5 +136,26 @@ export function softwareApplicationLd(toolName: string) {
       availability: availability(tool),
     },
     publisher: { "@id": `${SITE_URL}/#organization` },
+  };
+}
+
+/**
+ * A guide's FAQ as `FAQPage`. Every question and answer here is also rendered
+ * visibly on the page (ToolGuideSection) — marking up text a visitor cannot
+ * see is the abuse Google's FAQ guidelines forbid.
+ *
+ * Google shows FAQ rich results only for well-known government and health
+ * sites since 2023, so this will not change how a page looks in Google. It is
+ * here for the engines that still read it as a clean question/answer source.
+ */
+export function faqPageLd(guide: ToolGuide) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: guide.faq.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
   };
 }

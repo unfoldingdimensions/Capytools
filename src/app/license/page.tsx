@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Apache License 2.0 — Capytools",
   description:
     "Capytools is Apache-2.0 licensed. Use it, fork it, ship it — just keep the notice.",
+  alternates: { canonical: "/license" },
 };
 
 /**
