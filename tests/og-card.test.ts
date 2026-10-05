@@ -34,6 +34,7 @@ import { metadata as capyog } from "../src/app/capyog/page";
 import { metadata as capypixel } from "../src/app/capypixel/page";
 import { metadata as capyqr } from "../src/app/capyqr/page";
 import { metadata as capyresize } from "../src/app/capyresize/page";
+import { metadata as capystamp } from "../src/app/capystamp/page";
 import { metadata as capystrip } from "../src/app/capystrip/page";
 import { metadata as capytoken } from "../src/app/capytoken/page";
 import { metadata as capytone } from "../src/app/capytone/page";
@@ -48,6 +49,7 @@ const TOOL_METADATA: Record<string, Metadata> = {
   "/capypixel": capypixel,
   "/capyqr": capyqr,
   "/capyresize": capyresize,
+  "/capystamp": capystamp,
   "/capystrip": capystrip,
   "/capytoken": capytoken,
   "/capytone": capytone,
@@ -87,7 +89,7 @@ describe("the share card", () => {
   });
 
   it("does not claim a tool count the registry has outgrown", () => {
-    // The card reads "ELEVEN TOOLS" in pixels. Every other count on the site
+    // The card reads "THIRTEEN TOOLS" in pixels. Every other count on the site
     // derives from SUITE; this one cannot, so it gets a tripwire instead.
     // When this fails, regenerate the card — do not just edit the number.
     expect(OG_CARD_TOOL_COUNT).toBe(SUITE.length);

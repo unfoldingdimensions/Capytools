@@ -113,7 +113,7 @@ async function main() {
 
   const llms = await (await get("/llms.txt")).text();
   check("/llms.txt lists every tool",
-    (llms.match(/^## Capy/gm) ?? []).length, 12);
+    (llms.match(/^## Capy/gm) ?? []).length, 13);
 
   // A fixed URL that names content-addressed models must never be immutable,
   // or browsers keep a stale list of models for a year.
