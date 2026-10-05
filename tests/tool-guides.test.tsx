@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { ToolGuideSection } from "../src/components/tool/ToolGuideSection";
 import { TOOL_GUIDES } from "../src/lib/capytools/guides";
+import { faqPageLd } from "../src/lib/capytools/structured-data";
 import { SUITE_NAMES } from "../src/lib/capytools/suite";
 
 describe("tool guides", () => {
@@ -20,6 +21,20 @@ describe("tool guides", () => {
       for (const text of [...guide.steps, ...guide.faq.map((f) => f.a)]) {
         expect(html).toContain(text.replace(/&/g, "&amp;").replace(/'/g, "&#x27;").replace(/"/g, "&quot;"));
       }
+    }
+  });
+});
+
+describe("FAQPage JSON-LD", () => {
+  // Google's FAQ guidelines: marked-up Q&A must be visible on the page. The
+  // schema is built from the same guide the page renders, so they cannot drift.
+  it("marks up exactly the questions and answers the guide shows", () => {
+    for (const guide of Object.values(TOOL_GUIDES)) {
+      const ld = faqPageLd(guide);
+      expect(ld["@type"]).toBe("FAQPage");
+      expect(ld.mainEntity.map((e) => [e.name, e.acceptedAnswer.text])).toEqual(
+        guide.faq.map((f) => [f.q, f.a]),
+      );
     }
   });
 });

@@ -36,3 +36,11 @@ describe("sitemap lastmod is a date, not a clock reading", () => {
     for (const tool of SUITE) expect(urls).toContain(`${SITE_URL}${tool.href}`);
   });
 });
+
+describe("every static page declares its canonical", () => {
+  // Measured on the live site: /notes, /design and /license shipped without one.
+  it.each(["notes", "design", "license"])("/%s", async (page) => {
+    const { metadata } = await import(`../src/app/${page}/page.tsx`);
+    expect(metadata.alternates?.canonical).toBe(`/${page}`);
+  });
+});

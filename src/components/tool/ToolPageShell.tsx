@@ -10,7 +10,7 @@ import { TextReveal } from "@/components/TextReveal";
 import { ToolGuideSection } from "@/components/tool/ToolGuideSection";
 import { TOOL_GUIDES } from "@/lib/capytools/guides";
 import { intentsFor, type IntentPage } from "@/lib/capytools/intents";
-import { softwareApplicationLd } from "@/lib/capytools/structured-data";
+import { faqPageLd, softwareApplicationLd } from "@/lib/capytools/structured-data";
 import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
 import { cn } from "@/lib/utils";
 // The whole editorial stylesheet, on every tool page — deliberately. Turbopack
@@ -103,6 +103,7 @@ export function ToolPageShell({
           named it above — so a twelfth tool is described without touching a
           page, and none of them can drift from the catalog. */}
       <JsonLd data={softwareApplicationLd(tool)} />
+      <JsonLd data={guide ? faqPageLd(guide) : null} />
 
       <AmbientBackground />
       <Header tool={tool} />
