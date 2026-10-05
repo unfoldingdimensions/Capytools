@@ -24,6 +24,11 @@ const eslintConfig = defineConfig([
     // A sibling port with its own node_modules and its own "@/" alias, the
     // same one vitest.config.mts already excludes for the same reason.
     "capytone/**",
+    // CapyRead's fetched engine files (tesseract worker + wasm cores, pdf.js
+    // worker) — minified vendor code the asset script writes to a gitignored
+    // directory; a clean checkout, and therefore CI, never sees them, and
+    // locally they turn `npm run lint` into an error page.
+    "public/ocr/**",
   ]),
 ]);
 

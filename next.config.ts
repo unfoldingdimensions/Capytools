@@ -55,6 +55,12 @@ const CSP_REPORT_ONLY = [
   // 'unsafe-eval' is dropped, CapyBg's model runtime needs
   // "script-src ... 'wasm-unsafe-eval'" (same-origin wasmPaths already keep
   // it off third-party CDNs). Do not change the policy for this in v1.
+  // CapyRead note (docs/research/capyread §3.2): tesseract.js creates its
+  // worker from a blob wrapping /ocr/worker.min.js (workerBlobURL), and pdf.js
+  // builds one from /ocr/pdf/pdf.worker.min.mjs. Without worker-src the blob
+  // falls back to script-src, 'self' refuses it, and OCR fails silently —
+  // hence the explicit 'self' blob:.
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://avatars.githubusercontent.com",
   "font-src 'self' data:",

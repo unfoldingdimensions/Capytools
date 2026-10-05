@@ -32,3 +32,18 @@
 /capybg/manifest.json
   ! Cache-Control
   Cache-Control: no-cache
+
+# CapyRead's OCR engine and language files. Every file is pinned at build
+# time (tesseract worker + LSTM cores + pdf.js worker from the locked
+# node_modules versions; traineddata SHA-256-pinned in
+# src/lib/capyread/langs.ts), so the paths are stable and the year is right;
+# the security table matches the /_next/static/* block above — change one,
+# change both. (The manifest here is build tooling only; the browser never
+# fetches it, so unlike /capybg/manifest.json it needs no no-cache carve-out.)
+/ocr/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
