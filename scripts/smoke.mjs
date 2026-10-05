@@ -65,7 +65,7 @@ const apiGet = async (path, init) => {
 const PAGES = [
   "/", "/capywrapped", "/capyimagine", "/capycreator", "/capystrip",
   "/capyexpense", "/capyog", "/capyqr", "/capyresize", "/capytoken",
-  "/capypixel", "/capytone", "/notes", "/design", "/license",
+  "/capypixel", "/capytone", "/capybg", "/notes", "/design", "/license",
   // INTENT_PAGES (src/lib/capytools/intents.ts)
   "/favicon-generator", "/png-to-webp", "/wifi-qr-code-generator",
   "/vcard-qr-code-generator", "/og-image-size", "/contrast-checker", "/gradient-generator",
