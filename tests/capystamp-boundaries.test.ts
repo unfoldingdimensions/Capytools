@@ -78,11 +78,12 @@ describe("capystamp imports nothing new", () => {
     }
   });
 
-  it("package.json dependencies are exactly what main shipped", () => {
-    // A deliberate pin rather than a diff — the plan allows zero new
-    // dependencies, so the dependency list itself is the assertion. This
-    // breaks on ANY dependency change from this branch, which is the point;
-    // an unrelated bump belongs to its own PR, on main.
+  it("package.json dependencies are exactly what main shipped, plus CapyRead's engines", () => {
+    // A deliberate pin rather than a diff — the baseline allows zero new
+    // dependencies beyond the three OCR engines CapyRead's own boundaries
+    // test scopes to its three owner files; this breaks on ANY other
+    // dependency change, which is the point; an unrelated bump belongs to
+    // its own PR, on main.
     const pkg = JSON.parse(read(join(process.cwd(), "package.json"))) as {
       dependencies: Record<string, string>;
     };
@@ -93,6 +94,7 @@ describe("capystamp imports nothing new", () => {
       "clsx",
       "css-tree",
       "culori",
+      "docx",
       "exifr",
       "html-to-image",
       "js-tiktoken",
@@ -102,12 +104,14 @@ describe("capystamp imports nothing new", () => {
       "next",
       "next-themes",
       "onnxruntime-web",
+      "pdfjs-dist",
       "qr-code-styling",
       "qrcode-generator",
       "radix-ui",
       "react",
       "react-dom",
       "tailwind-merge",
+      "tesseract.js",
       "tw-animate-css",
     ]);
   });

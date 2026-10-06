@@ -32,3 +32,19 @@
 /capybg/manifest.json
   ! Cache-Control
   Cache-Control: no-cache
+
+# CapyRead's OCR engine and language files. Unlike /capybg/*, these paths
+# are NOT versioned: /ocr/worker.min.js and /ocr/pdf/pdf.worker.min.mjs keep
+# their URL across a tesseract.js or pdfjs-dist bump while the page's own code
+# (hashed, in /_next/static) moves on, and pdf.js hard-fails on an API/worker
+# version mismatch. So no year-long immutable cache: no-cache revalidates by
+# ETag (a cheap 304) and a bump lands on the next visit. The traineddata is
+# kept in IndexedDB by tesseract regardless. The security table matches the
+# /_next/static/* block above — change one, change both.
+/ocr/*
+  Cache-Control: no-cache
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()

@@ -234,6 +234,21 @@ export const SUITE: SuiteTool[] = [
                "copyright", "stamp photos", "brand photos", "no upload"],
     plate: { src: "/plates/lab-13.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyRead",
+    short: "Read",
+    href: "/capyread",
+    cat: "browser",
+    badge: "Read",
+    appCategory: "UtilitiesApplication",
+    blurb:
+      "Lift the text out of a photo, screenshot or scanned PDF — on your device, with a confidence badge per paragraph and a plain [unreadable] marker where it couldn't read. The file never leaves your tab.",
+    note: "ocr, on-device",
+    line: "Read the text out of images and PDFs, in your browser.",
+    keywords: ["ocr", "image to text", "pdf to text", "extract text", "scanned pdf",
+               "text recognition", "tesseract", "convert scan to text", "no upload"],
+    plate: { src: "/plates/lab-14.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
@@ -261,6 +276,7 @@ const WORDS = [
   "eleven",
   "twelve",
   "thirteen",
+  "fourteen",
 ] as const;
 
 /** 7 → "seven": any count, spelled out for prose; digits past the table. */

@@ -349,6 +349,49 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
     ],
   },
+  CapyRead: {
+    heading: "How to extract text from an image or a scanned PDF",
+    steps: [
+      "Drop, paste or pick a photo, a screenshot or a PDF — up to ten pages per run.",
+      "Pick the language the text is in. The first run for a language downloads its model from this site (about 1.9 MB for English) and keeps it in your browser; every run after that starts instantly.",
+      "Read the words with each paragraph's confidence badge, fix anything by hand, then copy or download .txt or .docx.",
+    ],
+    about: [
+      "CapyRead is optical character recognition that runs entirely in your browser tab, on the Tesseract engine. A scanned page goes in and selectable text comes out — nothing is uploaded, and a PDF is rasterised page by page in the tab, never sent anywhere.",
+      "It is honest about the hard parts. Words the engine is guessing at are marked [unreadable] in the text instead of printed wrong, every paragraph carries a high / fair / unsure badge, and handwriting or very low-resolution scans often fail — this is a reader, not a restorer.",
+      "The larger \"standard\" model for English trades a 10.4 MB download for better reading on rough pages; the fast model handles clean print well. Other languages ship the fast model.",
+    ],
+    faq: [
+      {
+        q: "Is my document uploaded?",
+        a: "No. There is no upload route in the code. The only download is the language model, from this site, on a language's first use — after that, reading makes no new downloads at all.",
+      },
+      {
+        q: "Does it work with scanned PDFs?",
+        a: "Yes — that is the main case. Each page is rendered to an image in your browser and read one at a time, up to ten pages per run, so a long scan is read in parts. The page count and any skipped pages are shown before you start.",
+      },
+      {
+        q: "Can it read a sideways, upside-down or crooked page?",
+        a: "Yes. When a page reads poorly, CapyRead turns it in quarter-turns until it reads, estimates a slight skew from the words' own baselines and straightens it, then says what it did — \"page 1 read 90°\" — in the file card. Straight pages pay for none of this: one read, as before.",
+      },
+      {
+        q: "Can it read handwriting?",
+        a: "Usually not well. Tesseract is strong on printed text and weak on cursive, and the confidence badges will say so: paragraphs it is unsure about show \"unsure\" rather than pretending.",
+      },
+      {
+        q: "Which languages can it read?",
+        a: "English plus seventeen more — German, French, Spanish, Italian, Portuguese, Dutch, Russian, Polish, Ukrainian, Turkish, Arabic, Hindi, Vietnamese, simplified and traditional Chinese, Japanese and Korean. Each language's model downloads once, from this site, when you first pick it.",
+      },
+      {
+        q: "Why is something marked [unreadable]?",
+        a: "That is a word the engine could not read with any confidence. CapyRead prints the gap instead of a wrong guess, so you can check that spot in the original and type over it in the editor.",
+      },
+      {
+        q: "What is stored in my browser?",
+        a: "The language model only — kept so a second run starts instantly, with a one-click \"forget\" control under The file. Your documents are never stored; close the tab and the suite forgets you.",
+      },
+    ],
+  },
   CapyStrip: {
     heading: "How to view and remove EXIF metadata from a photo",
     steps: [
