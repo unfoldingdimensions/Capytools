@@ -390,6 +390,7 @@ export const PLATES = [
   "lab-9",
   "lab-12",
   "lab-13",
+  "lab-14",
   "method-1",
   "method-2",
   "method-3",
