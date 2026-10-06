@@ -85,6 +85,8 @@ function buildDemo(): OcrRunResult {
     confidence: pageConfidence(blocks),
     ms: 0,
     unreadable,
+    rotation: 0,
+    deskew: null,
   };
   return {
     pages: [page],

@@ -23,7 +23,17 @@
 
 import { cacheKey, langPath, type LangSpec } from "./langs";
 import type { OcrPageResult, OcrProgress, Quality, RawParagraph } from "./types";
-import { blocksToParagraphs } from "./raster";
+import { blocksToParagraphs, rotateCanvas } from "./raster";
+import {
+  ROTATION_ACCEPT_CONFIDENCE,
+  attemptScore,
+  betterRead,
+  deskewCandidate,
+  estimateSkewDegrees,
+  needsRotation,
+  readableRatio,
+  wantsDeskew,
+} from "./orient";
 import { assembleParagraph, pageConfidence, paragraphsToText } from "./clean";
 
 interface TesseractLoggerMessage {
@@ -139,8 +149,17 @@ export async function clearLanguageCache(): Promise<void> {
 }
 
 /**
- * Read one canvas. Returns the page's cleaned paragraphs, its mean
- * confidence and the plain text — everything the words card shows.
+ * Read one canvas — with orientation and skew recovered from the reads
+ * themselves.
+ *
+ * First pass at 0°. A page at its proper orientation reads with high
+ * confidence; the same page sideways reads at almost nothing, so a poor
+ * first read is the orientation signal: the other three quarter-turns are
+ * tried until one clears the bar (no osd.traineddata download — our own
+ * confidence is the detector, and the copy says which turn won). Then the
+ * confident words' baselines estimate the fine skew, and a page honestly
+ * crooked gets one straightened re-read. Straight pages pay for none of
+ * this: one pass, as before.
  */
 export async function recognisePage(
   canvas: HTMLCanvasElement,
@@ -149,30 +168,99 @@ export async function recognisePage(
   pageCount: number,
   onProgress?: (progress: OcrProgress) => void,
 ): Promise<OcrPageResult> {
-  const worker = await getEngine(choice, onProgress);
   const started = performance.now();
-  onProgress?.({
-    stage: "reading",
-    message:
-      pageCount > 1 ? `reading page ${pageIndex} of ${pageCount}…` : "reading the page…",
-    progress: pageCount > 0 ? (pageIndex - 1) / pageCount : null,
-  });
-  const { data } = await worker.recognize(canvas, {}, { blocks: true, text: false });
-  const paragraphs: RawParagraph[] = blocksToParagraphs(data.blocks);
-  const blocks: OcrPageResult["blocks"] = [];
-  let unreadable = 0;
-  for (const paragraph of paragraphs) {
-    const assembled = assembleParagraph(paragraph);
-    if (!assembled) continue;
-    blocks.push(assembled.block);
-    unreadable += assembled.unreadable;
+  const pageLabel = pageCount > 1 ? `page ${pageIndex} of ${pageCount}` : "the page";
+
+  const readTurned = async (
+    source: HTMLCanvasElement,
+    rotation: 0 | 90 | 180 | 270,
+    message: string,
+  ) => {
+    const worker = await getEngine(choice, onProgress);
+    onProgress?.({ stage: "reading", message, progress: pageCount > 0 ? (pageIndex - 1) / pageCount : null });
+    const { data } = await worker.recognize(source, {}, { blocks: true, text: false });
+    const paragraphs: RawParagraph[] = blocksToParagraphs(data.blocks);
+    const blocks: OcrPageResult["blocks"] = [];
+    let unreadable = 0;
+    for (const paragraph of paragraphs) {
+      const assembled = assembleParagraph(paragraph);
+      if (!assembled) continue;
+      blocks.push(assembled.block);
+      unreadable += assembled.unreadable;
+    }
+    const confidence = pageConfidence(blocks);
+    return {
+      paragraphs,
+      blocks,
+      unreadable,
+      confidence,
+      rotation,
+      attempt: {
+        rotation,
+        confidence,
+        words: paragraphs.reduce((sum, p) => sum + p.reduce((n, line) => n + line.words.length, 0), 0),
+        unreadable,
+      },
+    };
+  };
+
+  type Turn = Awaited<ReturnType<typeof readTurned>>;
+
+  // Ratio first, confidence as tiebreak — see attemptScore (orient.ts).
+  const choose = (a: Turn, b: Turn): Turn => {
+    const score = (t: Turn) => attemptScore(t.attempt);
+    return score(b) > score(a) ? b : a;
+  };
+
+  let best = await readTurned(
+    canvas,
+    0,
+    pageCount > 1 ? `reading page ${pageIndex} of ${pageCount}…` : "reading the page…",
+  );
+
+  if (needsRotation(best.attempt)) {
+    for (const angle of [90, 270, 180] as const) {
+      // A read that keeps most of its words is the page's true orientation —
+      // tesseract's mean confidence alone cannot be trusted here (upside-down
+      // print hallucinates plausibly at 70+).
+      if (readableRatio(best.attempt) >= 0.8 && (best.confidence ?? -1) >= ROTATION_ACCEPT_CONFIDENCE) break;
+      const turn = await readTurned(
+        rotateCanvas(canvas, angle),
+        angle,
+        `nothing read yet — trying ${pageLabel} turned ${angle}°…`,
+      );
+      best = choose(best, turn);
+    }
   }
+
+  let deskew: number | null = null;
+  // Deskew is a repair: only a degraded read (low confidence or marked
+  // words) is worth straightening and reading again.
+  if (wantsDeskew(best.confidence, best.unreadable)) {
+    const skew = estimateSkewDegrees(best.paragraphs);
+    const correction = deskewCandidate(skew);
+    if (correction !== null) {
+      // A positive skew means the page was turned clockwise; straighten it.
+      const straightened = await readTurned(
+        rotateCanvas(rotateCanvas(canvas, best.rotation), -correction),
+        best.rotation,
+        `straightening ${Math.abs(correction)}° and reading again…`,
+      );
+      if (betterRead(best.attempt, straightened.attempt)) {
+        best = straightened;
+        deskew = correction;
+      }
+    }
+  }
+
   return {
     page: pageIndex,
-    blocks,
-    text: paragraphsToText(blocks),
-    confidence: pageConfidence(blocks),
+    blocks: best.blocks,
+    text: paragraphsToText(best.blocks),
+    confidence: best.confidence,
     ms: Math.round(performance.now() - started),
-    unreadable,
+    unreadable: best.unreadable,
+    rotation: best.rotation,
+    deskew,
   };
 }

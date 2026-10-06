@@ -371,6 +371,10 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
         a: "Yes — that is the main case. Each page is rendered to an image in your browser and read one at a time, up to ten pages per run, so a long scan is read in parts. The page count and any skipped pages are shown before you start.",
       },
       {
+        q: "Can it read a sideways, upside-down or crooked page?",
+        a: "Yes. When a page reads poorly, CapyRead turns it in quarter-turns until it reads, estimates a slight skew from the words' own baselines and straightens it, then says what it did — \"page 1 read 90°\" — in the file card. Straight pages pay for none of this: one read, as before.",
+      },
+      {
         q: "Can it read handwriting?",
         a: "Usually not well. Tesseract is strong on printed text and weak on cursive, and the confidence badges will say so: paragraphs it is unsure about show \"unsure\" rather than pretending.",
       },

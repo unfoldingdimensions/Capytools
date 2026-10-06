@@ -22,6 +22,8 @@ export interface OcrProgress {
 export interface RawWord {
   text: string;
   confidence: number;
+  /** The word's box in page pixels — the baseline deskew signal. */
+  bbox?: { x0: number; y0: number; x1: number; y1: number };
 }
 
 export interface RawLine {
@@ -51,6 +53,11 @@ export interface OcrPageResult {
   ms: number;
   /** How many words were replaced by the unreadable marker. */
   unreadable: number;
+  /** The clockwise quarter-turn the winning read was made at. */
+  rotation: 0 | 90 | 180 | 270;
+  /** Degrees of clockwise skew straightened before the winning read, null
+   *  when the page wasn't deskewed. */
+  deskew: number | null;
 }
 
 export interface OcrRunResult {

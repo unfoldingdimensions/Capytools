@@ -144,10 +144,11 @@ A watermark is a deterrent, not protection — CapyStamp puts your mark on your 
 
 ## 14. CapyRead
 
-The words are in there; CapyRead gets them out. Drop a photo, a screenshot or a scanned PDF and read the text back in your tab — on the Tesseract engine, with every paragraph's confidence shown and nothing uploaded anywhere.
+The words are in there; CapyRead gets them out. Drop a photo, a screenshot or a scanned PDF and read the text back in your tab — on the Tesseract engine, with every paragraph's confidence shown and nothing uploaded anywhere. A page photographed sideways or upside-down is turned until it reads, and a crooked one is straightened, with the tool saying exactly what it did.
 
 - **Your document never leaves this tab**: there is no upload route in the code, and the tool's sources may not so much as name a request API — a test refuses one. The only download is the language model, from this site, on a language's first use.
 - **Honest about the hard parts**: words the engine is guessing at print as [unreadable] instead of a wrong guess, every paragraph carries a high / fair / unsure badge in words — never colour alone — and handwriting or very low-resolution scans often fail. This is a reader, not a restorer.
+- **Orientation and skew come from the reads themselves**: when a page reads poorly the other three quarter-turns are tried and the best wins — no extra orientation model downloaded — and a page a few degrees off is straightened and read again. Straight pages never pay for any of it.
 - **PDFs, page by page**: a PDF is rasterised in the tab and read one page at a time, up to ten per run, with the page count and any skipped pages shown before you start. Each page lands in the words card as it finishes.
 - **Eighteen languages**: English ships fast (about 1.9 MB, the default) and standard (about 10.4 MB, for rough pages); German through Korean ship the fast model. Each downloads once from this origin, is kept in the browser's own storage, and has a one-click forget control.
 - **Editable, then exportable**: fix the OCR's slips by hand in the editor, then copy, or download .txt or .docx — plain paragraphs, so your own Word styles apply.

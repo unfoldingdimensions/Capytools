@@ -328,9 +328,13 @@ export function CapyRead() {
       };
       setResult(run);
       const unreadable = pages.reduce((sum, page) => sum + page.unreadable, 0);
+      const turned = pages.filter((page) => page.rotation !== 0);
+      const straightened = pages.filter((page) => page.deskew !== null);
       setStatus(
         [
           run.text ? `${pages.length} page${pages.length === 1 ? "" : "s"} read in ${formatMs(run.ms)}.` : "nothing read — try a sharper, straighter, better-lit page.",
+          turned.length > 0 ? `the page was turned until it read: ${turned.map((page) => `page ${page.page} ${page.rotation}°`).join(", ")}.` : "",
+          straightened.length > 0 ? `straightened before reading: ${straightened.map((page) => `page ${page.page} ${page.deskew}°`).join(", ")}.` : "",
           unreadable > 0 ? `${unreadable} word${unreadable === 1 ? "" : "s"} were too unsure to print and are marked [unreadable] in the text.` : "",
           stopped ? "stopped early — the pages read so far are kept." : "",
         ]
@@ -706,7 +710,11 @@ export function CapyRead() {
                 key={page.page}
                 className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/20 px-3 py-1.5 text-[13px]"
               >
-                <span className="text-muted-foreground">{words.pages.length > 1 ? `page ${page.page}` : "the page"}</span>
+                <span className="text-muted-foreground">
+                  {words.pages.length > 1 ? `page ${page.page}` : "the page"}
+                  {page.rotation !== 0 ? <span className="ml-1.5">· read {page.rotation}°</span> : null}
+                  {page.deskew !== null ? <span className="ml-1.5">· straightened {Math.abs(page.deskew)}°</span> : null}
+                </span>
                 <span className="flex items-center gap-2">
                   <BucketBadge confidence={page.confidence} />
                   {page.ms > 0 ? <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{formatMs(page.ms)}</span> : null}

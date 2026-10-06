@@ -17,7 +17,22 @@ import { disposeEngine } from "@/lib/capyread/engine";
 import { bucketLabel, confidenceLabel, formatMs } from "@/lib/capyread/format";
 import { buildTxtBlob, docxParagraphs, exportName } from "@/lib/capyread/export";
 import { LANGUAGES, DEFAULT_LANG, cacheKey, findLang, langPath, langUrl, pinFor } from "@/lib/capyread/langs";
+import {
+  DESKEW_TRIGGER_CONFIDENCE,
+  MIN_READ_WORDS,
+  ROTATION_ACCEPT_CONFIDENCE,
+  SKEW_TRIGGER_DEGREES,
+  baselineAnchors,
+  betterRead,
+  deskewCandidate,
+  estimateSkewDegrees,
+  needsRotation,
+  pickBestAttempt,
+  wantsDeskew,
+  type ReadAttempt,
+} from "@/lib/capyread/orient";
 import { FREE_PAGE_LIMIT, imageScale, pagePlan, pdfScale } from "@/lib/capyread/raster";
+import type { RawParagraph } from "@/lib/capyread/types";
 import { TOOL_GUIDES } from "@/lib/capytools/guides";
 import { SUITE } from "@/lib/capytools/suite";
 
@@ -205,6 +220,103 @@ describe("demo.ts — the idle card teaches with the real pipeline", () => {
 describe("engine.ts — the worker lifecycle", () => {
   it("disposing with no engine is a no-op, not a throw", async () => {
     await expect(disposeEngine()).resolves.toBeUndefined();
+  });
+});
+
+describe("orient.ts — orientation and skew from the reads themselves", () => {
+  const attempt = (rotation: 0 | 90 | 180 | 270, confidence: number | null, words: number, unreadable: number): ReadAttempt => ({
+    rotation,
+    confidence,
+    words,
+    unreadable,
+  });
+
+  it("suspects a turned page only when most of its words are hallucinated junk", () => {
+    // A clean read keeps nearly every word.
+    expect(needsRotation(attempt(0, 95, 40, 2))).toBe(false);
+    // A rough but real page (the photocopy case) keeps most of them.
+    expect(needsRotation(attempt(0, 71, 30, 3))).toBe(false);
+    // A sideways page: the engine sees plenty of words and stands behind almost none.
+    expect(needsRotation(attempt(0, 45, 30, 27))).toBe(true);
+    expect(needsRotation(attempt(0, null, 30, 28))).toBe(true);
+    // A blank page has no orientation to recover — never flail at it.
+    expect(needsRotation(attempt(0, null, 0, 0))).toBe(false);
+    expect(needsRotation(attempt(0, 20, MIN_READ_WORDS - 1, 2))).toBe(false);
+  });
+
+  it("keeps the original unless a quarter-turn actually clears the bar", () => {
+    const first = attempt(0, 40, 30, 27);
+    expect(pickBestAttempt(first, [attempt(90, 55, 30, 27)])).toBe(first);
+    expect(pickBestAttempt(first, [attempt(90, 55, 30, 27), attempt(180, 92, 38, 2)]).rotation).toBe(180);
+    // A candidate with almost no kept words cannot win, whatever it claims.
+    expect(pickBestAttempt(first, [attempt(90, 98, 4, 4)]).rotation).toBe(0);
+  });
+
+  it("never regresses below the accept bar once something read well", () => {
+    const winner = pickBestAttempt(attempt(0, 45, 30, 27), [attempt(90, ROTATION_ACCEPT_CONFIDENCE, 35, 2), attempt(180, 30, 30, 27)]);
+    expect(winner.rotation).toBe(90);
+  });
+
+  it("scores by kept words, not by confidence — upside-down print hallucinates at 70+", () => {
+    // Measured on the real engine: a page at net 180° read at mean 72 with
+    // most of its words junk, while the true orientation read at 78 with
+    // nearly all of them kept. Mean confidence alone picked the wrong turn;
+    // the readable ratio does not.
+    const first = attempt(0, 45, 40, 35);
+    const wrongButConfident = attempt(90, 85, 35, 22);
+    const rightButModest = attempt(270, 78, 42, 1);
+    expect(pickBestAttempt(first, [wrongButConfident, rightButModest]).rotation).toBe(270);
+  });
+
+  it("estimates fine skew from confident word baselines", () => {
+    const word = (x: number, y: number, confidence = 90) => ({
+      text: "word",
+      confidence,
+      bbox: { x0: x, y0: y - 10, x1: x + 60, y1: y },
+    });
+    const line = (...words: ReturnType<typeof word>[]) => ({ words });
+    const page = (...lines: Array<ReturnType<typeof line>>) => [lines] as RawParagraph[];
+
+    // Flat baselines: no skew.
+    const flat = page(line(word(100, 200), word(300, 200)), line(word(100, 300), word(300, 300)));
+    expect(estimateSkewDegrees(flat)).toBeCloseTo(0, 1);
+
+    // Text descending to the right = positive (page turned clockwise).
+    const tilted = page(line(word(100, 100), word(300, 107), word(500, 114)));
+    const skew = estimateSkewDegrees(tilted);
+    expect(skew).toBeGreaterThan(1.5);
+    expect(skew).toBeLessThan(2.5);
+
+    // Uncertain words and missing boxes are not evidence.
+    const unsure = page(line(word(100, 100, 40), word(300, 140)));
+    expect(estimateSkewDegrees(unsure)).toBe(0);
+    const single = page(line(word(100, 100)));
+    expect(estimateSkewDegrees(single)).toBe(0);
+    expect(baselineAnchors(single)).toHaveLength(1);
+  });
+
+  it("deskews only an honestly crooked page", () => {
+    expect(deskewCandidate(0.3)).toBeNull();
+    expect(deskewCandidate(SKEW_TRIGGER_DEGREES - 0.01)).toBeNull();
+    expect(deskewCandidate(-2.4)).toBe(-2.4);
+    expect(deskewCandidate(1.76)).toBe(1.8);
+    expect(deskewCandidate(12.1)).toBeNull();
+  });
+
+  it("deskew is a repair, not a ritual — clean reads never pay for a second pass", () => {
+    // Measured: clean one-line pages "estimated" a 1–3° tilt from slope noise
+    // and paid a full extra read for it. A 95%-confident read with no marked
+    // words has all the accuracy there is.
+    expect(wantsDeskew(96, 0)).toBe(false);
+    expect(wantsDeskew(DESKEW_TRIGGER_CONFIDENCE, 0)).toBe(false);
+    expect(wantsDeskew(71, 0)).toBe(true);
+    expect(wantsDeskew(null, 0)).toBe(true);
+    expect(wantsDeskew(95, 3)).toBe(true);
+  });
+
+  it("a read with numbers always beats a read with none", () => {
+    expect(betterRead({ confidence: 30, words: 10 }, { confidence: null, words: 0 })).toBe(false);
+    expect(betterRead({ confidence: null, words: 0 }, { confidence: 30, words: 10 })).toBe(true);
   });
 });
 

@@ -56,6 +56,25 @@ export interface DecodedPage {
   canvas: HTMLCanvasElement;
 }
 
+/** A copy of the page turned `degrees` clockwise, on a white ground.
+ *  Positive degrees match the "text descends to the right" reading of the
+ *  deskew estimate, so straightening is rotateCanvas(page, -skew). */
+export function rotateCanvas(canvas: HTMLCanvasElement, degrees: number): HTMLCanvasElement {
+  const radians = (degrees * Math.PI) / 180;
+  const turned = document.createElement("canvas");
+  // The bounding box of a turned rectangle grows on the diagonal.
+  turned.width = Math.ceil(Math.abs(canvas.width * Math.cos(radians)) + Math.abs(canvas.height * Math.sin(radians)));
+  turned.height = Math.ceil(Math.abs(canvas.width * Math.sin(radians)) + Math.abs(canvas.height * Math.cos(radians)));
+  const ctx = turned.getContext("2d");
+  if (!ctx) throw new Error("this browser wouldn't give the page a canvas to turn onto.");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, turned.width, turned.height);
+  ctx.translate(turned.width / 2, turned.height / 2);
+  ctx.rotate(radians);
+  ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  return turned;
+}
+
 /** An image file → one canvas. The only branch an image takes. */
 export async function imageToCanvas(file: Blob): Promise<HTMLCanvasElement> {
   const { img, width, height } = await decodeImage(file);
@@ -132,14 +151,19 @@ export interface RawBlocks {
     blocks: Array<{
       paragraphs: Array<{
         lines: Array<{
-          words: Array<{ text: string; confidence: number }>;
+          words: Array<{
+            text: string;
+            confidence: number;
+            bbox?: { x0: number; y0: number; x1: number; y1: number };
+          }>;
         }>;
       }>;
     }> | null;
   };
 }
 
-/** tesseract's block tree → CapyRead's paragraphs (the clean.ts input). */
+/** tesseract's block tree → CapyRead's paragraphs (the clean.ts input).
+ *  Word boxes ride along — they are the deskew signal (orient.ts). */
 export function blocksToParagraphs(raw: RawBlocks["data"]["blocks"]): RawParagraph[] {
   if (!raw) return [];
   const paragraphs: RawParagraph[] = [];
@@ -147,7 +171,11 @@ export function blocksToParagraphs(raw: RawBlocks["data"]["blocks"]): RawParagra
     for (const paragraph of block.paragraphs ?? []) {
       paragraphs.push(
         (paragraph.lines ?? []).map((line) => ({
-          words: (line.words ?? []).map((word) => ({ text: word.text, confidence: word.confidence })),
+          words: (line.words ?? []).map((word) => ({
+            text: word.text,
+            confidence: word.confidence,
+            bbox: word.bbox,
+          })),
         })),
       );
     }
