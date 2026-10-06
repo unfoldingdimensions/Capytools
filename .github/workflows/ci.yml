@@ -107,3 +107,10 @@ jobs:
       # a broken site. This is what caught /license returning 500 on Workers.
       - name: Smoke the deployment
         run: node scripts/smoke.mjs "${{ vars.DEPLOY_URL || 'https://capytools.app' }}"
+      # Only after the smoke passes, so engines are never sent to a broken
+      # version. The production host, never DEPLOY_URL: IndexNow refuses URLs
+      # whose host doesn't own the key. Non-blocking — the deploy already
+      # happened, and a search engine's outage must not turn main red.
+      - name: Ping IndexNow
+        continue-on-error: true
+        run: node scripts/indexnow.mjs https://capytools.app
