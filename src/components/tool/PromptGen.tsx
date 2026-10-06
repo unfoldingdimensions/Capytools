@@ -69,9 +69,10 @@ function drawPickSet(): PickSet {
   return buildPickSet([...categoriesForTier("high"), ...EXTRA_CATS]);
 }
 
-export function PromptGen() {
+/** `initialEngine` lets an intent page (/midjourney-prompt-generator) open on its engine. */
+export function PromptGen({ initialEngine = "Gemini" }: { initialEngine?: Engine } = {}) {
   const [tier, setTier] = useState<PromptTier>("high");
-  const [engine, setEngine] = useState<Engine>("Gemini");
+  const [engine, setEngine] = useState<Engine>(initialEngine);
   const [styleId, setStyleId] = useState<string | null>(null);
   const [platformId, setPlatformId] = useState<string | null>(null);
   const [artist, setArtist] = useState<string | null>(null);

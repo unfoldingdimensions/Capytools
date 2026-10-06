@@ -302,6 +302,127 @@ export const INTENT_PAGES: readonly IntentPage[] = [
       ],
     },
   },
+  {
+    href: "/event-qr-code-generator",
+    tool: "CapyQR",
+    label: "Event QR code",
+    title: "Event QR code generator — add to calendar in one scan, free, no tracking | CapyQR",
+    description:
+      "Make a QR code that adds your event — title, start, end and place — to a phone's calendar in one scan. Never expires, no tracking. 100% in your browser.",
+    headline: [{ text: "Scan it," }, { text: "it's on the calendar", em: true, dot: true }],
+    lead: "a qr code that holds the whole event. no short link, no tracking, nothing uploaded.",
+    guide: {
+      heading: "How to make a QR code that adds an event to a calendar",
+      steps: [
+        "Enter the event's title, start and end time, and — if you like — where it is.",
+        "Style it with your colours and a logo. The tool scans its own output to confirm it still reads.",
+        "Export PNG or JPEG for print, or SVG when there's no logo, and put it on the flyer, poster, ticket or invitation.",
+      ],
+      about: [
+        "An event QR code holds a calendar event in the standard iCalendar (VEVENT) format. A phone camera or QR app that understands calendar events offers to save it, with the title, times and place already filled in.",
+        "Many event QR generators give you a short link to their own page instead, which can track scans and stop working when a subscription ends. This code holds the event itself, so there is nothing in between to expire.",
+      ],
+      faq: [
+        {
+          q: "Which time zone are the times in?",
+          a: "The code stores the times without a time zone, so a phone reads them as its own local time. That suits an in-person event; for an online event with guests in other time zones, say the time zone in the title.",
+        },
+        {
+          q: "Does every phone support it?",
+          a: "Support for calendar QR codes varies by phone and camera app. If a camera only shows the text, a QR scanner app will offer to add the event.",
+        },
+        {
+          q: "Can I change the event after printing?",
+          a: "No — the details are stored in the code itself. If the time or place changes, make and print a new code.",
+        },
+        {
+          q: "Is it free? Does it expire?",
+          a: "It's free, with no account, no watermark and no expiry, and scans aren't tracked. Nothing you type is uploaded.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/website-color-extractor",
+    tool: "CapyTone",
+    label: "Website colour extractor",
+    title: "Website color palette extractor — get any site's colors from its URL | CapyTone",
+    description:
+      "Paste a website's address and get its colour palette as hex codes, read from its HTML, stylesheets, theme colour and manifest and ranked by use. Free, nothing stored.",
+    headline: [{ text: "Any site's colours," }, { text: "from its address", em: true, dot: true }],
+    lead: "paste a public url, get the palette its code declares, ranked. honest about what it can't see.",
+    guide: {
+      heading: "How to get the colour palette of a website",
+      steps: [
+        "Paste the address of a public web page.",
+        "The tool reads the page's HTML, up to five of its stylesheets, its declared theme colour and its web manifest, then ranks the colours it finds.",
+        "Copy the hex codes you need.",
+      ],
+      about: [
+        "CapyTone reads the colours a site declares in its own code and ranks them by how much they're used. Near-identical shades are merged with the CIEDE2000 colour-difference formula, so you get a palette rather than forty slightly different greys.",
+        "It reads the page's code, not a screenshot. Colours added by JavaScript after the page loads, and colours inside images, aren't visible to it — the tool says so rather than guessing.",
+        "This is the one CapyTone mode that uses the site's server: your browser can't read another site's code directly, so the server fetches exactly the address you paste, refuses private network addresses, gives up after 10 seconds, 3 MB or 3 redirects, and returns only the colours.",
+      ],
+      faq: [
+        {
+          q: "Why is a colour I can see on the site missing?",
+          a: "It's probably set by JavaScript or inside an image. The extractor reads the HTML and stylesheets the page ships with, so it only sees colours declared there.",
+        },
+        {
+          q: "Is the website I check stored or logged?",
+          a: "The site's code doesn't store or log either. The address travels in the request body, not the URL; the server fetches the page, returns only the colours and their counts, and keeps neither the address nor the page.",
+        },
+        {
+          q: "Can it read pages behind a login?",
+          a: "No. It fetches only public addresses, as an anonymous visitor would see them, and refuses private and local network addresses.",
+        },
+        {
+          q: "Can I turn the colours into a palette I can use?",
+          a: "Yes. CapyTone's other modes take it from there — check a pair's contrast, build harmonies from one colour, or blend two into a gradient.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/midjourney-prompt-generator",
+    tool: "CapyImagine",
+    label: "Midjourney prompts",
+    title: "Random Midjourney prompt generator — ready to paste, with parameters, free | CapyImagine",
+    description:
+      "Roll a random, ready-to-paste Midjourney prompt: subject, setting, light, lens and style, with --s, a --no clause and --ar for your format. Free, no signup, no API key.",
+    headline: [{ text: "Stuck at /imagine?" }, { text: "Roll one", em: true, dot: true }],
+    lead: "random midjourney prompts in midjourney's own syntax. made in your tab, nothing stored.",
+    guide: {
+      heading: "How to get a random Midjourney prompt",
+      steps: [
+        "Midjourney is already selected. Roll a prompt.",
+        "Pick where the image is going — an Instagram story, a YouTube thumbnail, a Pinterest pin — to add the right --ar, lock a style if you want one, and roll again until something sparks.",
+        "Copy it and paste it after /imagine — or into the Midjourney web app's prompt bar.",
+      ],
+      about: [
+        "This is a random prompt generator, not a form to fill in. Each roll draws a subject, action, setting, time, lighting, lens, medium and composition, and writes them the way Midjourney reads prompts: short keyword phrases, then parameters.",
+        "The parameters come with it: --s for stylize on every prompt, a single --no for things to leave out, and --ar for the aspect ratio once you pick a destination format. Only one --no, because Midjourney reads every word in it separately — a multi-word phrase there can remove the wrong thing.",
+      ],
+      faq: [
+        {
+          q: "Does it use AI to write the prompts?",
+          a: "No. Prompts are assembled in your browser from curated lists, so it's instant, free and needs no API key or account.",
+        },
+        {
+          q: "Does it generate the image?",
+          a: "No. It writes the prompt; you run it in Midjourney.",
+        },
+        {
+          q: "What do --ar, --s and --no mean?",
+          a: "--ar sets the aspect ratio (for example 16:9), --s sets how strongly Midjourney applies its own style, and --no lists things to keep out of the image.",
+        },
+        {
+          q: "Can I get prompts for other models?",
+          a: "Yes. Switch the engine to Flux, SDXL, Gemini or a video model and the same roll is rewritten in that model's style.",
+        },
+      ],
+    },
+  },
 ];
 
 export function intentPage(href: string): IntentPage {
