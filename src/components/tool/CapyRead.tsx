@@ -122,13 +122,16 @@ export function CapyRead() {
 
   const fileInput = useRef<HTMLInputElement>(null);
   const stopRef = useRef(false);
+  const countFor = useRef<File | null>(null);
   const thumbUrlRef = useRef<string | null>(null);
   const downloadUrlRef = useRef<string | null>(null);
 
   const lang = findLang(langId);
   const pin = pinFor(lang, quality);
   const isPdf = file !== null && isPdfFile(file);
-  const hasText = editing ? (editedText ?? "").trim().length > 0 : (result?.text ?? "").trim().length > 0;
+  // Hand edits, once made, are the text — in the editor and in every export.
+  const finalText = editedText ?? result?.text ?? "";
+  const hasText = finalText.trim().length > 0;
 
   // The shown words: the live result while pages stream in, else the demo.
   const shown = useMemo<OcrRunResult | null>(() => {
@@ -169,6 +172,8 @@ export function CapyRead() {
     return () => {
       if (thumbUrlRef.current) URL.revokeObjectURL(thumbUrlRef.current);
       if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current);
+      // Stop a PDF run too, or its next page would start a fresh worker.
+      stopRef.current = true;
       void disposeEngine();
     };
   }, []);
@@ -217,12 +222,17 @@ export function CapyRead() {
       } else {
         // The count is a cheap read (no rendering), and the cap warning is
         // worth showing before a run, not during it.
+        // Tied to this file: a slow count for an earlier PDF must not land
+        // on the one that replaced it.
+        setPdfPages(null);
+        countFor.current = incoming;
         void pdfPageCount(incoming)
           .then((pages) => {
-            if (stopRef.current) return;
+            if (countFor.current !== incoming) return;
             setPdfPages(pages);
           })
           .catch(() => {
+            if (countFor.current !== incoming) return;
             setStatus("that PDF wouldn't open — it may be damaged or password-protected.");
             setFile(null);
           });
@@ -236,6 +246,7 @@ export function CapyRead() {
     releaseThumb();
     releaseDownload();
     setFile(null);
+    countFor.current = null;
     setPdfPages(null);
     setResult(null);
     setEditedText(null);
@@ -289,6 +300,21 @@ export function CapyRead() {
     setPagesDone(0);
     const started = performance.now();
     let stopped = false;
+    const buildRun = (): OcrRunResult => {
+      const withWords = pages.filter((page) => page.confidence !== null);
+      return {
+        pages,
+        text: pages.map((page) => page.text).filter(Boolean).join("\n\n"),
+        confidence: withWords.length
+          ? Math.round(
+              withWords.reduce((sum, page) => sum + (page.confidence ?? 0), 0) / withWords.length,
+            )
+          : null,
+        lang: lang.id,
+        quality,
+        ms: Math.round(performance.now() - started),
+      };
+    };
 
     try {
       const collect = async (page: OcrPageResult) => {
@@ -313,19 +339,7 @@ export function CapyRead() {
         await collect(await recognisePage(canvas, choice, 1, 1, setProgress));
       }
 
-      const withWords = pages.filter((page) => page.confidence !== null);
-      const run: OcrRunResult = {
-        pages,
-        text: pages.map((page) => page.text).filter(Boolean).join("\n\n"),
-        confidence: withWords.length
-          ? Math.round(
-              withWords.reduce((sum, page) => sum + (page.confidence ?? 0), 0) / withWords.length,
-            )
-          : null,
-        lang: lang.id,
-        quality,
-        ms: Math.round(performance.now() - started),
-      };
+      const run = buildRun();
       setResult(run);
       const unreadable = pages.reduce((sum, page) => sum + page.unreadable, 0);
       const turned = pages.filter((page) => page.rotation !== 0);
@@ -342,8 +356,10 @@ export function CapyRead() {
           .join(" "),
       );
     } catch (error) {
+      // Keep what was read, as the message promises.
+      if (pages.length > 0) setResult(buildRun());
       setStatus(
-        `the read stopped: ${(error as Error).message || "something went wrong in this browser."} — the pages read so far are kept.`,
+        `the read stopped: ${(error as Error).message || "something went wrong in this browser."}${pages.length > 0 ? " — the pages read so far are kept." : ""}`,
       );
     } finally {
       setProgress(null);
@@ -357,10 +373,13 @@ export function CapyRead() {
 
   // ——— the exports ———
 
-  const currentText = useCallback(
-    () => (editing ? editedText ?? "" : result?.text ?? ""),
-    [editing, editedText, result],
-  );
+  const currentText = useCallback(() => finalText, [finalText]);
+
+  const toggleEditing = useCallback(() => {
+    // The editor opens on the read itself, not on an empty box.
+    setEditedText((prev) => prev ?? result?.text ?? "");
+    setEditing((prev) => !prev);
+  }, [result]);
 
   const copyText = useCallback(async () => {
     const value = currentText();
@@ -633,8 +652,8 @@ export function CapyRead() {
             </Button>
             <Pill
               active={editing}
-              disabled={!hasText}
-              onClick={() => setEditing((prev) => !prev)}
+              disabled={!result}
+              onClick={toggleEditing}
               label={editing ? "Back to the read with its confidence badges" : "Edit the text by hand"}
             >
               <Pencil className="mr-1 inline size-3" aria-hidden />

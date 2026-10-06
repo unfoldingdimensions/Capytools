@@ -20,6 +20,11 @@ import type { RawParagraph } from "./types";
 /** A page reading below this share of kept words is suspected of being turned. */
 export const ROTATION_TRIGGER_RATIO = 0.5;
 
+/** ...or below this mean confidence (marked words included, see clean.ts).
+ *  A short sideways page hallucinates enough 1–3 character "words" to keep
+ *  its ratio above the bar, but its confidence still gives it away. */
+export const ROTATION_TRIGGER_CONFIDENCE = 60;
+
 /** Attempts need at least this many words to count as "the page reads". */
 export const MIN_READ_WORDS = 3;
 
@@ -72,7 +77,10 @@ export function readableRatio(attempt: ReadAttempt): number {
  *  unreadable threshold — while a merely rough page keeps most of them.
  *  A page with almost no words at all has no orientation to recover. */
 export function needsRotation(attempt: ReadAttempt): boolean {
-  return attempt.words >= MIN_READ_WORDS && readableRatio(attempt) < ROTATION_TRIGGER_RATIO;
+  return (
+    attempt.words >= MIN_READ_WORDS &&
+    (readableRatio(attempt) < ROTATION_TRIGGER_RATIO || (attempt.confidence ?? 0) < ROTATION_TRIGGER_CONFIDENCE)
+  );
 }
 
 /** The quarter-turn that reads best, or the original when nothing clears

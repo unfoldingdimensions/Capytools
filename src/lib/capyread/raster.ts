@@ -108,6 +108,12 @@ async function openPdf(file: Blob) {
   const task = pdfjs.getDocument({
     data: bytes,
     standardFontDataUrl: "/ocr/pdf/standard_fonts/",
+    // Scanned PDFs are mostly JBIG2/CCITT/JPX images, decoded only by these
+    // wasm modules; without them the page renders blank and reads as nothing.
+    wasmUrl: "/ocr/pdf/wasm/",
+    // CJK text without embedded fonts needs the CMaps to render at all.
+    cMapUrl: "/ocr/pdf/cmaps/",
+    cMapPacked: true,
   });
   return { task, doc: await task.promise };
 }
@@ -135,7 +141,9 @@ export async function renderPdfPages(
       canvas.height = Math.max(1, Math.round(viewport.height));
       // Scanned pages are images, but a PDF canvas starts transparent, and
       // black-on-nothing reads as black-on-black. White ground first.
-      await page.render({ canvas, viewport, background: "#ffffff" }).promise;
+      // "print" renders without requestAnimationFrame, which a background tab
+      // never fires — a display render would pause the run until it is seen.
+      await page.render({ canvas, viewport, background: "#ffffff", intent: "print" }).promise;
       await onPage({ page: index, canvas });
       page.cleanup();
     }

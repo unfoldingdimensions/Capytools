@@ -31,6 +31,7 @@ import {
   deskewCandidate,
   estimateSkewDegrees,
   needsRotation,
+  pickBestAttempt,
   readableRatio,
   wantsDeskew,
 } from "./orient";
@@ -139,12 +140,15 @@ export async function disposeEngine(): Promise<void> {
  * because nothing user-facing depended on the delete.
  */
 export async function clearLanguageCache(): Promise<void> {
-  if (engine) throw new Error("stop the current run before clearing the saved language.");
+  if (loading) throw new Error("stop the current run before clearing the saved language.");
+  // The idle worker from the last run holds the store open; let it go first.
+  await disposeEngine();
   const request = indexedDB.deleteDatabase("keyval-store");
   await new Promise<void>((resolve) => {
     request.onsuccess = () => resolve();
     request.onerror = () => resolve();
-    request.onblocked = () => resolve();
+    // "blocked" is not "done": wait for success, but never hang the button.
+    request.onblocked = () => setTimeout(resolve, 3000);
   });
 }
 
@@ -219,6 +223,8 @@ export async function recognisePage(
   );
 
   if (needsRotation(best.attempt)) {
+    const first = best;
+    const turns: Turn[] = [];
     for (const angle of [90, 270, 180] as const) {
       // A read that keeps most of its words is the page's true orientation —
       // tesseract's mean confidence alone cannot be trusted here (upside-down
@@ -229,8 +235,14 @@ export async function recognisePage(
         angle,
         `nothing read yet — trying ${pageLabel} turned ${angle}°…`,
       );
+      turns.push(turn);
       best = choose(best, turn);
     }
+    // The final word goes to the guarded pick: a turn must keep real words
+    // and clear the confidence bar, or the page's own orientation stands —
+    // a one-word hallucination at 90° must not beat a rough upright read.
+    const picked = pickBestAttempt(first.attempt, turns.map((turn) => turn.attempt));
+    best = [first, ...turns].find((turn) => turn.attempt === picked) ?? first;
   }
 
   let deskew: number | null = null;

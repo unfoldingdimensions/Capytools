@@ -168,10 +168,15 @@ async function main() {
     if (!existsSync(source)) fail(`expected ${source} — is the dependency installed at a locked version?`);
     entries.push(copyEngineFile(source, to));
   }
-  const fontsDir = join(root, "node_modules", "pdfjs-dist", "standard_fonts");
-  for (const name of readdirSync(fontsDir)) {
-    if (!statSync(join(fontsDir, name)).isFile()) continue;
-    entries.push(copyEngineFile(join(fontsDir, name), join("pdf", "standard_fonts", name)));
+  // pdf.js data directories: fonts, the image-decoder wasm (JBIG2/JPX — what
+  // scanned PDFs are made of) and the CMaps CJK text needs.
+  for (const dir of ["standard_fonts", "wasm", "cmaps"]) {
+    const from = join(root, "node_modules", "pdfjs-dist", dir);
+    if (!existsSync(from)) fail(`expected ${from} — is pdfjs-dist installed at a locked version?`);
+    for (const name of readdirSync(from)) {
+      if (!statSync(join(from, name)).isFile()) continue;
+      entries.push(copyEngineFile(join(from, name), join("pdf", dir, name)));
+    }
   }
 
   for (const lang of LANGUAGES) {

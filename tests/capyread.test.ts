@@ -87,10 +87,22 @@ describe("clean.ts — the honest text", () => {
     expect(assembleParagraph([line()])).toBeNull();
   });
 
-  it("scores a paragraph by the words it actually read", () => {
-    // 90 and 92 kept; the marker word's score is not averaged in.
+  it("scores a paragraph by every word it saw, marked ones included", () => {
+    // (90 + 92 + 10) / 3 — a marker drags the badge down, as it should.
     const assembled = assembleParagraph([line(["good", 90], ["good", 92], ["bad", 10])]);
-    expect(assembled?.block.confidence).toBe(91);
+    expect(assembled?.block.confidence).toBe(64);
+    // Nine markers and one clean word is not a "high" paragraph.
+    const mostlyMarked = assembleParagraph([
+      line(["clear", 95], ...Array.from({ length: 9 }, () => ["junk", 20] as [string, number])),
+    ]);
+    expect(confidenceBucket(mostlyMarked?.block.confidence ?? null)).toBe("unsure");
+  });
+
+  it("rejoins a hyphen break before any lowercase letter, not just ASCII", () => {
+    expect(isHyphenBreak("Grö-", "ße")).toBe(true);
+    expect(isHyphenBreak("zdję-", "cie")).toBe(true);
+    expect(isHyphenBreak("при-", "мер")).toBe(true);
+    expect(isHyphenBreak("Grö-", "SSe")).toBe(false);
   });
 
   it("buckets confidence into the three words the badge shows", () => {
@@ -239,6 +251,8 @@ describe("orient.ts — orientation and skew from the reads themselves", () => {
     // A sideways page: the engine sees plenty of words and stands behind almost none.
     expect(needsRotation(attempt(0, 45, 30, 27))).toBe(true);
     expect(needsRotation(attempt(0, null, 30, 28))).toBe(true);
+    // A short sideways page: junk keeps the ratio above half, the confidence doesn't lie.
+    expect(needsRotation(attempt(0, 47, 170, 80))).toBe(true);
     // A blank page has no orientation to recover — never flail at it.
     expect(needsRotation(attempt(0, null, 0, 0))).toBe(false);
     expect(needsRotation(attempt(0, 20, MIN_READ_WORDS - 1, 2))).toBe(false);

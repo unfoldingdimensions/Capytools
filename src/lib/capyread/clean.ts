@@ -40,12 +40,14 @@ function cleanWords(line: RawLine): { words: string[]; confidences: number[]; un
   for (const word of line.words) {
     const text = word.text.replace(/\s+/g, "").trim();
     if (!text) continue;
+    // Every word counts toward the mean, marked ones too: a paragraph of
+    // nine [unreadable] and one clean word is not "high".
+    confidences.push(word.confidence);
     if (word.confidence < WORD_UNREADABLE) {
       words.push(UNREADABLE_MARKER);
       unreadable += 1;
     } else {
       words.push(text);
-      confidences.push(word.confidence);
     }
   }
   return { words, confidences, unreadable };
@@ -55,14 +57,15 @@ const isMarker = (word: string) => word === UNREADABLE_MARKER;
 
 /** "exam-" + "ple" → true, a hyphenated break. A single-character dash, a
  *  dash after a marker, or a capital following ("well- Being") is punctuation,
- *  not a break, and stays as printed. */
+ *  not a break, and stays as printed. Any lowercase letter, not just ASCII —
+ *  "Grö-" + "ße" is German's everyday case. */
 export function isHyphenBreak(lineEnd: string, nextStart: string): boolean {
   return (
     !isMarker(lineEnd) &&
     !isMarker(nextStart) &&
     lineEnd.length > 1 &&
     lineEnd.endsWith("-") &&
-    /^[a-z]/.test(nextStart)
+    /^\p{Ll}/u.test(nextStart)
   );
 }
 
