@@ -276,6 +276,7 @@ const WORDS = [
   "eleven",
   "twelve",
   "thirteen",
+  "fourteen",
 ] as const;
 
 /** 7 → "seven": any count, spelled out for prose; digits past the table. */

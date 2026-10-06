@@ -303,7 +303,7 @@ export const COLOPHON = {
   quote: [
     { text: "“A home for " },
     { text: "small, quiet tools.", em: true },
-    { text: " Thirteen so far. Twelve run in your browser and keep nothing; one lives on your desktop and keeps your files there.”" },
+    { text: " Fourteen so far. Thirteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.”" },
   ] as Headline,
   author: {
     name: "Capytools, README",
