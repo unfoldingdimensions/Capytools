@@ -61,6 +61,34 @@ const apiGet = async (path, init) => {
   return get(path, init);
 };
 
+/**
+ * A page's status, allowing for deploy propagation.
+ *
+ * MEASURED in CI (run 37494723671, #85): smoke started seconds after
+ * `wrangler deploy` and got 404 on two pages that deploy had just added, while
+ * a third new page and every old one answered 200. Seconds later all three
+ * answered 200 on every probe — the new version simply hadn't reached every
+ * edge yet. The failed smoke also skipped the IndexNow ping, so the deploys
+ * that add pages were exactly the ones that never announced them.
+ *
+ * So a 404 is retried; anything else is final at once. A page that is really
+ * missing still fails, about 30 seconds later. ponytail: retries only 404 in
+ * the page loop — if other checks start flaking right after deploys (e.g. the
+ * llms.txt tool count when a tool ships), wait for the new build once at the
+ * top instead.
+ */
+const PROPAGATION_RETRIES = 6;
+const PROPAGATION_WAIT_MS = 5_000;
+async function pageStatus(path) {
+  let status = (await get(path)).status;
+  for (let i = 0; status === 404 && i < PROPAGATION_RETRIES; i++) {
+    console.log(`  ...   ${path} 404, retrying in ${PROPAGATION_WAIT_MS / 1000}s (deploy propagation)`);
+    await new Promise((resolve) => setTimeout(resolve, PROPAGATION_WAIT_MS));
+    status = (await get(path)).status;
+  }
+  return status;
+}
+
 /** Pages that must exist. The tool list is the SUITE, plus the site's furniture. */
 const PAGES = [
   "/", "/capywrapped", "/capyimagine", "/capycreator", "/capystrip",
@@ -87,7 +115,7 @@ async function main() {
 
   console.log("pages");
   for (const path of PAGES) {
-    check(path, (await get(path)).status, 200);
+    check(path, await pageStatus(path), 200);
   }
   // /license is generated at build from LICENSE; an empty render is the
   // failure mode the generator exists to prevent.
