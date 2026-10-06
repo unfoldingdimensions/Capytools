@@ -3,9 +3,9 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyStrip } from "@/components/tool/CapyStrip";
 
 export const metadata = toolMetadata("CapyStrip", {
-  title: "Remove EXIF & GPS metadata from photos — free, no upload | CapyStrip",
+  title: "EXIF viewer & remover — see and strip photo GPS metadata, free, no upload | CapyStrip",
   description:
-    "See the GPS, device and AI fingerprints hiding in your photos, then download a clean copy. 100% in your browser — files are never uploaded.",
+    "View the EXIF data in any photo — GPS location, camera, timestamps and AI fingerprints — then download a clean copy if you want one. 100% in your browser, never uploaded.",
 });
 
 export default function CapyStripPage() {

@@ -69,6 +69,7 @@ const PAGES = [
   // INTENT_PAGES (src/lib/capytools/intents.ts)
   "/favicon-generator", "/png-to-webp", "/wifi-qr-code-generator",
   "/vcard-qr-code-generator", "/og-image-size", "/contrast-checker", "/gradient-generator",
+  "/event-qr-code-generator", "/website-color-extractor", "/midjourney-prompt-generator",
   "/sitemap.xml", "/robots.txt", "/llms.txt", "/og.png",
 ];
 

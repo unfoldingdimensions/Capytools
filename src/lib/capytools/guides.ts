@@ -350,11 +350,11 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
     ],
   },
   CapyStrip: {
-    heading: "How to remove EXIF metadata from a photo",
+    heading: "How to view and remove EXIF metadata from a photo",
     steps: [
       "Drop, paste or pick a photo — JPEG, PNG, WebP, AVIF, HEIC or TIFF.",
-      "Read the report: GPS location, camera and phone model, serial numbers, timestamps, editing software and AI-generation fingerprints, each flagged when it can identify you.",
-      "Download the clean copy. CapyStrip redraws the image, then re-scans its own output to prove nothing survived.",
+      "Read the report: GPS location, camera and phone model, serial numbers, timestamps, editing software and AI-generation fingerprints, each flagged when it can identify you. If you only wanted to look, you can stop here.",
+      "To share it safely, download the clean copy. CapyStrip redraws the image, then re-scans its own output to prove nothing survived.",
     ],
     about: [
       "Every photo a phone takes carries a small file of facts about itself: where it was taken, on which device, and when. Post it as-is and anyone who downloads it can read that GPS position. CapyStrip shows you all of it before removing it.",
@@ -365,6 +365,14 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       {
         q: "Is my photo uploaded anywhere?",
         a: "No. Reading and cleaning both happen in this browser tab. There is no upload route in the code, and the server never sees a pixel.",
+      },
+      {
+        q: "Can I just view a photo's EXIF data without changing it?",
+        a: "Yes. The full report appears as soon as you drop the photo, and nothing is changed or downloaded unless you choose to. It works as an EXIF viewer as much as a remover.",
+      },
+      {
+        q: "How do I see where a photo was taken?",
+        a: "Drop it in. If the photo carries GPS data, the report shows the coordinates and flags them as identifying. If there's no location in the report, the file doesn't contain one.",
       },
       {
         q: "Does removing EXIF data remove the GPS location?",
