@@ -460,6 +460,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyResume: {
     heading: "How to make a resume free, with no signup",
+    summary:
+      "CapyResume builds a résumé in your browser from six single-column templates and downloads it as a text-selectable PDF or a Word file — free, unwatermarked, with no account.",
     steps: [
       "Fill in your details, then your sections — experience, education, skills, projects — adding, reordering and removing entries as you go. The page beside the form shows the document as you type.",
       "Pick one of six single-column templates and the paper size, A4 or US Letter.",
