@@ -139,6 +139,22 @@ describe('capyresume/store — persistence', () => {
 
     setItem.mockRestore();
   });
+
+  it('keeps editing in memory while storage refuses, and hands back to storage after', () => {
+    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    const typed = { ...emptyResume(), contact: { ...emptyResume().contact, name: 'Ada' } };
+    expect(() => saveResume(typed)).toThrow(StorageUnavailableError);
+    // The keystroke is not reverted: the snapshot is the unsaved document.
+    expect(getSnapshot().contact.name).toBe('Ada');
+    setItem.mockRestore();
+
+    const later = { ...typed, contact: { ...typed.contact, name: 'Ada L' } };
+    saveResume(later);
+    expect(getSnapshot().contact.name).toBe('Ada L');
+    expect(window.localStorage.getItem(STORAGE_KEY)).toContain('Ada L');
+  });
 });
 
 describe('capyresume/store — subscriptions', () => {

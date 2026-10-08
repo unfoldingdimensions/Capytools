@@ -45,6 +45,14 @@ const SERVER_SNAPSHOT: ResumeDoc = Object.freeze(emptyResume());
 let cachedRaw: string | null = null;
 let cachedDoc: ResumeDoc | null = null;
 
+/**
+ * The document while the browser refuses to store it (disabled storage, quota).
+ * Without it every keystroke was reverted — the snapshot kept reading storage —
+ * so editing was impossible exactly when the user most needs a JSON backup.
+ * Set by a failed save, cleared by the next successful one or by clearResume.
+ */
+let memoryDoc: ResumeDoc | null = null;
+
 function hasWindow(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
@@ -64,6 +72,7 @@ function readRaw(): string | null {
  * render return an identical reference. Never throws.
  */
 export function getSnapshot(): ResumeDoc {
+  if (memoryDoc !== null) return memoryDoc;
   const raw = readRaw();
   if (raw === cachedRaw && cachedDoc !== null) return cachedDoc;
   cachedRaw = raw;
@@ -123,22 +132,26 @@ export function saveResume(doc: ResumeDoc): ResumeDoc {
 
   const raw = JSON.stringify(next);
 
-  if (!hasWindow()) {
-    throw new StorageUnavailableError(
-      'This browser has no local storage, so the résumé cannot be saved.'
+  const unsaved = (cause?: unknown) => {
+    // Keep editing in memory, and say so: the work is real but lives in this tab only.
+    memoryDoc = next;
+    emit();
+    return new StorageUnavailableError(
+      'Not saved — this browser is refusing storage (full or disabled). Your edits stay in this tab only; download a JSON backup before you close it.',
+      cause === undefined ? undefined : { cause }
     );
-  }
+  };
+
+  if (!hasWindow()) throw unsaved();
 
   try {
     window.localStorage.setItem(STORAGE_KEY, raw);
   } catch (cause) {
-    throw new StorageUnavailableError(
-      'The résumé could not be saved to this browser (storage may be full or disabled).',
-      { cause }
-    );
+    throw unsaved(cause);
   }
 
   // Keep the cache in step with what we just wrote so the snapshot stays stable.
+  memoryDoc = null;
   cachedRaw = raw;
   cachedDoc = next;
   emit();
@@ -154,6 +167,7 @@ export function clearResume(): void {
       // Nothing useful to do: the cache reset below still frees the UI.
     }
   }
+  memoryDoc = null;
   cachedRaw = null;
   cachedDoc = null;
   emit();
@@ -185,6 +199,7 @@ export function useResumeWithServerSnapshot(serverSnapshot: ResumeDoc): ResumeDo
 
 /** Test-only: forget the in-process cache without touching storage. */
 export function __resetStoreCache(): void {
+  memoryDoc = null;
   cachedRaw = null;
   cachedDoc = null;
 }
