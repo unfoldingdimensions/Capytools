@@ -4,7 +4,7 @@ import type { PhotoSpec } from "./specs";
 /**
  * The print sheet (plan §5.5): the composed photo, tiled onto a 4 × 6 inch
  * sheet at the sheet's dpi, with hairline cut guides. The canvas carries no
- * DPI tag — none is reliable out of `toBlob` (plan §3.5) — so the PHYSICAL
+ * DPI tag out of `toBlob` (plan §3.5), so withPrintDpi adds one; the PHYSICAL
  * size lives in the pixel math: at 300 dpi, 1200 × 1800 px prints exactly
  * 4 × 6 inches. The grid helpers are pure and unit-tested; only the renderer
  * touches a canvas.
@@ -127,11 +127,52 @@ function guard(): void {
   if (typeof document === "undefined") throw new Error("capypassport renders in a browser tab only");
 }
 
+const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
+  let c = n;
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  return c >>> 0;
+});
+
+function crc32(bytes: Uint8Array): number {
+  let c = 0xffffffff;
+  for (const b of bytes) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+/**
+ * Stamp a PNG with its print resolution: a pHYs chunk, right after IHDR.
+ * `toBlob` writes none, so "actual size" in Windows Photos or Preview printed
+ * the 1200 × 1800 sheet at 72–96 dpi — about 12.5 × 18.75 in, not 4 × 6. With
+ * pHYs at the sheet's dpi, every viewer that honours it prints the real size.
+ * Pure: bytes in, bytes out. Anything that isn't a PNG comes back untouched.
+ */
+export function withPrintDpi(png: Uint8Array, dpi: number): Uint8Array {
+  const IHDR_END = 33; // 8-byte signature + IHDR (4 len + 4 type + 13 data + 4 crc)
+  const isPng =
+    png.length > IHDR_END && png[0] === 0x89 && png[1] === 0x50 && png[12] === 0x49 && png[15] === 0x52;
+  if (!isPng) return png;
+  const perMetre = Math.round(dpi / 0.0254);
+  const chunk = new Uint8Array(21); // 4 len + 4 type + 9 data + 4 crc
+  const view = new DataView(chunk.buffer);
+  view.setUint32(0, 9);
+  chunk.set([0x70, 0x48, 0x59, 0x73], 4); // "pHYs"
+  view.setUint32(8, perMetre);
+  view.setUint32(12, perMetre);
+  chunk[16] = 1; // unit: metre
+  view.setUint32(17, crc32(chunk.subarray(4, 17)));
+  const out = new Uint8Array(png.length + chunk.length);
+  out.set(png.subarray(0, IHDR_END), 0);
+  out.set(chunk, IHDR_END);
+  out.set(png.subarray(IHDR_END), IHDR_END + chunk.length);
+  return out;
+}
+
 /**
  * Draw the sheet. `photo` is the composed single-photo canvas; each cell
  * draws it at the cell's exact pixel size. Guides default ON here because a
- * sheet without cut lines is a worse product, and they sit outside the cells
- * or on shared edges — they never cut into a photo's pixels.
+ * sheet without cut lines is a worse product. They run along the cell edges,
+ * so on the shared edges of a tight grid they overlap the outermost pixel row
+ * of a photo — 1/300 in, inside any cut tolerance.
  */
 export function renderSheet(photo: HTMLCanvasElement, layout: SheetLayout, guides = true): HTMLCanvasElement {
   guard();

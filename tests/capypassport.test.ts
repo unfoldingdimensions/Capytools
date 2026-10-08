@@ -16,7 +16,7 @@ import {
   type FaceGeometry,
 } from "../src/lib/capypassport/geometry";
 import { DEFAULT_SPEC, SPECS, specById } from "../src/lib/capypassport/specs";
-import { SHEET_PX, maxCopies, sheetLayout } from "../src/lib/capypassport/sheet";
+import { SHEET_PX, maxCopies, sheetLayout, withPrintDpi } from "../src/lib/capypassport/sheet";
 
 // ——— format: the millimetre is the same millimetre everywhere ———
 
@@ -398,5 +398,25 @@ describe("registration — the suite knows CapyPassport", () => {
     const description = metadata.description ?? "";
     expect(description).toContain("never leaves this tab");
     expect(description).not.toMatch(/\b(guarantee\w*|compliant)\b/i);
+  });
+});
+
+describe("sheet — print resolution", () => {
+  it("stamps a pHYs chunk at the sheet's dpi, right after IHDR", async () => {
+    const sharp = (await import("sharp")).default;
+    const png = new Uint8Array(
+      await sharp({ create: { width: 4, height: 6, channels: 3, background: "#ffffff" } }).png().toBuffer(),
+    );
+    const stamped = withPrintDpi(png, 300);
+    // sharp reads the stamp back: 300 dpi, so 1200 x 1800 px prints at 4 x 6 in.
+    const meta = await sharp(Buffer.from(stamped)).metadata();
+    expect(meta.density).toBe(300);
+    expect(String.fromCharCode(...stamped.subarray(37, 41))).toBe("pHYs");
+    expect(stamped.length).toBe(png.length + 21);
+  });
+
+  it("leaves anything that is not a PNG alone", () => {
+    const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...new Array(40).fill(0)]);
+    expect(withPrintDpi(jpeg, 300)).toBe(jpeg);
   });
 });

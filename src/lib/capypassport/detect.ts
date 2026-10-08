@@ -57,7 +57,9 @@ function loadLandmarker(onProgress?: (p: ByteProgress) => void): Promise<FaceLan
   })();
   landmarkerPromise = task;
   // A failed creation must not poison the memo — the next photo tries again.
-  task.catch(() => undefined).then(() => {
+  // Only a failure clears it: clearing on success too rebuilt the graph for
+  // every photo and leaked each previous landmarker's wasm heap.
+  task.catch(() => {
     if (landmarkerPromise === task) landmarkerPromise = null;
   });
   return task;

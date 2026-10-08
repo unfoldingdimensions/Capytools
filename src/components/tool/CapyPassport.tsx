@@ -8,17 +8,17 @@ import { CapyArt } from "@/components/mascot/CapyArt";
 import { Button } from "@/components/ui/button";
 import { STAGE_TONE, StageCard, StageChip } from "@/components/stage-card";
 import { ErrorCard, type ErrorNotice } from "@/components/tool/ErrorCard";
-import { removeBackground, CutCancelledError as BgCutCancelledError } from "@/lib/capybg/client";
+import { clearCut, removeBackground, CutCancelledError as BgCutCancelledError } from "@/lib/capybg/client";
 import { saveBlob } from "@/lib/download";
 import { checkCorners, FILL_WARNING, type BackgroundVerdict } from "@/lib/capypassport/background";
 import { decodePortrait, drawGuides, exportCanvas, photoFilename, renderCrop, sheetFilename } from "@/lib/capypassport/compose";
-import { detectFace } from "@/lib/capypassport/detect";
+import { detectFace, disposeDetector } from "@/lib/capypassport/detect";
 import { demoFit, drawDemoPhoto } from "@/lib/capypassport/demo";
 import { flag, fitCrop, DEFAULT_TWEAK, type FaceGeometry, type Fit, type Tweak } from "@/lib/capypassport/geometry";
 import { formatBytes, formatMm, formatPct, mmLabel } from "@/lib/capypassport/format";
 import { deleteCachedModel } from "@/lib/capypassport/loader";
 import { DEFAULT_SPEC, SPECS, specById } from "@/lib/capypassport/specs";
-import { maxCopies, renderSheet, sheetLayout } from "@/lib/capypassport/sheet";
+import { maxCopies, renderSheet, sheetLayout, withPrintDpi } from "@/lib/capypassport/sheet";
 import { cn } from "@/lib/utils";
 
 /**
@@ -214,11 +214,14 @@ export function CapyPassport() {
     return () => observer.disconnect();
   }, []);
 
-  // Free every object URL we ever made when the tab goes away.
+  // Free every object URL we ever made when the tab goes away — and the face
+  // model's wasm heap and CapyBg's cached matte of this face with them.
   useEffect(() => {
     const owned = ownedUrls.current;
     return () => {
       for (const { url } of owned) URL.revokeObjectURL(url);
+      void disposeDetector();
+      clearCut();
     };
   }, []);
 
@@ -235,7 +238,17 @@ export function CapyPassport() {
     setCameraOn(false);
   }, []);
 
-  useEffect(() => stopCamera, [stopCamera]);
+  // A stream granted after the tool unmounted (the visitor left while the
+  // permission prompt was up) has no owner left to stop it — so check.
+  const mounted = useRef(true);
+  const cameraStarting = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      stopCamera();
+    };
+  }, [stopCamera]);
 
   // The <video> element mounts with the state flip; attach the stream then.
   useEffect(() => {
@@ -248,23 +261,40 @@ export function CapyPassport() {
   }, [cameraOn]);
 
   const startCamera = useCallback(async () => {
+    // A second tap while the permission prompt is open would open a second
+    // stream and orphan the first — its light would stay on until the tab closed.
+    if (cameraStarting.current) return;
+    cameraStarting.current = true;
     setCameraError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 1920 }, height: { ideal: 1080 } },
         audio: false,
       });
+      if (!mounted.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = stream;
       setCameraOn(true);
     } catch {
       setCameraError("the browser refused the camera — pick or drop a photo instead; nothing is lost.");
+    } finally {
+      cameraStarting.current = false;
     }
   }, []);
 
   // ——— the photo ———
 
+  // The last file the visitor handed over, for a retry that could work —
+  // state, not a ref: the error card reads it during render. Set in addFile,
+  // so a dropped, pasted or captured photo retries itself, not an older pick.
+  const [lastFile, setLastFile] = useState<File | null>(null);
+
   const addFile = useCallback(
     async (file: File) => {
+      setLastFile(file);
       if (!file.type.startsWith("image/") && !/\.(jpe?g|png|webp|avif|gif|bmp)$/i.test(file.name)) return;
       nextPhotoId += 1;
       const mine = nextPhotoId;
@@ -301,6 +331,10 @@ export function CapyPassport() {
             close: d.close,
           };
         });
+        // Owned by the photo state from here: the next setPhoto or clearPhoto
+        // releases it. Closing it on a detection error left the UI holding a
+        // closed bitmap.
+        decoded = null;
         // Detection reads the decoded source — EXIF orientation already
         // honoured by the decode. The model download reports once.
         const geometry = await detectFace(d.source, ({ received, total }) => setModelBytes({ received, total }));
@@ -390,6 +424,8 @@ export function CapyPassport() {
       photo.close();
     }
     setPhoto(null);
+    setDetecting(false);
+    clearCut();
     setFace(null);
     setVerdict(null);
     setExported(null);
@@ -399,14 +435,9 @@ export function CapyPassport() {
     setFill("off");
   }, [photo]);
 
-  // The last file the visitor handed over, for a retry that could work —
-  // state, not a ref: the error card reads it during render.
-  const [lastFile, setLastFile] = useState<File | null>(null);
   const pickFile = useCallback(
     (file: File | null) => {
-      if (!file) return;
-      setLastFile(file);
-      void addFile(file);
+      if (file) void addFile(file);
     },
     [addFile],
   );
@@ -550,7 +581,10 @@ export function CapyPassport() {
     const master = masterRef.current;
     if (!master || !layout) return;
     const sheet = renderSheet(master, layout);
-    void exportCanvas(sheet, "image/png").then((blob) => {
+    void exportCanvas(sheet, "image/png").then(async (encoded) => {
+      // The pHYs stamp is what makes "actual size" print 4 × 6 in.
+      const stamped = withPrintDpi(new Uint8Array(await encoded.arrayBuffer()), spec.dpi);
+      const blob = new Blob([stamped.slice()], { type: "image/png" });
       saveBlob(blob, sheetFilename(spec.id));
       setStatus(`sheet saved — ${sheet.width} × ${sheet.height} px, exactly 4 × 6 in at ${spec.dpi} dpi, ${formatBytes(blob.size)}.`);
     });
@@ -575,7 +609,13 @@ export function CapyPassport() {
     : !photo
       ? "a photo to check, when you're ready."
       : exportReady
-        ? "your photo fits its frame — downloads beside it."
+        ? // Said from the readouts, never as a blanket pass: "fits" over an
+          // outside-the-range head was an implied approval.
+          [headFlag, eyeFlag].some((f) => f?.level === "fail")
+          ? "framed — but outside the published range; check the readout."
+          : [headFlag, eyeFlag].some((f) => f?.level === "near")
+            ? "framed — a touch outside the range; check the readout."
+            : "framed within the published range — downloads beside it."
         : "framing…";
 
   return (
