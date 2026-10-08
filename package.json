@@ -1,7 +1,7 @@
 {
   "name": "capytools",
   "version": "0.1.0",
-  "description": "A home for small, quiet tools. Fifteen so far — fourteen run in your browser and keep nothing; one lives on your desktop.",
+  "description": "A home for small, quiet tools. Sixteen so far — fifteen run in your browser and keep nothing; one lives on your desktop.",
   "keywords": [
     "browser-tools",
     "client-side",
@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.1.0",
+    "@react-pdf/renderer": "^4.9.0",
     "apca-w3": "0.1.9",
     "class-variance-authority": "^0.7.1",
     "client-zip": "^2.5.0",
@@ -79,6 +80,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "exceljs": "^4.4.0",
+    "jsdom": "^30.1.2",
     "shadcn": "^4.18.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
