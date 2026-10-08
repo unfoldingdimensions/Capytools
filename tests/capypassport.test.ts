@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { SUITE } from "../src/lib/capytools/suite";
+import { metadata } from "../src/app/capypassport/page";
 import { FILL_WARNING, checkCorners } from "../src/lib/capypassport/background";
 import { photoFilename, sheetFilename } from "../src/lib/capypassport/compose";
 import { DEMO_FACE, demoFit } from "../src/lib/capypassport/demo";
@@ -94,7 +96,9 @@ describe("specs — provenance and sanity", () => {
 
 const face: FaceGeometry = {
   chinY: 0.75,
-  eyeY: 0.55,
+  // Eyes 45% of the head below the crown — where faces actually sit. An
+  // anatomically honest fixture, so the readouts it produces are honest.
+  eyeY: 0.4933,
   hairlineY: 0.4,
   centerX: 0.5,
   minX: 0.35,
@@ -153,11 +157,18 @@ describe("geometry — fitCrop", () => {
     expect(fit.headMm).toBeCloseTo(target, 1);
   });
 
-  it("centres the head band vertically by default", () => {
+  it("rests the crown at 30% of the leftover — the framing real compliant photos use", () => {
     const uk = specById("uk-passport")!;
     const fit = fitCrop(uk, face, 3000, 4000, DEFAULT_TWEAK);
-    const bottom = uk.physical.hMm - (fit.topMarginMm + fit.headMm);
-    expect(bottom).toBeCloseTo(fit.topMarginMm, 1);
+    const target = targetHeadMm(uk, DEFAULT_TWEAK.headT);
+    const leftover = uk.physical.hMm - target;
+    expect(fit.topMarginMm).toBeCloseTo(leftover * 0.3, 1);
+    // And the US eye line passes at that rest with an honest face — eyes
+    // ~45% of the head below the crown, as faces actually are.
+    const us = specById("us-passport")!;
+    const usFit = fitCrop(us, face, 3000, 4000, DEFAULT_TWEAK);
+    expect(usFit.eyeLineMm!).toBeGreaterThanOrEqual(us.eyeLineFromBottom!.minMm);
+    expect(usFit.eyeLineMm!).toBeLessThanOrEqual(us.eyeLineFromBottom!.maxMm);
   });
 
   it("slides honestly: the vertical slider moves the crown, the head slider zooms", () => {
@@ -357,11 +368,35 @@ describe("demo — the drawn face reads mid-band", () => {
   });
 });
 
-// ——— export names ———
+// ——— names ———
 
 describe("names — the downloads introduce themselves", () => {
   it("names carry the document and the size", () => {
     expect(photoFilename("us-passport", 600, 600)).toBe("passport-photo-us-passport-600x600.jpg");
     expect(sheetFilename("uk-passport")).toBe("passport-sheet-uk-passport.png");
+  });
+});
+
+// ——— registration ———
+
+describe("registration — the suite knows CapyPassport", () => {
+  it("SUITE row 15 is CapyPassport at /capypassport, with its plate", () => {
+    expect(SUITE).toHaveLength(15);
+    const row = SUITE[14];
+    expect(row.name).toBe("CapyPassport");
+    expect(row.short).toBe("Passport");
+    expect(row.href).toBe("/capypassport");
+    expect(row.cat).toBe("browser");
+    expect(row.appCategory).toBe("UtilitiesApplication");
+    // (The plate FILE is the owner's image step — the landing's asset test is
+    // the canary that stays red until public/plates/lab-15.webp exists.)
+    expect(row.plate).toEqual({ src: "/plates/lab-15.webp", width: 896, height: 1200 });
+  });
+
+  it("the page's metadata carries the tool name and the promise", () => {
+    expect(metadata.title).toContain("CapyPassport");
+    const description = metadata.description ?? "";
+    expect(description).toContain("never leaves this tab");
+    expect(description).not.toMatch(/\b(guarantee\w*|compliant)\b/i);
   });
 });
