@@ -26,6 +26,13 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
 import { StageCard } from "@/components/stage-card";
 import {
@@ -128,24 +135,32 @@ const ConfirmDialog = dynamic(
  * It is separate because the value is needed in exactly two places: here, and inside
  * the export handlers, which can read it at click time. Subscribing at the top of the
  * editor instead made a paper change re-render every control in the form plus the
- * preview, all to move one `<select>`.
+ * preview, all to move one control.
  */
 function PaperSizeSelect() {
   const paperSize = usePaperSize();
   return (
-    <select
-      className="rounded-full border border-border bg-background px-3 py-2 transition-colors hover:border-primary hover:bg-muted/50"
-      name="paper"
+    <Select
       value={paperSize}
-      onChange={(event) =>
-        setPaperSize(event.target.value === "LETTER" ? "LETTER" : "A4")
-      }
+      onValueChange={(value) => setPaperSize(value === "LETTER" ? "LETTER" : "A4")}
     >
-      <option value="A4">A4</option>
-      <option value="LETTER">US Letter</option>
-    </select>
+      <SelectTrigger
+        className={SELECT_TRIGGER}
+        aria-labelledby="capyresume-paper-label"
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="A4">A4</SelectItem>
+        <SelectItem value="LETTER">US Letter</SelectItem>
+      </SelectContent>
+    </Select>
   );
 }
+
+/** The suite's own dropdown (as CapyQR and CapyOG use), not the OS list. */
+const SELECT_TRIGGER =
+  "min-w-36 rounded-full bg-background transition-colors hover:border-primary";
 
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: "summary", label: "Summary" },
@@ -173,11 +188,39 @@ const FIELD =
   "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground/70 hover:border-primary/60 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50";
 const LABEL =
   "mb-1.5 block font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground";
-/** Row actions stay quiet until the row is pointed at or tabbed into; always on touch. */
-const REVEAL =
-  "opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100";
 /** A just-added row glows briefly, so the click visibly landed somewhere. */
 const FRESH = "bg-primary/15";
+/** A group heading inside an open entry: a step above the field labels. */
+const GROUP = "text-[13px] font-semibold text-foreground";
+
+type EntryPart = "organisation" | "location" | "dates" | "text" | "tags" | "bullets";
+
+/**
+ * What each section type asks for, in its own words. A skills group has no employer
+ * and a certificate no achievements, so showing every field on every entry was most
+ * of the noise. A field outside its shape still appears once it holds something.
+ */
+const ENTRY_SHAPES: Record<
+  SectionType,
+  {
+    parts: EntryPart[];
+    basics: string;
+    title: string;
+    organisation: string;
+    current: string;
+    prose: string;
+    text: string;
+    tags: string;
+  }
+> = {
+  summary: { parts: ["text"], basics: "Heading", title: "Heading (optional)", organisation: "Organisation", current: "Current", prose: "Your summary", text: "Summary", tags: "Skills" },
+  experience: { parts: ["organisation", "location", "dates", "text", "tags", "bullets"], basics: "The role", title: "Role", organisation: "Company", current: "I still work here", prose: "In your words", text: "Description", tags: "Skills used" },
+  education: { parts: ["organisation", "location", "dates", "text", "bullets"], basics: "The qualification", title: "Qualification", organisation: "Institution", current: "Still studying", prose: "In your words", text: "Description", tags: "Skills" },
+  skills: { parts: ["tags"], basics: "The group", title: "Group name (optional)", organisation: "Organisation", current: "Current", prose: "The skills", text: "Description", tags: "Skills" },
+  projects: { parts: ["organisation", "dates", "text", "tags", "bullets"], basics: "The project", title: "Project", organisation: "For / with", current: "Ongoing", prose: "In your words", text: "Description", tags: "Tools" },
+  certifications: { parts: ["organisation", "dates"], basics: "The certificate", title: "Certificate", organisation: "Issuer", current: "Ongoing", prose: "Details", text: "Description", tags: "Skills" },
+  custom: { parts: ["organisation", "location", "dates", "text", "tags", "bullets"], basics: "The entry", title: "Title", organisation: "Organisation", current: "Current", prose: "In your words", text: "Description", tags: "Skills" },
+};
 
 /** A visible label above its control — placeholders vanish once you type. */
 function Field({
@@ -268,7 +311,7 @@ const BulletRow = memo(function BulletRow({
       />
       <button
         type="button"
-        className={cn(ICON_BTN, REVEAL, "hover:border-destructive hover:bg-destructive hover:text-background")}
+        className={cn(ICON_BTN, "hover:border-destructive hover:bg-destructive hover:text-background")}
         onClick={() => onRemove(sectionId, entryId, bullet.id)}
         aria-label={`remove ${label}`}
       >
@@ -360,12 +403,20 @@ const EntryRow = memo(function EntryRow({
   onRemove: (sectionId: string, entryId: string) => void;
 }) {
   const prefix = `${sectionTitle}, entry ${entryIndex + 1}`;
-  const titleLabel =
-    sectionType === "skills"
-      ? "Group name"
-      : sectionType === "summary"
-        ? "Heading"
-        : "Title";
+  const shape = ENTRY_SHAPES[sectionType];
+  // A field the section type does not use still shows once it holds something,
+  // so switching shapes can never hide text the résumé prints.
+  const has = (key: EntryPart, value: unknown) =>
+    shape.parts.includes(key) ||
+    (Array.isArray(value) ? value.length > 0 : Boolean(value));
+  const show = {
+    organisation: has("organisation", entry.organisation?.trim()),
+    location: has("location", entry.location?.trim()),
+    dates: has("dates", entry.startDate || entry.endDate || entry.current),
+    text: has("text", entry.text?.trim()),
+    tags: has("tags", entry.tags),
+    bullets: has("bullets", entry.bullets),
+  };
   const range = formatDateRange(entry.startDate, entry.endDate, entry.current);
   const heading =
     entry.title?.trim() ||
@@ -378,12 +429,12 @@ const EntryRow = memo(function EntryRow({
   return (
     <div
       className={cn(
-        "rounded-2xl transition-colors duration-700",
-        open && "bg-muted/40",
+        "rounded-2xl border border-transparent transition-colors duration-700",
+        open && "border-border bg-muted/30",
         freshId === entry.id && FRESH,
       )}
     >
-      <div className="group flex items-center gap-2 py-1 pl-1 pr-2">
+      <div className="flex items-center gap-2 py-1 pl-1 pr-2">
         <button
           type="button"
           aria-expanded={open}
@@ -398,13 +449,18 @@ const EntryRow = memo(function EntryRow({
             aria-hidden
             className={cn(
               "text-muted-foreground transition-transform duration-200",
-              open && "rotate-90",
+              open && "rotate-90 text-primary",
             )}
           >
             ›
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-[15px] font-medium text-foreground">
+            <span
+              className={cn(
+                "block truncate text-[15px] text-foreground",
+                open ? "font-semibold" : "font-medium",
+              )}
+            >
               {heading}
             </span>
             {detail ? (
@@ -414,7 +470,7 @@ const EntryRow = memo(function EntryRow({
             ) : null}
           </span>
         </button>
-        <div className={cn("flex items-center gap-1.5", REVEAL)}>
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             className={ICON_BTN}
@@ -443,136 +499,166 @@ const EntryRow = memo(function EntryRow({
       </div>
 
       {open ? (
-        <div id={panelId} className="space-y-4 px-3 pb-4 pt-2">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={titleLabel}>
+        // The open panel hangs off its header on a sage rule, and splits into the
+        // same groups the printed entry has: what and where, the prose, the wins.
+        <div
+          id={panelId}
+          className="mx-3 mb-4 mt-1 space-y-5 border-l-2 border-primary/50 pl-4"
+        >
+          <div role="group" aria-label={shape.basics} className="space-y-3">
+            <p className={GROUP}>{shape.basics}</p>
+            <Field label={shape.title}>
               <input
-                className={FIELD}
+                className={cn(FIELD, "text-base font-medium")}
                 name={`${entry.id}-title`}
-                aria-label={`${prefix}, ${titleLabel.toLowerCase()}`}
+                aria-label={`${prefix}, ${shape.title.toLowerCase()}`}
                 value={entry.title ?? ""}
                 onChange={(event) =>
                   onField(sectionId, entry.id, "title", event.target.value)
                 }
               />
             </Field>
-            <Field label="Organisation">
-              <input
-                className={FIELD}
-                name={`${entry.id}-organisation`}
-                aria-label={`${prefix}, organisation`}
-                value={entry.organisation ?? ""}
-                onChange={(event) =>
-                  onField(sectionId, entry.id, "organisation", event.target.value)
-                }
-              />
-            </Field>
-            <Field label="Location">
-              <input
-                className={FIELD}
-                name={`${entry.id}-location`}
-                aria-label={`${prefix}, location`}
-                autoComplete="off"
-                value={entry.location ?? ""}
-                onChange={(event) =>
-                  onField(sectionId, entry.id, "location", event.target.value)
-                }
-              />
-            </Field>
-            <div className="grid grid-cols-2 gap-2">
-              <Field label="Start">
-                <input
-                  className={cn(FIELD, "tabular-nums")}
-                  name={`${entry.id}-start`}
-                  aria-label={`${prefix}, start date, YYYY-MM`}
-                  inputMode="text"
-                  autoComplete="off"
-                  placeholder="YYYY-MM"
-                  value={entry.startDate ?? ""}
-                  onChange={(event) =>
-                    onField(sectionId, entry.id, "startDate", event.target.value)
-                  }
-                />
-              </Field>
-              <Field label="End">
-                <input
-                  className={cn(FIELD, "tabular-nums")}
-                  name={`${entry.id}-end`}
-                  aria-label={`${prefix}, end date, YYYY-MM`}
-                  inputMode="text"
-                  autoComplete="off"
-                  placeholder={entry.current ? "present" : "YYYY-MM"}
-                  value={entry.endDate ?? ""}
-                  disabled={entry.current === true}
-                  onChange={(event) =>
-                    onField(sectionId, entry.id, "endDate", event.target.value)
-                  }
-                />
-              </Field>
-            </div>
+            {show.organisation || show.location ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {show.organisation ? (
+                  <Field label={shape.organisation}>
+                    <input
+                      className={FIELD}
+                      name={`${entry.id}-organisation`}
+                      aria-label={`${prefix}, ${shape.organisation.toLowerCase()}`}
+                      value={entry.organisation ?? ""}
+                      onChange={(event) =>
+                        onField(
+                          sectionId,
+                          entry.id,
+                          "organisation",
+                          event.target.value,
+                        )
+                      }
+                    />
+                  </Field>
+                ) : null}
+                {show.location ? (
+                  <Field label="Location">
+                    <input
+                      className={FIELD}
+                      name={`${entry.id}-location`}
+                      aria-label={`${prefix}, location`}
+                      autoComplete="off"
+                      value={entry.location ?? ""}
+                      onChange={(event) =>
+                        onField(sectionId, entry.id, "location", event.target.value)
+                      }
+                    />
+                  </Field>
+                ) : null}
+              </div>
+            ) : null}
+            {show.dates ? (
+              <div className="flex flex-wrap items-end gap-3">
+                <Field label="Start" className="w-32">
+                  <input
+                    className={cn(FIELD, "tabular-nums")}
+                    name={`${entry.id}-start`}
+                    aria-label={`${prefix}, start date, YYYY-MM`}
+                    inputMode="text"
+                    autoComplete="off"
+                    placeholder="YYYY-MM"
+                    value={entry.startDate ?? ""}
+                    onChange={(event) =>
+                      onField(sectionId, entry.id, "startDate", event.target.value)
+                    }
+                  />
+                </Field>
+                <Field label="End" className="w-32">
+                  <input
+                    className={cn(FIELD, "tabular-nums")}
+                    name={`${entry.id}-end`}
+                    aria-label={`${prefix}, end date, YYYY-MM`}
+                    inputMode="text"
+                    autoComplete="off"
+                    placeholder={entry.current ? "present" : "YYYY-MM"}
+                    value={entry.endDate ?? ""}
+                    disabled={entry.current === true}
+                    onChange={(event) =>
+                      onField(sectionId, entry.id, "endDate", event.target.value)
+                    }
+                  />
+                </Field>
+                <label className="flex cursor-pointer items-center gap-2 pb-2.5 text-sm">
+                  <input
+                    type="checkbox"
+                    className="size-4 accent-primary"
+                    name={`${entry.id}-current`}
+                    checked={entry.current === true}
+                    onChange={(event) =>
+                      onField(sectionId, entry.id, "current", event.target.checked)
+                    }
+                  />
+                  {shape.current}
+                </label>
+              </div>
+            ) : null}
           </div>
 
-          <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              className="size-4 accent-primary"
-              name={`${entry.id}-current`}
-              checked={entry.current === true}
-              onChange={(event) =>
-                onField(sectionId, entry.id, "current", event.target.checked)
-              }
-            />
-            I still do this (current)
-          </label>
-
-          <Field label="Description">
-            <textarea
-              className={cn(FIELD, "min-h-20 resize-y")}
-              name={`${entry.id}-text`}
-              aria-label={`${prefix}, description`}
-              rows={3}
-              value={entry.text ?? ""}
-              onChange={(event) =>
-                onField(sectionId, entry.id, "text", event.target.value)
-              }
-            />
-          </Field>
-
-          <Field label="Skills">
-            <TagsInput
-              name={`${entry.id}-tags`}
-              label={`${prefix}, skills, comma separated`}
-              tags={entry.tags}
-              onTags={(raw) => onTags(sectionId, entry.id, raw)}
-            />
-          </Field>
-
-          <div>
-            <span className={LABEL}>Achievements</span>
-            <div className="space-y-2">
-              {entry.bullets.map((bullet, bulletIndex) => (
-                <BulletRow
-                  key={bullet.id}
-                  sectionId={sectionId}
-                  sectionTitle={sectionTitle}
-                  entryId={entry.id}
-                  entryIndex={entryIndex}
-                  bullet={bullet}
-                  bulletIndex={bulletIndex}
-                  fresh={freshId === bullet.id}
-                  onBulletText={onBulletText}
-                  onRemove={onRemoveBullet}
-                />
-              ))}
+          {show.text || show.tags ? (
+            <div role="group" aria-label={shape.prose} className="space-y-3 border-t border-border/70 pt-4">
+              <p className={GROUP}>{shape.prose}</p>
+              {show.text ? (
+                <Field label={shape.text}>
+                  <textarea
+                    className={cn(FIELD, "min-h-20 resize-y")}
+                    name={`${entry.id}-text`}
+                    aria-label={`${prefix}, ${shape.text.toLowerCase()}`}
+                    rows={3}
+                    value={entry.text ?? ""}
+                    onChange={(event) =>
+                      onField(sectionId, entry.id, "text", event.target.value)
+                    }
+                  />
+                </Field>
+              ) : null}
+              {show.tags ? (
+                <Field label={shape.tags}>
+                  <TagsInput
+                    name={`${entry.id}-tags`}
+                    label={`${prefix}, ${shape.tags.toLowerCase()}, comma separated`}
+                    tags={entry.tags}
+                    onTags={(raw) => onTags(sectionId, entry.id, raw)}
+                  />
+                </Field>
+              ) : null}
             </div>
-            <button
-              type="button"
-              className={cn(ADD_BTN, "mt-3")}
-              onClick={() => onAddBullet(sectionId, entry.id)}
-            >
-              <span aria-hidden>+</span> add achievement
-            </button>
-          </div>
+          ) : null}
+
+          {show.bullets ? (
+            <div role="group" aria-label="Achievements" className="border-t border-border/70 pt-4">
+              <p className={GROUP}>Achievements</p>
+              <div className="space-y-2">
+                {entry.bullets.map((bullet, bulletIndex) => (
+                  <BulletRow
+                    key={bullet.id}
+                    sectionId={sectionId}
+                    sectionTitle={sectionTitle}
+                    entryId={entry.id}
+                    entryIndex={entryIndex}
+                    bullet={bullet}
+                    bulletIndex={bulletIndex}
+                    fresh={freshId === bullet.id}
+                    onBulletText={onBulletText}
+                    onRemove={onRemoveBullet}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                className={cn(ADD_BTN, "mt-3")}
+                onClick={() => onAddBullet(sectionId, entry.id)}
+              >
+                <span aria-hidden>+</span> add achievement
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -1179,7 +1265,7 @@ export function CapyResume() {
                     </Field>
                     <button
                       type="button"
-                      className={cn(DANGER_BTN, REVEAL, "mb-0.5")}
+                      className={cn(DANGER_BTN, "mb-0.5")}
                       onClick={() => removeLink(index)}
                       aria-label={`remove link ${index + 1}`}
                     >
@@ -1227,12 +1313,7 @@ export function CapyResume() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                       {count} {count === 1 ? "entry" : "entries"}
                     </span>
-                    <div
-                      className={cn(
-                        "ml-auto flex items-center gap-1.5",
-                        REVEAL,
-                      )}
-                    >
+                    <div className="ml-auto flex items-center gap-1.5">
                       <button
                         type="button"
                         className={BTN}
@@ -1340,38 +1421,43 @@ export function CapyResume() {
         >
           <div className="space-y-4 xl:flex xl:max-h-[calc(100dvh-10rem)] xl:flex-col">
             <div className="flex flex-wrap gap-3">
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">
-                  template
+              <div>
+                <span id="capyresume-template-label" className={LABEL}>
+                  Template
                 </span>
-                <select
-                  className="rounded-full border border-border bg-background px-3 py-2 transition-colors hover:border-primary hover:bg-muted/50"
-                  name="template"
+                <Select
                   value={doc.templateId}
-                  onChange={(event) =>
-                    edit((d) => ({
-                      ...d,
-                      templateId: event.target.value as TemplateId,
-                    }))
+                  onValueChange={(value) =>
+                    edit((d) => ({ ...d, templateId: value as TemplateId }))
                   }
                 >
-                  {TEMPLATE_LIST.filter((template) =>
-                    isPackUnlocked(template.pack),
-                  ).map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <SelectTrigger
+                    className={SELECT_TRIGGER}
+                    aria-labelledby="capyresume-template-label"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TEMPLATE_LIST.filter((template) =>
+                      isPackUnlocked(template.pack),
+                    ).map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">paper</span>
+              <div>
+                <span id="capyresume-paper-label" className={LABEL}>
+                  Paper
+                </span>
                 {/* Its own component so the prefs subscription is scoped to this control.
                     Subscribing at the top of the editor meant changing paper re-rendered
-                    the entire form, hints and preview to update one `<select>`. */}
+                    the entire form, hints and preview to update one control. */}
                 <PaperSizeSelect />
-              </label>
+              </div>
             </div>
 
             <p className="text-xs text-muted-foreground">{spec.description}</p>
@@ -1428,9 +1514,14 @@ export function CapyResume() {
             </div>
           </div>
         </StageCard>
+      </div>
 
-        {/* ---------------------------------------------------- card 3 */}
-        <StageCard index="03" title="The file" className="xl:col-span-2">
+      {/* ---------------------------------------------------- card 3 */}
+      {/* Outside the two-pane grid on purpose: a sticky element is bounded by its
+          containing block, which is the grid, so with this card inside it the pinned
+          preview slid down over it and its last section could not be scrolled to. */}
+      <div className="mt-5">
+        <StageCard index="03" title="The file">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
               <button
