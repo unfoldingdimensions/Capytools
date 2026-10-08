@@ -2,6 +2,8 @@
 
 *Working learning log for the landing-page-revamp effort (2026-09-09). Companion to [decisions.md](decisions.md) and [handover.md](handover.md). These are the things that cost debugging time this session or will bite again if forgotten.*
 
+> **Every agent, every session:** before you finish, append what your session learned here — the next `L` number, what happened, and the rule it leaves — under a section for the effort (e.g. `# SEO`). Read the existing entries first so you don't relearn them. Decisions go in [decisions.md](decisions.md). Nothing else from your session survives.
+
 ---
 
 ## L1. `next dev --webpack` + duplicated `Link`s = a hydration-killing prefetch storm
@@ -59,3 +61,62 @@ Adding a `w-fit` wrapper (for corner crop marks) around `CardScaled`'s frame cau
 Two rules: (1) any fit-content wrapper around content that is briefly unscaled gets `max-w-full` — it caps every state by construction instead of by timing; (2) the Playwright overflow probe must sample `scrollWidth` repeatedly starting at `domcontentloaded`, not once after `networkidle`.
 
 Also bit twice this session: `next start` does NOT pick up a rebuild while running (restart it), and killing the npm/npx wrapper on Windows orphans the node child still holding the port — `netstat -ano | grep :PORT` then `taskkill //PID <pid> //F`, or the "new" server's 200s come from the old build.
+
+---
+
+# SEO (2026-10-04 → 2026-10-09)
+
+*Decisions for this effort are D19–D34 in [decisions.md](decisions.md).*
+
+## L12. Audit the live site; don't trust the checklist in your head
+
+A scripted pass over all 24 sitemap URLs (status, noindex, canonical, description, H1 count, JSON-LD types, image alts, redirects, real 404) found what memory missed: `/notes`, `/design` and `/license` had no canonical. The same audit then over-reported "alt text on every image ✅" because it only checked that an `alt` attribute existed — every one was `alt=""`. **Rule:** check the value, not the presence, and run the check against production.
+
+## L13. Every claim in page copy gets checked against the code
+
+Four drafted claims were wrong until checked: the living-artist filter applies only to Gemini and the video engines, not every engine; the vCard form has no job-title field; Midjourney prompts carry `--ar` only once a destination is picked (caught by clicking through in the browser, not by reading code); the website extractor can say what *the site's code* keeps, but not that nothing is recorded anywhere, because Workers observability is on. **Rule:** read the code path for each sentence, and for anything conditional, exercise it in the browser.
+
+## L14. Tailwind v4 `space-y-*` loses to `landing.css`'s `p` reset
+
+`space-y-4` on the guide's paragraphs computed to `margin: 0` on every guide page, since #66: v4's spacing utilities sit inside `:where()` (zero specificity) and the landing stylesheet's `p` margin reset wins. Direct utilities on the element (`mt-3`) were fine. **Rule:** inside `.lp` pages, space siblings with `grid gap-*` / `flex gap-*`, never `space-y-*`. Measure the computed margin — it looked "fine" in a quick screenshot.
+
+## L15. The shared footer renders inside a client component
+
+`src/app/error.tsx` is `"use client"` and renders `SiteFooter`, so anything the footer imports ships to the browser. Importing `landing.ts` (all the landing copy) there for one constant would have bloated the error bundle. **Rule:** shared chrome imports only tiny, purpose-built modules (`author.ts`). Grep for `"use client"` importers before adding an import to shared chrome.
+
+## L16. A Workers deploy isn't everywhere the moment `wrangler deploy` returns
+
+Smoke that ran seconds after a deploy got 404 on two pages the deploy had just added; seconds later every probe answered 200. Hence the smoke page loop's 404 retry (D28). Existing pages were unaffected; new URLs are the exposure.
+
+## L17. IndexNow answers 202 on a key's first use, then 200
+
+`202 accepted — key validation pending` means the engine will fetch `/<key>.txt` before acting; the next submission came back `200 submitted`. A 403 means the key file isn't deployed. Google does not participate in IndexNow.
+
+## L18. What Google actually says (checked 2026-10, via the seoo pack and Google's docs)
+
+- FAQ rich results only appear for well-known government and health sites (since 2023).
+- `llms.txt` is ignored by Google Search; there's no special file or schema for AI features.
+- Empty `alt` is correct for decorative images; Google states no "exactly one H1" rule and no title-length limit.
+- There's no duplicate-content penalty, but *scaled content abuse* (many pages made mainly to rank) is a spam policy.
+- Breadcrumb trails aren't shown in mobile results.
+
+Bing's Webmaster "SEO issues" are separate and include low-severity Notices (e.g. empty `alt`) that aren't errors.
+
+## L19. Measuring speed from here is unreliable
+
+The anonymous PageSpeed Insights API quota runs out; paint timings don't record when the browser pane is hidden; and the owner's connection adds a variable 0.2–1 s. The useful split was `curl -w` timings (TLS vs first byte) on a cached static asset against a Worker-rendered page from the same place: static ~0.5–0.85 s, rendered 0.45–1.6 s. **Rule:** use PageSpeed Insights in a browser, or the Search Console Core Web Vitals report once there's traffic, for real numbers.
+
+## L20. `npm audit fix` is not a narrow tool
+
+On a two-package advisory it rewrote ~100 packages in the lockfile. `npm update <pkg> <pkg>` moved only the flagged packages (and their platform binaries). Also: running `npm ci` and then `npm update` back to back left `node_modules` missing type declarations (lint, tests and `tsc` all broke); a fresh `npm ci` from the new lockfile fixed it. Re-run the CI steps from a clean install before trusting a dependency change.
+
+## L21. Work in a separate checkout; other agents share the main one
+
+The main checkout at `E:\New-Personal-Projects\Capytools` is used by other agents at the same time (its branch changes under you). Every SEO PR was built in a temporary worktree from `origin/main`. Traps met on the way:
+- `cp -r` of another checkout's `node_modules` ran on in the background and collided with `npm ci` — always `npm ci` fresh in the worktree.
+- `.claude/launch.json` lives in the main checkout and other agents add entries too: add your own entry, remove only yours afterwards.
+- On Windows, write multi-line content with the Write/Edit tools; long Bash heredocs with quotes and backticks break.
+
+## L22. Search-intent checks change the plan
+
+Looking at what actually ranks before building moved three candidates: "EXIF viewer" was already served by `/capystrip` (fold in, don't add a page); "check if an image is AI-generated" returns pixel classifiers, which a metadata reader can't honestly claim to be; a `geo:` QR code doesn't match people who want a Google Maps link. **Rule:** for each candidate page, look at the live results and ask whether the tool honestly does what those pages do.

@@ -12,6 +12,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Capytools Architecture & Design Guidelines
 
+**Session memory:** read [`decisions.md`](decisions.md) and [`learning.md`](learning.md) before you start, and append your session's decisions and learnings to them before you finish — they are the only memory the next agent has.
+
 ### 1. Brand Ethos & Execution Model
 - **"Calm little tools"**: No signup, no cookies, nothing leaves the user's machine.
 - **Browser tools** (the default) must execute **100% in-browser** (client-side TypeScript / Web APIs) and store nothing.
