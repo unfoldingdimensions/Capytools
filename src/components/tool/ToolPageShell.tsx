@@ -148,7 +148,7 @@ export function ToolPageShell({
           </h1>
 
           <Reveal delay={0.2}>
-            <p className={cn("lp-lead mt-5 text-center", large && "lp-lead-lg")}>{lead}</p>
+            <p className={cn("lp-lead mx-auto mt-5 text-center", large && "lp-lead-lg")}>{lead}</p>
             {/* The lead is the tagline; the summary is the plain answer. */}
             {guide ? (
               <p className="mx-auto mt-4 max-w-xl text-center text-[15px] leading-relaxed text-foreground/85">
