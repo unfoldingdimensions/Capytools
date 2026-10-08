@@ -129,19 +129,37 @@ export function composeEntry(entry: Entry): DocBlock[] {
  * rendered for every template — sections are never dropped by a layout.
  */
 export function composeDocument(doc: ResumeDoc, spec: TemplateSpec): DocBlock[] {
-  const blocks: DocBlock[] = [...composeHeader(doc)];
+  return [
+    ...composeHeader(doc),
+    ...composeSections(doc, spec).flatMap((section) => [
+      section.heading,
+      ...section.entries.flatMap((entry) => entry.blocks),
+    ]),
+  ];
+}
 
-  for (const section of doc.sections) {
-    if (isSectionEmpty(section)) continue;
+/** One rendered section, its blocks still grouped by the entry that produced them. */
+export interface ComposedSection {
+  sectionId: string;
+  heading: DocBlock;
+  entries: { entryId: string; blocks: DocBlock[] }[];
+}
 
-    blocks.push({ kind: 'heading', text: headingText(spec, section.title) });
-
-    for (const entry of section.entries) {
-      blocks.push(...composeEntry(entry));
-    }
-  }
-
-  return blocks;
+/**
+ * The sections of `composeDocument`, keeping which entry each block came from, so
+ * the live preview can point at the entry being edited. `composeDocument` is built
+ * from this, so the two cannot disagree about what is dropped.
+ */
+export function composeSections(doc: ResumeDoc, spec: TemplateSpec): ComposedSection[] {
+  return doc.sections
+    .filter((section) => !isSectionEmpty(section))
+    .map((section) => ({
+      sectionId: section.id,
+      heading: { kind: 'heading', text: headingText(spec, section.title) },
+      entries: section.entries
+        .map((entry) => ({ entryId: entry.id, blocks: composeEntry(entry) }))
+        .filter((entry) => entry.blocks.length > 0),
+    }));
 }
 
 /** Extract the plain text of the composed document — used by tests and the "copy" action. */
