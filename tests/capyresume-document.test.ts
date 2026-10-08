@@ -3,6 +3,8 @@ import { describe, it, expect } from 'vitest';
 import {
   blocksToPlainText,
   composeDocument,
+  composeHeader,
+  composeSections,
   entryBullets,
   entryTags,
   isEntryEmpty,
@@ -219,5 +221,22 @@ describe('capyresume/document — output hygiene', () => {
     const text = blocksToPlainText(composeDocument(DEMO_RESUME, TEMPLATES.classic));
     expect(text.indexOf('Maya Okafor')).toBeLessThan(text.indexOf('SUMMARY'));
     expect(text.indexOf('SUMMARY')).toBeLessThan(text.indexOf('EXPERIENCE'));
+  });
+});
+
+describe('capyresume/document — composeSections', () => {
+  it('is composeDocument grouped by entry, so the preview can point at one', () => {
+    const spec = TEMPLATE_LIST[0];
+    const sections = composeSections(DEMO_RESUME, spec);
+    const flat = [
+      ...composeHeader(DEMO_RESUME),
+      ...sections.flatMap((s) => [s.heading, ...s.entries.flatMap((e) => e.blocks)]),
+    ];
+    expect(flat).toEqual(composeDocument(DEMO_RESUME, spec));
+    const first = DEMO_RESUME.sections.find((s) => !isSectionEmpty(s))!;
+    expect(sections[0].sectionId).toBe(first.id);
+    expect(sections[0].entries.map((e) => e.entryId)).toEqual(
+      first.entries.filter((e) => !isEntryEmpty(e)).map((e) => e.id),
+    );
   });
 });

@@ -15,7 +15,17 @@
  * anything imports it.
  */
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { StageCard } from "@/components/stage-card";
 import {
@@ -52,7 +62,7 @@ import {
   getTemplate,
   isPackUnlocked,
 } from "@/lib/capyresume/templates";
-import { composeDocument } from "@/lib/capyresume/document";
+import { composeHeader, composeSections } from "@/lib/capyresume/document";
 import {
   BlockView,
   previewPaperStyle,
@@ -74,7 +84,7 @@ import {
   downloadText,
   readFileAsText,
 } from "@/lib/capyresume/download";
-import { formatBytes } from "@/lib/capyresume/format";
+import { formatBytes, formatDateRange } from "@/lib/capyresume/format";
 import type {
   Bullet,
   Entry,
@@ -147,6 +157,46 @@ const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: "custom", label: "Custom section" },
 ];
 
+/*
+ * The builder's controls come in three weights, and every one fills on hover so it
+ * reads as pressable: neutral (sage fill), additive (sage-tinted at rest), and
+ * destructive (fills red). Before, every control was the same grey pill and the
+ * same grey well, so nothing told the eye what was content and what was chrome.
+ */
+const FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background";
+const BTN = `inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-[13px] transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground pointer-coarse:min-h-11 ${FOCUS}`;
+const ICON_BTN = `inline-grid size-8 shrink-0 place-items-center rounded-full border border-border text-sm transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground pointer-coarse:size-11 ${FOCUS}`;
+const DANGER_BTN = `inline-flex items-center rounded-full border border-border px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-destructive hover:bg-destructive hover:text-background pointer-coarse:min-h-11 ${FOCUS}`;
+const ADD_BTN = `inline-flex items-center gap-1.5 rounded-full border border-primary/60 bg-primary/10 px-3.5 py-1.5 text-[13px] transition-colors hover:bg-primary hover:text-primary-foreground pointer-coarse:min-h-11 ${FOCUS}`;
+const FIELD =
+  "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground/70 hover:border-primary/60 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50";
+const LABEL =
+  "mb-1.5 block font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground";
+/** Row actions stay quiet until the row is pointed at or tabbed into; always on touch. */
+const REVEAL =
+  "opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100";
+/** A just-added row glows briefly, so the click visibly landed somewhere. */
+const FRESH = "bg-primary/15";
+
+/** A visible label above its control — placeholders vanish once you type. */
+function Field({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className={cn("block min-w-0", className)}>
+      <span className={LABEL}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
 /**
  * The helpers below exist so the memoized rows can be handed stable functions only.
  * That is what makes `memo` work at all: `EntryRow` receives its handlers as props
@@ -181,6 +231,7 @@ const BulletRow = memo(function BulletRow({
   bulletIndex,
   entryId,
   sectionId,
+  fresh,
   onBulletText,
   onRemove,
 }: {
@@ -190,22 +241,26 @@ const BulletRow = memo(function BulletRow({
   bulletIndex: number;
   entryId: string;
   sectionId: string;
+  fresh: boolean;
   onBulletText: BulletTextEdit;
-  onRemove: (
-    sectionId: string,
-    entryId: string,
-    bulletId: string,
-    label: string,
-  ) => void;
+  onRemove: (sectionId: string, entryId: string, bulletId: string) => void;
 }) {
   const label = `${sectionTitle}, entry ${entryIndex + 1}, achievement ${bulletIndex + 1}`;
   return (
-    <div className="flex gap-2">
+    <div
+      className={cn(
+        "group flex items-center gap-2 rounded-xl transition-colors duration-700",
+        fresh && FRESH,
+      )}
+    >
+      <span aria-hidden className="w-3 text-center text-muted-foreground">
+        •
+      </span>
       <input
-        className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
+        className={FIELD}
         name={`${bullet.id}-text`}
         aria-label={label}
-        placeholder="achievement"
+        placeholder="what you did, with a number if there is one"
         value={bullet.text}
         onChange={(event) =>
           onBulletText(sectionId, entryId, bullet.id, event.target.value)
@@ -213,8 +268,8 @@ const BulletRow = memo(function BulletRow({
       />
       <button
         type="button"
-        className="rounded-full border border-border px-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-        onClick={() => onRemove(sectionId, entryId, bullet.id, label)}
+        className={cn(ICON_BTN, REVEAL, "hover:border-destructive hover:bg-destructive hover:text-background")}
+        onClick={() => onRemove(sectionId, entryId, bullet.id)}
         aria-label={`remove ${label}`}
       >
         ×
@@ -223,18 +278,6 @@ const BulletRow = memo(function BulletRow({
   );
 });
 
-/**
- * One entry — a job, degree, project or certification.
- *
- * Takes `sectionTitle` and `sectionType` as primitives rather than the whole section:
- * passing the section would mean every entry in it re-renders whenever any one of them
- * is edited, since the parent replaces the section object on a child edit. The ids are
- * primitives already, so a keystroke here propagates to this row and the preview only.
- *
- * Handlers are the two stable functions from the parent, not the per-edit helpers —
- * those are already bound to this row's section and entry, so they change identity
- * every render and would defeat the memo.
- */
 /**
  * The skills field. The document stores parsed tags, so a controlled value of
  * `tags.join(', ')` would erase a trailing comma or space the moment it is typed
@@ -255,11 +298,11 @@ export function TagsInput({
   const [draft, setDraft] = useState<string | null>(null);
   return (
     <input
-      className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+      className={FIELD}
       name={name}
       aria-label={label}
       autoComplete="off"
-      placeholder="skills, comma separated"
+      placeholder="comma separated"
       value={draft ?? tags.join(", ")}
       onFocus={() => setDraft(tags.join(", "))}
       onChange={(event) => {
@@ -271,12 +314,26 @@ export function TagsInput({
   );
 }
 
+/**
+ * One entry — a job, degree, project or certification — as an accordion row.
+ *
+ * Collapsed, it is one line: what it is, where, when. Only the open entry shows its
+ * fields, so the form reads as an outline of the résumé rather than a wall of inputs.
+ *
+ * Takes `sectionTitle` and `sectionType` as primitives rather than the whole section:
+ * passing the section would mean every entry in it re-renders whenever any one of them
+ * is edited, since the parent replaces the section object on a child edit. `open` and
+ * `freshId` only change for the row they concern, so the memo still holds.
+ */
 const EntryRow = memo(function EntryRow({
   sectionId,
   sectionTitle,
   sectionType,
   entry,
   entryIndex,
+  open,
+  freshId,
+  onToggle,
   onField,
   onTags,
   onBulletText,
@@ -290,172 +347,260 @@ const EntryRow = memo(function EntryRow({
   sectionType: SectionType;
   entry: Entry;
   entryIndex: number;
+  open: boolean;
+  /** This entry's id or one of its bullets' while it is freshly added, else null. */
+  freshId: string | null;
+  onToggle: (entryId: string) => void;
   onField: FieldEdit;
   onTags: TextEdit;
   onBulletText: BulletTextEdit;
   onAddBullet: (sectionId: string, entryId: string) => void;
-  onRemoveBullet: (
-    sectionId: string,
-    entryId: string,
-    bulletId: string,
-    label: string,
-  ) => void;
+  onRemoveBullet: (sectionId: string, entryId: string, bulletId: string) => void;
   onMove: (sectionId: string, entryId: string, delta: number) => void;
   onRemove: (sectionId: string, entryId: string) => void;
 }) {
   const prefix = `${sectionTitle}, entry ${entryIndex + 1}`;
-  const titlePlaceholder =
+  const titleLabel =
     sectionType === "skills"
-      ? "Group name (optional)"
+      ? "Group name"
       : sectionType === "summary"
-        ? "Summary heading (optional)"
-        : "Title / role / degree";
+        ? "Heading"
+        : "Title";
+  const range = formatDateRange(entry.startDate, entry.endDate, entry.current);
+  const heading =
+    entry.title?.trim() ||
+    entry.text?.trim() ||
+    entry.tags.join(", ") ||
+    "New entry";
+  const detail = [entry.organisation?.trim(), range].filter(Boolean).join(" · ");
+  const panelId = `${entry.id}-panel`;
 
   return (
-    <div className="rounded-2xl bg-muted/30 p-3">
-      <div className="grid gap-2 sm:grid-cols-2">
-        <input
-          className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          name={`${entry.id}-title`}
-          aria-label={`${prefix}, title`}
-          placeholder={titlePlaceholder}
-          value={entry.title ?? ""}
-          onChange={(event) =>
-            onField(sectionId, entry.id, "title", event.target.value)
-          }
-        />
-        <input
-          className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          name={`${entry.id}-organisation`}
-          aria-label={`${prefix}, organisation`}
-          placeholder="organisation"
-          value={entry.organisation ?? ""}
-          onChange={(event) =>
-            onField(sectionId, entry.id, "organisation", event.target.value)
-          }
-        />
-        <input
-          className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          name={`${entry.id}-location`}
-          aria-label={`${prefix}, location`}
-          autoComplete="off"
-          placeholder="location"
-          value={entry.location ?? ""}
-          onChange={(event) =>
-            onField(sectionId, entry.id, "location", event.target.value)
-          }
-        />
-        <div className="flex gap-2">
-          <input
-            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
-            name={`${entry.id}-start`}
-            aria-label={`${prefix}, start date, YYYY-MM`}
-            inputMode="text"
-            autoComplete="off"
-            placeholder="YYYY-MM"
-            value={entry.startDate ?? ""}
-            onChange={(event) =>
-              onField(sectionId, entry.id, "startDate", event.target.value)
-            }
-          />
-          <input
-            className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
-            name={`${entry.id}-end`}
-            aria-label={`${prefix}, end date, YYYY-MM`}
-            inputMode="text"
-            autoComplete="off"
-            placeholder="YYYY-MM"
-            value={entry.endDate ?? ""}
-            disabled={entry.current === true}
-            onChange={(event) =>
-              onField(sectionId, entry.id, "endDate", event.target.value)
-            }
-          />
+    <div
+      className={cn(
+        "rounded-2xl transition-colors duration-700",
+        open && "bg-muted/40",
+        freshId === entry.id && FRESH,
+      )}
+    >
+      <div className="group flex items-center gap-2 py-1 pl-1 pr-2">
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => onToggle(entry.id)}
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-muted/70",
+            FOCUS,
+          )}
+        >
+          <span
+            aria-hidden
+            className={cn(
+              "text-muted-foreground transition-transform duration-200",
+              open && "rotate-90",
+            )}
+          >
+            ›
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-[15px] font-medium text-foreground">
+              {heading}
+            </span>
+            {detail ? (
+              <span className="block truncate text-xs text-muted-foreground">
+                {detail}
+              </span>
+            ) : null}
+          </span>
+        </button>
+        <div className={cn("flex items-center gap-1.5", REVEAL)}>
+          <button
+            type="button"
+            className={ICON_BTN}
+            onClick={() => onMove(sectionId, entry.id, -1)}
+            aria-label={`move ${prefix} up`}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            className={ICON_BTN}
+            onClick={() => onMove(sectionId, entry.id, 1)}
+            aria-label={`move ${prefix} down`}
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            className={DANGER_BTN}
+            onClick={() => onRemove(sectionId, entry.id)}
+            aria-label={`remove ${prefix}`}
+          >
+            remove
+          </button>
         </div>
       </div>
 
-      <label className="mt-2 flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          name={`${entry.id}-current`}
-          checked={entry.current === true}
-          onChange={(event) =>
-            onField(sectionId, entry.id, "current", event.target.checked)
-          }
-        />
-        current
-      </label>
+      {open ? (
+        <div id={panelId} className="space-y-4 px-3 pb-4 pt-2">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={titleLabel}>
+              <input
+                className={FIELD}
+                name={`${entry.id}-title`}
+                aria-label={`${prefix}, ${titleLabel.toLowerCase()}`}
+                value={entry.title ?? ""}
+                onChange={(event) =>
+                  onField(sectionId, entry.id, "title", event.target.value)
+                }
+              />
+            </Field>
+            <Field label="Organisation">
+              <input
+                className={FIELD}
+                name={`${entry.id}-organisation`}
+                aria-label={`${prefix}, organisation`}
+                value={entry.organisation ?? ""}
+                onChange={(event) =>
+                  onField(sectionId, entry.id, "organisation", event.target.value)
+                }
+              />
+            </Field>
+            <Field label="Location">
+              <input
+                className={FIELD}
+                name={`${entry.id}-location`}
+                aria-label={`${prefix}, location`}
+                autoComplete="off"
+                value={entry.location ?? ""}
+                onChange={(event) =>
+                  onField(sectionId, entry.id, "location", event.target.value)
+                }
+              />
+            </Field>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Start">
+                <input
+                  className={cn(FIELD, "tabular-nums")}
+                  name={`${entry.id}-start`}
+                  aria-label={`${prefix}, start date, YYYY-MM`}
+                  inputMode="text"
+                  autoComplete="off"
+                  placeholder="YYYY-MM"
+                  value={entry.startDate ?? ""}
+                  onChange={(event) =>
+                    onField(sectionId, entry.id, "startDate", event.target.value)
+                  }
+                />
+              </Field>
+              <Field label="End">
+                <input
+                  className={cn(FIELD, "tabular-nums")}
+                  name={`${entry.id}-end`}
+                  aria-label={`${prefix}, end date, YYYY-MM`}
+                  inputMode="text"
+                  autoComplete="off"
+                  placeholder={entry.current ? "present" : "YYYY-MM"}
+                  value={entry.endDate ?? ""}
+                  disabled={entry.current === true}
+                  onChange={(event) =>
+                    onField(sectionId, entry.id, "endDate", event.target.value)
+                  }
+                />
+              </Field>
+            </div>
+          </div>
 
-      <textarea
-        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        name={`${entry.id}-text`}
-        aria-label={`${prefix}, description`}
-        rows={2}
-        placeholder="description / summary text"
-        value={entry.text ?? ""}
-        onChange={(event) =>
-          onField(sectionId, entry.id, "text", event.target.value)
-        }
-      />
+          <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="size-4 accent-primary"
+              name={`${entry.id}-current`}
+              checked={entry.current === true}
+              onChange={(event) =>
+                onField(sectionId, entry.id, "current", event.target.checked)
+              }
+            />
+            I still do this (current)
+          </label>
 
-      <TagsInput
-        name={`${entry.id}-tags`}
-        label={`${prefix}, skills, comma separated`}
-        tags={entry.tags}
-        onTags={(raw) => onTags(sectionId, entry.id, raw)}
-      />
+          <Field label="Description">
+            <textarea
+              className={cn(FIELD, "min-h-20 resize-y")}
+              name={`${entry.id}-text`}
+              aria-label={`${prefix}, description`}
+              rows={3}
+              value={entry.text ?? ""}
+              onChange={(event) =>
+                onField(sectionId, entry.id, "text", event.target.value)
+              }
+            />
+          </Field>
 
-      <div className="mt-2 space-y-2">
-        {entry.bullets.map((bullet, bulletIndex) => (
-          <BulletRow
-            key={bullet.id}
-            sectionId={sectionId}
-            sectionTitle={sectionTitle}
-            entryId={entry.id}
-            entryIndex={entryIndex}
-            bullet={bullet}
-            bulletIndex={bulletIndex}
-            onBulletText={onBulletText}
-            onRemove={onRemoveBullet}
-          />
-        ))}
-        <button
-          type="button"
-          className="text-sm underline transition-colors hover:text-foreground"
-          onClick={() => onAddBullet(sectionId, entry.id)}
-        >
-          add bullet
-        </button>
-      </div>
+          <Field label="Skills">
+            <TagsInput
+              name={`${entry.id}-tags`}
+              label={`${prefix}, skills, comma separated`}
+              tags={entry.tags}
+              onTags={(raw) => onTags(sectionId, entry.id, raw)}
+            />
+          </Field>
 
-      <div className="mt-2 flex gap-2">
-        <button
-          type="button"
-          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          onClick={() => onMove(sectionId, entry.id, -1)}
-          aria-label={`move ${prefix} up`}
-        >
-          ↑
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          onClick={() => onMove(sectionId, entry.id, 1)}
-          aria-label={`move ${prefix} down`}
-        >
-          ↓
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          onClick={() => onRemove(sectionId, entry.id)}
-        >
-          remove entry
-        </button>
-      </div>
+          <div>
+            <span className={LABEL}>Achievements</span>
+            <div className="space-y-2">
+              {entry.bullets.map((bullet, bulletIndex) => (
+                <BulletRow
+                  key={bullet.id}
+                  sectionId={sectionId}
+                  sectionTitle={sectionTitle}
+                  entryId={entry.id}
+                  entryIndex={entryIndex}
+                  bullet={bullet}
+                  bulletIndex={bulletIndex}
+                  fresh={freshId === bullet.id}
+                  onBulletText={onBulletText}
+                  onRemove={onRemoveBullet}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className={cn(ADD_BTN, "mt-3")}
+              onClick={() => onAddBullet(sectionId, entry.id)}
+            >
+              <span aria-hidden>+</span> add achievement
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 });
+
+/** Move focus to a control the next frame, once React has rendered it. */
+function focusByName(name: string) {
+  requestAnimationFrame(() =>
+    document
+      .querySelector<HTMLElement>(`[name="${CSS.escape(name)}"]`)
+      ?.focus(),
+  );
+}
+
+/** How long a removal can be taken back. */
+const UNDO_MS = 10_000;
+
+/** The preview's pointer at the entry being edited: a sage wash, fixed ink on paper. */
+const PREVIEW_ACTIVE: CSSProperties = {
+  backgroundColor: "rgba(142, 155, 126, 0.18)",
+  boxShadow: "0 0 0 4pt rgba(142, 155, 126, 0.18)",
+  borderRadius: "1pt",
+  transition: "background-color 300ms, box-shadow 300ms",
+};
+const PREVIEW_IDLE: CSSProperties = {
+  transition: "background-color 300ms, box-shadow 300ms",
+};
 
 export function CapyResume() {
   // The demo is the server snapshot, so the first paint has real content and
@@ -470,8 +615,21 @@ export function CapyResume() {
     confirmText: string;
     run: () => void;
   } | null>(null);
+  /** The one expanded entry: the form is an accordion, one row open at a time. */
+  const [openEntry, setOpenEntry] = useState<string | null>(null);
+  /** The section whose heading is being renamed in place. */
+  const [renaming, setRenaming] = useState<string | null>(null);
+  /** The entry or bullet just added, glowing for a moment. */
+  const [fresh, setFresh] = useState<string | null>(null);
+  /** When the last edit reached storage; null until this visit saves something. */
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  /** The document as it was before the last removal, while it can be restored. */
+  const [undo, setUndo] = useState<{ message: string; before: ResumeDoc } | null>(
+    null,
+  );
   const seeded = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const paperScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (seeded.current) return;
@@ -487,10 +645,39 @@ export function CapyResume() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!undo) return;
+    const timer = window.setTimeout(() => setUndo(null), UNDO_MS);
+    return () => window.clearTimeout(timer);
+  }, [undo]);
+
   const doc = stored;
   const spec = useMemo(() => getTemplate(doc.templateId), [doc.templateId]);
-  const blocks = useMemo(() => composeDocument(doc, spec), [doc, spec]);
+  const header = useMemo(() => composeHeader(doc), [doc]);
+  const sections = useMemo(() => composeSections(doc, spec), [doc, spec]);
   const hints = useMemo(() => lintResume(doc), [doc]);
+
+  // Keep the open entry in view inside the pinned preview. Only when the preview is
+  // its own scroller (side by side, `xl:`): stacked, scrolling it would drag the
+  // whole page away from the field being typed in.
+  useEffect(() => {
+    const scroller = paperScrollRef.current;
+    if (!openEntry || !scroller) return;
+    if (getComputedStyle(scroller).overflowY !== "auto") return;
+    const target = scroller.querySelector<HTMLElement>(
+      `[data-entry="${CSS.escape(openEntry)}"]`,
+    );
+    if (!target) return;
+    const box = scroller.getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
+    if (rect.top >= box.top && rect.bottom <= box.bottom) return;
+    scroller.scrollTo({
+      top: scroller.scrollTop + rect.top - box.top - 24,
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }, [openEntry]);
 
   /**
    * Apply a change and persist it. Storage failures are surfaced, never swallowed.
@@ -506,6 +693,9 @@ export function CapyResume() {
    * Identity is the whole test. Comparing bodies instead would mean serialising the
    * document twice on every genuine keystroke to catch a case the modules already
    * handle by returning the reference, which is strictly cheaper and cannot drift.
+   *
+   * Any edit also retires a pending undo: restoring the pre-removal document after
+   * further typing would silently throw that typing away.
    */
   const edit = useCallback((mutate: (draft: ResumeDoc) => ResumeDoc) => {
     // Read the document at call time rather than closing over it. That keeps `edit`
@@ -519,6 +709,8 @@ export function CapyResume() {
     try {
       saveResume(next);
       setNotice(null);
+      setUndo(null);
+      setSavedAt(new Date());
     } catch (error) {
       setNotice(
         error instanceof Error
@@ -527,6 +719,44 @@ export function CapyResume() {
       );
     }
   }, []);
+
+  /** Remove something and offer it back for a few seconds. */
+  const removeWithUndo = useCallback(
+    (message: string, mutate: (draft: ResumeDoc) => ResumeDoc) => {
+      const before = getSnapshot();
+      edit(mutate);
+      if (getSnapshot() !== before) setUndo({ message, before });
+    },
+    [edit],
+  );
+
+  const restoreRemoved = () => {
+    if (!undo) return;
+    try {
+      saveResume(undo.before);
+      setSavedAt(new Date());
+    } catch (error) {
+      setNotice(
+        error instanceof Error ? error.message : "Could not save to this browser.",
+      );
+    }
+    setUndo(null);
+  };
+
+  /** Glow a just-added row for a moment. */
+  const flash = useCallback((id: string) => {
+    setFresh(id);
+    window.setTimeout(
+      () => setFresh((current) => (current === id ? null : current)),
+      1400,
+    );
+  }, []);
+
+  const toggleEntry = useCallback(
+    (entryId: string) =>
+      setOpenEntry((current) => (current === entryId ? null : entryId)),
+    [],
+  );
 
   /**
    * The two per-edit helpers the rows receive, both stable.
@@ -552,15 +782,25 @@ export function CapyResume() {
   );
 
   const handleAddBullet = useCallback(
-    (sectionId: string, entryId: string) =>
-      edit((d) => addBulletTo(d, sectionId, entryId)),
-    [edit],
+    (sectionId: string, entryId: string) => {
+      edit((d) => addBulletTo(d, sectionId, entryId));
+      const bullet = getSnapshot()
+        .sections.find((section) => section.id === sectionId)
+        ?.entries.find((entry) => entry.id === entryId)
+        ?.bullets.at(-1);
+      if (!bullet) return;
+      flash(bullet.id);
+      focusByName(`${bullet.id}-text`);
+    },
+    [edit, flash],
   );
 
   const handleRemoveBullet = useCallback(
     (sectionId: string, entryId: string, bulletId: string) =>
-      edit((d) => removeBulletFrom(d, sectionId, entryId, bulletId)),
-    [edit],
+      removeWithUndo("Achievement removed.", (d) =>
+        removeBulletFrom(d, sectionId, entryId, bulletId),
+      ),
+    [removeWithUndo],
   );
 
   /**
@@ -583,24 +823,27 @@ export function CapyResume() {
     [edit],
   );
 
-  // One click used to delete a whole job with no way back; anything with content
-  // now asks first, the same way the other destructive actions do.
+  // Removing a whole job asks first when it has content, then can still be undone.
   const handleRemoveEntry = useCallback(
     (sectionId: string, entryId: string) => {
       const entry = getSnapshot()
         .sections.find((section) => section.id === sectionId)
         ?.entries.find((candidate) => candidate.id === entryId);
-      const remove = () => edit((d) => removeEntryFrom(d, sectionId, entryId));
+      const name = entry?.title?.trim() || "this entry";
+      const remove = () =>
+        removeWithUndo(`Removed ${name}.`, (d) =>
+          removeEntryFrom(d, sectionId, entryId),
+        );
       if (!entry || isEntryEmpty(entry)) return remove();
       setConfirming({
-        title: `remove ${entry.title?.trim() || "this entry"}?`,
+        title: `remove ${name}?`,
         message:
-          "Its details and bullets go with it, and there is no undo. Export a JSON backup first if you might want it back.",
+          "Its details and achievements go with it. You can undo for a few seconds afterwards.",
         confirmText: "remove it",
         run: remove,
       });
     },
-    [edit],
+    [removeWithUndo],
   );
 
   // ---------------------------------------------------------------- contact
@@ -609,27 +852,38 @@ export function CapyResume() {
   const setContact = (field: ContactField, value: string) =>
     edit((d) => setContactField(d, field, value));
 
-  const addLink = () => edit(addLinkTo);
+  const addLink = () => {
+    edit(addLinkTo);
+    focusByName(`link-${getSnapshot().contact.links.length - 1}-label`);
+  };
 
   const setLink = (index: number, field: keyof ResumeLink, value: string) =>
     edit((d) => setLinkOn(d, index, field, value));
 
-  const removeLink = (index: number) => edit((d) => removeLinkFrom(d, index));
+  const removeLink = (index: number) =>
+    removeWithUndo("Link removed.", (d) => removeLinkFrom(d, index));
 
   // --------------------------------------------------------------- sections
   const addSection = (type: SectionType) => {
     const label =
       SECTION_CHOICES.find((c) => c.type === type)?.label ?? "Section";
     edit((d) => addSectionTo(d, type, label));
+    // A new section is empty; open its first entry so there is somewhere to type.
+    const added = getSnapshot().sections.at(-1);
+    if (added) addEntry(added.id);
   };
 
   const removeSection = (id: string) => {
     const section = doc.sections.find((candidate) => candidate.id === id);
-    const remove = () => edit((d) => removeSectionFrom(d, id));
+    const name = section?.title.trim() || "untitled";
+    const remove = () =>
+      removeWithUndo(`Removed the ${name} section.`, (d) =>
+        removeSectionFrom(d, id),
+      );
     if (!section || section.entries.every(isEntryEmpty)) return remove();
     setConfirming({
-      title: `remove the ${section.title.trim() || "untitled"} section?`,
-      message: `${section.entries.length === 1 ? "Its entry goes" : `All ${section.entries.length} of its entries go`} with it, and there is no undo. Export a JSON backup first if you might want it back.`,
+      title: `remove the ${name} section?`,
+      message: `${section.entries.length === 1 ? "Its entry goes" : `All ${section.entries.length} of its entries go`} with it. You can undo for a few seconds afterwards.`,
       confirmText: "remove it",
       run: remove,
     });
@@ -642,10 +896,19 @@ export function CapyResume() {
     edit((d) => setSectionTitleOn(d, id, title));
 
   // ---------------------------------------------------------------- entries
-  // Only `addEntry` is still needed here: adding a row is a section-level control. Every
-  // other entry and bullet edit is passed to `EntryRow` as one of the stable helpers
-  // above, so the row can stay memoized.
-  const addEntry = (sectionId: string) => edit((d) => addEntryTo(d, sectionId));
+  // Adding a row is a section-level control; every other entry and bullet edit is
+  // passed to `EntryRow` as one of the stable helpers above, so the row stays memoized.
+  // A new entry opens, glows, and takes focus, so the click visibly lands.
+  const addEntry = (sectionId: string) => {
+    edit((d) => addEntryTo(d, sectionId));
+    const entry = getSnapshot()
+      .sections.find((section) => section.id === sectionId)
+      ?.entries.at(-1);
+    if (!entry) return;
+    setOpenEntry(entry.id);
+    flash(entry.id);
+    focusByName(`${entry.id}-title`);
+  };
 
   // ------------------------------------------------------------- exports
   const exportPdf = async () => {
@@ -730,7 +993,7 @@ export function CapyResume() {
     <div className="flex items-center gap-1.5">
       <button
         type="button"
-        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11"
+        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground pointer-coarse:min-h-11"
         onClick={() => {
           const replace = () => edit(() => ({ ...DEMO_RESUME }));
           if (isResumeEmpty(doc)) replace();
@@ -748,7 +1011,7 @@ export function CapyResume() {
       </button>
       <button
         type="button"
-        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11"
+        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground pointer-coarse:min-h-11"
         onClick={() => {
           const clear = () => {
             clearResume();
@@ -768,6 +1031,19 @@ export function CapyResume() {
         clear
       </button>
     </div>
+  );
+
+  // Hydration-safe: null on the server and on the first client render alike.
+  const savedStamp = (
+    <span
+      className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
+      title="Saved in this browser only"
+    >
+      <span aria-hidden className="size-1.5 rounded-full bg-primary" />
+      {savedAt
+        ? `saved ${savedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+        : "saved in this browser"}
+    </span>
   );
 
   return (
@@ -798,10 +1074,16 @@ export function CapyResume() {
       </p>
 
       <div className="grid w-full gap-5 xl:grid-cols-2 xl:items-start">
-        <StageCard index="01" title="The details" marks actions={startOver}>
-          <div className="space-y-6">
+        <StageCard
+          index="01"
+          title="The details"
+          marks
+          chips={savedStamp}
+          actions={startOver}
+        >
+          <div className="space-y-8">
             {hints.length > 0 && (
-              <div className="rounded-2xl border border-border p-3">
+              <div className="rounded-2xl border border-dashed border-border p-3">
                 <p className="text-xs font-medium text-foreground">
                   Worth a look — none of this blocks your export:
                 </p>
@@ -816,194 +1098,230 @@ export function CapyResume() {
               </div>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {(
-                [
-                  { field: "name", label: "Full name", autocomplete: "name" },
-                  {
-                    field: "email",
-                    label: "Email",
-                    type: "email",
-                    inputMode: "email",
-                    autocomplete: "email",
-                    spellCheck: false,
-                  },
-                  {
-                    field: "phone",
-                    label: "Phone",
-                    type: "tel",
-                    inputMode: "tel",
-                    autocomplete: "tel",
-                  },
-                  {
-                    field: "location",
-                    label: "location",
-                    autocomplete: "address-level2",
-                  },
-                ] as const
-              ).map((spec) => (
-                <label key={spec.field} className="text-sm">
-                  <span className="mb-1 block text-muted-foreground">
-                    {spec.label}
-                  </span>
-                  <input
-                    className="w-full rounded-md border border-border bg-background px-3 py-2"
-                    name={spec.field}
-                    type={"type" in spec ? spec.type : "text"}
-                    inputMode={"inputMode" in spec ? spec.inputMode : undefined}
-                    autoComplete={spec.autocomplete}
-                    spellCheck={
-                      "spellCheck" in spec ? spec.spellCheck : undefined
-                    }
-                    value={doc.contact[spec.field] ?? ""}
-                    onChange={(event) =>
-                      setContact(spec.field, event.target.value)
-                    }
-                  />
-                </label>
-              ))}
-            </div>
+            <section aria-label="Profile" className="space-y-4">
+              <h3 className="font-display text-2xl font-light leading-tight">
+                Profile
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(
+                  [
+                    { field: "name", label: "Full name", autocomplete: "name" },
+                    {
+                      field: "email",
+                      label: "Email",
+                      type: "email",
+                      inputMode: "email",
+                      autocomplete: "email",
+                      spellCheck: false,
+                    },
+                    {
+                      field: "phone",
+                      label: "Phone",
+                      type: "tel",
+                      inputMode: "tel",
+                      autocomplete: "tel",
+                    },
+                    {
+                      field: "location",
+                      label: "Location",
+                      autocomplete: "address-level2",
+                    },
+                  ] as const
+                ).map((spec) => (
+                  <Field key={spec.field} label={spec.label}>
+                    <input
+                      className={FIELD}
+                      name={spec.field}
+                      type={"type" in spec ? spec.type : "text"}
+                      inputMode={"inputMode" in spec ? spec.inputMode : undefined}
+                      autoComplete={spec.autocomplete}
+                      spellCheck={
+                        "spellCheck" in spec ? spec.spellCheck : undefined
+                      }
+                      value={doc.contact[spec.field] ?? ""}
+                      onChange={(event) =>
+                        setContact(spec.field, event.target.value)
+                      }
+                    />
+                  </Field>
+                ))}
+              </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">links</span>
-                <button
-                  type="button"
-                  className="text-sm underline transition-colors hover:text-foreground"
-                  onClick={addLink}
-                >
-                  add link
+              <div className="space-y-2">
+                {doc.contact.links.map((link, index) => (
+                  <div key={index} className="group flex items-end gap-2">
+                    <Field label={`Link ${index + 1} label`} className="w-1/3">
+                      <input
+                        className={FIELD}
+                        name={`link-${index}-label`}
+                        autoComplete="off"
+                        placeholder="LinkedIn"
+                        value={link.label}
+                        onChange={(event) =>
+                          setLink(index, "label", event.target.value)
+                        }
+                      />
+                    </Field>
+                    <Field label={`Link ${index + 1} URL`} className="flex-1">
+                      <input
+                        className={FIELD}
+                        name={`link-${index}-url`}
+                        type="url"
+                        inputMode="url"
+                        autoComplete="url"
+                        spellCheck={false}
+                        placeholder="linkedin.com/in/you"
+                        value={link.url}
+                        onChange={(event) =>
+                          setLink(index, "url", event.target.value)
+                        }
+                      />
+                    </Field>
+                    <button
+                      type="button"
+                      className={cn(DANGER_BTN, REVEAL, "mb-0.5")}
+                      onClick={() => removeLink(index)}
+                      aria-label={`remove link ${index + 1}`}
+                    >
+                      remove
+                    </button>
+                  </div>
+                ))}
+                <button type="button" className={ADD_BTN} onClick={addLink}>
+                  <span aria-hidden>+</span> add link
                 </button>
               </div>
-              {doc.contact.links.map((link, index) => (
-                <div key={index} className="flex gap-2">
-                  {/* Visible label is the placeholder; the real name comes from an
-                      sr-only label so screen readers get more than "label". */}
-                  <label className="w-1/3">
-                    <span className="sr-only">{`link ${index + 1} label`}</span>
-                    <input
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                      name={`link-${index}-label`}
-                      autoComplete="off"
-                      placeholder="label"
-                      value={link.label}
-                      onChange={(event) =>
-                        setLink(index, "label", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label className="flex-1">
-                    <span className="sr-only">{`link ${index + 1} URL`}</span>
-                    <input
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                      name={`link-${index}-url`}
-                      type="url"
-                      inputMode="url"
-                      autoComplete="url"
-                      spellCheck={false}
-                      placeholder="URL"
-                      value={link.url}
-                      onChange={(event) =>
-                        setLink(index, "url", event.target.value)
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="rounded-full border border-border px-3 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                    onClick={() => removeLink(index)}
-                    aria-label={`remove link ${index + 1}`}
-                  >
-                    remove
-                  </button>
-                </div>
-              ))}
-            </div>
+            </section>
 
-            {doc.sections.map((section) => (
-              <div
-                key={section.id}
-                className="rounded-lg border border-border p-4"
-              >
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <input
-                    className="min-w-[10rem] flex-1 rounded-md border border-border bg-background px-3 py-2 font-medium"
-                    name={`${section.id}-title`}
-                    value={section.title}
-                    onChange={(event) =>
-                      setSectionTitle(section.id, event.target.value)
-                    }
-                    aria-label="section title"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                    onClick={() => moveSection(section.id, -1)}
-                    aria-label={`Move ${section.title} up`}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                    onClick={() => moveSection(section.id, 1)}
-                    aria-label={`Move ${section.title} down`}
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                    onClick={() => removeSection(section.id)}
-                  >
-                    remove
-                  </button>
-                </div>
+            {doc.sections.map((section) => {
+              const title = section.title.trim() || "Untitled section";
+              const count = section.entries.length;
+              return (
+                <section
+                  key={section.id}
+                  aria-label={title}
+                  className="border-t border-border pt-6"
+                >
+                  <div className="group flex flex-wrap items-center gap-x-3 gap-y-2">
+                    {renaming === section.id ? (
+                      <input
+                        autoFocus
+                        className={cn(FIELD, "max-w-xs font-display text-xl")}
+                        name={`${section.id}-title`}
+                        aria-label="section title"
+                        value={section.title}
+                        onChange={(event) =>
+                          setSectionTitle(section.id, event.target.value)
+                        }
+                        onBlur={() => setRenaming(null)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === "Escape")
+                            setRenaming(null);
+                        }}
+                      />
+                    ) : (
+                      <h3 className="font-display text-2xl font-light leading-tight">
+                        {title}
+                      </h3>
+                    )}
+                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {count} {count === 1 ? "entry" : "entries"}
+                    </span>
+                    <div
+                      className={cn(
+                        "ml-auto flex items-center gap-1.5",
+                        REVEAL,
+                      )}
+                    >
+                      <button
+                        type="button"
+                        className={BTN}
+                        onClick={() => setRenaming(section.id)}
+                        aria-label={`rename ${title}`}
+                      >
+                        rename
+                      </button>
+                      <button
+                        type="button"
+                        className={ICON_BTN}
+                        onClick={() => moveSection(section.id, -1)}
+                        aria-label={`Move ${title} up`}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className={ICON_BTN}
+                        onClick={() => moveSection(section.id, 1)}
+                        aria-label={`Move ${title} down`}
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        className={DANGER_BTN}
+                        onClick={() => removeSection(section.id)}
+                        aria-label={`remove the ${title} section`}
+                      >
+                        remove
+                      </button>
+                    </div>
+                  </div>
 
-                <div className="space-y-4">
-                  {section.entries.map((entry, entryIndex) => (
-                    <EntryRow
-                      key={entry.id}
-                      sectionId={section.id}
-                      sectionTitle={section.title}
-                      sectionType={section.type}
-                      entry={entry}
-                      entryIndex={entryIndex}
-                      onField={editEntryField}
-                      onTags={editEntryTags}
-                      onBulletText={handleBulletText}
-                      onAddBullet={handleAddBullet}
-                      onRemoveBullet={handleRemoveBullet}
-                      onMove={handleMoveEntry}
-                      onRemove={handleRemoveEntry}
-                    />
-                  ))}
+                  <div className="mt-3 space-y-1">
+                    {section.entries.map((entry, entryIndex) => (
+                      <EntryRow
+                        key={entry.id}
+                        sectionId={section.id}
+                        sectionTitle={section.title}
+                        sectionType={section.type}
+                        entry={entry}
+                        entryIndex={entryIndex}
+                        open={openEntry === entry.id}
+                        freshId={
+                          fresh &&
+                          (fresh === entry.id ||
+                            entry.bullets.some((bullet) => bullet.id === fresh))
+                            ? fresh
+                            : null
+                        }
+                        onToggle={toggleEntry}
+                        onField={editEntryField}
+                        onTags={editEntryTags}
+                        onBulletText={handleBulletText}
+                        onAddBullet={handleAddBullet}
+                        onRemoveBullet={handleRemoveBullet}
+                        onMove={handleMoveEntry}
+                        onRemove={handleRemoveEntry}
+                      />
+                    ))}
+                  </div>
 
                   <button
                     type="button"
-                    className="text-sm underline transition-colors hover:text-foreground"
+                    className={cn(ADD_BTN, "mt-3")}
                     onClick={() => addEntry(section.id)}
                   >
-                    add entry
+                    <span aria-hidden>+</span> add to {title}
                   </button>
-                </div>
-              </div>
-            ))}
+                </section>
+              );
+            })}
 
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                add section:
-              </span>
-              {SECTION_CHOICES.map((choice) => (
-                <button
-                  key={choice.type}
-                  type="button"
-                  className="rounded-full border border-border px-3 py-1.5 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                  onClick={() => addSection(choice.type)}
-                >
-                  {choice.label}
-                </button>
-              ))}
+            <div className="border-t border-border pt-6">
+              <span className={LABEL}>Add a section</span>
+              <div className="flex flex-wrap gap-2">
+                {SECTION_CHOICES.map((choice) => (
+                  <button
+                    key={choice.type}
+                    type="button"
+                    className={BTN}
+                    onClick={() => addSection(choice.type)}
+                  >
+                    <span aria-hidden>+</span> {choice.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </StageCard>
@@ -1072,14 +1390,38 @@ export function CapyResume() {
                 it — and `min-h-0` is what lets a flex child shrink below its content and
                 become scrollable at all. The scrollbar rides the gutter beside the paper,
                 never inside its border. */}
-            <div className="xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
+            <div
+              ref={paperScrollRef}
+              className="xl:min-h-0 xl:flex-1 xl:overflow-y-auto"
+            >
               <div
                 className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
                 style={previewPaperStyle(spec)}
               >
                 <div style={{ padding: "28pt 30pt" }}>
-                  {blocks.map((block, index) => (
-                    <BlockView key={index} block={block} spec={spec} />
+                  {header.map((block, index) => (
+                    <BlockView key={`header-${index}`} block={block} spec={spec} />
+                  ))}
+                  {/* Grouped by entry so the one open in the form is washed sage here. */}
+                  {sections.map((section) => (
+                    <div key={section.sectionId}>
+                      <BlockView block={section.heading} spec={spec} />
+                      {section.entries.map((entry) => (
+                        <div
+                          key={entry.entryId}
+                          data-entry={entry.entryId}
+                          style={
+                            entry.entryId === openEntry
+                              ? PREVIEW_ACTIVE
+                              : PREVIEW_IDLE
+                          }
+                        >
+                          {entry.blocks.map((block, index) => (
+                            <BlockView key={index} block={block} spec={spec} />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -1093,7 +1435,7 @@ export function CapyResume() {
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-60"
                 onClick={() => {
                   void exportPdf();
                 }}
@@ -1105,7 +1447,7 @@ export function CapyResume() {
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-60"
                 onClick={() => {
                   void exportDocx();
                 }}
@@ -1117,14 +1459,14 @@ export function CapyResume() {
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-60"
                 onClick={exportJson}
               >
                 JSON backup
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-60"
                 onClick={() => fileInputRef.current?.click()}
               >
                 import JSON
@@ -1180,6 +1522,26 @@ export function CapyResume() {
         </Link>
       </nav>
 
+      {/* The undo toast. Its region is always mounted, for the same reason as the
+          notice above: a live region that appears already filled is not announced. */}
+      <div
+        role="status"
+        aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"
+      >
+        {undo ? (
+          <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-foreground py-1.5 pl-4 pr-1.5 text-sm text-background shadow-lg">
+            <span>{undo.message}</span>
+            <button
+              type="button"
+              className={`rounded-full border border-background/40 px-3 py-1 text-[13px] transition-colors hover:bg-background hover:text-foreground pointer-coarse:min-h-11 ${FOCUS}`}
+              onClick={restoreRemoved}
+            >
+              undo
+            </button>
+          </div>
+        ) : null}
+      </div>
       <ConfirmDialog
         isOpen={confirming !== null}
         title={confirming?.title ?? ""}
