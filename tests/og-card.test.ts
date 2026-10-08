@@ -31,6 +31,7 @@ import { metadata as capycreator } from "../src/app/capycreator/page";
 import { metadata as capyexpense } from "../src/app/capyexpense/page";
 import { metadata as capyimagine } from "../src/app/capyimagine/page";
 import { metadata as capyog } from "../src/app/capyog/page";
+import { metadata as capypassport } from "../src/app/capypassport/page";
 import { metadata as capypixel } from "../src/app/capypixel/page";
 import { metadata as capyqr } from "../src/app/capyqr/page";
 import { metadata as capyread } from "../src/app/capyread/page";
@@ -48,6 +49,7 @@ const TOOL_METADATA: Record<string, Metadata> = {
   "/capyexpense": capyexpense,
   "/capyimagine": capyimagine,
   "/capyog": capyog,
+  "/capypassport": capypassport,
   "/capypixel": capypixel,
   "/capyqr": capyqr,
   "/capyread": capyread,

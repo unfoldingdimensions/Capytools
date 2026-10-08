@@ -8,6 +8,7 @@ import CapyCreatorPage from "@/app/capycreator/page";
 import CapyExpensePage from "@/app/capyexpense/page";
 import CapyImaginePage from "@/app/capyimagine/page";
 import CapyOGPage from "@/app/capyog/page";
+import CapyPassportPage from "@/app/capypassport/page";
 import CapyPixelPage from "@/app/capypixel/page";
 import CapyQRPage from "@/app/capyqr/page";
 import CapyReadPage from "@/app/capyread/page";
@@ -26,20 +27,21 @@ const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
 
 describe("tool pages — editorial shell", () => {
   const pages = [
-    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 14"],
-    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 14"],
-    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 14"],
-    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 14"],
-    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 14"],
-    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 14"],
-    [CapyQRPage, "CapyQR · tool no. 7", "scanning", "Nº 07 / 14"],
-    [CapyResizePage, "CapyResize · tool no. 8", "needs to be", "Nº 08 / 14"],
-    [CapyTokenPage, "CapyToken · tool no. 9", "Count before you", "Nº 09 / 14"],
-    [CapyPixelPage, "CapyPixel · tool no. 10", "in chunks", "Nº 10 / 14"],
-    [CapyTonePage, "CapyTone · tool no. 11", "get a poster", "Nº 11 / 14"],
-    [CapyBgPage, "CapyBg · tool no. 12", "The background,", "Nº 12 / 14"],
-    [CapyStampPage, "CapyStamp · tool no. 13", "mark on it", "Nº 13 / 14"],
-    [CapyReadPage, "CapyRead · tool no. 14", "The words are", "Nº 14 / 14"],
+    [CapyWrappedPage, "CapyWrapped · tool no. 1", "in a calm little card", "Nº 01 / 15"],
+    [CapyImaginePage, "CapyImagine · tool no. 2", "rendering", "Nº 02 / 15"],
+    [CapyCreatorPage, "CapyCreator · tool no. 3", "for your model", "Nº 03 / 15"],
+    [CapyStripPage, "CapyStrip · tool no. 4", "This one helps them forget", "Nº 04 / 15"],
+    [CapyExpensePage, "CapyExpense · tool no. 5", "It just never talks back", "Nº 05 / 15"],
+    [CapyOGPage, "CapyOG · tool no. 6", "sharing", "Nº 06 / 15"],
+    [CapyQRPage, "CapyQR · tool no. 7", "scanning", "Nº 07 / 15"],
+    [CapyResizePage, "CapyResize · tool no. 8", "needs to be", "Nº 08 / 15"],
+    [CapyTokenPage, "CapyToken · tool no. 9", "Count before you", "Nº 09 / 15"],
+    [CapyPixelPage, "CapyPixel · tool no. 10", "in chunks", "Nº 10 / 15"],
+    [CapyTonePage, "CapyTone · tool no. 11", "get a poster", "Nº 11 / 15"],
+    [CapyBgPage, "CapyBg · tool no. 12", "The background,", "Nº 12 / 15"],
+    [CapyStampPage, "CapyStamp · tool no. 13", "mark on it", "Nº 13 / 15"],
+    [CapyReadPage, "CapyRead · tool no. 14", "The words are", "Nº 14 / 15"],
+    [CapyPassportPage, "CapyPassport · tool no. 15", "the rules", "Nº 15 / 15"],
   ] as const;
 
   for (const [Page, eyebrow, headline, index] of pages) {
@@ -64,7 +66,7 @@ describe("tool pages — editorial shell", () => {
       expect(html).toContain('id="main"');
     });
 
-    it(`${eyebrow} — external hrefs stay functional-only`, () => {
+    it(`${eyebrow} — external hrefs stay functional-only`, async () => {
       const html = markup(<Page />);
       if (Page === CapyExpensePage) {
         // The research section cites its sources, and a claim you cannot check
@@ -84,6 +86,17 @@ describe("tool pages — editorial shell", () => {
         const externals = html.match(/href="http[^"]*/g) ?? [];
         expect(externals).toHaveLength(1);
         expect(externals[0]).toContain("openstreetmap.org");
+      } else if (Page === CapyPassportPage) {
+        // The at-rest provenance block ships exactly one external link — the
+        // SELECTED document spec's authority source (the US row first), per
+        // the plan's rule that the source travels with the figures. Any
+        // other external href is chrome sneaking back in.
+        const { SPECS } = await import("@/lib/capypassport/specs");
+        const allowed = new Set(SPECS.map((spec) => spec.sourceUrl));
+        const externals = html.match(/href="(http[^"]*)"/g) ?? [];
+        expect(externals).toHaveLength(1);
+        const [source] = externals;
+        expect(source && allowed.has(source.slice(6, -1).replace(/&amp;/g, "&"))).toBe(true);
       } else {
         // Shared chrome is nativised (D18); these surfaces carry no external links.
         expect(html).not.toContain('href="http');
@@ -141,6 +154,7 @@ describe("tool pages — editorial shell", () => {
       CapyTonePage,
       CapyStampPage,
       CapyReadPage,
+      CapyPassportPage,
     ]) {
       expect(markup(<Page />)).toContain("lp-corner-tl");
     }
@@ -168,6 +182,7 @@ describe("copy register", () => {
     ["CapyBg", CapyBgPage],
     ["CapyStamp", CapyStampPage],
     ["CapyRead", CapyReadPage],
+    ["CapyPassport", CapyPassportPage],
   ] as const;
 
   for (const [name, Page] of pages) {

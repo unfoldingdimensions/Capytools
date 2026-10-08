@@ -298,12 +298,12 @@ export const COLOPHON = {
   label: "From the first line",
   ix: "· Nº 05",
   // A verbatim quote from the project README, so the count in it is NOT derived
-  // — "thirteen" here is a quotation, and tests/landing.test.tsx asserts this
+  // — "fifteen" here is a quotation, and tests/landing.test.tsx asserts this
   // string against the README itself so the two cannot drift apart silently.
   quote: [
     { text: "“A home for " },
     { text: "small, quiet tools.", em: true },
-    { text: " Fourteen so far. Thirteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.”" },
+    { text: " Fifteen so far. Fourteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.”" },
   ] as Headline,
   author: {
     name: "Capytools, README",
@@ -391,6 +391,7 @@ export const PLATES = [
   "lab-12",
   "lab-13",
   "lab-14",
+  "lab-15",
   "lab-16",
   "method-1",
   "method-2",
