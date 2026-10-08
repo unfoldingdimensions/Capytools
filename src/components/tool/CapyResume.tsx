@@ -26,6 +26,7 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
+import { CAPYRESUME_GUIDES_LIVE } from "@/lib/capyresume/seo/live";
 import {
   Select,
   SelectContent,
@@ -1587,36 +1588,39 @@ export function CapyResume() {
         </StageCard>
       </div>
 
-      {/* The builder should not be a dead end: the guides that sit beside it. */}
-      <nav
-        aria-label="CapyResume guides"
-        className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground"
-      >
-        <Link
-          href="/capyresume/templates"
-          className="inline-block py-1 transition-colors hover:text-foreground"
+      {/* The builder should not be a dead end: the guides that sit beside it —
+          held back for the paid tier until CAPYRESUME_GUIDES_LIVE. */}
+      {CAPYRESUME_GUIDES_LIVE ? (
+        <nav
+          aria-label="CapyResume guides"
+          className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground"
         >
-          Templates
-        </Link>
-        <Link
-          href="/capyresume/ats-resume-format"
-          className="inline-block py-1 transition-colors hover:text-foreground"
-        >
-          ATS résumé format
-        </Link>
-        <Link
-          href="/capyresume/resume-templates"
-          className="inline-block py-1 transition-colors hover:text-foreground"
-        >
-          By role
-        </Link>
-        <Link
-          href="/capyresume/free-cv-builder"
-          className="inline-block py-1 transition-colors hover:text-foreground"
-        >
-          By country
-        </Link>
-      </nav>
+          <Link
+            href="/capyresume/templates"
+            className="inline-block py-1 transition-colors hover:text-foreground"
+          >
+            Templates
+          </Link>
+          <Link
+            href="/capyresume/ats-resume-format"
+            className="inline-block py-1 transition-colors hover:text-foreground"
+          >
+            ATS résumé format
+          </Link>
+          <Link
+            href="/capyresume/resume-templates"
+            className="inline-block py-1 transition-colors hover:text-foreground"
+          >
+            By role
+          </Link>
+          <Link
+            href="/capyresume/free-cv-builder"
+            className="inline-block py-1 transition-colors hover:text-foreground"
+          >
+            By country
+          </Link>
+        </nav>
+      ) : null}
 
       {/* The undo toast. Its region is always mounted, for the same reason as the
           notice above: a live region that appears already filled is not announced. */}

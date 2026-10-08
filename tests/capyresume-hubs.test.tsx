@@ -9,10 +9,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import FreeCvBuilderIndexPage, {
   metadata as countriesMetadata,
-} from '@/app/capyresume/free-cv-builder/page';
+} from '@/app/capyresume/(guides)/free-cv-builder/page';
 import ResumeTemplatesIndexPage, {
   metadata as rolesMetadata,
-} from '@/app/capyresume/resume-templates/page';
+} from '@/app/capyresume/(guides)/resume-templates/page';
 import { COUNTRY_PAGES } from '@/lib/capyresume/seo/countries';
 import { ROLE_PAGES } from '@/lib/capyresume/seo/roles';
 
