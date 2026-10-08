@@ -24,7 +24,7 @@ import {
 } from '@/lib/capyresume/ai/keys';
 import { IMPROVE_ACTIONS, getAction, type ImproveAction } from '@/lib/capyresume/ai/prompts';
 import { PROVIDERS, getProvider } from '@/lib/capyresume/ai/providers';
-import { collectTextTargets, type TextTarget } from '@/lib/capyresume/ai/targets';
+import { collectTextTargets, findTarget, type TextTarget } from '@/lib/capyresume/ai/targets';
 import type { ResumeDoc } from '@/lib/capyresume/types';
 
 /** Stable empty list, so the no-key path returns one reference rather than a new array. */
@@ -77,6 +77,10 @@ export function AiAssist({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  // The field may have been edited while the model was answering, or since: applying
+  // then would silently throw away the newer words, so the suggestion goes stale.
+  const suggestionIsStale =
+    suggestion !== null && findTarget(doc, suggestion.targetId)?.text !== suggestion.before;
   /** Removing the stored key is irreversible here, so it asks first. */
   const [confirmingRemoval, setConfirmingRemoval] = useState(false);
 
@@ -129,9 +133,14 @@ export function AiAssist({
       <div>
         <h3 className="font-display text-base font-semibold">AI assist (optional)</h3>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Off unless you add your own key. When you use it, the request goes straight from this
-          browser to the provider you choose — your key and the text you send never reach a server
-          of ours.
+          Off unless you add your own key.{' '}
+          <strong className="text-foreground">
+            Improve sends the field you pick to{' '}
+            {getProvider(settings.providerId)?.label ?? 'the provider you choose'}
+          </strong>
+          , straight from this browser under your key — that text leaves your device, and their
+          terms apply to it. Nothing else of your résumé is sent, and nothing reaches a server of
+          ours.
         </p>
       </div>
 
@@ -354,8 +363,10 @@ export function AiAssist({
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
-                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                      disabled={suggestionIsStale}
+                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70 disabled:pointer-events-none disabled:opacity-40"
                       onClick={() => {
+                        if (suggestionIsStale) return;
                         onApply(suggestion.targetId, suggestion.after);
                         setSuggestion(null);
                       }}
@@ -370,8 +381,9 @@ export function AiAssist({
                       discard
                     </button>
                     <span className="text-xs text-muted-foreground">
-                      {suggestion.before.length} → {suggestion.after.length} characters. Read it
-                      before you keep it — you are the one signing this.
+                      {suggestionIsStale
+                        ? 'You have edited this field since you asked — ask again so nothing you wrote is lost.'
+                        : `${suggestion.before.length} → ${suggestion.after.length} characters. Read it before you keep it — you are the one signing this.`}
                     </span>
                   </div>
                 </div>
