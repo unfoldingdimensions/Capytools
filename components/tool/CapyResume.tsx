@@ -200,6 +200,42 @@ const BulletRow = memo(function BulletRow({
  * those are already bound to this row's section and entry, so they change identity
  * every render and would defeat the memo.
  */
+/**
+ * The skills field. The document stores parsed tags, so a controlled value of
+ * `tags.join(', ')` would erase a trailing comma or space the moment it is typed
+ * (it parses to the same tags) — no second tag, no "Data analysis". While focused
+ * the input shows the raw draft; every keystroke still saves the parsed tags.
+ */
+export function TagsInput({
+  name,
+  label,
+  tags,
+  onTags,
+}: {
+  name: string;
+  label: string;
+  tags: string[];
+  onTags: (raw: string) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  return (
+    <input
+      className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+      name={name}
+      aria-label={label}
+      autoComplete="off"
+      placeholder="skills, comma separated"
+      value={draft ?? tags.join(', ')}
+      onFocus={() => setDraft(tags.join(', '))}
+      onChange={(event) => {
+        setDraft(event.target.value);
+        onTags(event.target.value);
+      }}
+      onBlur={() => setDraft(null)}
+    />
+  );
+}
+
 const EntryRow = memo(function EntryRow({
   sectionId,
   sectionTitle,
@@ -308,14 +344,11 @@ const EntryRow = memo(function EntryRow({
         onChange={(event) => onField(sectionId, entry.id, 'text', event.target.value)}
       />
 
-      <input
-        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+      <TagsInput
         name={`${entry.id}-tags`}
-        aria-label={`${prefix}, skills, comma separated`}
-        autoComplete="off"
-        placeholder="skills, comma separated"
-        value={entry.tags.join(', ')}
-        onChange={(event) => onTags(sectionId, entry.id, event.target.value)}
+        label={`${prefix}, skills, comma separated`}
+        tags={entry.tags}
+        onTags={(raw) => onTags(sectionId, entry.id, raw)}
       />
 
       <div className="mt-2 space-y-2">
