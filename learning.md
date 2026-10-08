@@ -120,3 +120,7 @@ The main checkout at `E:\New-Personal-Projects\Capytools` is used by other agent
 ## L22. Search-intent checks change the plan
 
 Looking at what actually ranks before building moved three candidates: "EXIF viewer" was already served by `/capystrip` (fold in, don't add a page); "check if an image is AI-generated" returns pixel classifiers, which a metadata reader can't honestly claim to be; a `geo:` QR code doesn't match people who want a Google Maps link. **Rule:** for each candidate page, look at the live results and ask whether the tool honestly does what those pages do.
+
+## L23. A new required field breaks other agents' work at merge time
+
+#90 made `ToolGuide.summary` required. It was green on its own branch, then went red in CI: the PR is tested **merged with `main`**, and meanwhile another agent's PR (#89, CapyResume) had landed a guide without the field. That is the field working as intended — a tool can't ship without a summary — but it surfaces on whoever merges second. **Rule:** before pushing a change to a shared type or registry, `git fetch` and merge `origin/main` into the branch and run `tsc`; and when adding a required field, mention it in `decisions.md` so parallel agents writing new tools see it.

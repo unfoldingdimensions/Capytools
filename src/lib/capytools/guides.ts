@@ -19,6 +19,13 @@
 export type ToolGuide = {
   /** The section's H2 — phrased the way the search is. */
   heading: string;
+  /**
+   * One plain sentence under the page's headline that answers the query
+   * outright. The lead above it is the brand's tagline; this is the answer a
+   * reader — or an AI answer engine that stops after the first paragraph —
+   * takes away.
+   */
+  summary: string;
   /** Ordered steps for the "how to" list. */
   steps: readonly string[];
   /** Short "what it does" paragraphs. */
@@ -29,6 +36,8 @@ export type ToolGuide = {
 export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   CapyWrapped: {
     heading: "How to make your GitHub Wrapped card",
+    summary:
+      "CapyWrapped turns any public GitHub profile into a shareable card of its last 12 months — contributions by month, stars and top languages — with no sign-in.",
     steps: [
       "Type a GitHub username — yours or anyone's with a public profile.",
       "Read the card: total public contributions, a month-by-month trendline with your busiest month marked, stars earned, top languages and your most-starred repo.",
@@ -59,6 +68,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyImagine: {
     heading: "How to generate random AI image and video prompts",
+    summary:
+      "CapyImagine rolls random, ready-to-paste prompts for Midjourney, Flux, SDXL, Gemini and video models, written in each engine's own syntax, free and with no API key.",
     steps: [
       "Pick your engine — Gemini, Midjourney, Flux or SDXL for images; Kling, Runway or Seedance for video.",
       "Roll a prompt. Subject, setting, lighting, lens, medium and composition are drawn at random and written in that engine's own syntax.",
@@ -89,6 +100,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyCreator: {
     heading: "How to write a better prompt for Claude, GPT, Gemini and DeepSeek",
+    summary:
+      "CapyCreator builds a prompt for Claude, GPT, Gemini, DeepSeek, Qwen and other models from a short questionnaire, adding the structure smaller models need, entirely in your browser.",
     steps: [
       "Describe what you want and pick the model you will send it to, from a small flash model to a frontier one.",
       "Answer the short questionnaire. It asks only what this kind of task needs, and asks more of you when the model is smaller.",
@@ -119,6 +132,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyOG: {
     heading: "How to make an Open Graph image for your link previews",
+    summary:
+      "CapyOG makes Open Graph and social card images at each platform's documented size — 1200×630 for link previews — and exports PNG or JPEG without uploading anything.",
     steps: [
       "Pick a template and a size preset — the 1200×630 link card, or a size for X, LinkedIn, Facebook, Discord, Instagram or Pinterest.",
       "Write your title and details, then choose an accent and light or dark.",
@@ -150,6 +165,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyQR: {
     heading: "How to make a QR code with your colours and logo",
+    summary:
+      "CapyQR makes styled QR codes for links, Wi-Fi, contacts, email and events with your colours and logo, and scans each one in your browser to prove it reads before you export.",
     steps: [
       "Choose what it holds — a link, plain text, Wi-Fi login, a vCard contact or an email.",
       "Style it: dot shapes, corner treatments, colours or a gradient, a quiet-zone border and a centre logo. Five presets get you started.",
@@ -184,6 +201,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyResize: {
     heading: "How to resize an image or make a favicon pack",
+    summary:
+      "CapyResize resizes and converts images to PNG, JPEG or WebP, or turns one logo into a complete favicon pack with the HTML to paste, without uploading the file.",
     steps: [
       "Drop an image — or, for favicons, one square-ish logo.",
       "To resize: set a target width with the aspect ratio locked, then pick PNG, JPEG or WebP and a quality. For favicons: switch to the favicon pack.",
@@ -215,6 +234,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyToken: {
     heading: "How to count tokens and estimate LLM API cost",
+    summary:
+      "CapyToken counts tokens exactly with OpenAI's tokenizers and estimates what a prompt costs on GPT, Claude, Gemini and other models, offline and with no API key.",
     steps: [
       "Paste the prompt you are about to send.",
       "Read the exact counts under OpenAI's o200k_base (GPT-5 and GPT-4o era) and cl100k_base (GPT-4 era) encodings.",
@@ -250,6 +271,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyPixel: {
     heading: "How to turn a photo into pixel art",
+    summary:
+      "CapyPixel turns a photo or logo into pixel art in six styles, from Game Boy greens to 1-bit, and exports a crisp PNG — all in your browser.",
     steps: [
       "Drop a photo, or an SVG logo.",
       "Pick a style — faithful, portrait, whale, Game Boy, 1-bit or 1-bit halftone — and adjust grid width, colour count and dither with the live preview.",
@@ -281,6 +304,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyTone: {
     heading: "How to make a colour palette from a mood",
+    summary:
+      "CapyTone turns a mood or phrase into a five-colour palette with readable text contrast built in, and also checks contrast, builds colour harmonies and blends gradients.",
     steps: [
       "Type a feeling or pick a mood — or start from a colour, like \"start from warm orange\".",
       "Get a five-colour palette laid out as a poster, with readable text contrast built in.",
@@ -312,6 +337,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyStamp: {
     heading: "How to add a watermark to your photos",
+    summary:
+      "CapyStamp adds a text or logo watermark to one photo or up to twenty at once, at full resolution, without uploading them.",
     steps: [
       "Drop one photo, or up to twenty at once.",
       "Choose a text mark or your logo, then set its size, opacity, rotation and position — drag it, nudge it with the arrow keys, or tile it in a grid or diagonally.",
@@ -351,6 +378,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyRead: {
     heading: "How to extract text from an image or a scanned PDF",
+    summary:
+      "CapyRead pulls the text out of a photo, screenshot or scanned PDF with OCR that runs in your browser, marking words it can't read instead of guessing.",
     steps: [
       "Drop, paste or pick a photo, a screenshot or a PDF — up to ten pages per run.",
       "Pick the language the text is in. The first run for a language downloads its model from this site (about 1.9 MB for English) and keeps it in your browser; every run after that starts instantly.",
@@ -394,6 +423,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyPassport: {
     heading: "How to make a passport or visa photo at home",
+    summary:
+      "CapyPassport crops a portrait to the published size and head position for a US passport, UK passport or Schengen visa photo and lays out a 4×6 print sheet, in your browser.",
     steps: [
       "Drop, paste or shoot a portrait photo, then pick the document — US passport, UK passport or a Schengen visa.",
       "Read the fit: head height, top margin and eye line against the numbers that document's guidance publishes, with sliders to fine-tune until every row reads \"within the range\".",
@@ -429,6 +460,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyResume: {
     heading: "How to make a resume free, with no signup",
+    summary:
+      "CapyResume builds a résumé in your browser from six single-column templates and downloads it as a text-selectable PDF or a Word file — free, unwatermarked, with no account.",
     steps: [
       "Fill in your details, then your sections — experience, education, skills, projects — adding, reordering and removing entries as you go. The page beside the form shows the document as you type.",
       "Pick one of six single-column templates and the paper size, A4 or US Letter.",
@@ -464,6 +497,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyStrip: {
     heading: "How to view and remove EXIF metadata from a photo",
+    summary:
+      "CapyStrip shows the hidden data in a photo — GPS location, camera, timestamps, AI-generation traces — and downloads a clean copy with all of it removed, without uploading the photo.",
     steps: [
       "Drop, paste or pick a photo — JPEG, PNG, WebP, AVIF, HEIC or TIFF.",
       "Read the report: GPS location, camera and phone model, serial numbers, timestamps, editing software and AI-generation fingerprints, each flagged when it can identify you. If you only wanted to look, you can stop here.",
@@ -511,6 +546,8 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
   },
   CapyBg: {
     heading: "How to remove a background from an image, without uploading it",
+    summary:
+      "CapyBg removes the background from a photo and gives you a transparent PNG, running the model in your browser so the image is never uploaded.",
     steps: [
       "Drop, paste or pick a photo.",
       "The first cut downloads the model once (12.4 MB) and keeps it in your browser. Every cut after that runs offline in a blink.",

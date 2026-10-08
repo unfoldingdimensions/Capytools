@@ -24,6 +24,7 @@ import type { ToolGuide } from "@/lib/capytools/guides";
 import { AUTHOR } from "@/lib/capytools/author";
 import { EXTERNAL } from "@/lib/capytools/landing";
 import { SUITE, type SuiteTool } from "@/lib/capytools/suite";
+import { CONTENT_UPDATED } from "@/lib/capytools/updated";
 import { SITE_URL } from "@/lib/utils";
 
 export const SITE_NAME = "Capytools";
@@ -163,6 +164,8 @@ export function softwareApplicationLd(toolName: string) {
     },
     publisher: { "@id": `${SITE_URL}/#organization` },
     author: PERSON_REF,
+    // The same hand-set date the page shows and the sitemap states.
+    dateModified: CONTENT_UPDATED,
   };
 }
 

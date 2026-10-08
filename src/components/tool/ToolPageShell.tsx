@@ -8,7 +8,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { ToolGuideSection } from "@/components/tool/ToolGuideSection";
+import { AUTHOR } from "@/lib/capytools/author";
 import { TOOL_GUIDES } from "@/lib/capytools/guides";
+import { CONTENT_UPDATED, formatUpdated } from "@/lib/capytools/updated";
 import { intentsFor, type IntentPage } from "@/lib/capytools/intents";
 import { faqPageLd, softwareApplicationLd } from "@/lib/capytools/structured-data";
 import { SUITE, SUITE_INDEX, pad2 } from "@/lib/capytools/suite";
@@ -144,6 +146,18 @@ export function ToolPageShell({
 
           <Reveal delay={0.2}>
             <p className={cn("lp-lead mt-5 text-center", large && "lp-lead-lg")}>{lead}</p>
+            {/* The lead is the tagline; the summary is the plain answer. */}
+            {guide ? (
+              <p className="mx-auto mt-4 max-w-xl text-center text-[15px] leading-relaxed text-foreground/85">
+                {guide.summary}
+              </p>
+            ) : null}
+            <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              Updated <time dateTime={CONTENT_UPDATED}>{formatUpdated()}</time> · by{" "}
+              <Link href="/notes#author" className="underline decoration-border underline-offset-4 hover:text-foreground">
+                {AUTHOR.byline}
+              </Link>
+            </p>
           </Reveal>
         </section>
 

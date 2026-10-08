@@ -7,6 +7,7 @@ import {
   webSiteLd,
 } from "../src/lib/capytools/structured-data";
 import { AUTHOR } from "../src/lib/capytools/author";
+import { CONTENT_UPDATED } from "../src/lib/capytools/updated";
 import { SUITE } from "../src/lib/capytools/suite";
 import { SITE_URL } from "../src/lib/utils";
 
@@ -125,5 +126,12 @@ describe("the organization's logo", () => {
     const { join } = await import("node:path");
     const path = organizationLd().logo.replace(SITE_URL, "");
     expect(existsSync(join(process.cwd(), "public", path))).toBe(true);
+  });
+});
+
+describe("dateModified", () => {
+  // One hand-set date behind the sitemap, the visible byline and the JSON-LD.
+  it("is the shared content date on every tool", () => {
+    for (const tool of SUITE) expect(softwareApplicationLd(tool.name)?.dateModified).toBe(CONTENT_UPDATED);
   });
 });

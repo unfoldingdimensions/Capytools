@@ -23,6 +23,8 @@ import CapyWrappedPage from "@/app/capywrapped/page";
 import { Header } from "@/components/header";
 import { CapyExpenseShowcase } from "@/components/tool/CapyExpenseShowcase";
 import { EXPENSE_RESEARCH } from "@/lib/capytools/capyexpense-page";
+import { TOOL_GUIDES } from "@/lib/capytools/guides";
+import { CONTENT_UPDATED } from "@/lib/capytools/updated";
 
 const markup = (ui: ReactElement) => renderToStaticMarkup(ui);
 
@@ -66,6 +68,12 @@ describe("tool pages — editorial shell", () => {
       // the reader the same bypass the landing has always shipped.
       expect(html).toContain('class="lp-skip-link"');
       expect(html).toContain('id="main"');
+      // The plain-answer summary under the tagline (CapyExpense has no guide).
+      const summary = TOOL_GUIDES[eyebrow.split(" ·")[0]]?.summary;
+      if (summary) expect(html).toContain(summary.replace(/'/g, "&#x27;"));
+      // The byline: the same hand-set date the sitemap states, and the maker.
+      expect(html).toContain(`<time dateTime="${CONTENT_UPDATED}">`);
+      expect(html).toMatch(/href="\/notes#author"[^>]*>Unfolding Dimensions</);
     });
 
     it(`${eyebrow} — external hrefs stay functional-only`, async () => {
