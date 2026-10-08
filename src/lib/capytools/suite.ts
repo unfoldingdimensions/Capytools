@@ -262,7 +262,7 @@ export const SUITE: SuiteTool[] = [
     line: "Build a résumé and export PDF or DOCX, in your browser.",
     keywords: ["resume builder", "free resume builder", "cv builder", "resume maker",
                "ats resume", "resume pdf", "resume docx", "no signup", "no upload"],
-    plate: { src: "/plates/lab-15.webp", width: 896, height: 1200 },
+    plate: { src: "/plates/lab-16.webp", width: 896, height: 1200 },
   },
 ];
 
