@@ -10,6 +10,8 @@
  */
 export const AUTHOR = {
   name: "Utkarsh Benjwal",
+  /** How the tool pages' "Updated … · by" byline credits the maker. */
+  byline: "Unfolding Dimensions",
   /** The portfolio's own headline, quoted rather than paraphrased. */
   tagline: "Analyst by day. Builder by night.",
   url: "https://unfoldingdimensions.com",

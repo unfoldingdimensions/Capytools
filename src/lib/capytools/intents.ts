@@ -49,6 +49,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "drop a logo, get the whole icon pack and the html to paste. nothing uploaded.",
     guide: {
       heading: "How to make a favicon for your website",
+      summary:
+        "Drop one logo and get every favicon a site needs — favicon.ico, the Apple touch icon, Android and maskable icons and a web manifest — plus the HTML, in one ZIP.",
       steps: [
         "Drop one square-ish logo — PNG, JPEG, WebP or SVG.",
         "Name the site and pick a background colour for the icons that need one, then check the 16 and 32 px preview strip.",
@@ -90,6 +92,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "convert to webp with a quality you can see and the real byte count. nothing uploaded.",
     guide: {
       heading: "How to convert PNG to WebP",
+      summary:
+        "Convert PNG or JPEG images to WebP in your browser, with a quality slider and the real before-and-after file sizes.",
       steps: [
         "Drop a PNG, JPEG or WebP image. WebP is already selected as the output.",
         "Move the quality slider and, if you like, set a smaller width with the aspect ratio locked.",
@@ -130,6 +134,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "a qr code that joins your network in one scan. the password never leaves this tab.",
     guide: {
       heading: "How to make a QR code for your Wi-Fi",
+      summary:
+        "Make a QR code that joins your Wi-Fi network in one scan, so guests never type the password — and the password never leaves your browser.",
       steps: [
         "Enter the network name (SSID) and password, and pick the security type — WPA/WPA2, WEP or none. Tick hidden if the network doesn't broadcast its name.",
         "Style it if you like. The tool scans its own output to confirm it still reads.",
@@ -170,6 +176,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "a qr code that saves you to someone's contacts. nothing uploaded, nothing tracked.",
     guide: {
       heading: "How to make a QR code for your contact details",
+      summary:
+        "Make a QR code that saves your name, phone, email and company straight to someone's contacts in one scan, with no hosted profile and no tracking.",
       steps: [
         "Fill in your name and whichever of phone, email, company and website you want to share.",
         "Style it with your colours and a logo. The tool scans its own output to confirm it still reads.",
@@ -210,6 +218,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "the social image sizes each platform documents, and a card maker that exports them.",
     guide: {
       heading: "Open Graph and social image sizes, by platform",
+      summary:
+        "The standard Open Graph image is 1200×630 pixels; below are the sizes each platform documents, and a card maker that exports them.",
       steps: [
         "Find your platform below. For a link preview anywhere, use 1200×630.",
         "Pick that size preset in the card maker above.",
@@ -233,6 +243,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "wcag 2 ratios and apca lc for any two colours, with the verdicts spelled out.",
     guide: {
       heading: "How to check colour contrast for accessibility",
+      summary:
+        "Check whether text is readable on its background: the WCAG 2 contrast ratio with AA and AAA verdicts, and the APCA value beside it.",
       steps: [
         "Set a text colour and a background colour.",
         "Read the WCAG 2 contrast ratio with AA and AAA verdicts for normal and large text, and the APCA Lc value beside it.",
@@ -273,6 +285,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "linear, radial or conic, blended in oklab or oklch, copied as css that works everywhere.",
     guide: {
       heading: "How to make a smooth CSS gradient",
+      summary:
+        "Make smooth linear, radial or conic CSS gradients blended in Oklab or OKLCH, and copy the CSS with a fallback for older browsers.",
       steps: [
         "Pick two or three colours and a shape — linear, radial or conic.",
         "Choose the colour space to blend in: Oklab, OKLCH, OKLCH on the longer hue arc, or sRGB.",
@@ -313,6 +327,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "a qr code that holds the whole event. no short link, no tracking, nothing uploaded.",
     guide: {
       heading: "How to make a QR code that adds an event to a calendar",
+      summary:
+        "Make a QR code that adds your event — title, times and place — to a phone's calendar in one scan; it never expires and scans aren't tracked.",
       steps: [
         "Enter the event's title, start and end time, and — if you like — where it is.",
         "Style it with your colours and a logo. The tool scans its own output to confirm it still reads.",
@@ -353,6 +369,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "paste a public url, get the palette its code declares, ranked. honest about what it can't see.",
     guide: {
       heading: "How to get the colour palette of a website",
+      summary:
+        "Paste a website's address to get the colours its code declares, as hex codes ranked by how much they're used.",
       steps: [
         "Paste the address of a public web page.",
         "The tool reads the page's HTML, up to five of its stylesheets, its declared theme colour and its web manifest, then ranks the colours it finds.",
@@ -394,6 +412,8 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     lead: "random midjourney prompts in midjourney's own syntax. made in your tab, nothing stored.",
     guide: {
       heading: "How to get a random Midjourney prompt",
+      summary:
+        "Roll a random Midjourney prompt — subject, setting, light, lens and style — ready to paste with --s, --no and, once you pick a format, --ar.",
       steps: [
         "Midjourney is already selected. Roll a prompt.",
         "Pick where the image is going — an Instagram story, a YouTube thumbnail, a Pinterest pin — to add the right --ar, lock a style if you want one, and roll again until something sparks.",
