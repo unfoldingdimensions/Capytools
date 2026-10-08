@@ -48,6 +48,13 @@ const listeners = new Set<() => void>();
 let cachedRaw: string | null = null;
 let cachedSettings: AiSettings | null = null;
 
+/**
+ * What the user last chose when storage refused to record it. Without this, a
+ * failed save or remove fell back to re-reading storage — which still held the
+ * OLD key, so a replaced key came back and a removed one kept being used.
+ */
+let memorySettings: AiSettings | null = null;
+
 function hasWindow(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
@@ -95,6 +102,7 @@ function coerce(raw: string | null): AiSettings {
 
 /** Cached against the raw string so repeat calls in a render return one reference. */
 export function getAiSettings(): AiSettings {
+  if (memorySettings !== null) return memorySettings;
   const raw = readRaw();
   if (raw === cachedRaw && cachedSettings !== null) return cachedSettings;
   cachedRaw = raw;
@@ -144,14 +152,16 @@ export function saveAiSettings(next: AiSettings): AiSettings {
   if (hasWindow()) {
     try {
       window.localStorage.setItem(AI_SETTINGS_KEY, raw);
+      memorySettings = null;
       cachedRaw = raw;
       cachedSettings = clean;
     } catch {
       // Storage disabled or full — keep the in-memory value so the session still
-      // works, and let the UI tell the user it will not survive a reload.
-      cachedRaw = null;
-      cachedSettings = clean;
+      // works; it will not survive a reload.
+      memorySettings = clean;
     }
+  } else {
+    memorySettings = clean;
   }
 
   emit();
@@ -163,8 +173,10 @@ export function clearAiSettings(): void {
   if (hasWindow()) {
     try {
       window.localStorage.removeItem(AI_SETTINGS_KEY);
+      memorySettings = null;
     } catch {
-      // Nothing useful to do; the cache reset below still frees the UI.
+      // The stored key could not be deleted: still stop using it this session.
+      memorySettings = EMPTY_AI_SETTINGS;
     }
   }
   cachedRaw = null;
@@ -190,6 +202,7 @@ export function maskApiKey(apiKey: string): string {
 
 /** Test-only: forget the in-process cache without touching storage. */
 export function __resetAiCache(): void {
+  memorySettings = null;
   cachedRaw = null;
   cachedSettings = null;
 }

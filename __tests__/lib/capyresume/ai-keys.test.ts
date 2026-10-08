@@ -148,3 +148,31 @@ describe('capyresume/ai/keys — maskApiKey never reveals the key', () => {
     expect(maskApiKey('    ')).toBe('');
   });
 });
+
+describe('capyresume/ai/keys — storage refusing', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    __resetAiCache();
+  });
+
+  it('a new key that cannot be stored replaces the old one for this session', () => {
+    saveAiSettings({ ...EMPTY_AI_SETTINGS, apiKey: 'old-key-1234' });
+    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    saveAiSettings({ ...EMPTY_AI_SETTINGS, apiKey: 'new-key-5678' });
+    setItem.mockRestore();
+    // Storage still holds the old key; it must not come back.
+    expect(getAiSettings().apiKey).toBe('new-key-5678');
+  });
+
+  it('a key that cannot be deleted from storage is still no longer used', () => {
+    saveAiSettings({ ...EMPTY_AI_SETTINGS, apiKey: 'old-key-1234' });
+    const removeItem = jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('SecurityError');
+    });
+    clearAiSettings();
+    removeItem.mockRestore();
+    expect(getAiSettings().apiKey).toBe('');
+  });
+});
