@@ -25,6 +25,8 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'node_modules', '.cache', 'capyresume-pdfverify');
+// The browser fetches the embedded fonts from /pdf-fonts/; here they are read from disk.
+const FONT_BASE = path.join(ROOT, 'public', 'pdf-fonts') + path.sep;
 const SRC_DIR = path.join(ROOT, 'lib', 'capyresume');
 
 const ENTRIES = ['types', 'format', 'schema', 'templates', 'document', 'json', 'demo', 'pdf'];
@@ -59,7 +61,7 @@ try {
     [
       tsc,
       ...ENTRIES.map((name) => path.join(SRC_DIR, `${name}.ts`)).map((file) =>
-        fs.existsSync(file) ? file : file.replace(/\.ts$/, '.tsx'),
+        fs.existsSync(file) ? file : file.replace(/\.ts$/, '.tsx')
       ),
       '--outDir',
       OUT_DIR,
@@ -77,7 +79,7 @@ try {
       '--skipLibCheck',
       '--strict',
     ],
-    { stdio: 'pipe', cwd: ROOT },
+    { stdio: 'pipe', cwd: ROOT }
   );
 } catch (error) {
   const output = `${error.stdout || ''}${error.stderr || ''}`.trim();
@@ -132,7 +134,7 @@ function blobToBuffer(blob) {
 
   let buffer;
   try {
-    const blob = await buildResumePdf(DEMO_RESUME);
+    const blob = await buildResumePdf(DEMO_RESUME, { fontBase: FONT_BASE });
     buffer = await blobToBuffer(blob);
   } catch (error) {
     fail(`buildResumePdf threw: ${error && error.message ? error.message : error}`);
@@ -177,7 +179,7 @@ function blobToBuffer(blob) {
   if (missing.length > 0) {
     console.error('\n--- extracted text ---\n' + normalised.slice(0, 1200) + '\n');
     fail(
-      `the PDF has no usable text layer: ${missing.length} expected string(s) missing -> ${missing.join(', ')}`,
+      `the PDF has no usable text layer: ${missing.length} expected string(s) missing -> ${missing.join(', ')}`
     );
   }
   ok(`text layer verified (${expectations.length} strings found, ${text.length} chars total)`);
@@ -198,7 +200,7 @@ function blobToBuffer(blob) {
   step('rendering every template');
 
   for (const spec of TEMPLATE_LIST) {
-    const blob = await buildResumePdf(DEMO_RESUME, { templateId: spec.id });
+    const blob = await buildResumePdf(DEMO_RESUME, { templateId: spec.id, fontBase: FONT_BASE });
     const bytes = await blobToBuffer(blob);
     if (bytes.subarray(0, 5).toString('latin1') !== '%PDF-') {
       fail(`template "${spec.id}" did not render a PDF`);
@@ -209,6 +211,24 @@ function blobToBuffer(blob) {
     }
     ok(`template "${spec.id}" -> ${bytes.length} bytes, text extractable`);
   }
+
+  // 7. Beyond WinAnsi: the standard-14 fonts dropped these glyphs
+  // -------------------------------------------------------------------------
+
+  step('rendering Polish, Hungarian and Cyrillic text');
+
+  const intlName = 'Łucja Wójcik Őrsi Ирина';
+  const intl = { ...DEMO_RESUME, contact: { ...DEMO_RESUME.contact, name: intlName } };
+  for (const spec of TEMPLATE_LIST) {
+    const bytes = await blobToBuffer(
+      await buildResumePdf(intl, { templateId: spec.id, fontBase: FONT_BASE })
+    );
+    const parsedText = await extractText(bytes);
+    if (!parsedText.includes(intlName)) {
+      fail(`template "${spec.id}" lost non-WinAnsi characters: ${parsedText.slice(0, 80)}`);
+    }
+  }
+  ok('Ł, ó, ő and Cyrillic survive in every template');
 
   console.log('\n  All PDF checks passed.\n');
 })().catch((error) => fail(error && error.stack ? error.stack : String(error)));

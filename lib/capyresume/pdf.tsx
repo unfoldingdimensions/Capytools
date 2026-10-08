@@ -14,7 +14,7 @@
  *   const { buildResumePdf } = await import('@/lib/capyresume/pdf');
  */
 
-import { Document, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
+import { Document, Font, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
 import { composeDocument, type DocBlock } from './document';
 import { getTemplate, type TemplateSpec } from './templates';
 import type { ResumeDoc, TemplateId } from './types';
@@ -24,21 +24,58 @@ export type PaperSize = 'A4' | 'LETTER';
 export interface PdfOptions {
   templateId?: TemplateId;
   paperSize?: PaperSize;
+  /** Where the embedded fonts are fetched from; a file path in the Node verify script. */
+  fontBase?: string;
+}
+
+/**
+ * The PDF's real faces. The standard-14 Helvetica and Times only cover WinAnsi,
+ * so ł, ő, Cyrillic and Greek came out blank, and they were never set bold.
+ * Liberation Sans and Serif (SIL OFL, public/pdf-fonts/LICENSE-Liberation.txt)
+ * are metric-compatible with them, so every layout keeps its line breaks.
+ * ponytail: Latin, Cyrillic and Greek only — Devanagari, Arabic and CJK need
+ * Noto faces (and RTL shaping for Arabic) once a template is offered in them.
+ */
+const PDF_FAMILY: Record<TemplateSpec['fontFamily'], string> = {
+  Helvetica: 'Liberation Sans',
+  'Times-Roman': 'Liberation Serif',
+};
+
+const DEFAULT_FONT_BASE = '/pdf-fonts/';
+let registeredBase: string | null = null;
+
+function registerFonts(base: string): void {
+  if (registeredBase === base) return;
+  for (const [family, file] of [
+    ['Liberation Sans', 'LiberationSans'],
+    ['Liberation Serif', 'LiberationSerif'],
+  ] as const) {
+    Font.register({
+      family,
+      fonts: [
+        { src: `${base}${file}-Regular.ttf` },
+        { src: `${base}${file}-Bold.ttf`, fontWeight: 'bold' },
+      ],
+    });
+  }
+  registeredBase = base;
 }
 
 function buildStyles(spec: TemplateSpec) {
+  const family = PDF_FAMILY[spec.fontFamily];
   return StyleSheet.create({
     page: {
       paddingTop: 40,
       paddingBottom: 40,
       paddingHorizontal: 44,
-      fontFamily: spec.fontFamily,
+      fontFamily: family,
       fontSize: spec.fontSize,
       lineHeight: spec.lineHeight,
       color: spec.accent,
     },
     name: {
-      fontFamily: spec.fontFamily,
+      fontFamily: family,
+      fontWeight: 'bold',
       fontSize: spec.fontSize + 7,
       marginBottom: 5,
     },
@@ -53,10 +90,10 @@ function buildStyles(spec: TemplateSpec) {
           marginTop: spec.entryGap + 6,
         }
       : { marginBottom: 5, marginTop: spec.entryGap + 6 },
-    heading: { fontFamily: spec.fontFamily, fontSize: spec.fontSize + 1 },
+    heading: { fontFamily: family, fontWeight: 'bold', fontSize: spec.fontSize + 1 },
     entryBlock: { marginBottom: spec.entryGap },
     entryRow: { flexDirection: 'row', justifyContent: 'space-between' },
-    entryTitle: { fontFamily: spec.fontFamily, fontSize: spec.fontSize },
+    entryTitle: { fontFamily: family, fontWeight: 'bold', fontSize: spec.fontSize },
     entryRange: { fontSize: spec.fontSize - 0.5 },
     entryMeta: { fontSize: spec.fontSize - 0.5, marginBottom: 2 },
     paragraph: { marginBottom: 3 },
@@ -167,6 +204,7 @@ export function ResumePdfDocument({
 /** Render the résumé to a PDF Blob, ready to hand to a download link. */
 export async function buildResumePdf(doc: ResumeDoc, options: PdfOptions = {}): Promise<Blob> {
   const templateId = options.templateId ?? doc.templateId;
+  registerFonts(options.fontBase ?? DEFAULT_FONT_BASE);
   const instance = pdf(
     <ResumePdfDocument doc={doc} templateId={templateId} paperSize={options.paperSize ?? 'A4'} />
   );

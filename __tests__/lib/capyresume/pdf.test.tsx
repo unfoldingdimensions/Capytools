@@ -27,6 +27,7 @@ jest.mock('@react-pdf/renderer', () => {
     Text: passthrough('Text'),
     View: passthrough('View'),
     StyleSheet: { create: (styles: unknown) => styles },
+    Font: { register: () => undefined },
     pdf: (element: unknown) => ({
       __element: element,
       toBlob: () => Promise.resolve(new Blob(['%PDF-1.7\n'], { type: 'application/pdf' })),
@@ -152,23 +153,23 @@ describe('capyresume/pdf — document tree', () => {
 });
 
 describe('capyresume/pdf — template-driven styling', () => {
-  it('uses the template font on the page', () => {
+  it('embeds the template font (Liberation, metric twin of the standard-14 face)', () => {
     expect((page(DEMO_RESUME, 'classic').props.style as Record<string, unknown>).fontFamily).toBe(
-      'Helvetica'
+      'Liberation Sans'
     );
     expect((page(DEMO_RESUME, 'serif').props.style as Record<string, unknown>).fontFamily).toBe(
-      'Times-Roman'
+      'Liberation Serif'
     );
   });
 
   it('falls back to the document template when none is passed', () => {
     const doc: ResumeDoc = { ...DEMO_RESUME, templateId: 'serif' };
-    expect((page(doc).props.style as Record<string, unknown>).fontFamily).toBe('Times-Roman');
+    expect((page(doc).props.style as Record<string, unknown>).fontFamily).toBe('Liberation Serif');
   });
 
   it('falls back to the default template for an unknown document template', () => {
     const doc = { ...DEMO_RESUME, templateId: 'nope' as TemplateId };
-    expect((page(doc).props.style as Record<string, unknown>).fontFamily).toBe('Helvetica');
+    expect((page(doc).props.style as Record<string, unknown>).fontFamily).toBe('Liberation Sans');
   });
 
   it('applies the template heading casing', () => {
