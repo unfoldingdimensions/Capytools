@@ -53,6 +53,12 @@ describe('the Content-Security-Policy', () => {
     expect(directiveIn(devPolicy, 'script-src')).toContain("'wasm-unsafe-eval'");
   });
 
+  it('lets yoga fetch its inlined WebAssembly from a data: URL', () => {
+    // Refused, every PDF export logs a CSP violation before yoga falls back.
+    expect(directiveIn(productionPolicy, 'connect-src')).toContain('data:');
+    expect(directiveIn(devPolicy, 'connect-src')).toContain('data:');
+  });
+
   it('never restores JS eval to a production policy', () => {
     expect(directiveIn(productionPolicy, 'script-src')).not.toContain("'unsafe-eval'");
     // Dev keeps it: the bundler and HMR socket need it.

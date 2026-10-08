@@ -42,9 +42,12 @@ export function buildContentSecurityPolicy(isProduction: boolean): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
+    // `data:` because yoga fetches its own inlined WebAssembly from a data: URL; refused,
+    // it logs a CSP error on every PDF export and falls back. A data: URL is bytes
+    // already in the page, so allowing it opens no channel out.
     isProduction
-      ? "connect-src 'self' https: http://localhost:* http://127.0.0.1:*"
-      : "connect-src 'self' https: http: ws: wss:",
+      ? "connect-src 'self' data: https: http://localhost:* http://127.0.0.1:*"
+      : "connect-src 'self' data: https: http: ws: wss:",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "object-src 'none'",
