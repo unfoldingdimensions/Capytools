@@ -119,6 +119,21 @@ const nextConfig: NextConfig = {
           { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
         ],
       },
+      {
+        // CapyPassport is the one page that may open the camera (an explicit
+        // user gesture grabs one frame in-tab). The blanket `camera=()` above
+        // would refuse getUserMedia site-wide; this later block overrides it
+        // on this path ONLY — every other capability stays closed, and no
+        // other page may ask. (Docs: with two matches for one key, the last
+        // header wins.)
+        source: "/capypassport/:path*",
+        headers: [
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self), microphone=(), geolocation=(), payment=(), usb=()",
+          },
+        ],
+      },
     ];
   },
 };

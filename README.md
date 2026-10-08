@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Fourteen so far. Thirteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.
+A home for small, quiet tools. Fifteen so far. Fourteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.
 
 **[capytools.app](https://capytools.app)**
 
@@ -152,6 +152,15 @@ The words are in there; CapyRead gets them out. Drop a photo, a screenshot or a 
 - **PDFs, page by page**: a PDF is rasterised in the tab and read one page at a time, up to ten per run, with the page count and any skipped pages shown before you start. Each page lands in the words card as it finishes.
 - **Eighteen languages**: English ships fast (about 1.9 MB, the default) and standard (about 10.4 MB, for rough pages); German through Korean ship the fast model. Each downloads once from this origin, is kept in the browser's own storage, and has a one-click forget control.
 - **Editable, then exportable**: fix the OCR's slips by hand in the editor, then copy, or download .txt or .docx — plain paragraphs, so your own Word styles apply.
+
+## 15. CapyPassport
+
+A photo that fits the published rules, made in your tab. Drop a portrait and CapyPassport finds the face, frames it to the document you pick — US passport, UK passport or a Schengen visa — and shows the numbers that document's guidance asks for: head height, top margin, eye line, each read against the published band in words. Download the single photo at the size the online portal wants, or a print sheet laid out at exactly 4 × 6 inches to cut at home.
+
+- **Your photo never leaves this tab**: detection runs in the browser on a face model served from this site; there is no upload route in the code.
+- **Honest about the estimate**: the rules measure chin to crown, and no detector can see where hair ends — so the crown is an estimate, the readout says so, and sliders fine-tune the fit. Sliders can leave the published range on purpose; the readout tells you when they do.
+- **The background stays as shot**: filling it is opt-in, runs the same people-cutting model CapyBg uses, and carries the warning that several authorities require a photo unaltered by software.
+- **Sources on the card**: every document's figures carry the date they were last checked and a link to the authority's own page — and the standing advice to confirm there before you file. Geometry is all this tool checks; expression, glasses and headwear are yours.
 
 ## Privacy
 

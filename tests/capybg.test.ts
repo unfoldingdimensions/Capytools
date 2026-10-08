@@ -383,7 +383,7 @@ describe("compose: the decisions", () => {
 
 describe("registration — the suite knows CapyBg", () => {
   it("SUITE row 12 is CapyBg at /capybg, with its plate", () => {
-    expect(SUITE).toHaveLength(14);
+    expect(SUITE).toHaveLength(15);
     const row = SUITE[11];
     expect(row.name).toBe("CapyBg");
     expect(row.href).toBe("/capybg");

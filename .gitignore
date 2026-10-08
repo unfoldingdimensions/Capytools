@@ -96,6 +96,11 @@ evolution-drafts/
 # committed — scripts/fetch-capyread-assets.ts is the only thing that writes here)
 /public/ocr/
 
+# capypassport face model + MediaPipe wasm (downloaded/copied at build time,
+# never committed — scripts/fetch-capypassport-assets.ts is the only thing
+# that writes here)
+/public/capypassport/
+
 # cloudflare
 .open-next/
 .wrangler/

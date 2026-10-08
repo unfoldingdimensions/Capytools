@@ -48,3 +48,19 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+# CapyPassport's face model and MediaPipe wasm. The model directory is
+# content-addressed (its sha8) and the wasm directory carries the npm package
+# version, so neither URL ever changes content under the same name and the
+# year-long cache is safe — there is no manifest here to go stale (that was
+# CapyBg lesson L5). The security table matches the /_next/static/* block
+# above — change one, change both. Note camera=(self) does NOT belong here:
+# this file serves assets, not documents, and the document header lives in
+# next.config.ts.
+/capypassport/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()

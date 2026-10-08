@@ -1,7 +1,7 @@
 {
   "name": "capytools",
   "version": "0.1.0",
-  "description": "A home for small, quiet tools. Fourteen so far — thirteen run in your browser and keep nothing; one lives on your desktop.",
+  "description": "A home for small, quiet tools. Fifteen so far — fourteen run in your browser and keep nothing; one lives on your desktop.",
   "keywords": [
     "browser-tools",
     "client-side",
@@ -30,8 +30,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack --port 3024",
-    "prebuild": "node scripts/generate-license-text.mjs && tsx scripts/fetch-capybg-assets.ts && tsx scripts/fetch-capyread-assets.ts",
-    "predeploy": "tsx scripts/fetch-capybg-assets.ts && tsx scripts/fetch-capyread-assets.ts",
+    "prebuild": "node scripts/generate-license-text.mjs && tsx scripts/fetch-capybg-assets.ts && tsx scripts/fetch-capyread-assets.ts && tsx scripts/fetch-capypassport-assets.ts",
+    "predeploy": "tsx scripts/fetch-capybg-assets.ts && tsx scripts/fetch-capyread-assets.ts && tsx scripts/fetch-capypassport-assets.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -42,6 +42,7 @@
     "cf-clean": "powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\"Name='node.exe'\\\" | Where-Object { $_.CommandLine -match 'wrangler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Get-Process -Name workerd,esbuild -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue\""
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "1.1.0",
     "apca-w3": "0.1.9",
     "class-variance-authority": "^0.7.1",
     "client-zip": "^2.5.0",

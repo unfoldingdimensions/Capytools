@@ -249,6 +249,21 @@ export const SUITE: SuiteTool[] = [
                "text recognition", "tesseract", "convert scan to text", "no upload"],
     plate: { src: "/plates/lab-14.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyPassport",
+    short: "Passport",
+    href: "/capypassport",
+    cat: "browser",
+    badge: "Passport",
+    appCategory: "UtilitiesApplication",
+    blurb:
+      "Crop a portrait to the US, UK or Schengen passport and visa rules — head height, margins and eye line checked against the published numbers, a print sheet laid out at exact size. Your photo never leaves your tab.",
+    note: "passport photos",
+    line: "Passport and visa photos, measured to the published rules, in your browser.",
+    keywords: ["passport photo", "visa photo", "id photo", "passport photo maker",
+               "35x45", "2x2", "biometric photo", "print passport photos", "no upload"],
+    plate: { src: "/plates/lab-15.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
@@ -277,6 +292,7 @@ const WORDS = [
   "twelve",
   "thirteen",
   "fourteen",
+  "fifteen",
 ] as const;
 
 /** 7 → "seven": any count, spelled out for prose; digits past the table. */

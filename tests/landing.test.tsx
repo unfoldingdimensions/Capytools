@@ -82,7 +82,7 @@ describe("Landing", () => {
   });
 
   it("keeps the verbatim README quote out of the derivation", () => {
-    expect(text).toContain("Fourteen so far");
+    expect(text).toContain("Fifteen so far");
     expect(text).not.toContain("Eight so far");
   });
 
@@ -177,7 +177,7 @@ describe("Landing assets", () => {
 
   it("keeps the README quote in sync with the README itself", () => {
     const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
-    expect(readme).toContain("Fourteen so far");
+    expect(readme).toContain("Fifteen so far");
     expect(readme).toContain("## 5. CapyExpense");
     expect(readme).toContain("## 6. CapyOG");
     expect(readme).toContain("## 7. CapyQR");
