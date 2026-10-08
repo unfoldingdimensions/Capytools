@@ -66,7 +66,10 @@ const CSP_REPORT_ONLY = [
   "font-src 'self' data:",
   // https: covers the user-configured LLM provider, which is the only reason
   // this cannot be tightened to 'self'.
-  "connect-src 'self' https:",
+  // CapyResume note: data: is for yoga, @react-pdf/renderer's layout engine,
+  // which fetches its own inlined WebAssembly from a data: URL on the first
+  // PDF export. A data: URL is bytes already in the page — no channel out.
+  "connect-src 'self' data: https:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

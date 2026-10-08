@@ -392,6 +392,41 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
     ],
   },
+  CapyResume: {
+    heading: "How to make a resume free, with no signup",
+    steps: [
+      "Fill in your details, then your sections — experience, education, skills, projects — adding, reordering and removing entries as you go. The page beside the form shows the document as you type.",
+      "Pick one of six single-column templates and the paper size, A4 or US Letter.",
+      "Download a PDF, a Word file (.docx), or a JSON backup of the whole résumé to keep or move to another device.",
+    ],
+    about: [
+      "CapyResume is a résumé builder that runs entirely in your browser. What you type is kept in this browser's own storage so it is still there next visit, and never sent anywhere: there is no account, no server copy and no upload route in the code.",
+      "The PDF is a real document, not a picture of one — its text can be selected, copied and read by software. Every template is a single column with no tables and no text set into images, the layout résumé parsers handle best. No template is guaranteed to pass any particular hiring system, and the tool does not claim that.",
+      "Every export is free, unlimited and unwatermarked. The JSON backup is the escape hatch: clearing your browser's data deletes the résumé, so a backup is how you keep it.",
+    ],
+    faq: [
+      {
+        q: "Is my resume uploaded?",
+        a: "No. It is stored in this browser only, and the PDF, Word file and JSON are all produced in the tab. Close the tab and it stays in this browser; clear your browser data and it is gone.",
+      },
+      {
+        q: "Is the PDF readable by applicant tracking systems?",
+        a: "The PDF has a real text layer and every template is one plain column, which is what parsers read most reliably. No builder can promise a particular ATS will accept a file, and CapyResume doesn't.",
+      },
+      {
+        q: "Can I download it as a Word document?",
+        a: "Yes — Download DOCX gives a Word file with the same content, on the paper size you chose.",
+      },
+      {
+        q: "How do I move my resume to another computer?",
+        a: "Download the JSON backup, then use import JSON on the other device. A file that isn't a CapyResume backup is refused rather than imported as an empty résumé.",
+      },
+      {
+        q: "Is there a watermark or a download limit?",
+        a: "No. Every export is free, unlimited and unwatermarked, with nothing added to the document but what you wrote.",
+      },
+    ],
+  },
   CapyStrip: {
     heading: "How to view and remove EXIF metadata from a photo",
     steps: [

@@ -144,11 +144,12 @@ describe("the engines load lazily, each in its one file", () => {
     }
   });
 
-  it("package.json adds exactly the three engines and nothing else", () => {
+  it("package.json adds exactly the three engines and nothing else (beside CapyResume's PDF writer)", () => {
     const pkg = JSON.parse(read(join(process.cwd(), "package.json"))) as {
       dependencies: Record<string, string>;
     };
     expect(Object.keys(pkg.dependencies).sort()).toEqual([
+      "@react-pdf/renderer",
       "apca-w3",
       "class-variance-authority",
       "client-zip",

@@ -168,8 +168,9 @@ export const DEFAULT_TEMPLATE_ID: TemplateId = 'classic';
  * exactly one function to change when payments arrive. The rule the seam exists
  * to protect: free must never gate the export of someone's own résumé.
  */
-export function isPackUnlocked(_pack: TemplatePackId): boolean {
-  return true;
+export function isPackUnlocked(pack: TemplatePackId): boolean {
+  // Every pack is free today; the seam stays so a paid pack is one line.
+  return pack === 'free' || pack === 'expanded';
 }
 
 export function isTemplateId(value: unknown): value is TemplateId {

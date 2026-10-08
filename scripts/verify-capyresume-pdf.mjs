@@ -13,17 +13,19 @@
  *      present — i.e. the file has a genuine **text layer**, not an image
  *   5. asserts no watermark/attribution leaked into the rendered text
  *
- * Run: node scripts/verify-capyresume-pdf.cjs
+ * Run: node scripts/verify-capyresume-pdf.mjs
  * Exits non-zero with a readable message if any assertion fails.
  */
 
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
-const fs = require('fs');
-const path = require('path');
-const { execFileSync } = require('child_process');
-
-const ROOT = path.resolve(__dirname, '..');
+// The library is compiled to CommonJS below, so it is loaded the CommonJS way.
+const load = createRequire(import.meta.url);
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = path.join(ROOT, 'node_modules', '.cache', 'capyresume-pdfverify');
 // The browser fetches the embedded fonts from /pdf-fonts/; here they are read from disk.
 const FONT_BASE = path.join(ROOT, 'public', 'pdf-fonts') + path.sep;
@@ -53,7 +55,7 @@ step(`compiling lib/capyresume -> ${path.relative(ROOT, OUT_DIR)}`);
 fs.rmSync(OUT_DIR, { recursive: true, force: true });
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
-const tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
+const tsc = path.join(path.dirname(load.resolve('typescript/package.json')), 'bin', 'tsc');
 
 try {
   execFileSync(
@@ -94,9 +96,9 @@ ok('library compiled');
 // 2. Render for real
 // ---------------------------------------------------------------------------
 
-const { buildResumePdf } = require(compiledPdf);
-const { DEMO_RESUME } = require(path.join(OUT_DIR, 'demo.js'));
-const { TEMPLATE_LIST } = require(path.join(OUT_DIR, 'templates.js'));
+const { buildResumePdf } = load(compiledPdf);
+const { DEMO_RESUME } = load(path.join(OUT_DIR, 'demo.js'));
+const { TEMPLATE_LIST } = load(path.join(OUT_DIR, 'templates.js'));
 /**
  * Extract the text layer with pdfjs-dist — already a Capytools dependency (CapyRead
  * renders PDFs with it), so this check needs no package of its own. The legacy
