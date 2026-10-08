@@ -187,7 +187,7 @@ const ADD_BTN = `inline-flex items-center gap-1.5 rounded-full border border-pri
 const FIELD =
   "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground/70 hover:border-primary/60 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50";
 const LABEL =
-  "mb-1.5 block font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground";
+  "mb-1.5 block text-xs font-medium text-muted-foreground";
 /** A just-added row glows briefly, so the click visibly landed somewhere. */
 const FRESH = "bg-primary/15";
 /** A group heading inside an open entry: a step above the field labels. */
@@ -303,7 +303,7 @@ const BulletRow = memo(function BulletRow({
         className={FIELD}
         name={`${bullet.id}-text`}
         aria-label={label}
-        placeholder="what you did, with a number if there is one"
+        placeholder="What you did, with a number if there is one"
         value={bullet.text}
         onChange={(event) =>
           onBulletText(sectionId, entryId, bullet.id, event.target.value)
@@ -345,7 +345,7 @@ export function TagsInput({
       name={name}
       aria-label={label}
       autoComplete="off"
-      placeholder="comma separated"
+      placeholder="Comma separated"
       value={draft ?? tags.join(", ")}
       onFocus={() => setDraft(tags.join(", "))}
       onChange={(event) => {
@@ -493,7 +493,7 @@ const EntryRow = memo(function EntryRow({
             onClick={() => onRemove(sectionId, entry.id)}
             aria-label={`remove ${prefix}`}
           >
-            remove
+            Remove
           </button>
         </div>
       </div>
@@ -577,7 +577,7 @@ const EntryRow = memo(function EntryRow({
                     aria-label={`${prefix}, end date, YYYY-MM`}
                     inputMode="text"
                     autoComplete="off"
-                    placeholder={entry.current ? "present" : "YYYY-MM"}
+                    placeholder={entry.current ? "Present" : "YYYY-MM"}
                     value={entry.endDate ?? ""}
                     disabled={entry.current === true}
                     onChange={(event) =>
@@ -655,7 +655,7 @@ const EntryRow = memo(function EntryRow({
                 className={cn(ADD_BTN, "mt-3")}
                 onClick={() => onAddBullet(sectionId, entry.id)}
               >
-                <span aria-hidden>+</span> add achievement
+                <span aria-hidden>+</span> Add achievement
               </button>
             </div>
           ) : null}
@@ -922,10 +922,10 @@ export function CapyResume() {
         );
       if (!entry || isEntryEmpty(entry)) return remove();
       setConfirming({
-        title: `remove ${name}?`,
+        title: `Remove ${name}?`,
         message:
           "Its details and achievements go with it. You can undo for a few seconds afterwards.",
-        confirmText: "remove it",
+        confirmText: "Remove it",
         run: remove,
       });
     },
@@ -968,9 +968,9 @@ export function CapyResume() {
       );
     if (!section || section.entries.every(isEntryEmpty)) return remove();
     setConfirming({
-      title: `remove the ${name} section?`,
+      title: `Remove the ${name} section?`,
       message: `${section.entries.length === 1 ? "Its entry goes" : `All ${section.entries.length} of its entries go`} with it. You can undo for a few seconds afterwards.`,
-      confirmText: "remove it",
+      confirmText: "Remove it",
       run: remove,
     });
   };
@@ -1062,10 +1062,10 @@ export function CapyResume() {
       if (isResumeEmpty(doc)) commit();
       else
         setConfirming({
-          title: "replace the open résumé?",
+          title: "Replace the open résumé?",
           message:
             "The file replaces what is open in the editor now. Export a JSON backup first if you want to keep it.",
-          confirmText: "replace it",
+          confirmText: "Replace it",
           run: commit,
         });
     } catch (error) {
@@ -1085,15 +1085,15 @@ export function CapyResume() {
           if (isResumeEmpty(doc)) replace();
           else
             setConfirming({
-              title: "load the example résumé?",
+              title: "Load the example résumé?",
               message:
                 "It replaces what is open in the editor now. Export a JSON backup first if you want to keep it.",
-              confirmText: "load example",
+              confirmText: "Load example",
               run: replace,
             });
         }}
       >
-        load demo
+        Load demo
       </button>
       <button
         type="button"
@@ -1106,15 +1106,15 @@ export function CapyResume() {
           if (isResumeEmpty(doc)) clear();
           else
             setConfirming({
-              title: "delete this résumé?",
+              title: "Delete this résumé?",
               message:
                 "It is removed from this browser for good, and there is no copy anywhere else. Export a JSON backup first if you might want it back.",
-              confirmText: "delete it",
+              confirmText: "Delete it",
               run: clear,
             });
         }}
       >
-        clear
+        Clear
       </button>
     </div>
   );
@@ -1122,13 +1122,13 @@ export function CapyResume() {
   // Hydration-safe: null on the server and on the first client render alike.
   const savedStamp = (
     <span
-      className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
+      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
       title="Saved in this browser only"
     >
       <span aria-hidden className="size-1.5 rounded-full bg-primary" />
       {savedAt
-        ? `saved ${savedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-        : "saved in this browser"}
+        ? `Saved ${savedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+        : "Saved in this browser"}
     </span>
   );
 
@@ -1269,12 +1269,12 @@ export function CapyResume() {
                       onClick={() => removeLink(index)}
                       aria-label={`remove link ${index + 1}`}
                     >
-                      remove
+                      Remove
                     </button>
                   </div>
                 ))}
                 <button type="button" className={ADD_BTN} onClick={addLink}>
-                  <span aria-hidden>+</span> add link
+                  <span aria-hidden>+</span> Add link
                 </button>
               </div>
             </section>
@@ -1310,7 +1310,7 @@ export function CapyResume() {
                         {title}
                       </h3>
                     )}
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {count} {count === 1 ? "entry" : "entries"}
                     </span>
                     <div className="ml-auto flex items-center gap-1.5">
@@ -1320,7 +1320,7 @@ export function CapyResume() {
                         onClick={() => setRenaming(section.id)}
                         aria-label={`rename ${title}`}
                       >
-                        rename
+                        Rename
                       </button>
                       <button
                         type="button"
@@ -1344,7 +1344,7 @@ export function CapyResume() {
                         onClick={() => removeSection(section.id)}
                         aria-label={`remove the ${title} section`}
                       >
-                        remove
+                        Remove
                       </button>
                     </div>
                   </div>
@@ -1383,7 +1383,7 @@ export function CapyResume() {
                     className={cn(ADD_BTN, "mt-3")}
                     onClick={() => addEntry(section.id)}
                   >
-                    <span aria-hidden>+</span> add to {title}
+                    <span aria-hidden>+</span> Add to {title}
                   </button>
                 </section>
               );
@@ -1565,7 +1565,7 @@ export function CapyResume() {
                 className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-60"
                 onClick={() => fileInputRef.current?.click()}
               >
-                import JSON
+                Import JSON
               </button>
               <input
                 ref={fileInputRef}
@@ -1596,25 +1596,25 @@ export function CapyResume() {
           href="/capyresume/templates"
           className="inline-block py-1 transition-colors hover:text-foreground"
         >
-          templates
+          Templates
         </Link>
         <Link
           href="/capyresume/ats-resume-format"
           className="inline-block py-1 transition-colors hover:text-foreground"
         >
-          ats resume format
+          ATS résumé format
         </Link>
         <Link
           href="/capyresume/resume-templates"
           className="inline-block py-1 transition-colors hover:text-foreground"
         >
-          by role
+          By role
         </Link>
         <Link
           href="/capyresume/free-cv-builder"
           className="inline-block py-1 transition-colors hover:text-foreground"
         >
-          by country
+          By country
         </Link>
       </nav>
 
@@ -1633,7 +1633,7 @@ export function CapyResume() {
               className={`rounded-full border border-background/40 px-3 py-1 text-[13px] transition-colors hover:bg-background hover:text-foreground pointer-coarse:min-h-11 ${FOCUS}`}
               onClick={restoreRemoved}
             >
-              undo
+              Undo
             </button>
           </div>
         ) : null}

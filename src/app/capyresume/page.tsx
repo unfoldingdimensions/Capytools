@@ -16,7 +16,7 @@ export default function CapyResumePage() {
         { text: "A CV that's" },
         { text: "actually yours", em: true, dot: true },
       ]}
-      lead="build it, export a real PDF or DOCX, keep the JSON. made in your tab, uploaded nowhere."
+      lead="Build it, export a real PDF or DOCX, keep the JSON. Made in your tab, uploaded nowhere."
       align="left"
       wide
     >
