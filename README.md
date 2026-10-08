@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Fifteen so far. Fourteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.
+A home for small, quiet tools. Sixteen so far. Fifteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.
 
 **[capytools.app](https://capytools.app)**
 
@@ -161,6 +161,14 @@ A photo that fits the published rules, made in your tab. Drop a portrait and Cap
 - **Honest about the estimate**: the rules measure chin to crown, and no detector can see where hair ends — so the crown is an estimate, the readout says so, and sliders fine-tune the fit. Sliders can leave the published range on purpose; the readout tells you when they do.
 - **The background stays as shot**: filling it is opt-in, runs the same people-cutting model CapyBg uses, and carries the warning that several authorities require a photo unaltered by software.
 - **Sources on the card**: every document's figures carry the date they were last checked and a link to the authority's own page — and the standing advice to confirm there before you file. Geometry is all this tool checks; expression, glasses and headwear are yours.
+
+## 16. CapyResume
+
+A résumé that's actually yours, made in your tab. Fill in your details and sections, pick one of six single-column templates and A4 or US Letter, then download a real PDF, a Word file, or a JSON backup of the whole thing.
+
+- **Stored in this browser only**: what you type stays in this browser's own storage so it's there next visit, and never goes anywhere else — there is no account, no server copy and no upload route in the code.
+- **A real PDF**: selectable, copyable text in embedded open-licence fonts (Latin, Cyrillic and Greek), with clickable links — not a picture of a document. Every template is one plain column, the layout parsers read best; no template is promised to pass any particular hiring system.
+- **Free, unlimited, unwatermarked**: every export, every time. The JSON backup is the escape hatch — clearing browser data deletes the résumé, so a backup is how you keep it, and a file that isn't one is refused rather than imported empty.
 
 ## Privacy
 

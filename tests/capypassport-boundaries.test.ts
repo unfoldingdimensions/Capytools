@@ -92,7 +92,11 @@ describe("the face model is pinned, same-origin and lazy", () => {
 describe("the compliance copy rules hold", () => {
   it("no forbidden claim anywhere in capypassport sources or the guide", () => {
     const guide = read(join(process.cwd(), "src", "lib", "capytools", "guides.ts"));
-    const capyGuide = guide.slice(guide.indexOf("CapyPassport:"), guide.indexOf("CapyStrip:", guide.indexOf("CapyPassport:")));
+    // Up to whichever tool's entry comes next — not a named one, which breaks
+    // the day another tool's guide lands in between.
+    const start = guide.indexOf("CapyPassport:");
+    const next = guide.slice(start + 1).search(/\n {2}Capy\w+: \{/);
+    const capyGuide = next < 0 ? guide.slice(start) : guide.slice(start, start + 1 + next);
     expect(capyGuide.length, "the guide entry was found").toBeGreaterThan(0);
     for (const text of [...capypassportSources().map(read), capyGuide]) {
       expect(text, "a forbidden claim").not.toMatch(
@@ -128,6 +132,7 @@ describe("capypassport adds exactly one dependency", () => {
     expect(pkg.dependencies["@mediapipe/tasks-vision"]).toMatch(/^\d+\.\d+\.\d+$/); // exact-pinned
     expect(Object.keys(pkg.dependencies).sort()).toEqual([
       "@mediapipe/tasks-vision",
+      "@react-pdf/renderer",
       "apca-w3",
       "class-variance-authority",
       "client-zip",
