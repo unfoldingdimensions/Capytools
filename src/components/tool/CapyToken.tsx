@@ -34,7 +34,7 @@ const ENCODING_NAMES: Record<TokenEncodingId, string> = { o200k: "o200k_base", c
 const REFERENCE_MODEL_ID = "gpt-5";
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[12px] text-muted-foreground";
 
 /** The short chip text per honesty tier; the full sentences sit in the legend. */
 const TIER_CHIP: Record<EstimateLabel["kind"], string> = {
@@ -232,7 +232,7 @@ export function CapyToken() {
                   key={encoding.id}
                   className="inline-flex items-baseline gap-2 rounded-full border border-border bg-muted/30 px-3 py-1"
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <span className="font-mono text-[13px] text-muted-foreground">
                     {encoding.name}
                   </span>
                   {tokens === null ? (
@@ -295,7 +295,7 @@ export function CapyToken() {
         <div className="mt-4 max-h-96 overflow-y-auto rounded-2xl border border-border/70">
           <table className="w-full border-collapse text-left text-[13px]">
             <thead className="sticky top-0 z-10 bg-card">
-              <tr className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              <tr className="font-mono text-[12px] text-muted-foreground">
                 <th scope="col" className="px-3 py-2 font-medium">model</th>
                 <th scope="col" className="px-3 py-2 text-right font-medium">in / 1M</th>
                 <th scope="col" className="px-3 py-2 text-right font-medium">out / 1M</th>
@@ -330,7 +330,7 @@ export function CapyToken() {
                     </td>
                     <td className="px-3 py-2">
                       {!fit.fitsInput ? (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
+                        <span className="font-mono text-[12px] text-[var(--clay)]">
                           input over the window
                         </span>
                       ) : (
@@ -355,11 +355,11 @@ export function CapyToken() {
 
         <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
           <p>
-            <span className="font-mono uppercase tracking-[0.1em]">exact</span> rows are counted in this
-            tab. <span className="font-mono uppercase tracking-[0.1em]">estimate</span> — {ESTIMATE_LEGEND.claude}
+            <span className="font-mono">exact</span> rows are counted in this
+            tab. <span className="font-mono">estimate</span> — {ESTIMATE_LEGEND.claude}
           </p>
           <p>
-            <span className="font-mono uppercase tracking-[0.1em]">not verified</span> — {ESTIMATE_LEGEND.unverified}
+            <span className="font-mono">not verified</span> — {ESTIMATE_LEGEND.unverified}
           </p>
           <p className="pt-1">
             prices verified {PRICES_VERIFIED} · source: LiteLLM model_prices ({PRICES_SOURCE_COMMIT})

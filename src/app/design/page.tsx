@@ -37,8 +37,8 @@ const VOICES = [
   {
     name: "Albert Sans",
     role: "Labels",
-    note: "Eyebrows, tags and code, uppercase with 0.24em tracking. The quiet technician.",
-    className: "font-mono text-sm uppercase tracking-[0.24em]",
+    note: "Eyebrows, tags and code, with 0.24em tracking. The quiet technician.",
+    className: "font-mono text-sm",
   },
 ];
 
@@ -95,7 +95,7 @@ export default function DesignNotesPage() {
                 />
                 <span className="leading-tight">
                   <span className="block text-sm font-semibold">{color.name}</span>
-                  <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="block font-mono text-[12px] text-muted-foreground">
                     {color.hex} · {color.role}
                   </span>
                 </span>

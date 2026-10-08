@@ -226,7 +226,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           {/* CARD 3: FROM THE LEXICON — the standalone app's landing gallery,
               now a section on the tool page. */}
           <StageCard index="03" title="From the lexicon">
-            <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="mt-4 text-center font-mono text-[12px] text-muted-foreground">
               rendered live by the engine, right now
             </p>
             <div className="mt-4">

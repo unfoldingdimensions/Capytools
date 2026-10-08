@@ -68,7 +68,7 @@ function Pill({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+        "rounded-full border px-3 py-1 font-mono text-[13px] transition-colors",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -175,7 +175,7 @@ export function CapyOG() {
           <div>
             <label
               htmlFor="capyog-template"
-              className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+              className="font-mono text-[12px] text-muted-foreground"
             >
               Template
             </label>
@@ -203,7 +203,7 @@ export function CapyOG() {
           <div>
             <label
               htmlFor="capyog-size"
-              className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+              className="font-mono text-[12px] text-muted-foreground"
             >
               Size
             </label>
@@ -230,7 +230,7 @@ export function CapyOG() {
         </div>
 
         <div className="mt-4">
-          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="font-mono text-[12px] text-muted-foreground">
             Accent
           </span>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -249,7 +249,7 @@ export function CapyOG() {
                 {a}
               </Pill>
             ))}
-            <span className="self-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="self-center font-mono text-[12px] text-muted-foreground">
               variant follows the site theme
             </span>
           </div>
@@ -260,7 +260,7 @@ export function CapyOG() {
             <div key={key} className={cn(MULTILINE.includes(key) && "sm:col-span-2")}>
               <label
                 htmlFor={`capyog-field-${key}`}
-                className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+                className="font-mono text-[12px] text-muted-foreground"
               >
                 {FIELD_LABELS[key]}
               </label>
@@ -302,7 +302,7 @@ export function CapyOG() {
 
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex items-center gap-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="font-mono text-[12px] text-muted-foreground">
               Format
             </span>
             <Pill active={format === "png"} onClick={() => setFormat("png")} label="Format PNG">
@@ -318,7 +318,7 @@ export function CapyOG() {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="font-mono text-[12px] text-muted-foreground">
               Scale
             </span>
             {SCALE_OPTIONS.map((s) => (
@@ -332,7 +332,7 @@ export function CapyOG() {
             <div className="flex items-center gap-2">
               <label
                 htmlFor="capyog-quality"
-                className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+                className="font-mono text-[12px] text-muted-foreground"
               >
                 Quality
               </label>

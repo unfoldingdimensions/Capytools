@@ -96,7 +96,7 @@ export function SpendBars({
             x={Math.min(w - 2, Math.max(2, t.x))}
             y={height - 6}
             textAnchor={i === 0 ? "start" : i === g.ticks.length - 1 ? "end" : "middle"}
-            className="fill-[var(--muted-foreground)] font-mono text-[9px] uppercase tracking-[0.12em]"
+            className="fill-[var(--muted-foreground)] font-mono text-[11px]"
           >
             {t.label}
           </text>

@@ -52,7 +52,7 @@ export function GenerateInputs({
             <button
               type="button"
               onClick={onUseFeel}
-              className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-3 py-1 font-mono text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
               aria-label="Use the feel card's field colour as the base"
             >
               <span

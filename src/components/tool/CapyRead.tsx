@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
  */
 
 const labelClass =
-  "font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[13px] text-muted-foreground";
 
 const isPdfFile = (file: File) => file.type === "application/pdf" || /\.pdf$/i.test(file.name);
 const isImageFile = (file: File) => file.type.startsWith("image/");
@@ -49,7 +49,7 @@ function BucketBadge({ confidence }: { confidence: number | null }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em]",
+        "inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[12px]",
         BUCKET_TONE[bucket],
       )}
     >
@@ -687,7 +687,7 @@ export function CapyRead() {
                     <div className="flex flex-wrap items-center gap-2">
                       <BucketBadge confidence={block.confidence} />
                       {words.pages.length > 1 ? (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                        <span className="font-mono text-[12px] text-muted-foreground">
                           page {page.page}
                         </span>
                       ) : null}

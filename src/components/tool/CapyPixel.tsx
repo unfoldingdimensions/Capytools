@@ -33,7 +33,7 @@ const LIVE_GRID_CAP = 600;
 const EXPORT_SCALES = [1, 2, 4, 8] as const;
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[12px] text-muted-foreground";
 
 type Source =
   | { kind: "photo"; img: HTMLImageElement; width: number; height: number; name: string }
@@ -57,7 +57,7 @@ function Pill({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+        "rounded-full border px-3 py-1 font-mono text-[13px] transition-colors",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -439,7 +439,7 @@ export function CapyPixel() {
               click to pick one, or paste — it never leaves this tab.
             </span>
             {loading ? (
-              <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              <span className="mt-2 font-mono text-[12px] text-muted-foreground">
                 reading…
               </span>
             ) : null}
@@ -612,7 +612,7 @@ export function CapyPixel() {
                     role="img"
                     className="rounded-lg border border-border"
                   />
-                  <figcaption className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <figcaption className="font-mono text-[12px] text-muted-foreground">
                     100% crop · true pitch
                   </figcaption>
                 </figure>

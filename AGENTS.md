@@ -21,7 +21,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Shared UI for a desktop tool lives in `src/components/capyexpense/`-style directories and must import no `next/*`, no `motion`, and no storage: it renders in both the Next site and the app's separate Vite bundle. `tests/capyexpense-boundaries.test.ts` enforces this.
 - Sensitive configs (API keys, preferences) reside solely in browser `localStorage`.
 - Tool naming: `Capy<Name>` (e.g., `CapyWrapped`, `CapyImagine`, `CapyCreator`).
-- Tool eyebrow: `font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground` (`Capy<Name> · tool no. X`).
+- Tool eyebrow: `font-mono text-[13px] text-muted-foreground` (`Capy<Name> · tool no. X`), in sentence case.
+- UI copy is **sentence case** everywhere (DESIGN.md, "Register"). No all-caps labels: never `uppercase` + wide tracking.
 
 ### 2. Design System & Tokens
 - **Canvas**: Cream `#f9f9f7` (light) / Deep charcoal `#121212` (dark).
@@ -29,7 +30,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Typography**:
   - Titles: `font-display` (Fraunces serif, font-light, italic emphasis `<em className="italic">`).
   - UI: `font-sans` (Plus Jakarta Sans).
-  - Eyebrows, Code & Tags: `font-mono` (Albert Sans uppercase tracking-[0.24em]).
+  - Eyebrows, Code & Tags: `font-mono` (Albert Sans, sentence case, normal tracking).
 - **Surfaces**: `rounded-3xl` for main cards, `rounded-2xl` for inset wells, `rounded-full` for pills/buttons.
 - **Atmosphere**: Use `AmbientBackground` + `CapyMark` mascot on every tool page.
 

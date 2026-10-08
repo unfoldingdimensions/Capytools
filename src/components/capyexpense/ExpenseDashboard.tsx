@@ -69,7 +69,7 @@ export function ExpenseDashboard({
   return (
     <div className="flex w-full flex-col gap-6">
       <header>
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+        <p className="font-mono text-[13px] text-muted-foreground">
           CapyExpense · tool no. 5
         </p>
         <h1 className="mt-4 font-display text-4xl font-light leading-[1.06] tracking-tight text-foreground sm:text-5xl">
@@ -220,7 +220,7 @@ function ProblemsWell({ problems }: { problems: LoadProblem[] }) {
   const shown = problems.slice(0, 4);
   return (
     <div className="rounded-2xl border border-[var(--clay)]/30 bg-[var(--clay)]/10 p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--clay)]">
+      <p className="font-mono text-[12px] text-[var(--clay)]">
         {problems.length} {problems.length === 1 ? "row" : "rows"} skipped
       </p>
       <ul className="mt-2.5 space-y-1 text-sm text-foreground">

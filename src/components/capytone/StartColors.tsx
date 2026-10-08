@@ -24,7 +24,7 @@ export function StartColors({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+      <p className="font-mono text-[13px] text-muted-foreground">
         start from
       </p>
       <div className="flex flex-wrap gap-2">

@@ -177,7 +177,7 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
             type="submit"
             disabled={status.state === "loading" || url.trim() === ""}
             aria-label="Extract this page's palette"
-            className="rounded-full border border-primary bg-primary/10 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-foreground transition-colors hover:bg-primary/20 disabled:opacity-50"
+            className="rounded-full border border-primary bg-primary/10 px-4 py-1.5 font-mono text-[13px] text-foreground transition-colors hover:bg-primary/20 disabled:opacity-50"
           >
             extract
           </button>
@@ -238,10 +238,10 @@ function PaletteResult({
               />
               <div className="flex flex-col gap-2 p-3">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="font-mono text-xs uppercase tracking-[0.1em] text-foreground">
+                  <p className="font-mono text-xs text-foreground">
                     {colour.hex}
                   </p>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <p className="font-mono text-[12px] text-muted-foreground">
                     ×{colour.count} · {colour.source}
                   </p>
                 </div>
@@ -252,7 +252,7 @@ function PaletteResult({
                       type="button"
                       onClick={() => onJumpToFeel(`start from ${stop.phrase}`)}
                       aria-label={`Rebuild the palette starting from this colour, via the stop phrase “${stop.phrase}”`}
-                      className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                      className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
                     >
                       <span
                         aria-hidden
@@ -276,7 +276,7 @@ function PaletteResult({
             {themeColors.map((theme, index) => (
               <span
                 key={`${theme.hex}-${theme.from}-${index}`}
-                className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground"
                 title={theme.media ?? undefined}
               >
                 <span

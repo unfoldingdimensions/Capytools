@@ -181,7 +181,7 @@ export function ExampleCards() {
               height={1080}
               className="aspect-square w-full rounded-xl border border-border transition-transform duration-300 group-hover:-translate-y-1"
             />
-            <span className="mt-2 block text-center font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground group-hover:text-foreground">
+            <span className="mt-2 block text-center font-mono text-[12px] text-muted-foreground group-hover:text-foreground">
               {mood}
             </span>
           </Link>

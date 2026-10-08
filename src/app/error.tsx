@@ -75,7 +75,7 @@ export default function Error({
         </div>
 
         {error.digest ? (
-          <p className="mt-10 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="mt-10 font-mono text-[12px] text-muted-foreground">
             reference {error.digest}
           </p>
         ) : null}

@@ -28,7 +28,7 @@ export function SiteFooter({ here, wide = false }: { here?: "/tools" | "/notes";
   return (
     <footer className="border-t border-border">
       <div className={`mx-auto flex w-full ${wide ? "max-w-5xl" : "max-w-4xl"} flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row`}>
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="font-mono text-[13px] text-muted-foreground">
           capytools — no signup. no cookies. open source.
         </p>
         <nav aria-label="Footer" className="flex gap-5 text-xs text-muted-foreground">

@@ -44,7 +44,7 @@ const FORMATS: OutputFormat[] = ["png", "jpeg", "webp"];
 const PREVIEW_SIZES = [16, 32, 96] as const;
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[12px] text-muted-foreground";
 
 function Pill({
   active,
@@ -64,7 +64,7 @@ function Pill({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+        "rounded-full border px-3 py-1 font-mono text-[13px] transition-colors",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -99,7 +99,7 @@ function ColorField({
         aria-label={label}
         className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5"
       />
-      <span className="font-mono text-[11px] uppercase tabular-nums text-muted-foreground">
+      <span className="font-mono text-[13px] tabular-nums text-muted-foreground">
         {value}
       </span>
     </div>
@@ -484,7 +484,7 @@ export function CapyResize({
             <span className="mt-1 text-sm font-medium text-foreground">{IDLE_HEADLINE}</span>
             <span className="text-xs text-muted-foreground">{IDLE_HINT}</span>
             {loading ? (
-              <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              <span className="mt-2 font-mono text-[12px] text-muted-foreground">
                 {LOADER_STEPS.map((step, i) => (
                   <span key={step} className={i <= loaderStep ? "text-foreground" : undefined}>
                     {i > 0 && " · "}
@@ -722,7 +722,7 @@ export function CapyResize({
                           style={{ imageRendering: "pixelated" }}
                         />
                       ) : null}
-                      <figcaption className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      <figcaption className="font-mono text-[12px] text-muted-foreground">
                         {size} px
                       </figcaption>
                     </figure>

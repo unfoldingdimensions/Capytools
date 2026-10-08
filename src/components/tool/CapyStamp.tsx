@@ -77,7 +77,7 @@ const SWATCH_NAMES: Record<string, string> = {
 };
 
 const labelClass =
-  "font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[13px] text-muted-foreground";
 
 function Pill({
   active,
@@ -849,11 +849,11 @@ export function CapyStamp() {
                     <img src={item.url} alt="" className="size-full object-cover" />
                     <span className="sr-only">{item.file.name}</span>
                     {item.status === "failed" ? (
-                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-[var(--clay)]/85 py-0.5 text-center font-mono text-[10px] uppercase tracking-wide text-white">
+                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-[var(--clay)]/85 py-0.5 text-center font-mono text-[12px] text-white">
                         failed
                       </span>
                     ) : item.status === "stamping" ? (
-                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-primary/85 py-0.5 text-center font-mono text-[10px] uppercase tracking-wide text-[#141412]">
+                      <span aria-hidden className="absolute inset-x-0 bottom-0 bg-primary/85 py-0.5 text-center font-mono text-[12px] text-[#141412]">
                         stamping
                       </span>
                     ) : null}
@@ -1152,7 +1152,7 @@ export function CapyStamp() {
           <summary className="cursor-pointer select-none">
             <span className={labelClass}>presets</span>
             {presets.length > 0 ? (
-              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+              <span className="ml-2 font-mono text-[12px] text-muted-foreground">
                 {presets.length} saved
               </span>
             ) : null}

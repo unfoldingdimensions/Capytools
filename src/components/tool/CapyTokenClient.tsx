@@ -27,7 +27,7 @@ const CapyToken = dynamic(() => import("./CapyToken").then((m) => m.CapyToken), 
   // (tests/tool-pages.test.tsx) and does not reflow when the widget arrives.
   loading: () => (
     <StageCard index="01" title="The text" marks>
-      <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      <p className="font-mono text-[13px] text-muted-foreground">
         loading the counter…
       </p>
     </StageCard>

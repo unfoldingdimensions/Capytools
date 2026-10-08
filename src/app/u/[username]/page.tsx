@@ -56,7 +56,7 @@ export default async function SharePage({
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 pb-20 pt-5">
         <div className="mb-6 text-center">
-          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <p className="font-mono text-[13px] text-muted-foreground">
             CapyWrapped · @{clean}
           </p>
         </div>

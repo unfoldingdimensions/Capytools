@@ -21,7 +21,7 @@ export function ToolGuideSection({ guide, width }: { guide: ToolGuide; width: st
       <ol className="mt-8 grid gap-4 md:grid-cols-3">
         {guide.steps.map((step, i) => (
           <li key={step} className="rounded-2xl border border-border bg-card p-5">
-            <span className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            <span className="font-mono text-[13px] text-muted-foreground">
               Step {i + 1}
             </span>
             <p className="mt-2 text-[15px] leading-relaxed">{step}</p>

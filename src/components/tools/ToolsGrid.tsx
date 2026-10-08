@@ -91,7 +91,7 @@ export function ToolsGrid() {
               typing to pause. aria-live="polite" on the count itself still
               queued one announcement per letter. */}
           <span
-            className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+            className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[12px] text-muted-foreground"
             aria-hidden="true"
           >
             {shown.length} / {ROWS.length}
@@ -125,13 +125,13 @@ export function ToolsGrid() {
                 className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-primary/60 focus-visible:border-primary"
               >
                 <span className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                  <span className="font-mono text-[12px] text-muted-foreground">
                     {tool.no}
                   </span>
                   {/* Only the exception is labelled: ten "Browser" chips marked the
                       rule, not the one tool that breaks it. */}
                   {tool.cat === "desktop" ? (
-                    <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[12px] text-muted-foreground">
                       Desktop
                     </span>
                   ) : null}

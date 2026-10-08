@@ -243,7 +243,7 @@ export function CapyCreator() {
         {showSettings && (
           <MountReveal className="mt-4 rounded-2xl border border-border/80 bg-muted/40 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)]">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-foreground">
+              <span className="font-mono text-[12px] text-foreground">
                 LLM Polish Provider Configuration
               </span>
               <span className="text-xs text-muted-foreground">Saved locally in browser</span>
@@ -251,7 +251,7 @@ export function CapyCreator() {
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <span className="font-mono text-[12px] text-muted-foreground">
                   Provider
                 </span>
                 <Select
@@ -277,7 +277,7 @@ export function CapyCreator() {
               <div>
                 <label
                   htmlFor="polish-model"
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="font-mono text-[12px] text-muted-foreground"
                 >
                   Polish Model Name
                 </label>
@@ -296,7 +296,7 @@ export function CapyCreator() {
               <div>
                 <label
                   htmlFor="polish-base-url"
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="font-mono text-[12px] text-muted-foreground"
                 >
                   Base URL
                 </label>
@@ -313,7 +313,7 @@ export function CapyCreator() {
               <div>
                 <label
                   htmlFor="polish-api-key"
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="font-mono text-[12px] text-muted-foreground"
                 >
                   API Key
                 </label>
@@ -366,7 +366,7 @@ export function CapyCreator() {
         <div className="mt-4">
           <label
             htmlFor="creator-ask"
-            className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+            className="font-mono text-[12px] text-muted-foreground"
           >
             Your ask (can be vague)
           </label>
@@ -415,7 +415,7 @@ export function CapyCreator() {
         {/* Model selection and Tier controls */}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="select-model-family" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <label htmlFor="select-model-family" className="font-mono text-[12px] text-muted-foreground">
               Target Model Family
             </label>
             <Select value={model} onValueChange={(v) => setModel(v as ModelFamily)}>
@@ -433,7 +433,7 @@ export function CapyCreator() {
           </div>
 
           <div>
-            <label htmlFor="select-tier-override" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <label htmlFor="select-tier-override" className="font-mono text-[12px] text-muted-foreground">
               Capability Tier Override
             </label>
             <Select value={tierOverride} onValueChange={setTierOverride}>
@@ -457,7 +457,7 @@ export function CapyCreator() {
             <span className="font-medium text-foreground">
               Target: <span className="font-mono">{activeProfile.family}</span> · Tier {effectiveTier}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            <span className="font-mono text-[12px] text-muted-foreground">
               Derivation: {activeProfile.instruction_derivation}
             </span>
           </div>
@@ -521,12 +521,12 @@ export function CapyCreator() {
                   className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)] focus-within:border-ring focus-within:bg-card"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                    <span className="font-mono text-[13px] text-muted-foreground">
                       {q.dimension.replace(/_/g, " ")}
                     </span>
                     <span
                       className={cn(
-                        "rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em]",
+                        "rounded-full px-2.5 py-0.5 font-mono text-[12px] font-semibold",
                         q.required
                           ? "border border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]"
                           : "border border-border bg-muted/60 text-muted-foreground"

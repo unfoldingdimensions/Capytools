@@ -101,7 +101,7 @@ function Slider({
   return (
     <div className={cn(disabled && "opacity-40")}>
       <div className="flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+        <label htmlFor={id} className="font-mono text-[13px] text-muted-foreground">
           {label}
         </label>
         <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{display}</span>
@@ -634,7 +634,7 @@ export function CapyPassport() {
         />
 
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">document</span>
+          <span className="font-mono text-[13px] text-muted-foreground">document</span>
           {SPECS.map((row) => (
             <Pill key={row.id} active={row.id === specId} onClick={() => setSpecId(row.id)} label={`Document ${row.label}`}>
               {row.label}
@@ -819,7 +819,7 @@ export function CapyPassport() {
         </div>
 
         <div className="mt-5 border-t border-border pt-4">
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">background</span>
+          <span className="font-mono text-[13px] text-muted-foreground">background</span>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <Pill active={fill === "off"} onClick={() => setFill("off")} label="Leave the background as shot">
               leave as shot

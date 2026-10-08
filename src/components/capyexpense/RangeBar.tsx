@@ -63,7 +63,7 @@ export function RangeBar({
               aria-pressed={active}
               onClick={() => setPreset(p.key)}
               className={cn(
-                "rounded-full px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+                "rounded-full px-3.5 py-1.5 font-mono text-[13px] transition-colors",
                 active
                   ? // Dark ink on sage, never white — WCAG invariant.
                     "bg-primary text-[var(--primary-foreground)]"
@@ -105,7 +105,7 @@ export function RangeBar({
         // Native date inputs. The platform ships a keyboard-accessible,
         // localised picker; a dependency for this would be pure cost.
         <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="capyexpense-from" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <label htmlFor="capyexpense-from" className="font-mono text-[12px] text-muted-foreground">
             From
           </label>
           <input
@@ -121,7 +121,7 @@ export function RangeBar({
             }
             className="rounded-full border border-border bg-card px-3 py-1 font-mono text-[11px] text-foreground"
           />
-          <label htmlFor="capyexpense-to" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <label htmlFor="capyexpense-to" className="font-mono text-[12px] text-muted-foreground">
             To
           </label>
           <input

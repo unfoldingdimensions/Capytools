@@ -111,7 +111,7 @@ const DEFAULT_FIELDS: PayloadFields = {
 };
 
 const labelClass =
-  "font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[13px] text-muted-foreground";
 
 function Pill({
   active,
@@ -176,7 +176,7 @@ function ColorField({
         aria-label={label}
         className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5 disabled:cursor-not-allowed pointer-coarse:size-11"
       />
-      <span className="font-mono text-[11px] uppercase tabular-nums text-muted-foreground">
+      <span className="font-mono text-[13px] tabular-nums text-muted-foreground">
         {value}
       </span>
     </div>

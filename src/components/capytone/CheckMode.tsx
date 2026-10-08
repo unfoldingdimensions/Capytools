@@ -47,11 +47,11 @@ function Verdict({ label, pass }: { label: string; pass: boolean }) {
     <li className="flex items-center justify-between gap-4">
       <span className="text-[13px] text-muted-foreground">{label}</span>
       <span
-        className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${
-          pass
-            ? "border-primary/30 bg-primary/10 text-foreground"
-            : "border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]"
-        }`}
+        className={`rounded-full border px-2.5 py-0.5 font-mono text-[12px] ${
+ pass
+ ? "border-primary/30 bg-primary/10 text-foreground"
+ : "border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]"
+ }`}
       >
         {pass ? "pass" : "fail"}
       </span>
@@ -74,7 +74,7 @@ function RoleSwatch({
       type="button"
       onClick={() => onLoad(palette[role])}
       aria-label={`Load the card's ${ROLE_LABELS[role]} colour (${palette[role]})`}
-      className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+      className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
     >
       <span
         aria-hidden

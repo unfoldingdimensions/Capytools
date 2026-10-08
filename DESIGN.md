@@ -43,18 +43,18 @@ typography:
     fontSize: 0.875rem
     fontWeight: 500
     lineHeight: 1.6
-  label-caps:
+  label:
     fontFamily: Albert Sans
-    fontSize: 0.6875rem
+    fontSize: 0.8125rem
     fontWeight: 500
     lineHeight: 1.5
-    letterSpacing: "0.24em"
-  label-micro:
+    letterSpacing: "0.01em"
+  label-sm:
     fontFamily: Albert Sans
-    fontSize: 0.625rem
+    fontSize: 0.75rem
     fontWeight: 500
     lineHeight: 1.5
-    letterSpacing: "0.18em"
+    letterSpacing: "0.01em"
   caption:
     fontFamily: Plus Jakarta Sans
     fontSize: 0.75rem
@@ -146,7 +146,7 @@ components:
   eyebrow-label:
     backgroundColor: "{colors.neutral}"
     textColor: "{colors.on-muted}"
-    typography: "{typography.label-caps}"
+    typography: "{typography.label}"
   input-field:
     backgroundColor: "{colors.card}"
     textColor: "{colors.ink}"
@@ -236,24 +236,24 @@ infinitely alternating loops, out of phase. Every motion dies under
 Fraunces (serif, light) for titles only — `font-display`, `font-light`, italic
 `<em>` for the emphasis word ("made *quiet*"). Plus Jakarta Sans for all UI
 at base weight 500. Albert Sans (a geometric sans, serving as the
-`font-mono` label voice) for eyebrows, code, and tags, always uppercase with
-`tracking-[0.24em]`.
+`font-mono` label voice) for eyebrows, code, and tags — in sentence case, at
+normal tracking. Labels are never set in capitals (owner decision, 2026-10-09).
 
 - `display-xl` — landing hero (`text-5xl sm:text-6xl`), tight leading 1.04.
 - `display-md` — tool card titles (`text-2xl`), normal weight.
 - `body-md` / `body-sm` — descriptions and UI text, relaxed leading.
-- `label-caps` — tool eyebrows at 11px (`Capy<Name> · tool no. X`), card
-  eyebrows at 10px (`label-micro`). Same style, one step smaller.
+- `label` — tool eyebrows at 13px (`CapyResume · tool no. 16`), card
+  eyebrows and field labels at 12px (`label-sm`). Same style, one step smaller.
 
 **The ramp.** Every fixed size in the suite sits on one scale, and a new size
 joins it here before it appears in code:
 
 | px | token | use |
 |---|---|---|
-| 10 | `label-micro` | card eyebrows, badges, meta in caps |
-| 11 | `label-caps` | tool eyebrows, section labels |
-| 12 | `caption` | footnotes, swatch roles, secondary meta |
-| 13 | `ui-sm` | small UI text, notes, links in prose |
+| 10 | — | nothing new; legacy only |
+| 11 | — | nothing new; legacy only |
+| 12 | `caption` / `label-sm` | footnotes, card eyebrows, field labels, meta |
+| 13 | `ui-sm` / `label` | small UI text, tool eyebrows, section labels |
 | 14 | `body-sm` | descriptions, results, most UI |
 | 15 | `ui-md` | inputs and menu links |
 | 16 | `body-md` | leads and body copy |
@@ -273,23 +273,22 @@ Headings `h1–h4` default to weight 700 unless a display style overrides them.
 
 ## Register
 
-Two voices, and the line between them is *who is speaking*:
+Everything is written in **sentence case** — owner decision, 2026-10-09, which
+replaced the lowercase register of 2026-09-12:
 
-- **UI copy is lowercase.** Leads, hints, placeholders, empty states, status
-  lines, button labels — a tool talking to you in its own voice — are written
-  in lowercase sentences: "no signup. no cookies. nothing stored.", "every
-  control re-words this scene". A tool page is an app surface, and the
-  register is what makes five of them sound like one house.
-- **Titles are not.** Tool headlines, section headings, card titles, eyebrows,
-  tags and badges take sentence case, or the uppercase label style where they
-  are labels. "Your photos talk. This one helps them forget." — never "your
-  photos talk."
-- **Quotations and metadata are neither.** The README line in the Colophon is
-  quoted verbatim and keeps the README's own case; `<title>` and description
-  strings are written for a search result rather than for a UI.
+- **UI copy** — leads, hints, placeholders, empty states, status lines, error
+  messages, button labels — starts with a capital: "No signup. No cookies.
+  Nothing stored.", "Every control re-words this scene."
+- **Titles** — tool headlines, section headings, card titles, eyebrows, tags,
+  badges — take sentence case too. Labels are never set in capitals; there is
+  no all-caps label style.
+- **Quotations and metadata** keep their own case: the README line in the
+  Colophon is quoted verbatim; `<title>` and description strings are written
+  for a search result. Text baked into share images (og.png, the share cards)
+  is out of scope until those images are regenerated.
 
 `tests/tool-pages.test.tsx` enforces the mechanical half: on every tool page
- the headline starts uppercase and the lead starts lowercase.
+the headline and the lead both start with a capital.
 
 ## Layout
 
@@ -340,7 +339,7 @@ roles are what the components reference, so the keys stay.
 - `card` is the default grouped-content surface: white card, ink text,
   `rounded-3xl`, `p-6`, `border-border`. `card-hover` adds the standard lift.
 - `eyebrow-label` is the tool identifier,
-  `font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground`.
+  `font-mono text-[13px] text-muted-foreground`, in sentence case.
 - `input-field` is the default form surface: card fill, ink text, `rounded-md`.
 - Shared desktop-tool UI (`src/components/capyexpense/`) imports no `next/*`,
   no `motion`, no storage — it renders in both the Next site and the separate

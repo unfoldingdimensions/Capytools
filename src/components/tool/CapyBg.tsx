@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
  */
 
 const labelClass =
-  "font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[13px] text-muted-foreground";
 
 /** The backdrop swatches: house tones, each with a spoken name. */
 const SWATCHES: { hex: string; name: string }[] = [
@@ -412,7 +412,7 @@ export function CapyBg() {
           </span>
         </button>
 
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[12px] text-muted-foreground">
           <ClipboardPaste className="size-3" aria-hidden />
           ctrl/⌘+V works too
         </p>
@@ -612,7 +612,7 @@ export function CapyBg() {
 
             {result && !isDemo ? (
               <div className="text-center">
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{backendLine}</p>
+                <p className="font-mono text-[13px] text-muted-foreground">{backendLine}</p>
                 {modelNote ? (
                   <p className="mt-1 text-xs text-[var(--clay)]" role="status">
                     {modelNote}

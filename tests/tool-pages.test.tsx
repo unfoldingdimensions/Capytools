@@ -172,11 +172,9 @@ describe("tool pages — editorial shell", () => {
 });
 
 describe("copy register", () => {
-  // Client decision, 2026-09-12: the lowercase register is the house voice for
-  // UI copy — but titles take sentence case. Four tools were already
-  // consistent and two were wrong in opposite directions: CapyStrip's headline
-  // was lowercase, CapyExpense's lead was not. The rule itself is written down
-  // in DESIGN.md under "Register".
+  // Owner decision, 2026-10-09: everything is sentence case — headline and
+  // lead alike — replacing the lowercase register of 2026-09-12. The rule is
+  // written down in DESIGN.md under "Register".
   const pages = [
     ["CapyWrapped", CapyWrappedPage],
     ["CapyImagine", CapyImaginePage],
@@ -193,10 +191,11 @@ describe("copy register", () => {
     ["CapyStamp", CapyStampPage],
     ["CapyRead", CapyReadPage],
     ["CapyPassport", CapyPassportPage],
+    ["CapyResume", CapyResumePage],
   ] as const;
 
   for (const [name, Page] of pages) {
-    it(`${name}: sentence-case headline, lowercase lead`, () => {
+    it(`${name}: sentence-case headline and lead`, () => {
       const html = markup(<Page />);
 
       const h1 = html.match(/<h1[\s\S]*?<\/h1>/)?.[0] ?? "";
@@ -204,7 +203,7 @@ describe("copy register", () => {
       expect(firstSegment, `${name} headline should start uppercase`).toMatch(/^[A-Z]/);
 
       const lead = html.match(/class="lp-lead[^"]*">([^<]+)</)?.[1] ?? "";
-      expect(lead, `${name} lead should start lowercase`).toMatch(/^[a-z]/);
+      expect(lead, `${name} lead should start with a capital`).toMatch(/^[A-Z]/);
     });
   }
 });

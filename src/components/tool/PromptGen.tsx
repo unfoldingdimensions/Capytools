@@ -350,7 +350,7 @@ export function PromptGen({ initialEngine = "Gemini" }: { initialEngine?: Engine
               resolved[id] ? (
                 <span
                   key={id}
-                  className="rounded-full bg-muted/60 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="rounded-full bg-muted/60 px-2.5 py-1 font-mono text-[12px] text-muted-foreground"
                 >
                   {CATEGORY_BY_ID[id].label.replace(/\s*\((?:video|param)\)/i, "")}: {resolved[id]}
                 </span>
@@ -378,7 +378,7 @@ export function PromptGen({ initialEngine = "Gemini" }: { initialEngine?: Engine
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+      <span className="font-mono text-[12px] text-muted-foreground">
         {label}
       </span>
       {children}

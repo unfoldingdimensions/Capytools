@@ -35,7 +35,7 @@ export default function CapyExpensePage() {
       <p className="mb-6 flex justify-center">
         {/* A state chip, not an alert — clay is for the notice below, which is
             the thing that actually needs to be read twice. */}
-        <span className="rounded-full border border-border bg-muted/60 px-3.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="rounded-full border border-border bg-muted/60 px-3.5 py-1 font-mono text-[12px] text-muted-foreground">
           Coming soon · Windows &amp; Linux
         </span>
       </p>
@@ -98,7 +98,7 @@ export default function CapyExpensePage() {
                       href={source.href}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+                      className="font-mono text-[12px] text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary"
                     >
                       {source.label}
                     </a>
@@ -163,7 +163,7 @@ export default function CapyExpensePage() {
             you, and every release will ship with a SHA-256 you can check first.
           </p>
         </div>
-        <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="mt-6 text-center font-mono text-[13px] text-muted-foreground">
           a desktop tool — stored on your machine, never ours. windows &amp; linux builds coming
           soon.
         </p>

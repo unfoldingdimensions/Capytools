@@ -47,7 +47,7 @@ export default function FreeCvBuilderIndexPage() {
                   {page.description}
                 </p>
                 <p className="mt-4">
-                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[13px] text-muted-foreground">
                     {page.paper === "A4" ? "A4" : "US letter"}
                   </span>
                 </p>

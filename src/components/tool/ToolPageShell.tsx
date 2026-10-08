@@ -155,7 +155,7 @@ export function ToolPageShell({
                 {guide.summary}
               </p>
             ) : null}
-            <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="mt-4 text-center font-mono text-[13px] text-muted-foreground">
               Updated <time dateTime={CONTENT_UPDATED}>{formatUpdated()}</time> · by{" "}
               <Link href="/notes#author" className="underline decoration-border underline-offset-4 hover:text-foreground">
                 {AUTHOR.byline}

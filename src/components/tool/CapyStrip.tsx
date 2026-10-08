@@ -344,7 +344,7 @@ export function CapyStrip() {
           </span>
         </button>
 
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[12px] text-muted-foreground">
           <ClipboardPaste className="size-3" aria-hidden />
           ctrl/⌘+V works too
         </p>
@@ -392,7 +392,7 @@ export function CapyStrip() {
             {/* GPS mini-card */}
             {report.gps && (
               <div className="mt-4 rounded-2xl border border-border/70 bg-muted/40 p-4">
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--clay)]">
+                <span className="font-mono text-[12px] text-[var(--clay)]">
                   location · sensitive
                 </span>
                 <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3">
@@ -419,7 +419,7 @@ export function CapyStrip() {
             {/* AI signals */}
             {report.aiSignals.length > 0 && (
               <div className="mt-4">
-                <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                <h4 className="font-mono text-[12px] text-muted-foreground">
                   what it confesses
                 </h4>
                 <ul className="mt-2 space-y-1.5">
@@ -438,7 +438,7 @@ export function CapyStrip() {
               <div className="mt-5 space-y-5">
                 {grouped.map((group) => (
                   <div key={group.category}>
-                    <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    <h4 className="font-mono text-[12px] text-muted-foreground">
                       {CATEGORY_LABELS[group.category]}
                     </h4>
                     <dl className="mt-2 divide-y divide-border/60">
@@ -497,7 +497,7 @@ export function CapyStrip() {
 
                 {clean.mimeType === "image/jpeg" && (
                   <div className="mt-3">
-                    <label htmlFor="clean-quality" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    <label htmlFor="clean-quality" className="font-mono text-[12px] text-muted-foreground">
                       quality · {Math.round(quality * 100)}
                     </label>
                     <input
@@ -565,7 +565,7 @@ function FieldRow({ item }: { item: MetadataField }) {
       <dt className="flex items-center gap-2 text-sm text-muted-foreground">
         {item.label}
         {item.critical && (
-          <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
+          <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2 py-0.5 font-mono text-[12px] text-[var(--clay)]">
             sensitive
           </span>
         )}
