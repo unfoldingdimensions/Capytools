@@ -1,0 +1,29 @@
+# Normalise line endings for every contributor, regardless of platform.
+#
+# Why this file exists: `.prettierrc` sets `endOfLine: "lf"`, but Git on
+# Windows ships with `core.autocrlf=true` by default. Without an override, a
+# Windows checkout rewrites every text file to CRLF, so `npm run format:check`
+# fails on ~all files locally while passing on Linux CI. Declaring `eol=lf`
+# here makes the checkout deterministic everywhere and keeps the Prettier gate
+# meaningful on all platforms.
+#
+# `text=auto` also lets Git detect binaries on its own, so the explicit
+# `binary` rules below exist only to be unambiguous about assets we never want
+# touched by any normalisation.
+* text=auto eol=lf
+
+# Binary assets: never normalise, never diff as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+
+# Owned by the package manager; leave byte-for-byte as npm writes it.
+package-lock.json -text

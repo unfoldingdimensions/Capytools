@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report (private)
+    url: https://github.com/unfoldingdimensions/CapyResume/security/advisories/new
+    about: Please report vulnerabilities privately here, never in a public issue.
+  - name: What is free, and what stays free
+    url: https://github.com/unfoldingdimensions/CapyResume/blob/main/README.md#free-and-what-stays-free
+    about: Read this before filing anything about pricing, exports or watermarks.

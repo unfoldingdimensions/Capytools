@@ -1,0 +1,23 @@
+# Prettier's own defaults already cover node_modules.
+.next/
+out/
+build/
+coverage/
+
+# Owned by npm, not by us. Reformatting it produces tens of thousands of lines
+# of diff on every `npm install` and then fights the package manager.
+package-lock.json
+
+# Owned by Next.js and rewritten on every build — formatting it just makes the
+# tree dirty again.
+next-env.d.ts
+
+# Local agent working material: gitignored, never committed, no need to style.
+.hermes/
+
+# Vendored agent skills, installed by `npx skills add` and recorded in
+# skills-lock.json. They are third-party content we do not own: reformatting
+# them would diverge from the hashes the lockfile records and be overwritten by
+# the next `skills update`. They also ship their own deliberate formatting.
+.agents/
+.claude/
