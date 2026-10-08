@@ -1392,7 +1392,12 @@ export function CapyResume() {
             <div className="border-t border-border pt-6">
               <span className={LABEL}>Add a section</span>
               <div className="flex flex-wrap gap-2">
-                {SECTION_CHOICES.map((choice) => (
+                {/* Only what the résumé lacks; a custom section can always be added again. */}
+                {SECTION_CHOICES.filter(
+                  (choice) =>
+                    choice.type === "custom" ||
+                    !doc.sections.some((section) => section.type === choice.type),
+                ).map((choice) => (
                   <button
                     key={choice.type}
                     type="button"
