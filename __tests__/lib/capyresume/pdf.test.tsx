@@ -28,6 +28,7 @@ jest.mock('@react-pdf/renderer', () => {
     View: passthrough('View'),
     StyleSheet: { create: (styles: unknown) => styles },
     Font: { register: () => undefined },
+    Link: passthrough('Link'),
     pdf: (element: unknown) => ({
       __element: element,
       toBlob: () => Promise.resolve(new Blob(['%PDF-1.7\n'], { type: 'application/pdf' })),

@@ -5,7 +5,19 @@ import {
   entryTags,
   isEntryEmpty,
   isSectionEmpty,
+  safeHref,
 } from '@/lib/capyresume/document';
+
+describe('capyresume/document — safeHref', () => {
+  it('makes http(s) and bare domains clickable, and nothing else', () => {
+    expect(safeHref('https://maya.dev')).toBe('https://maya.dev');
+    expect(safeHref('linkedin.com/in/maya')).toBe('https://linkedin.com/in/maya');
+    expect(safeHref('javascript:alert(1)')).toBeUndefined();
+    expect(safeHref('data:text/html,hi')).toBeUndefined();
+    expect(safeHref('my portfolio')).toBeUndefined();
+    expect(safeHref(undefined)).toBeUndefined();
+  });
+});
 import { emptyEntry, emptyResume, migrate } from '@/lib/capyresume/schema';
 import { TEMPLATE_LIST, TEMPLATES } from '@/lib/capyresume/templates';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';

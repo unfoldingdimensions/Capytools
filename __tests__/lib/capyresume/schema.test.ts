@@ -186,3 +186,11 @@ describe('capyresume/schema — isEntryEmpty', () => {
     expect(isEntryEmpty({ ...blank, tags: ['SQL'] })).toBe(false);
   });
 });
+
+describe('capyresume/schema — isEntryEmpty counts every typed field', () => {
+  const blank = { id: 'e', bullets: [], tags: [] } as unknown as Parameters<typeof isEntryEmpty>[0];
+  it('a location or a date alone is content worth confirming', () => {
+    expect(isEntryEmpty({ ...blank, location: 'Pune' })).toBe(false);
+    expect(isEntryEmpty({ ...blank, startDate: '2021-03' })).toBe(false);
+  });
+});

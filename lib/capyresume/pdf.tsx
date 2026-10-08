@@ -14,7 +14,7 @@
  *   const { buildResumePdf } = await import('@/lib/capyresume/pdf');
  */
 
-import { Document, Font, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
+import { Document, Font, Link, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
 import { composeDocument, type DocBlock } from './document';
 import { getTemplate, type TemplateSpec } from './templates';
 import type { ResumeDoc, TemplateId } from './types';
@@ -117,24 +117,35 @@ function renderBlock(block: DocBlock, index: number, styles: Styles, spec: Templ
               {line}
             </Text>
           ))}
-          {block.links.map((line, i) => (
-            <Text key={`l${i}`} style={styles.links}>
-              {line}
-            </Text>
-          ))}
+          {block.links.map((line, i) => {
+            const href = block.linkHrefs[i];
+            return (
+              <Text key={`l${i}`} style={styles.links}>
+                {href ? (
+                  <Link src={href} style={{ color: spec.accent, textDecoration: 'none' }}>
+                    {line}
+                  </Link>
+                ) : (
+                  line
+                )}
+              </Text>
+            );
+          })}
         </View>
       );
 
     case 'heading':
       return (
-        <View key={index} style={styles.headingWrap}>
+        // Never the last thing on a page: a heading needs room for what it heads.
+        <View key={index} style={styles.headingWrap} minPresenceAhead={48}>
           <Text style={styles.heading}>{block.text}</Text>
         </View>
       );
 
     case 'entry':
       return (
-        <View key={index} style={styles.entryBlock}>
+        // Title, dates and employer stay together, and keep a line of what follows.
+        <View key={index} style={styles.entryBlock} wrap={false} minPresenceAhead={24}>
           <View style={styles.entryRow}>
             <Text style={styles.entryTitle}>{block.title ?? ''}</Text>
             <Text style={styles.entryRange}>{block.range ?? ''}</Text>

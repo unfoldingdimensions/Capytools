@@ -14,7 +14,14 @@ import { headingText, type TemplateSpec } from './templates';
 import type { Entry, ResumeDoc, Section } from './types';
 
 export type DocBlock =
-  | { kind: 'header'; name: string; contact: string[]; links: string[] }
+  | {
+      kind: 'header';
+      name: string;
+      contact: string[];
+      links: string[];
+      /** A safe href for each line of `links`, same index; undefined when it isn't one. */
+      linkHrefs: Array<string | undefined>;
+    }
   | { kind: 'heading'; text: string }
   | { kind: 'paragraph'; text: string }
   | { kind: 'entry'; title?: string; meta?: string; range?: string }
@@ -25,16 +32,36 @@ function nonBlank(values: Array<string | undefined>): string[] {
   return values.filter((value): value is string => Boolean(value && value.trim().length > 0));
 }
 
+/**
+ * A link a reader may click: http(s) as typed, a bare domain given https, anything
+ * else (javascript:, data:, file:) not a link at all — it stays plain text.
+ */
+export function safeHref(url: string | undefined): string | undefined {
+  const value = url?.trim() ?? '';
+  if (/^https?:\/\/[^\s]+$/i.test(value)) return value;
+  if (/^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/i.test(value)) return `https://${value}`;
+  return undefined;
+}
+
 /** The contact block: name, then one line of details, then one line of links. */
 export function composeHeader(doc: ResumeDoc): DocBlock[] {
   const { contact } = doc;
   const contactLine = nonBlank([contact.email, contact.phone, contact.location]);
-  const links = contact.links
-    .map((link) => nonBlank([link.label, link.url]).join(': '))
-    .filter((text) => text.length > 0);
+  const shown = contact.links
+    .map((link) => ({
+      text: nonBlank([link.label, link.url]).join(': '),
+      href: safeHref(link.url),
+    }))
+    .filter((link) => link.text.length > 0);
 
   const blocks: DocBlock[] = [
-    { kind: 'header', name: (contact.name || '').trim(), contact: contactLine, links },
+    {
+      kind: 'header',
+      name: (contact.name || '').trim(),
+      contact: contactLine,
+      links: shown.map((link) => link.text),
+      linkHrefs: shown.map((link) => link.href),
+    },
   ];
   return blocks;
 }
