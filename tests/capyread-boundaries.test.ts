@@ -149,6 +149,7 @@ describe("the engines load lazily, each in its one file", () => {
       dependencies: Record<string, string>;
     };
     expect(Object.keys(pkg.dependencies).sort()).toEqual([
+      "@mediapipe/tasks-vision",
       "apca-w3",
       "class-variance-authority",
       "client-zip",

@@ -392,6 +392,41 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
     ],
   },
+  CapyPassport: {
+    heading: "How to make a passport or visa photo at home",
+    steps: [
+      "Drop, paste or shoot a portrait photo, then pick the document — US passport, UK passport or a Schengen visa.",
+      "Read the fit: head height, top margin and eye line against the numbers that document's guidance publishes, with sliders to fine-tune until every row reads \"within the range\".",
+      "Download the single photo for the online portal, or a print sheet of copies sized exactly to the document, and cut them at home.",
+    ],
+    about: [
+      "CapyPassport crops and positions a portrait against the published geometry of a passport or visa photo — the head-height band, the top margin, the eye line — and lays out a print sheet at the exact physical size, all in your browser tab.",
+      "It is honest about what it can and cannot judge. Head height runs from the chin to an ESTIMATED crown, because no detector can see where hair ends; the readouts say \"estimated\" and the sliders exist for exactly that. It checks geometry only — never expression, glasses, headwear or print quality — and it will not promise an application's outcome.",
+      "The background is left exactly as shot by default. Filling it is opt-in, runs the same people-cutting model CapyBg uses, and carries a warning: several authorities require the photo unaltered by software, so only fill if your official guidance allows it.",
+    ],
+    faq: [
+      {
+        q: "Is my photo uploaded?",
+        a: "No. There is no upload route in the code. The photo is read, framed and exported inside this tab; the only download is the face-detection model, from this site, once per browser.",
+      },
+      {
+        q: "Will the passport office accept this photo?",
+        a: "No tool can promise that, and this one does not try. It checks the geometry your document's guidance publishes — head height, margins, size — and shows its sources and the date they were checked. Expression, glasses, headwear and print quality are yours to confirm on the official site.",
+      },
+      {
+        q: "How big is the printed sheet?",
+        a: "Exactly 4 × 6 inches — 1200 × 1800 pixels at 300 dpi — the size a photo kiosk prints. The single photo ships at the pixel size each document's digital rules ask for: 600 × 600 for the US, 600 × 772 for the UK (its 35 × 45 mm crop above the 600 × 750 minimum), 413 × 531 for a Schengen visa.",
+      },
+      {
+        q: "Why does the background warning say photos must be unaltered?",
+        a: "Because that is what the guidance says: gov.uk asks for a photo \"unaltered by computer software\", and the US rules forbid digital enhancement. Replacing a background is an alteration. CapyPassport leaves your background as shot unless you turn the fill on yourself.",
+      },
+      {
+        q: "Why is head height an estimate?",
+        a: "The rules measure the chin to the crown of the head, and a face detector cannot see where hair or a headpiece ends. CapyPassport estimates the crown from the detected landmarks, labels the readout as an estimate, and gives you sliders so the final call is yours.",
+      },
+    ],
+  },
   CapyStrip: {
     heading: "How to view and remove EXIF metadata from a photo",
     steps: [
