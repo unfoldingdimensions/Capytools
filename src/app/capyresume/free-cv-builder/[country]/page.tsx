@@ -3,17 +3,20 @@ import { ToolPageShell } from "@/components/tool/ToolPageShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { COUNTRY_PAGES, countryPage } from "@/lib/capyresume/seo/countries";
+import { countryPage } from "@/lib/capyresume/seo/countries";
 
 interface PageProps {
   params: Promise<{ country: string }>;
 }
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return COUNTRY_PAGES.map((page) => ({ country: page.slug }));
-}
+/**
+ * Rendered on request, not prerendered from a params list. Capytools runs on
+ * OpenNext with no incremental cache (open-next.config.ts), and prerendered
+ * dynamic-route pages are served from that cache: with dynamicParams = false
+ * every one of them answered 404 or 500 on Cloudflare while `next start`
+ * served them fine. An unknown slug still 404s through notFound() below.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

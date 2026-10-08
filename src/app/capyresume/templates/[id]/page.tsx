@@ -17,11 +17,14 @@ interface PageProps {
 }
 
 /** One static page per template; anything else is a 404 rather than a render. */
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return Object.keys(TEMPLATE_PAGE_COPY).map((id) => ({ id }));
-}
+/**
+ * Rendered on request, not prerendered from a params list. Capytools runs on
+ * OpenNext with no incremental cache (open-next.config.ts), and prerendered
+ * dynamic-route pages are served from that cache: with dynamicParams = false
+ * every one of them answered 404 or 500 on Cloudflare while `next start`
+ * served them fine. An unknown slug still 404s through notFound() below.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

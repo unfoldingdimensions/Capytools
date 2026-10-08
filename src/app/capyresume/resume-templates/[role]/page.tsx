@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 
 import {
   ROLE_TEMPLATE_SUGGESTIONS,
-  ROLE_PAGES,
   rolePage,
 } from "@/lib/capyresume/seo/roles";
 import { TEMPLATE_PAGE_COPY } from "@/lib/capyresume/seo/templates";
@@ -15,11 +14,14 @@ interface PageProps {
   params: Promise<{ role: string }>;
 }
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return ROLE_PAGES.map((page) => ({ role: page.slug }));
-}
+/**
+ * Rendered on request, not prerendered from a params list. Capytools runs on
+ * OpenNext with no incremental cache (open-next.config.ts), and prerendered
+ * dynamic-route pages are served from that cache: with dynamicParams = false
+ * every one of them answered 404 or 500 on Cloudflare while `next start`
+ * served them fine. An unknown slug still 404s through notFound() below.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
