@@ -184,8 +184,8 @@
 | Playbook item | Call | Why |
 |---|---|---|
 | Content that answers the query; internal links | **done** | D19, plus D21's cross-links |
-| Short summary at the top of each page | **recommended** | Our lead lines are lowercase taglines, not answers. A one-sentence plain summary under the H1 is cheap. |
-| Created / last-modified date and author on every page | **recommended** (author done, D26) | Add a visible "Updated" date and `dateModified` in JSON-LD from a hand-set date, like the sitemap's `LAST_UPDATED` — never a build-time clock. |
+| Short summary at the top of each page | **done** (D35) | Our lead lines are lowercase taglines, not answers; each guide now carries a one-sentence plain summary under the H1. |
+| Created / last-modified date and author on every page | **done** (D26, D35) | A visible "Updated … · by" byline and `dateModified` in JSON-LD, from a hand-set date — never a build-time clock. |
 | Canonicals, JSON-LD, crawlable pages | **done** | D20–D23; every page has a canonical |
 | 500–700 programmatic pages | **rejected** | Contradicts D21; scaled-content risk on a young domain. Grow by real presets, a few at a time, measured (D34). |
 | Multiple languages | **open** | Real reach, real cost (routing, translation quality, hreflang). Revisit once the English pages rank. |
@@ -207,3 +207,12 @@
 ## D34 — Content cadence: build a few, measure ~4 weeks · **decided**
 
 **Decision:** the site is early-stage (seoo `seo-growth-stage-strategy`: under ~300 clicks per 28 days, under 6 months of history). After each batch of intent pages, request indexing and wait ~4 weeks of Search Console data before building the next. Next candidate: `/webp-to-png` (high demand, hard SERP) — decide on that data.
+
+## D35 — Plain summary and an "Updated" byline on every tool page · **decided**
+
+**Context:** two cheap items from the playbook review (D32).
+**Decision:**
+- Every `ToolGuide` has a required `summary`: one plain sentence that answers the query, shown under the lead tagline. The tagline stays the brand's voice; the summary is what a reader, or an AI answer engine that stops at the first paragraph, takes away. TypeScript refuses a guide without one.
+- Every tool and intent page carries a byline: "Updated \<date\> · by Unfolding Dimensions", the name linking to `/notes#author`. The owner chose **Unfolding Dimensions** for the byline; the JSON-LD `Person` stays Utkarsh Benjwal (D26). `AUTHOR.byline` holds it.
+- One hand-set date, `CONTENT_UPDATED` (`src/lib/capytools/updated.ts`), drives the sitemap's `lastmod`, the visible byline and `SoftwareApplication.dateModified`, so the three can't disagree. Bump it whenever page copy changes.
+**Consequence:** every page shows the same date, even when only one page changed (a `ponytail:` comment in `updated.ts` names the upgrade to per-page dates). Tests assert the summary and byline render on every tool page and that `dateModified` equals the shared date.
