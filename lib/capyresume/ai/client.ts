@@ -71,12 +71,28 @@ export function validateCredentials(credentials: Credentials): string | null {
     }
     // `normaliseBaseUrl` refuses anything it cannot fetch, so one check covers
     // a missing scheme, a non-http scheme and malformed input.
-    if (normaliseBaseUrl(credentials.baseUrl).length === 0) {
+    const url = normaliseBaseUrl(credentials.baseUrl);
+    if (url.length === 0) {
       return 'The endpoint URL must start with https:// (or http:// for a local server).';
+    }
+    // The CSP allows plain http only to this machine, and an API key must not cross
+    // the network unencrypted anyway. Refused here, the user sees why — instead of
+    // a blocked request that reads as a CORS error.
+    if (/^http:\/\//i.test(url) && !isLocalHost(url)) {
+      return 'Use https:// for a remote endpoint — plain http:// is only allowed for a server on this machine (localhost).';
     }
   }
 
   return null;
+}
+
+function isLocalHost(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+  } catch {
+    return false;
+  }
 }
 
 /**

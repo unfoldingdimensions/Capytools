@@ -87,6 +87,20 @@ describe('capyresume/ai/client — validateCredentials', () => {
     ).toMatch(/Enter a model name/);
   });
 
+  it('allows plain http only for a server on this machine', () => {
+    const custom = { providerId: 'openai-compatible', apiKey: 'sk-1', model: 'llama-3' };
+    for (const baseUrl of [
+      'http://localhost:11434/v1',
+      'http://127.0.0.1:8080',
+      'https://api.example.com',
+    ]) {
+      expect(validateCredentials({ ...custom, baseUrl })).toBeNull();
+    }
+    expect(validateCredentials({ ...custom, baseUrl: 'http://api.example.com' })).toMatch(
+      /Use https:\/\//
+    );
+  });
+
   it('requires a base URL for a custom endpoint', () => {
     expect(
       validateCredentials({
