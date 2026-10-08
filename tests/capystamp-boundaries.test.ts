@@ -78,7 +78,7 @@ describe("capystamp imports nothing new", () => {
     }
   });
 
-  it("package.json dependencies are exactly what main shipped, plus CapyRead's engines and CapyPassport's detector", () => {
+  it("package.json dependencies are exactly what main shipped, plus CapyRead's engines, CapyPassport's detector and CapyResume's PDF writer", () => {
     // A deliberate pin rather than a diff — the baseline allows zero new
     // dependencies beyond the three OCR engines CapyRead's own boundaries
     // test scopes to its three owner files and the face landmarker
@@ -90,6 +90,7 @@ describe("capystamp imports nothing new", () => {
     };
     expect(Object.keys(pkg.dependencies).sort()).toEqual([
       "@mediapipe/tasks-vision",
+      "@react-pdf/renderer",
       "apca-w3",
       "class-variance-authority",
       "client-zip",

@@ -381,7 +381,7 @@ describe("names — the downloads introduce themselves", () => {
 
 describe("registration — the suite knows CapyPassport", () => {
   it("SUITE row 15 is CapyPassport at /capypassport, with its plate", () => {
-    expect(SUITE).toHaveLength(15);
+    expect(SUITE).toHaveLength(16);
     const row = SUITE[14];
     expect(row.name).toBe("CapyPassport");
     expect(row.short).toBe("Passport");

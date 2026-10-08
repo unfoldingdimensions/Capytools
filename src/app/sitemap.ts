@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { CAPYRESUME_GUIDE_PATHS } from "@/lib/capyresume/seo/routes";
 import { INTENT_PAGES } from "@/lib/capytools/intents";
 import { LABS } from "@/lib/capytools/landing";
 import { CONTENT_UPDATED } from "@/lib/capytools/updated";
@@ -34,6 +35,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    ...CAPYRESUME_GUIDE_PATHS.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
     ...STATIC_PAGES.map((path) => ({
       url: `${SITE_URL}${path}`,
