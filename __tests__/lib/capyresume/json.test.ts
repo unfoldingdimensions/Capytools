@@ -2,6 +2,7 @@ import {
   exportResumeJson,
   importResumeJson,
   looksLikeResumeJson,
+  parseResumeBackup,
   resumeBackupFileName,
   resumeFileName,
 } from '@/lib/capyresume/json';
@@ -125,5 +126,25 @@ describe('capyresume/json — looksLikeResumeJson', () => {
     expect(looksLikeResumeJson('')).toBe(false);
     expect(looksLikeResumeJson('[]')).toBe(false);
     expect(looksLikeResumeJson('hello')).toBe(false);
+  });
+});
+
+describe('capyresume/json — parseResumeBackup', () => {
+  it('accepts a real backup, round-tripped', () => {
+    const result = parseResumeBackup(exportResumeJson(DEMO_RESUME));
+    expect('doc' in result && result.doc.contact.name).toBe(DEMO_RESUME.contact.name);
+  });
+
+  it('refuses what would otherwise silently import as an empty résumé', () => {
+    const backup = exportResumeJson(DEMO_RESUME);
+    for (const text of [
+      'not json at all',
+      backup.slice(0, backup.length / 2), // truncated
+      '{"name":"package","version":"1.0.0"}', // someone else's JSON
+      exportResumeJson(emptyResume()),
+      '[]',
+    ]) {
+      expect(parseResumeBackup(text)).toHaveProperty('error');
+    }
   });
 });

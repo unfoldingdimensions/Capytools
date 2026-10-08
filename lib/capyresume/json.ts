@@ -11,7 +11,7 @@
  */
 
 import { fileNameSafe } from './format';
-import { migrate } from './schema';
+import { isResumeEmpty, migrate } from './schema';
 import { RESUME_SCHEMA_VERSION, type ResumeDoc } from './types';
 
 /** A download filename stem for any export format. */
@@ -46,6 +46,34 @@ export function exportResumeJson(doc: ResumeDoc): string {
  */
 export function importResumeJson(text: string): ResumeDoc {
   return migrate(text);
+}
+
+/** A real backup is a few KB; anything this large is not one. */
+export const MAX_BACKUP_BYTES = 1024 * 1024;
+
+/**
+ * Read a file the user picked as a backup, refusing what is not one.
+ *
+ * `importResumeJson` never throws — right for storage, wrong for an import that is
+ * about to replace the open résumé: an unrelated or truncated file would silently
+ * become an empty document. Here a file must parse, be an object that carries the
+ * résumé's own fields, and hold something, or the import is refused with a reason.
+ */
+export function parseResumeBackup(text: string): { doc: ResumeDoc } | { error: string } {
+  const notOurs = "That file isn't a CapyResume backup — pick the .json the backup button saved.";
+  if (!looksLikeResumeJson(text)) return { error: notOurs };
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return { error: 'That backup is damaged (it is not valid JSON), so nothing was replaced.' };
+  }
+  if (typeof raw !== 'object' || raw === null || !('sections' in raw || 'contact' in raw)) {
+    return { error: notOurs };
+  }
+  const doc = migrate(raw);
+  if (isResumeEmpty(doc)) return { error: 'That backup is empty, so nothing was replaced.' };
+  return { doc };
 }
 
 /** True when the text looks like a JSON backup we should accept. */

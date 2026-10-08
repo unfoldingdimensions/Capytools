@@ -50,7 +50,8 @@ import { composeDocument } from '@/lib/capyresume/document';
 import { BlockView, previewPaperStyle } from '@/components/tool/BlockView';
 import {
   exportResumeJson,
-  importResumeJson,
+  MAX_BACKUP_BYTES,
+  parseResumeBackup,
   resumeBackupFileName,
   resumeFileName,
 } from '@/lib/capyresume/json';
@@ -603,8 +604,18 @@ export function CapyResume() {
 
   const importJson = async (file: File) => {
     try {
-      const text = await readFileAsText(file);
-      const imported = importResumeJson(text);
+      if (file.size > MAX_BACKUP_BYTES) {
+        setNotice(
+          `That file is ${formatBytes(file.size)} — a backup is a few KB. Nothing was replaced.`
+        );
+        return;
+      }
+      const parsed = parseResumeBackup(await readFileAsText(file));
+      if ('error' in parsed) {
+        setNotice(parsed.error);
+        return;
+      }
+      const imported = parsed.doc;
       const commit = () => {
         saveResume(imported);
         setNotice('Imported. Your résumé is back.');
