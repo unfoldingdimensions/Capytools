@@ -71,7 +71,7 @@ export function LiveWire() {
                     <span key={`${engine.handle}-${i}`} className="lp-wire-item">
                       <span>·</span>
                       <span className="lp-wire-name">{engine.handle}</span>
-                      <span className="lp-wire-role">engine</span>
+                      <span className="lp-wire-role">Engine</span>
                     </span>
                   ))}
                 </span>

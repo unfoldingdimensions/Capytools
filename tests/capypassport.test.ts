@@ -204,7 +204,7 @@ describe("geometry — fitCrop", () => {
 
 describe("geometry — the flag carries a word", () => {
   it("inside, near, and out — each with its word, never colour alone", () => {
-    expect(flag(31.5, 29, 34)).toEqual({ level: "pass", word: "within the range" });
+    expect(flag(31.5, 29, 34)).toEqual({ level: "pass", word: "Within the range" });
     const near = flag(28.7, 29, 34);
     expect(near.level).toBe("near");
     expect(near.word).toMatch(/\S/);

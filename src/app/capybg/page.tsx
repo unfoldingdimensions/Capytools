@@ -13,7 +13,7 @@ export default function CapyBgPage() {
     <ToolPageShell
       tool="CapyBg"
       headline={[{ text: "The background," }, { text: "gone", em: true, dot: true }]}
-      lead="cut the subject out of any photo, in your browser. nothing uploaded."
+      lead="Cut the subject out of any photo, in your browser. Nothing uploaded."
       align="left"
     >
       <CapyBg />

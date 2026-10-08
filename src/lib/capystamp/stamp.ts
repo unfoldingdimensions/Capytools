@@ -60,10 +60,10 @@ export async function stampOne(
 
   const notes: string[] = [];
   if (isWebpFallback(output.format, blob.type)) {
-    notes.push("your browser saved PNG — it can't encode WebP.");
+    notes.push("Your browser saved PNG — it can't encode WebP.");
   }
   if (decoded.animated) {
-    notes.push("animated GIF — the first frame is the one that gets stamped.");
+    notes.push("Animated GIF — the first frame is the one that gets stamped.");
   }
 
   return {

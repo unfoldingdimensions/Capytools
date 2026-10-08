@@ -72,13 +72,13 @@ const DEBOUNCE_MS = 120;
 const VERIFY_SETTLE_MS = 150;
 
 const KINDS: { id: PayloadKind; label: string }[] = [
-  { id: "link", label: "link & text" },
+  { id: "link", label: "Link & text" },
   { id: "wifi", label: "Wi-Fi" },
-  { id: "contact", label: "contact" },
-  { id: "email", label: "email" },
-  { id: "tel", label: "phone" },
-  { id: "geo", label: "location" },
-  { id: "event", label: "event" },
+  { id: "contact", label: "Contact" },
+  { id: "email", label: "Email" },
+  { id: "tel", label: "Phone" },
+  { id: "geo", label: "Location" },
+  { id: "event", label: "Event" },
 ];
 
 const DOT_TYPES: QrStyleState["dotType"][] = [
@@ -99,6 +99,8 @@ const ECC_LEVELS: EccLevel[] = ["L", "M", "Q", "H"];
 
 const SIZES = [512, 1024, 2048];
 const FORMATS: ExportFormat[] = ["png", "jpeg", "svg"];
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const DEFAULT_FIELDS: PayloadFields = {
   link: { text: "https://capytools.app" },
@@ -337,7 +339,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
       })
       .catch(() =>
         setStatus({
-        text: "the qr engine failed to load — refresh the page to try again.",
+        text: "The QR engine failed to load — refresh the page to try again.",
         file: "",
       }),
       );
@@ -432,7 +434,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
     // A logo covers data modules; H recovers about 30% of the codewords.
     setStyle((prev) => (prev.ecc === "H" ? prev : { ...prev, ecc: "H" }));
     setStatus({
-      text: "logo set — error correction raised to H so the covered modules still decode.",
+      text: "Logo set — error correction raised to H so the covered modules still decode.",
       file: "",
     });
   }, []);
@@ -449,15 +451,15 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           ? await engine.svgBlob()
           : await exportStage(stage, format, style.bg);
       if (!blob) {
-        setStatus({ text: "nothing to save yet — compose the payload first.", file: name });
+        setStatus({ text: "Nothing to save yet — compose the payload first.", file: name });
         return;
       }
       saveBlob(blob, name);
       const jpegNote = format === "jpeg" && jpegFillNeeded(style.bg);
       setStatus({
         text: jpegNote
-          ? `saved ${name} (${formatKb(blob.size)}) — jpeg has no transparency, so it sits on white.`
-          : `saved ${name} (${formatKb(blob.size)}).`,
+          ? `Saved ${name} (${formatKb(blob.size)}) — JPEG has no transparency, so it sits on white.`
+          : `Saved ${name} (${formatKb(blob.size)}).`,
         file: name,
       });
     } finally {
@@ -476,11 +478,11 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
       if (!blob) throw new Error("no blob");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setCopied(true);
-      setStatus({ text: "copied — paste it straight into your composer.", file: name });
+      setStatus({ text: "Copied — paste it straight into your composer.", file: name });
       window.setTimeout(() => setCopied(false), COPIED_MS);
     } catch {
       setStatus({
-        text: "this browser blocked the image copy. download instead — same pixels.",
+        text: "This browser blocked the image copy. Download instead — same pixels.",
         file: name,
       });
     } finally {
@@ -532,7 +534,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           {kind === "link" && (
             <div className="sm:col-span-2">
               <label htmlFor="capyqr-link-text" className={labelClass}>
-                link or text
+                Link or text
               </label>
               <Input
                 id="capyqr-link-text"
@@ -556,13 +558,13 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                   type="text"
                   value={wifi?.ssid ?? ""}
                   onChange={(e) => setWifi({ ssid: e.target.value })}
-                  placeholder="the network phones should join"
+                  placeholder="The network phones should join"
                   className="mt-1.5 bg-muted/40 font-sans"
                 />
               </div>
               <div>
                 <label htmlFor="capyqr-wifi-password" className={labelClass}>
-                  password
+                  Password
                 </label>
                 <Input
                   id="capyqr-wifi-password"
@@ -570,13 +572,13 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                   value={wifi?.password ?? ""}
                   onChange={(e) => setWifi({ password: e.target.value })}
                   disabled={wifi?.encryption === "nopass"}
-                  placeholder={wifi?.encryption === "nopass" ? "none — open network" : "the network password"}
+                  placeholder={wifi?.encryption === "nopass" ? "None — open network" : "The network password"}
                   className="mt-1.5 bg-muted/40 font-sans"
                 />
               </div>
               <div>
                 <label htmlFor="capyqr-wifi-encryption" className={labelClass}>
-                  security
+                  Security
                 </label>
                 <Select
                   value={wifi?.encryption ?? "WPA"}
@@ -592,13 +594,13 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                   <SelectContent>
                     <SelectItem value="WPA">WPA / WPA2</SelectItem>
                     <SelectItem value="WEP">WEP</SelectItem>
-                    <SelectItem value="nopass">none — open network</SelectItem>
+                    <SelectItem value="nopass">None — open network</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-muted/30 px-3 py-2 sm:mt-1.5">
                 <label htmlFor="capyqr-wifi-hidden" className={labelClass}>
-                  hidden network
+                  Hidden network
                 </label>
                 <Switch
                   id="capyqr-wifi-hidden"
@@ -614,7 +616,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             <>
               <div>
                 <label htmlFor="capyqr-contact-first" className={labelClass}>
-                  first name
+                  First name
                 </label>
                 <Input
                   id="capyqr-contact-first"
@@ -626,7 +628,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-contact-last" className={labelClass}>
-                  last name
+                  Last name
                 </label>
                 <Input
                   id="capyqr-contact-last"
@@ -638,7 +640,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-contact-org" className={labelClass}>
-                  organization
+                  Organization
                 </label>
                 <Input
                   id="capyqr-contact-org"
@@ -650,7 +652,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-contact-phone" className={labelClass}>
-                  phone
+                  Phone
                 </label>
                 <Input
                   id="capyqr-contact-phone"
@@ -662,7 +664,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-contact-email" className={labelClass}>
-                  email
+                  Email
                 </label>
                 <Input
                   id="capyqr-contact-email"
@@ -674,7 +676,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-contact-url" className={labelClass}>
-                  url
+                  Url
                 </label>
                 <Input
                   id="capyqr-contact-url"
@@ -698,13 +700,13 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                   type="text"
                   value={fields.email?.to ?? ""}
                   onChange={(e) => setEmail({ to: e.target.value })}
-                  placeholder="who this opens a draft for"
+                  placeholder="Who this opens a draft for"
                   className="mt-1.5 bg-muted/40 font-sans"
                 />
               </div>
               <div>
                 <label htmlFor="capyqr-email-subject" className={labelClass}>
-                  subject
+                  Subject
                 </label>
                 <Input
                   id="capyqr-email-subject"
@@ -716,7 +718,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="capyqr-email-body" className={labelClass}>
-                  body
+                  Body
                 </label>
                 <Textarea
                   id="capyqr-email-body"
@@ -732,7 +734,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           {kind === "tel" && (
             <div className="sm:col-span-2">
               <label htmlFor="capyqr-tel-phone" className={labelClass}>
-                phone number
+                Phone number
               </label>
               <Input
                 id="capyqr-tel-phone"
@@ -749,7 +751,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             <>
               <div>
                 <label htmlFor="capyqr-geo-lat" className={labelClass}>
-                  latitude
+                  Latitude
                 </label>
                 <Input
                   id="capyqr-geo-lat"
@@ -763,7 +765,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-geo-long" className={labelClass}>
-                  longitude
+                  Longitude
                 </label>
                 <Input
                   id="capyqr-geo-long"
@@ -782,20 +784,20 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             <>
               <div className="sm:col-span-2">
                 <label htmlFor="capyqr-event-title" className={labelClass}>
-                  title
+                  Title
                 </label>
                 <Input
                   id="capyqr-event-title"
                   type="text"
                   value={fields.event?.title ?? ""}
                   onChange={(e) => setEvent({ title: e.target.value })}
-                  placeholder="what the phone will save"
+                  placeholder="What the phone will save"
                   className="mt-1.5 bg-muted/40 font-sans"
                 />
               </div>
               <div>
                 <label htmlFor="capyqr-event-start" className={labelClass}>
-                  starts
+                  Starts
                 </label>
                 <Input
                   id="capyqr-event-start"
@@ -807,7 +809,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               </div>
               <div>
                 <label htmlFor="capyqr-event-end" className={labelClass}>
-                  ends
+                  Ends
                 </label>
                 <Input
                   id="capyqr-event-end"
@@ -839,7 +841,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               error, or a value that differs from what was typed. */}
           {kind !== "link" || !payload.ok || payload.value !== (fields.link?.text ?? "") ? (
             <>
-              <span className={labelClass}>encoded payload</span>
+              <span className={labelClass}>Encoded payload</span>
               <div className="mt-1.5 mb-2 rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
                 {payload.ok ? (
                   <span className="break-all">{payload.value}</span>
@@ -852,7 +854,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           <p className="text-xs text-muted-foreground">
             {payload.ok
               ? capacityNote(payload.value, style.ecc)
-              : "the code waits until the payload above is complete."}
+              : "The code waits until the payload above is complete."}
           </p>
         </div>
       </StageCard>
@@ -865,10 +867,10 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
         actions={
           <div className="flex items-center gap-1.5" role="group" aria-label="Settings detail">
             <Pill active={detail === "simple"} onClick={() => setDetail("simple")} label="Simple settings">
-              simple
+              Simple
             </Pill>
             <Pill active={detail === "full"} onClick={() => setDetail("full")} label="Full settings">
-              full
+              Full
             </Pill>
           </div>
         }
@@ -898,7 +900,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             label="Randomize style within the guards"
           >
             <Dices aria-hidden className="mr-1.5 inline size-3" />
-            random
+            Random
           </Pill>
           {beforeRandom ? (
             <Pill
@@ -909,7 +911,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               }}
               label="Undo random: back to the style before it"
             >
-              undo random
+              Undo random
             </Pill>
           ) : null}
           <Pill
@@ -922,14 +924,14 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             }}
             label="Reset the style to its defaults"
           >
-            reset
+            Reset
           </Pill>
         </div>
 
         <div className={cn("mt-4 grid gap-4", detail === "full" ? "sm:grid-cols-3" : "sm:grid-cols-1")}>
           <div>
             <label htmlFor="capyqr-dot-type" className={labelClass}>
-              dot type
+              Dot type
             </label>
             <Select
               value={style.dotType}
@@ -945,7 +947,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               <SelectContent>
                 {DOT_TYPES.map((t) => (
                   <SelectItem key={t} value={t}>
-                    {t}
+                    {cap(t)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -954,7 +956,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           {detail === "full" ? (
             <div>
               <label htmlFor="capyqr-corner-square" className={labelClass}>
-                corner squares
+                Corner squares
               </label>
               <Select
                 value={style.cornerSquareType}
@@ -972,7 +974,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                 <SelectContent>
                   {CORNER_SQUARE_TYPES.map((t) => (
                     <SelectItem key={t} value={t}>
-                      {t}
+                      {cap(t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -982,7 +984,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           {detail === "full" ? (
             <div>
               <label htmlFor="capyqr-corner-dot" className={labelClass}>
-                corner dots
+                Corner dots
               </label>
               <Select
                 value={style.cornerDotType}
@@ -1000,7 +1002,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                 <SelectContent>
                   {CORNER_DOT_TYPES.map((t) => (
                     <SelectItem key={t} value={t}>
-                      {t}
+                      {cap(t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -1015,7 +1017,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
         {detail === "full" ? (
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
             <div className="flex items-center gap-1.5">
-              <span className={labelClass}>color</span>
+              <span className={labelClass}>Color</span>
               <Pill
                 active={style.fg.mode === "solid"}
                 onClick={() =>
@@ -1025,7 +1027,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                 }
                 label="Solid color"
               >
-                solid
+                Solid
               </Pill>
               <Pill
                 active={style.fg.mode === "gradient"}
@@ -1042,7 +1044,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                 }
                 label="Gradient color"
               >
-                gradient
+                Gradient
               </Pill>
             </div>
 
@@ -1050,14 +1052,14 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             <>
               <ColorField
                 id="capyqr-fg-color"
-                label="module color"
+                label="Module color"
                 value={style.fg.color}
                 onChange={(hex) =>
                   setStylePatch({ fg: { mode: "solid", color: hex } })
                 }
               />
               <Swatches
-                label="code swatches"
+                label="Code swatches"
                 colors={CODE_SWATCHES}
                 value={style.fg.color}
                 onPick={(hex) =>
@@ -1069,7 +1071,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <ColorField
                 id="capyqr-gradient-from"
-                label="from"
+                label="From"
                 value={style.fg.from}
                 onChange={(hex) =>
                   setStyle((prev) =>
@@ -1081,7 +1083,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               />
               <ColorField
                 id="capyqr-gradient-to"
-                label="to"
+                label="To"
                 value={style.fg.to}
                 onChange={(hex) =>
                   setStyle((prev) =>
@@ -1093,7 +1095,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               />
               <div className="flex items-center gap-2">
                 <label htmlFor="capyqr-gradient-rotation" className={labelClass}>
-                  angle
+                  Angle
                 </label>
                 <input
                   id="capyqr-gradient-rotation"
@@ -1120,13 +1122,13 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
 
           <ColorField
             id="capyqr-bg-color"
-            label="background"
+            label="Background"
             value={style.bg === "transparent" ? "#ffffff" : style.bg}
             disabled={style.bg === "transparent"}
             onChange={(hex) => setStylePatch({ bg: hex })}
           />
           <Swatches
-            label="background swatches"
+            label="Background swatches"
             colors={BACKGROUND_SWATCHES}
             value={style.bg === "transparent" ? "#ffffff" : style.bg}
             onPick={(hex) => setStylePatch({ bg: hex })}
@@ -1136,7 +1138,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               onClick={() => setStylePatch({ bg: style.bg === "transparent" ? "#ffffff" : "transparent" })}
               label="Transparent background"
             >
-              transparent
+              Transparent
             </Pill>
         </div>
         ) : null}
@@ -1144,7 +1146,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
         {detail === "full" ? (
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
             <Swatches
-              label="eyes color"
+              label="Eyes color"
               colors={EYES_SWATCHES}
               value={style.cornerColor ?? fgColor}
               onPick={(hex) => setStylePatch({ cornerColor: hex })}
@@ -1154,7 +1156,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
               onClick={() => setStylePatch({ cornerColor: null })}
               label="Eyes follow the module color"
             >
-              eyes match code
+              Eyes match code
             </Pill>
           </div>
         ) : null}
@@ -1163,7 +1165,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="capyqr-quiet" className={labelClass}>
-              quiet zone
+              Quiet zone
             </label>
             <div className="mt-1.5 flex items-center gap-3">
               <input
@@ -1183,7 +1185,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           </div>
           <div>
             <label htmlFor="capyqr-ecc" className={labelClass}>
-              error correction
+              Error correction
             </label>
             <div className="mt-1.5 flex items-center gap-3">
               <Select
@@ -1218,7 +1220,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             htmlFor="capyqr-logo"
             className="inline-flex cursor-pointer items-center rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
           >
-            upload logo
+            Upload logo
           </label>
           <input
             id="capyqr-logo"
@@ -1243,17 +1245,17 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                   setLogoUrl(null);
                   setLogoName("");
                   setStatus({
-                    text: "logo removed — the pattern has the whole code again.",
+                    text: "Logo removed — the pattern has the whole code again.",
                     file: "",
                   });
                 }}
               >
-                remove
+                Remove
               </Button>
             </>
           ) : (
             <span className="text-xs text-muted-foreground">
-              sits in the center, 40% of the code&rsquo;s width
+              Sits in the center, 40% of the code&rsquo;s width
             </span>
           )}
         </div>
@@ -1265,12 +1267,12 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             onClick={() => setFrame((prev) => ({ ...prev, on: !prev.on }))}
             label="Frame around the code"
           >
-            frame
+            Frame
           </Pill>
           {frame.on ? (
             <>
               <div className="flex items-center gap-1.5">
-                <span className={labelClass}>shape</span>
+                <span className={labelClass}>Shape</span>
                 {FRAME_SHAPES.map((shape) => (
                   <Pill
                     key={shape}
@@ -1278,29 +1280,29 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                     onClick={() => setFrame((prev) => ({ ...prev, shape }))}
                     label={`Frame shape ${shape}`}
                   >
-                    {shape}
+                    {cap(shape)}
                   </Pill>
                 ))}
               </div>
               <div className="flex items-center gap-1.5">
-                <span className={labelClass}>position</span>
+                <span className={labelClass}>Position</span>
                 <Pill
                   active={frame.position === "top"}
                   onClick={() => setFrame((prev) => ({ ...prev, position: "top" }))}
                   label="Caption position top"
                 >
-                  top
+                  Top
                 </Pill>
                 <Pill
                   active={frame.position === "bottom"}
                   onClick={() => setFrame((prev) => ({ ...prev, position: "bottom" }))}
                   label="Caption position bottom"
                 >
-                  bottom
+                  Bottom
                 </Pill>
               </div>
               <Swatches
-                label="frame color"
+                label="Frame color"
                 colors={BACKGROUND_SWATCHES}
                 value={frame.color}
                 onPick={(hex) => setFrame((prev) => ({ ...prev, color: hex }))}
@@ -1310,7 +1312,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           {frame.on ? (
             <div className="flex items-center gap-2">
               <label htmlFor="capyqr-frame-label" className={labelClass}>
-                caption
+                Caption
               </label>
               <Input
                 id="capyqr-frame-label"
@@ -1327,7 +1329,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
         ) : null}
 
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
-          <span className={labelClass}>the guards</span>
+          <span className={labelClass}>The guards</span>
           {/* Each line already names its subject; a "contrast ·" prefix made it
               read "contrast · contrast is comfortable". */}
           <ul className="mt-2 space-y-1.5 text-[13px] leading-relaxed">
@@ -1336,7 +1338,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             </li>
             {eyesGuarded ? (
               <li className="text-[var(--clay)]">
-                the corner eyes are low-contrast and they carry the finder pattern —
+                The corner eyes are low-contrast and they carry the finder pattern —
                 darken them or let them match the code.
               </li>
             ) : null}
@@ -1350,11 +1352,11 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                 </li>
               ))
             ) : (
-              <li className="text-muted-foreground">no logo, so nothing covers the modules.</li>
+              <li className="text-muted-foreground">No logo, so nothing covers the modules.</li>
             )}
           </ul>
           <p className="mt-2 text-xs text-muted-foreground">
-            the guards are rules of thumb, not a spec — the in-tab scan is the proof.
+            The guards are rules of thumb, not a spec — the in-tab scan is the proof.
           </p>
         </div>
       </StageCard>
@@ -1373,7 +1375,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
         <canvas
           ref={stageCanvasRef}
           role="img"
-          aria-label="live QR preview — the exact pixels that export"
+          aria-label="Live QR preview — the exact pixels that export"
           width={size}
           height={size}
           className="mx-auto block aspect-square w-full max-w-[320px] rounded-2xl border border-border"
@@ -1393,21 +1395,21 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
             </ScanNote>
           ) : payload.ok && proof?.ok ? (
             <ScanNote tone="clay">
-              decoded here, but the modules are light on dark — scanners that only read
+              Decoded here, but the modules are light on dark — scanners that only read
               upright codes will refuse it. Swap the colours to be sure.
             </ScanNote>
           ) : payload.ok && proof && !proof.ok ? (
             <ScanNote tone="clay">
-              the in-tab scan could not read this one — try higher contrast or a calmer dot style.
+              The in-tab scan could not read this one — try higher contrast or a calmer dot style.
             </ScanNote>
           ) : payload.ok ? (
-            <ScanNote>scanning the render…</ScanNote>
+            <ScanNote>Scanning the render…</ScanNote>
           ) : null}
         </div>
 
         {payload.ok ? (
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            high contrast scans best — test at arm&rsquo;s length.
+            High contrast scans best — test at arm&rsquo;s length.
           </p>
         ) : null}
 
@@ -1435,7 +1437,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex items-center gap-1.5">
-            <span className={labelClass}>size</span>
+            <span className={labelClass}>Size</span>
             {SIZES.map((s) => (
               <Pill key={s} active={size === s} onClick={() => setSize(s)} label={`Size ${s}`}>
                 {s}
@@ -1444,7 +1446,7 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className={labelClass}>format</span>
+            <span className={labelClass}>Format</span>
             {FORMATS.map((f) => (
               <Pill
                 key={f}
@@ -1485,8 +1487,8 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
           {status.text && status.file === downloadName
             ? status.text
             : payload.ok
-              ? `next download: ${downloadName}`
-              : "compose the payload above — the code is waiting."}
+              ? `Next download: ${downloadName}`
+              : "Compose the payload above — the code is waiting."}
         </p>
       </StageCard>
 
@@ -1518,14 +1520,14 @@ export function CapyQR({ initialKind = "link" }: { initialKind?: PayloadKind } =
                 />
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {!payload.ok
-                    ? "fill in the payload to make a code."
+                    ? "Fill in the payload to make a code."
                     : proof?.ok && !proof.inverted
-                      ? "verified scannable, in this tab."
+                      ? "Verified scannable, in this tab."
                       : proof?.ok
-                        ? "light on dark — some scanners will refuse it."
+                        ? "Light on dark — some scanners will refuse it."
                         : proof
-                          ? "won't scan yet — raise the contrast."
-                          : "scanning the render…"}
+                          ? "Won't scan yet — raise the contrast."
+                          : "Scanning the render…"}
                 </p>
                 <Button
                   className="h-11 flex-none rounded-full px-5"

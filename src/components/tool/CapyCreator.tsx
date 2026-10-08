@@ -64,6 +64,12 @@ const TIER_OPTIONS = [
   { id: "5", label: "Tier 5 (Frontier)" },
 ];
 
+/** "debug_issue" → "Debug issue" for tags and chips. */
+const spaced = (id: string) => {
+  const t = id.replace(/_/g, " ");
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
+
 export function CapyCreator() {
   const reduced = useReducedMotion();
   const [ask, setAsk] = useState("do a design review of the login page");
@@ -376,7 +382,7 @@ export function CapyCreator() {
             onChange={(e) => setAsk(e.target.value)}
             rows={3}
             className="mt-1.5 bg-muted/40 font-sans"
-            placeholder="e.g. do a design review of the login page"
+            placeholder="For example, do a design review of the login page"
           />
 
           {/* Quick chips */}
@@ -494,7 +500,7 @@ export function CapyCreator() {
             id="questionnaire-card"
             index="02"
             title="Intent Questionnaire"
-            chips={<StageChip>{taskType.replace(/_/g, " ")} · Tier {effectiveTier}</StageChip>}
+            chips={<StageChip>{spaced(taskType)} · Tier {effectiveTier}</StageChip>}
             actions={
               <Button
                 variant="ghost"
@@ -522,7 +528,7 @@ export function CapyCreator() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[13px] text-muted-foreground">
-                      {q.dimension.replace(/_/g, " ")}
+                      {spaced(q.dimension)}
                     </span>
                     <span
                       className={cn(

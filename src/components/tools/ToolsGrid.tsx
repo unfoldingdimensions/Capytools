@@ -83,7 +83,7 @@ export function ToolsGrid() {
             aria-keyshortcuts="/"
             value={query}
             onChange={(event) => search(event.target.value)}
-            placeholder="try “qr”, “exif”, “tokens”…"
+            placeholder="Try “qr”, “exif”, “tokens”…"
             autoComplete="off"
             className="w-full rounded-full border border-border bg-card px-5 py-3 pr-28 text-base text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary"
           />
@@ -113,7 +113,7 @@ export function ToolsGrid() {
             onClick={() => search("")}
             className="min-h-11 rounded-full border border-border px-4 text-sm text-foreground transition-colors hover:border-primary/60"
           >
-            clear search
+            Clear search
           </button>
         </div>
       ) : (

@@ -28,7 +28,7 @@ const CapyToken = dynamic(() => import("./CapyToken").then((m) => m.CapyToken), 
   loading: () => (
     <StageCard index="01" title="The text" marks>
       <p className="font-mono text-[13px] text-muted-foreground">
-        loading the counter…
+        Loading the counter…
       </p>
     </StageCard>
   ),

@@ -54,7 +54,7 @@ describe("Landing", () => {
 
   it("derives every count and list from the one registry", () => {
     // These were literals in ~15 places before: "05", "05 of 05 shipped",
-    // "05 / 05 TOOLS", "Five small tools", "Suite of five", the hero's tool
+    // "05 / 05 tools", "Five small tools", "Suite of five", the hero's tool
     // list, the footer's Suite column. A sixth tool
     // made all of them wrong at once. They read the registry now.
     expect(SUITE_INDEX).toBe(String(SUITE.length).padStart(2, "0"));
@@ -64,7 +64,7 @@ describe("Landing", () => {
     expect(HERO.lead).toContain(`${numberWord(countByCategory("browser"))} of them done right in your browser`);
     expect(HERO.stats[0].value).toBe(SUITE_INDEX);
     expect(LABS.meta[1]).toBe(`${countByCategory("browser")} of ${SUITE_INDEX} shipped · ${countByCategory("desktop")} coming`);
-    expect(LABS.foot).toBe(`${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`);
+    expect(LABS.foot).toBe(`${SUITE_INDEX} / ${SUITE_INDEX} tools`);
     expect(LABS.residence.ring).toBe(SUITE_INDEX);
     expect(LABS.pills[0].count).toBe(SUITE_INDEX);
     expect(LABS.tools).toHaveLength(SUITE.length);

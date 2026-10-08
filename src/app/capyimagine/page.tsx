@@ -13,7 +13,7 @@ export default function CapyImagine() {
     <ToolPageShell
       tool="CapyImagine"
       headline={[{ text: "A prompt worth" }, { text: "rendering", em: true, dot: true }]}
-      lead="random image & video prompts, tuned per engine. all local."
+      lead="Random image & video prompts, tuned per engine. All local."
       align="left"
     >
       <PromptGen />

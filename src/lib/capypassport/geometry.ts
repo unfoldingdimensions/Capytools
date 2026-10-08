@@ -202,8 +202,8 @@ const NEAR_FRACTION = 0.08;
 export function flag(value: number, minMm: number, maxMm: number): Flag {
   const band = maxMm - minMm;
   const near = band * NEAR_FRACTION;
-  if (value >= minMm && value <= maxMm) return { level: "pass", word: "within the range" };
-  if (value > maxMm - near && value <= maxMm + near) return { level: "near", word: "a touch outside the range" };
-  if (value < minMm + near && value >= minMm - near) return { level: "near", word: "a touch outside the range" };
-  return { level: "fail", word: "outside the range" };
+  if (value >= minMm && value <= maxMm) return { level: "pass", word: "Within the range" };
+  if (value > maxMm - near && value <= maxMm + near) return { level: "near", word: "A touch outside the range" };
+  if (value < minMm + near && value >= minMm - near) return { level: "near", word: "A touch outside the range" };
+  return { level: "fail", word: "Outside the range" };
 }

@@ -38,67 +38,67 @@ type FailureKind =
 const FAILURE_NOTICES: Record<FailureKind, { title: string; body: string; retry: boolean }> = {
   blocked_host: {
     title: "That address is off-limits.",
-    body: "this tool reads public websites only — loopback, private and link-local addresses (127.0.0.1 and friends, up to the cloud metadata endpoint) are refused before any request is made.",
+    body: "This tool reads public websites only — loopback, private and link-local addresses (127.0.0.1 and friends, up to the cloud metadata endpoint) are refused before any request is made.",
     retry: false,
   },
   bad_url: {
     title: "That doesn't look like a web address.",
-    body: "a plain http(s) address is all this mode can read. check the url and try again.",
+    body: "A plain http(s) address is all this mode can read. Check the url and try again.",
     retry: false,
   },
   scheme: {
     title: "That isn't an http(s) address.",
-    body: "only http and https pages can be read here — no other schemes.",
+    body: "Only http and https pages can be read here — no other schemes.",
     retry: false,
   },
   port: {
     title: "That port is out of scope.",
-    body: "pages are read on their normal ports — 80 and 443 — and nowhere else.",
+    body: "Pages are read on their normal ports — 80 and 443 — and nowhere else.",
     retry: false,
   },
   credentials: {
     title: "That url carries credentials.",
-    body: "addresses with a user:password part are refused — this tool signs in to nothing.",
+    body: "Addresses with a user:password part are refused — this tool signs in to nothing.",
     retry: false,
   },
   dns: {
     title: "That name doesn't resolve.",
-    body: "no dns record answered for this host. check the spelling — or the site may be gone.",
+    body: "No dns record answered for this host. Check the spelling — or the site may be gone.",
     retry: true,
   },
   timed_out: {
     title: "The site kept us waiting.",
-    body: "ten seconds passed before the page and its stylesheets finished arriving, so the visit was stopped.",
+    body: "Ten seconds passed before the page and its stylesheets finished arriving, so the visit was stopped.",
     retry: true,
   },
   too_large: {
     title: "That page is a heavyweight.",
-    body: "the response crossed the 3 mb cap and was stopped mid-read. nothing was kept.",
+    body: "The response crossed the 3 mb cap and was stopped mid-read. Nothing was kept.",
     retry: false,
   },
   not_html: {
     title: "That isn't a web page.",
-    body: "the address answered with something other than html — try the page itself, not a file, an image or an api.",
+    body: "The address answered with something other than html — try the page itself, not a file, an image or an api.",
     retry: false,
   },
   upstream: {
     title: "The site said no.",
-    body: "it answered with an error status, so there was nothing to read there just now.",
+    body: "It answered with an error status, so there was nothing to read there just now.",
     retry: true,
   },
   too_many_redirects: {
     title: "Too many detours.",
-    body: "this address redirects more than three hops deep, so the tool stopped following. try the page the chain lands on.",
+    body: "This address redirects more than three hops deep, so the tool stopped following. Try the page the chain lands on.",
     retry: false,
   },
   network: {
     title: "The wire went quiet.",
-    body: "the connection dropped before the page finished. trying once more may just work.",
+    body: "The connection dropped before the page finished. Trying once more may just work.",
     retry: true,
   },
   no_colours: {
     title: "No colours in the source.",
-    body: "the page and its stylesheets declare nothing this mode can read — sites that paint everything with javascript are invisible to it.",
+    body: "The page and its stylesheets declare nothing this mode can read — sites that paint everything with javascript are invisible to it.",
     retry: false,
   },
 };
@@ -144,9 +144,9 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
       {/* CARD 1: THE ADDRESS */}
       <StageCard index="01" title="The address" marks>
         <p className="mt-4 text-sm text-muted-foreground">
-          paste a public page — capytone reads its html, up to five stylesheets
+          Paste a public page — CapyTone reads its html, up to five stylesheets
           and its declared theme colours, and ranks what it finds. colours
-          painted by javascript are invisible to this mode, and nothing about
+          painted by JavaScript are invisible to this mode, and nothing about
           the visit is stored.
         </p>
         <form
@@ -158,7 +158,7 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
         >
           {/* the well input, per the house form voice */}
           <label htmlFor="capytone-extract-url" className={labelClass}>
-            website
+            Website
           </label>
           <input
             id="capytone-extract-url"
@@ -170,7 +170,7 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
             onChange={(event) => setUrl(event.target.value)}
             placeholder="example.com"
             disabled={status.state === "loading"}
-            aria-label="website address to read colours from"
+            aria-label="Website address to read colours from"
             className="min-w-0 flex-1 rounded-md border border-border bg-muted/40 px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           />
           <button
@@ -179,7 +179,7 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
             aria-label="Extract this page's palette"
             className="rounded-full border border-primary bg-primary/10 px-4 py-1.5 font-mono text-[13px] text-foreground transition-colors hover:bg-primary/20 disabled:opacity-50"
           >
-            extract
+            Extract
           </button>
         </form>
       </StageCard>
@@ -188,18 +188,18 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
       <StageCard index="02" title="The palette">
         {status.state === "idle" ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            the palette appears here — ranked by how often each colour appears
+            The palette appears here — ranked by how often each colour appears
             in the page’s own source, near-duplicates merged.
           </p>
         ) : status.state === "loading" ? (
           <p className="py-8 text-center text-sm text-muted-foreground" role="status">
-            fetching the page and its stylesheets — nothing is stored…
+            Fetching the page and its stylesheets — nothing is stored…
           </p>
         ) : status.state === "error" ? (
           <div className="py-4">
             <ErrorCard
               title={FAILURE_NOTICES[status.failure]?.title ?? "Something quiet went wrong."}
-              body={FAILURE_NOTICES[status.failure]?.body ?? "the visit ended early."}
+              body={FAILURE_NOTICES[status.failure]?.body ?? "The visit ended early."}
               onRetry={
                 FAILURE_NOTICES[status.failure]?.retry ? () => void submit() : undefined
               }
@@ -259,7 +259,7 @@ function PaletteResult({
                         className="size-3 rounded-full border border-border"
                         style={{ backgroundColor: stop.hex }}
                       />
-                      start from {stop.phrase}
+                      Start from {stop.phrase}
                     </button>
                   ) : null}
                 </div>
@@ -271,7 +271,7 @@ function PaletteResult({
 
       {themeColors.length > 0 ? (
         <div>
-          <p className={labelClass}>the page’s declared theme colours</p>
+          <p className={labelClass}>The page’s declared theme colours</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {themeColors.map((theme, index) => (
               <span
@@ -303,7 +303,7 @@ function PaletteResult({
           : stats.stylesheetsFailed > 0
             ? ")"
             : ""}{" "}
-        · nothing stored
+        · Nothing stored
       </p>
     </div>
   );

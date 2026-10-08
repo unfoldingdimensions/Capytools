@@ -13,7 +13,7 @@ export default function CapyCreatorPage() {
     <ToolPageShell
       tool="CapyCreator"
       headline={[{ text: "A prompt engineered," }, { text: "for your model", em: true, dot: true }]}
-      lead="interrogates intent and scales scaffolding per model capability tier. all local."
+      lead="Interrogates intent and scales scaffolding per model capability tier. All local."
       align="left"
     >
       <CapyCreator />

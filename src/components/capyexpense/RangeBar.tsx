@@ -53,7 +53,7 @@ export function RangeBar({
         aria-pressed buttons, NOT a tablist. A tablist promises separate panels
         you can arrow between; this is a filter over one panel.
       */}
-      <div role="group" aria-label="date range" className="flex flex-wrap items-center gap-2">
+      <div role="group" aria-label="Date range" className="flex flex-wrap items-center gap-2">
         {PRESETS.map((p) => {
           const active = state.preset === p.key;
           return (
@@ -80,7 +80,7 @@ export function RangeBar({
         <div className="ml-1 flex items-center gap-1">
           <button
             type="button"
-            aria-label={`previous ${state.preset}`}
+            aria-label={`Previous ${state.preset}`}
             onClick={() => onChange(stepRange(state, -1, weekStart))}
             className="rounded-full border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -91,7 +91,7 @@ export function RangeBar({
           </span>
           <button
             type="button"
-            aria-label={`next ${state.preset}`}
+            aria-label={`Next ${state.preset}`}
             disabled={atPresent}
             onClick={() => onChange(stepRange(state, 1, weekStart))}
             className="rounded-full border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"

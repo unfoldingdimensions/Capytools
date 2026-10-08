@@ -16,7 +16,7 @@ export default function CapyWrapped() {
         { text: "Your GitHub year," },
         { text: "in a calm little card", em: true, dot: true },
       ]}
-      lead="no signup. no cookies. nothing stored."
+      lead="No signup. No cookies. Nothing stored."
     >
       <WrappedFlow />
     </ToolPageShell>

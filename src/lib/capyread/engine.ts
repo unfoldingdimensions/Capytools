@@ -89,7 +89,7 @@ export async function getEngine(
 ): Promise<TesseractWorker> {
   const key = cacheKey(choice.lang.id, choice.quality);
   if (engine && engine.key === key) return engine.worker;
-  if (loading) throw new Error("the reader is still starting — give it a second.");
+  if (loading) throw new Error("The reader is still starting — give it a second.");
   loading = true;
   await disposeEngine();
   try {
@@ -107,9 +107,9 @@ export async function getEngine(
       logger: (message) => {
         if (!onProgress) return;
         if (message.status === "loading tesseract core" || message.status === "initializing tesseract") {
-          onProgress({ stage: "engine", message: "waking the reader…", progress: message.progress });
+          onProgress({ stage: "engine", message: "Waking the reader…", progress: message.progress });
         } else if (message.status === "loading language traineddata") {
-          onProgress({ stage: "language", message: "fetching the language file — once.", progress: null });
+          onProgress({ stage: "language", message: "Fetching the language file — once.", progress: null });
         }
       },
     });
@@ -140,7 +140,7 @@ export async function disposeEngine(): Promise<void> {
  * because nothing user-facing depended on the delete.
  */
 export async function clearLanguageCache(): Promise<void> {
-  if (loading) throw new Error("stop the current run before clearing the saved language.");
+  if (loading) throw new Error("Stop the current run before clearing the saved language.");
   // The idle worker from the last run holds the store open; let it go first.
   await disposeEngine();
   const request = indexedDB.deleteDatabase("keyval-store");
@@ -219,7 +219,7 @@ export async function recognisePage(
   let best = await readTurned(
     canvas,
     0,
-    pageCount > 1 ? `reading page ${pageIndex} of ${pageCount}…` : "reading the page…",
+    pageCount > 1 ? `Reading page ${pageIndex} of ${pageCount}…` : "Reading the page…",
   );
 
   if (needsRotation(best.attempt)) {
@@ -233,7 +233,7 @@ export async function recognisePage(
       const turn = await readTurned(
         rotateCanvas(canvas, angle),
         angle,
-        `nothing read yet — trying ${pageLabel} turned ${angle}°…`,
+        `Nothing read yet — trying ${pageLabel} turned ${angle}°…`,
       );
       turns.push(turn);
       best = choose(best, turn);
@@ -256,7 +256,7 @@ export async function recognisePage(
       const straightened = await readTurned(
         rotateCanvas(rotateCanvas(canvas, best.rotation), -correction),
         best.rotation,
-        `straightening ${Math.abs(correction)}° and reading again…`,
+        `Straightening ${Math.abs(correction)}° and reading again…`,
       );
       if (betterRead(best.attempt, straightened.attempt)) {
         best = straightened;

@@ -7,10 +7,10 @@
  * happening, in order, with nothing invented between the steps.
  */
 
-export const IDLE_HEADLINE = "drop an image here";
+export const IDLE_HEADLINE = "Drop an image here";
 
-export const IDLE_HINT = "click to pick one, or paste — it never leaves this tab.";
+export const IDLE_HINT = "Click to pick one, or paste — it never leaves this tab.";
 
-export const LOADER_STEPS = ["reading", "decoding", "measuring"] as const;
+export const LOADER_STEPS = ["Reading", "Decoding", "Measuring"] as const;
 
 export type LoaderStep = (typeof LOADER_STEPS)[number];

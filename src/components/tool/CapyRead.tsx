@@ -199,11 +199,11 @@ export function CapyRead() {
     (incoming: File | null | undefined) => {
       if (!incoming) return;
       if (running) {
-        setStatus("wait for this run to finish — one page at a time.");
+        setStatus("Wait for this run to finish — one page at a time.");
         return;
       }
       if (!isPdfFile(incoming) && !isImageFile(incoming)) {
-        setStatus("that's not a page CapyRead knows — an image, or a PDF.");
+        setStatus("That's not a page CapyRead knows — an image, or a PDF.");
         return;
       }
       releaseThumb();
@@ -233,7 +233,7 @@ export function CapyRead() {
           })
           .catch(() => {
             if (countFor.current !== incoming) return;
-            setStatus("that PDF wouldn't open — it may be damaged or password-protected.");
+            setStatus("That PDF wouldn't open — it may be damaged or password-protected.");
             setFile(null);
           });
       }
@@ -346,11 +346,11 @@ export function CapyRead() {
       const straightened = pages.filter((page) => page.deskew !== null);
       setStatus(
         [
-          run.text ? `${pages.length} page${pages.length === 1 ? "" : "s"} read in ${formatMs(run.ms)}.` : "nothing read — try a sharper, straighter, better-lit page.",
-          turned.length > 0 ? `the page was turned until it read: ${turned.map((page) => `page ${page.page} ${page.rotation}°`).join(", ")}.` : "",
-          straightened.length > 0 ? `straightened before reading: ${straightened.map((page) => `page ${page.page} ${page.deskew}°`).join(", ")}.` : "",
+          run.text ? `${pages.length} page${pages.length === 1 ? "" : "s"} read in ${formatMs(run.ms)}.` : "Nothing read — try a sharper, straighter, better-lit page.",
+          turned.length > 0 ? `The page was turned until it read: ${turned.map((page) => `page ${page.page} ${page.rotation}°`).join(", ")}.` : "",
+          straightened.length > 0 ? `Straightened before reading: ${straightened.map((page) => `page ${page.page} ${page.deskew}°`).join(", ")}.` : "",
           unreadable > 0 ? `${unreadable} word${unreadable === 1 ? "" : "s"} were too unsure to print and are marked [unreadable] in the text.` : "",
-          stopped ? "stopped early — the pages read so far are kept." : "",
+          stopped ? "Stopped early — the pages read so far are kept." : "",
         ]
           .filter(Boolean)
           .join(" "),
@@ -359,7 +359,7 @@ export function CapyRead() {
       // Keep what was read, as the message promises.
       if (pages.length > 0) setResult(buildRun());
       setStatus(
-        `the read stopped: ${(error as Error).message || "something went wrong in this browser."}${pages.length > 0 ? " — the pages read so far are kept." : ""}`,
+        `The read stopped: ${(error as Error).message || "Something went wrong in this browser."}${pages.length > 0 ? " — the pages read so far are kept." : ""}`,
       );
     } finally {
       setProgress(null);
@@ -386,9 +386,9 @@ export function CapyRead() {
     if (!value.trim()) return;
     try {
       await navigator.clipboard.writeText(value);
-      setStatus("copied.");
+      setStatus("Copied.");
     } catch {
-      setStatus("this browser refused the clipboard — select the text and copy by hand.");
+      setStatus("This browser refused the clipboard — select the text and copy by hand.");
     }
   }, [currentText]);
 
@@ -401,7 +401,7 @@ export function CapyRead() {
     downloadUrlRef.current = url;
     setDownload({ name: exportName(file.name, "txt"), url });
     saveBlob(blob, exportName(file.name, "txt"));
-    setStatus("plain text saved.");
+    setStatus("Plain text saved.");
   }, [file, hasText, releaseDownload, currentText]);
 
   const downloadDocx = useCallback(async () => {
@@ -413,18 +413,18 @@ export function CapyRead() {
       downloadUrlRef.current = url;
       setDownload({ name: exportName(file.name, "docx"), url });
       saveBlob(blob, exportName(file.name, "docx"));
-      setStatus("document saved — plain paragraphs, your Word styles apply.");
+      setStatus("Document saved — plain paragraphs, your Word styles apply.");
     } catch {
-      setStatus("the document build failed in this browser — the .txt still works.");
+      setStatus("The document build failed in this browser — the .txt still works.");
     }
   }, [file, hasText, releaseDownload, currentText]);
 
   const forgetLanguages = useCallback(async () => {
     try {
       await clearLanguageCache();
-      setStatus("saved language files removed from this browser — the next run downloads again.");
+      setStatus("Saved language files removed from this browser — the next run downloads again.");
     } catch {
-      setStatus("stop the current run before clearing the saved language.");
+      setStatus("Stop the current run before clearing the saved language.");
     }
   }, []);
 
@@ -437,12 +437,12 @@ export function CapyRead() {
       : "";
 
   const runLabel = !file
-    ? "read the page"
+    ? "Read the page"
     : !isPdf || pdfPages === 1
-      ? "read the page"
+      ? "Read the page"
       : pdfPages !== null && pdfPages <= FREE_PAGE_LIMIT
-        ? `read all ${pdfPages} pages`
-        : `read the first ${FREE_PAGE_LIMIT} pages`;
+        ? `Read all ${pdfPages} pages`
+        : `Read the first ${FREE_PAGE_LIMIT} pages`;
 
   return (
     <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_368px] lg:items-start">
@@ -477,7 +477,7 @@ export function CapyRead() {
             <CapyArt pose="awake" className="w-16" />
             <span className="mt-1 text-sm font-medium text-foreground">Drop a photo, a screenshot or a PDF</span>
             <span className="text-xs text-muted-foreground">
-              or click to pick, or paste. one document — it never leaves this tab.
+              Or click to pick, or paste. One document — it never leaves this tab.
             </span>
           </button>
         ) : (
@@ -511,7 +511,7 @@ export function CapyRead() {
             </div>
             <Button size="sm" variant="ghost" className="rounded-full" disabled={running} onClick={clearFile}>
               <X className="mr-1 size-3.5" aria-hidden />
-              remove
+              Remove
             </Button>
           </div>
         )}
@@ -520,7 +520,7 @@ export function CapyRead() {
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="capyread-lang" className={labelClass}>
-              language of the text
+              Language of the text
             </label>
             <select
               id="capyread-lang"
@@ -538,7 +538,7 @@ export function CapyRead() {
           </div>
           <div>
             <span className={cn(labelClass, "block")} id="capyread-quality-label">
-              model size
+              Model size
             </span>
             <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-labelledby="capyread-quality-label">
               <Pill
@@ -547,7 +547,7 @@ export function CapyRead() {
                 onClick={() => setQuality("fast")}
                 label={`Fast model, ${formatBytes(lang.fast.bytes)}, downloaded once`}
               >
-                fast · {formatBytes(lang.fast.bytes)}
+                Fast · {formatBytes(lang.fast.bytes)}
               </Pill>
               <Pill
                 active={quality === "standard"}
@@ -559,14 +559,14 @@ export function CapyRead() {
                     : "Only English ships the larger model"
                 }
               >
-                {lang.standard ? `standard · ${formatBytes(lang.standard.bytes)}` : "standard — english only"}
+                {lang.standard ? `Standard · ${formatBytes(lang.standard.bytes)}` : "Standard — English only"}
               </Pill>
             </div>
           </div>
         </div>
 
         <p className="mt-3 text-xs leading-snug text-muted-foreground">
-          the {lang.label.toLowerCase()} file ({formatBytes(pin.bytes)}) downloads from this site on first use and is
+          The {lang.label} file ({formatBytes(pin.bytes)}) downloads from this site on first use and is
           kept in your browser for next time — your document never is.
         </p>
 
@@ -574,14 +574,14 @@ export function CapyRead() {
         <Button className="mt-4 h-11 w-full rounded-full text-base" onClick={runRead} disabled={!file || running}>
           {running
             ? pagesPlanned > 1
-              ? `reading page ${Math.min(pagesDone + 1, pagesPlanned)} of ${pagesPlanned}…`
-              : "reading…"
+              ? `Reading page ${Math.min(pagesDone + 1, pagesPlanned)} of ${pagesPlanned}…`
+              : "Reading…"
             : runLabel}
         </Button>
         {running ? (
           <Button variant="ghost" className="mt-2 h-11 w-full rounded-full" onClick={cancelRead}>
             <Square className="mr-1.5 size-3.5" aria-hidden />
-            stop — finished pages are kept
+            Stop — finished pages are kept
           </Button>
         ) : null}
 
@@ -597,7 +597,7 @@ export function CapyRead() {
               aria-valuenow={pagesDone}
               aria-valuemin={0}
               aria-valuemax={pagesPlanned}
-              aria-label="reading progress"
+              aria-label="Reading progress"
               className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
             >
               <div
@@ -615,7 +615,7 @@ export function CapyRead() {
         ) : null}
 
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          nothing uploaded — the reading happens in this tab.
+          Nothing uploaded — the reading happens in this tab.
         </p>
       </StageCard>
 
@@ -635,7 +635,7 @@ export function CapyRead() {
                   : `${words.pages.length} pages`}
             </StageChip>
           ) : (
-            <StageChip>demo</StageChip>
+            <StageChip>Demo</StageChip>
           )
         }
         actions={
@@ -648,7 +648,7 @@ export function CapyRead() {
               onClick={copyText}
             >
               <Copy className="mr-1 size-3.5" aria-hidden />
-              copy
+              Copy
             </Button>
             <Pill
               active={editing}
@@ -657,7 +657,7 @@ export function CapyRead() {
               label={editing ? "Back to the read with its confidence badges" : "Edit the text by hand"}
             >
               <Pencil className="mr-1 inline size-3" aria-hidden />
-              edit
+              Edit
             </Pill>
           </div>
         }
@@ -665,7 +665,7 @@ export function CapyRead() {
         {editing ? (
           <div>
             <label htmlFor="capyread-text" className={labelClass}>
-              the words, as you want them
+              The words, as you want them
             </label>
             <textarea
               id="capyread-text"
@@ -675,7 +675,7 @@ export function CapyRead() {
               className="mt-1.5 block w-full rounded-2xl border border-input bg-muted/30 p-4 font-sans text-sm leading-relaxed text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/60"
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              you&rsquo;re editing — the confidence badges describe the original read, not your changes.
+              You&rsquo;re editing — the confidence badges describe the original read, not your changes.
             </p>
           </div>
         ) : (
@@ -688,7 +688,7 @@ export function CapyRead() {
                       <BucketBadge confidence={block.confidence} />
                       {words.pages.length > 1 ? (
                         <span className="font-mono text-[12px] text-muted-foreground">
-                          page {page.page}
+                          Page {page.page}
                         </span>
                       ) : null}
                     </div>
@@ -699,7 +699,7 @@ export function CapyRead() {
             </ol>
             {words.pages.every((page) => page.blocks.length === 0) ? (
               <p className="text-sm text-muted-foreground">
-                nothing readable here — a sharper, straighter, better-lit page reads better.
+                Nothing readable here — a sharper, straighter, better-lit page reads better.
               </p>
             ) : null}
           </>
@@ -709,7 +709,7 @@ export function CapyRead() {
           {status}
         </p>
         <p className="mt-1 text-xs leading-snug text-muted-foreground">
-          badges are the engine&rsquo;s own confidence — high, fair, unsure in its words, never just a colour. words it
+          Badges are the engine&rsquo;s own confidence — high, fair, unsure in its words, never just a colour. words it
           couldn&rsquo;t read are marked [unreadable] rather than guessed.
         </p>
       </StageCard>
@@ -730,9 +730,9 @@ export function CapyRead() {
                 className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/20 px-3 py-1.5 text-[13px]"
               >
                 <span className="text-muted-foreground">
-                  {words.pages.length > 1 ? `page ${page.page}` : "the page"}
-                  {page.rotation !== 0 ? <span className="ml-1.5">· read {page.rotation}°</span> : null}
-                  {page.deskew !== null ? <span className="ml-1.5">· straightened {Math.abs(page.deskew)}°</span> : null}
+                  {words.pages.length > 1 ? `Page ${page.page}` : "The page"}
+                  {page.rotation !== 0 ? <span className="ml-1.5">· Read {page.rotation}°</span> : null}
+                  {page.deskew !== null ? <span className="ml-1.5">· Straightened {Math.abs(page.deskew)}°</span> : null}
                 </span>
                 <span className="flex items-center gap-2">
                   <BucketBadge confidence={page.confidence} />
@@ -743,18 +743,18 @@ export function CapyRead() {
           </ul>
         ) : (
           <p className="text-sm text-muted-foreground">
-            the page&rsquo;s own read lands here — what was found, how sure the engine was, and how long it took.
+            The page&rsquo;s own read lands here — what was found, how sure the engine was, and how long it took.
           </p>
         )}
 
         <div className="mt-4 flex flex-col gap-2">
           <Button variant="outline" className="h-11 w-full rounded-full" disabled={!file || !hasText} onClick={downloadTxt}>
             <FileText className="mr-1.5 size-4" aria-hidden />
-            download .txt
+            Download .txt
           </Button>
           <Button variant="outline" className="h-11 w-full rounded-full" disabled={!file || !hasText} onClick={downloadDocx}>
             <FileArchive className="mr-1.5 size-4" aria-hidden />
-            download .docx
+            Download .docx
           </Button>
           {download ? (
             <a
@@ -769,15 +769,15 @@ export function CapyRead() {
         </div>
 
         <p className="mt-4 text-xs leading-snug text-muted-foreground">
-          handwriting and very low-resolution scans often fail — this is a reader, not a restorer. the language file
+          Handwriting and very low-resolution scans often fail — this is a reader, not a restorer. The language file
           is kept in your browser so the next run starts instantly; your document never is.
         </p>
         <details className="mt-3 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <summary className="cursor-pointer select-none">
-            <span className={labelClass}>saved in this browser</span>
+            <span className={labelClass}>Saved in this browser</span>
           </summary>
           <p className="mt-2 text-xs leading-snug text-muted-foreground">
-            the language model lives in the browser&rsquo;s own storage — settings, never documents. removing it is one
+            The language model lives in the browser&rsquo;s own storage — settings, never documents. removing it is one
             click, and the next run downloads it again.
           </p>
           <Button
@@ -787,7 +787,7 @@ export function CapyRead() {
             disabled={running}
             onClick={forgetLanguages}
           >
-            forget the saved language files
+            Forget the saved language files
           </Button>
         </details>
       </StageCard>
@@ -808,14 +808,14 @@ export function CapyRead() {
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {running
                     ? pagesPlanned > 1
-                      ? `reading page ${Math.min(pagesDone + 1, pagesPlanned)} of ${pagesPlanned}…`
-                      : "reading…"
+                      ? `Reading page ${Math.min(pagesDone + 1, pagesPlanned)} of ${pagesPlanned}…`
+                      : "Reading…"
                     : hasText
-                      ? "words are ready, in this tab."
-                      : "a page is waiting."}
+                      ? "Words are ready, in this tab."
+                      : "A page is waiting."}
                 </p>
                 <Button className="h-11 flex-none rounded-full px-5" onClick={running ? cancelRead : runRead} disabled={!running && !file}>
-                  {running ? "stop" : "read"}
+                  {running ? "Stop" : "Read"}
                 </Button>
               </div>
             </div>,

@@ -13,7 +13,7 @@ export default function CapyOGPage() {
     <ToolPageShell
       tool="CapyOG"
       headline={[{ text: "A card worth" }, { text: "sharing", em: true, dot: true }]}
-      lead="og images & social cards, composed in your browser. all local."
+      lead="OG images & social cards, composed in your browser. All local."
       align="left"
     >
       <CapyOG />

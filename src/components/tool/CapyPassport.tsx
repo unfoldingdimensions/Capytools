@@ -349,7 +349,7 @@ export function CapyPassport() {
           return;
         }
         setFace(geometry);
-        setStatus(`face found — head height is an estimate; the sliders fine-tune it.`);
+        setStatus(`Face found — head height is an estimate; the sliders fine-tune it.`);
       } catch (detectError) {
         if (mine !== nextPhotoId) {
           decoded?.close();
@@ -474,7 +474,7 @@ export function CapyPassport() {
       // stays loaded between exports, so a re-tint is fast after the first.
       let master: HTMLCanvasElement;
       if (fill !== "off") {
-        setFillStatus("separating you from the background…");
+        setFillStatus("Separating you from the background…");
         const cropCanvas = renderCrop(photo.img, fit.crop, spec.px.w, spec.px.h);
         const cropBlob = await exportCanvas(cropCanvas, "image/png");
         if (mine !== runId.current) return;
@@ -482,7 +482,7 @@ export function CapyPassport() {
           cropBlob,
           { model: "modnet", backdrop: { color: fill }, format: "jpeg", quality: 0.95 },
           ({ received = 0, total = 0 }) =>
-            setFillStatus(total > 0 ? `fetching the people model — ${formatBytes(received)} of ${formatBytes(total)}, once` : "warming the people model…"),
+            setFillStatus(total > 0 ? `Fetching the people model — ${formatBytes(received)} of ${formatBytes(total)}, once` : "Warming the people model…"),
         );
         if (mine !== runId.current) return;
         const bitmap = await createImageBitmap(filled.blob);
@@ -503,7 +503,7 @@ export function CapyPassport() {
         if (mine !== runId.current) return;
         setFillStatus("");
         if (renderError instanceof BgCutCancelledError) return;
-        setStatus(renderError instanceof Error ? `${renderError.message}` : "the export didn't make it — try again.");
+        setStatus(renderError instanceof Error ? `${renderError.message}` : "The export didn't make it — try again.");
       });
     }, EXPORT_DEBOUNCE_MS);
     return () => clearTimeout(timer);
@@ -574,7 +574,7 @@ export function CapyPassport() {
   const downloadSingle = useCallback(() => {
     if (!exported) return;
     saveBlob(exported, photoFilename(spec.id, spec.px.w, spec.px.h));
-    setStatus(`photo saved — ${spec.px.w} × ${spec.px.h} px, ${formatBytes(exported.size)}.`);
+    setStatus(`Photo saved — ${spec.px.w} × ${spec.px.h} px, ${formatBytes(exported.size)}.`);
   }, [exported, spec]);
 
   const downloadSheet = useCallback(() => {
@@ -586,12 +586,12 @@ export function CapyPassport() {
       const stamped = withPrintDpi(new Uint8Array(await encoded.arrayBuffer()), spec.dpi);
       const blob = new Blob([stamped.slice()], { type: "image/png" });
       saveBlob(blob, sheetFilename(spec.id));
-      setStatus(`sheet saved — ${sheet.width} × ${sheet.height} px, exactly 4 × 6 in at ${spec.dpi} dpi, ${formatBytes(blob.size)}.`);
+      setStatus(`Sheet saved — ${sheet.width} × ${sheet.height} px, exactly 4 × 6 in at ${spec.dpi} dpi, ${formatBytes(blob.size)}.`);
     });
   }, [layout, spec]);
 
   const forgetModel = useCallback(() => {
-    void deleteCachedModel().then(() => setStatus("the downloaded face model is gone from this browser; it re-downloads next time."));
+    void deleteCachedModel().then(() => setStatus("The downloaded face model is gone from this browser; it re-downloads next time."));
   }, []);
 
   // ——— readouts ———
@@ -605,18 +605,18 @@ export function CapyPassport() {
   const bytesLow = exported && spec.digitalMin.minKB ? exported.size < spec.digitalMin.minKB * 1024 : false;
 
   const dockText = detecting
-    ? "reading the photo…"
+    ? "Reading the photo…"
     : !photo
-      ? "a photo to check, when you're ready."
+      ? "A photo to check, when you're ready."
       : exportReady
         ? // Said from the readouts, never as a blanket pass: "fits" over an
           // outside-the-range head was an implied approval.
           [headFlag, eyeFlag].some((f) => f?.level === "fail")
-          ? "framed — but outside the published range; check the readout."
+          ? "Framed — but outside the published range; check the readout."
           : [headFlag, eyeFlag].some((f) => f?.level === "near")
-            ? "framed — a touch outside the range; check the readout."
-            : "framed within the published range — downloads beside it."
-        : "framing…";
+            ? "Framed — a touch outside the range; check the readout."
+            : "Framed within the published range — downloads beside it."
+        : "Framing…";
 
   return (
     <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_368px] lg:items-start">
@@ -634,7 +634,7 @@ export function CapyPassport() {
         />
 
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-[13px] text-muted-foreground">document</span>
+          <span className="font-mono text-[13px] text-muted-foreground">Document</span>
           {SPECS.map((row) => (
             <Pill key={row.id} active={row.id === specId} onClick={() => setSpecId(row.id)} label={`Document ${row.label}`}>
               {row.label}
@@ -647,14 +647,14 @@ export function CapyPassport() {
             <video ref={videoRef} autoPlay playsInline muted className="mx-auto block max-h-[380px] w-full rounded-2xl border border-border bg-muted/40 object-contain" />
             <div className="flex items-center justify-center gap-2">
               <Button className="h-9 rounded-full px-4" onClick={captureCamera}>
-                capture the shot
+                Capture the shot
               </Button>
               <Button variant="ghost" className="rounded-full" onClick={stopCamera}>
-                turn the camera off
+                Turn the camera off
               </Button>
             </div>
             <p className="text-center text-xs text-muted-foreground">
-              the camera opens only because you asked; the frame is grabbed in this tab and never sent anywhere.
+              The camera opens only because you asked; the frame is grabbed in this tab and never sent anywhere.
             </p>
           </div>
         ) : (
@@ -674,7 +674,7 @@ export function CapyPassport() {
           >
             <CapyArt pose="awake" className="w-16" />
             <span className="mt-1 text-sm font-medium text-foreground">Drop a portrait photo</span>
-            <span className="text-xs text-muted-foreground">or click to pick, or paste. your photo never leaves this tab.</span>
+            <span className="text-xs text-muted-foreground">Or click to pick, or paste. Your photo never leaves this tab.</span>
           </button>
         )}
 
@@ -687,16 +687,16 @@ export function CapyPassport() {
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
           <Pill active={false} onClick={() => void startCamera()} label="Use the camera">
             <Camera className="mr-1 inline size-3.5" aria-hidden />
-            use the camera
+            Use the camera
           </Pill>
           {photo ? (
             <>
               <Pill active={false} onClick={() => fileInput.current?.click()} label="Pick a different photo">
-                different photo
+                Different photo
               </Pill>
               <Pill active={false} onClick={clearPhoto} label="Clear the photo">
                 <RotateCcw className="mr-1 inline size-3" aria-hidden />
-                clear
+                Clear
               </Pill>
             </>
           ) : null}
@@ -708,7 +708,7 @@ export function CapyPassport() {
           </p>
         ) : (
           <p className="mt-3 text-center text-xs text-muted-foreground">
-            one person, facing the camera, in even light — the rules every document writes down.
+            One person, facing the camera, in even light — the rules every document writes down.
           </p>
         )}
       </StageCard>
@@ -718,7 +718,7 @@ export function CapyPassport() {
         index="02"
         title="The fit"
         className="lg:col-start-1"
-        chips={<StageChip>estimate</StageChip>}
+        chips={<StageChip>Estimate</StageChip>}
       >
         <div className="relative">
           <canvas
@@ -735,11 +735,11 @@ export function CapyPassport() {
         <p className="mt-2 text-center text-xs text-muted-foreground" aria-live="polite">
           {detecting
             ? modelBytes
-              ? `fetching the face model — ${formatBytes(modelBytes.received)} of ${formatBytes(modelBytes.total)}, once per browser`
-              : "reading the photo…"
+              ? `Fetching the face model — ${formatBytes(modelBytes.received)} of ${formatBytes(modelBytes.total)}, once per browser`
+              : "Reading the photo…"
             : isDemo
-              ? "a demo — drop a photo to see your own fit."
-              : "dashed lines: the estimated crown and chin. dotted: the eye line."}
+              ? "A demo — drop a photo to see your own fit."
+              : "Dashed lines: the estimated crown and chin. Dotted: the eye line."}
         </p>
 
         {detecting ? (
@@ -754,15 +754,15 @@ export function CapyPassport() {
         {fit ? (
           <div className="mt-4 flex flex-col gap-2" aria-live="polite">
             <ReadoutRow
-              label="head height, chin to crown (estimated)"
+              label="Head height, chin to crown (estimated)"
               value={`${mmLabel(fit.headMm)} · ${formatPct(fit.headPct)} of the frame`}
               level={headFlag?.level}
               word={headFlag?.word}
             />
-            <ReadoutRow label="top margin to the crown (estimated)" value={mmLabel(fit.topMarginMm)} />
+            <ReadoutRow label="Top margin to the crown (estimated)" value={mmLabel(fit.topMarginMm)} />
             {spec.eyeLineFromBottom && fit.eyeLineMm !== null ? (
               <ReadoutRow
-                label="eye line above the bottom edge"
+                label="Eye line above the bottom edge"
                 value={mmLabel(fit.eyeLineMm)}
                 level={eyeFlag?.level}
                 word={eyeFlag?.word}
@@ -770,7 +770,7 @@ export function CapyPassport() {
             ) : null}
             {fit.clamped ? (
               <p className={cn("rounded-2xl border px-4 py-2 text-[13px] leading-snug", STAGE_TONE.clay)} role="status">
-                the photo is too tight to frame like this, so the crop stayed inside it — step back and reshoot if you can.
+                The photo is too tight to frame like this, so the crop stayed inside it — step back and reshoot if you can.
               </p>
             ) : null}
           </div>
@@ -779,7 +779,7 @@ export function CapyPassport() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Slider
             id="capypassport-head"
-            label="head size"
+            label="Head size"
             min={0}
             max={1}
             step={0.01}
@@ -789,7 +789,7 @@ export function CapyPassport() {
           />
           <Slider
             id="capypassport-margin"
-            label="vertical position"
+            label="Vertical position"
             min={0}
             max={1}
             step={0.01}
@@ -800,29 +800,29 @@ export function CapyPassport() {
         </div>
         <div className="mt-2 flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            sliders can leave the published range on purpose — the readout tells you when they do.
+            Sliders can leave the published range on purpose — the readout tells you when they do.
           </p>
           <Pill
             active={false}
             onClick={() => setTweak(DEFAULT_TWEAK)}
             label="Reset the fine-tune"
           >
-            reset
+            Reset
           </Pill>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <Pill active={guidesExport} onClick={() => setGuidesExport((v) => !v)} label="Draw the measured lines in the downloaded file">
-            draw the lines in the download
+            Draw the lines in the download
           </Pill>
-          <span className="text-xs text-muted-foreground">off by default — a photo with ruler lines is itself altered.</span>
+          <span className="text-xs text-muted-foreground">Off by default — a photo with ruler lines is itself altered.</span>
         </div>
 
         <div className="mt-5 border-t border-border pt-4">
-          <span className="font-mono text-[13px] text-muted-foreground">background</span>
+          <span className="font-mono text-[13px] text-muted-foreground">Background</span>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <Pill active={fill === "off"} onClick={() => setFill("off")} label="Leave the background as shot">
-              leave as shot
+              Leave as shot
             </Pill>
             {spec.allowedFills.map((option) => (
               <Pill
@@ -831,7 +831,7 @@ export function CapyPassport() {
                 onClick={() => setFill(option.hex)}
                 label={`Fill the background with ${option.label}`}
               >
-                fill {option.label}
+                Fill {option.label}
               </Pill>
             ))}
           </div>
@@ -861,31 +861,31 @@ export function CapyPassport() {
         className="lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
         chips={
           isDemo ? (
-            <StageChip>demo</StageChip>
+            <StageChip>Demo</StageChip>
           ) : (
-            <StageChip tone={exportReady ? "sage" : "plain"}>{exportReady ? "ready" : "framing"}</StageChip>
+            <StageChip tone={exportReady ? "sage" : "plain"}>{exportReady ? "Ready" : "Framing"}</StageChip>
           )
         }
       >
         <p className="text-[13px] leading-snug text-muted-foreground">
-          the single file for the online portal, and a print sheet to cut at home — both drawn from the same fit.
+          The single file for the online portal, and a print sheet to cut at home — both drawn from the same fit.
         </p>
 
         <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-border bg-muted/30 px-4 py-3">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-muted-foreground">single photo (jpeg)</span>
+            <span className="text-[13px] text-muted-foreground">Single photo (JPEG)</span>
             <span className="font-mono text-[12px] tabular-nums text-foreground">
               {spec.px.w} × {spec.px.h} px{exported ? ` · ${formatBytes(exported.size)}` : ""}
             </span>
           </div>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-muted-foreground">print sheet (png)</span>
+            <span className="text-[13px] text-muted-foreground">Print sheet (PNG)</span>
             <span className="font-mono text-[12px] tabular-nums text-foreground">
               {layout ? `${layout.w} × ${layout.h} px · exactly 4 × 6 in at ${spec.dpi} dpi` : "—"}
             </span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[13px] text-muted-foreground">copies on the sheet</span>
+            <span className="text-[13px] text-muted-foreground">Copies on the sheet</span>
             <span className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -914,14 +914,14 @@ export function CapyPassport() {
 
         {bytesLow ? (
           <p className={cn("mt-3 rounded-2xl border px-4 py-2 text-[13px] leading-snug", STAGE_TONE.clay)} role="status">
-            this file is {formatBytes(exported?.size ?? 0)} — the {spec.label} guidance asks for at least {spec.digitalMin.minKB} kB.
-            a busier background (or the fill) raises the size.
+            This file is {formatBytes(exported?.size ?? 0)} — the {spec.label} guidance asks for at least {spec.digitalMin.minKB} kB.
+            A busier background (or the fill) raises the size.
           </p>
         ) : null}
 
         <Button className="mt-4 h-11 w-full min-w-[84px] rounded-full text-base" onClick={downloadSingle} disabled={!exportReady}>
           <Download className="mr-1.5 size-4" aria-hidden />
-          download the photo
+          Download the photo
         </Button>
         <Button
           variant="outline"
@@ -930,32 +930,32 @@ export function CapyPassport() {
           disabled={!exportReady || !layout}
         >
           <Printer className="mr-1.5 size-4" aria-hidden />
-          download the print sheet
+          Download the print sheet
         </Button>
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          {isDemo ? "drop a photo to enable the downloads." : "your photo never leaves this tab — the only network request here is the face model, from this site."}
+          {isDemo ? "Drop a photo to enable the downloads." : "Your photo never leaves this tab — the only network request here is the face model, from this site."}
         </p>
         {!isDemo ? (
           <button type="button" onClick={forgetModel} className="mx-auto mt-1 block text-[11px] text-muted-foreground underline-offset-2 hover:underline">
-            remove the downloaded face model from this browser
+            Remove the downloaded face model from this browser
           </button>
         ) : null}
 
         {/* The provenance block: the plan's §6.3 rules live here. */}
         <div className="mt-5 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
           <p>
-            specs last checked {spec.verifiedOn} ·{" "}
+            Specs last checked {spec.verifiedOn} ·{" "}
             <a href={spec.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-foreground underline underline-offset-2 hover:text-primary">
               {spec.sourceLabel}
             </a>
           </p>
           <p className="mt-1">
-            always confirm on the official site before you file —{spec.provenance === "surfaced"
+            Always confirm on the official site before you file —{spec.provenance === "surfaced"
               ? " this authority blocks automated checks, so its figures are corroborated from published summaries."
               : " these figures were read from the source above on the date shown."}
           </p>
           <p className="mt-1">
-            this tool checks the geometry against the published rules. it cannot judge expression, glasses, headwear,
+            This tool checks the geometry against the published rules. it cannot judge expression, glasses, headwear,
             print quality, or whether a photo is unaltered — and it will never claim to.
           </p>
         </div>
@@ -1003,7 +1003,7 @@ export function CapyPassport() {
                 </p>
                 <Button className="h-11 flex-none rounded-full px-5" onClick={downloadSingle} disabled={!exportReady}>
                   <Download className="mr-1.5 size-4" aria-hidden />
-                  photo
+                  Photo
                 </Button>
               </div>
             </div>,

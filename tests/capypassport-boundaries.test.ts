@@ -108,8 +108,8 @@ describe("the compliance copy rules hold", () => {
   it("the component carries the alteration warning and the confirm line", () => {
     const src = read(join(process.cwd(), componentPath));
     expect(src).toContain("FILL_WARNING");
-    expect(src).toContain("always confirm on the official site");
-    expect(src).toContain("specs last checked");
+    expect(src).toContain("Always confirm on the official site");
+    expect(src).toContain("Specs last checked");
     // The estimate is labelled where the number is printed.
     expect(src).toMatch(/head height[^\n"*]*estimated/i);
   });

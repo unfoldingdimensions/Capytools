@@ -112,7 +112,7 @@ export function ColorPick({
         className="w-28 bg-muted/40 font-mono text-xs"
       />
       {!parsed ? (
-        <span className="text-[11px] text-[var(--clay)]">not a colour this can read</span>
+        <span className="text-[11px] text-[var(--clay)]">Not a colour this can read</span>
       ) : null}
     </div>
   );

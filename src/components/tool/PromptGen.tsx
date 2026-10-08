@@ -252,7 +252,7 @@ export function PromptGen({ initialEngine = "Gemini" }: { initialEngine?: Engine
                   return (
                     <SelectItem key={p.id} value={p.id}>
                       {p.label} · {f.ratio} · {f.px}
-                      {p.unverified ? " · unverified" : ""}
+                      {p.unverified ? " · Unverified" : ""}
                     </SelectItem>
                   );
                 })}

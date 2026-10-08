@@ -43,16 +43,16 @@ export function contextFit(
  */
 export function estimateLabelFor(row: ModelPriceRow): EstimateLabel {
   if (row.encoding === "o200k") {
-    return { kind: "exact", text: "exact — counted with o200k_base" };
+    return { kind: "exact", text: "Exact — counted with o200k_base" };
   }
   if (row.encoding === "cl100k") {
-    return { kind: "exact", text: "exact — counted with cl100k_base" };
+    return { kind: "exact", text: "Exact — counted with cl100k_base" };
   }
   if (row.provider === "Anthropic") {
     return {
       kind: "claude-estimate",
-      text: "estimate — counted with o200k_base; Claude's tokenizer differs (its own docs: ~+30% vs earlier Claude)",
+      text: "Estimate — counted with o200k_base; Claude's tokenizer differs (its own docs: ~+30% vs earlier Claude)",
     };
   }
-  return { kind: "unverified-estimate", text: "estimate — OpenAI-tokenizer equivalent, not verified" };
+  return { kind: "unverified-estimate", text: "Estimate — OpenAI-tokenizer equivalent, not verified" };
 }

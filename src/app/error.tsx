@@ -67,7 +67,7 @@ export default function Error({
 
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <Button onClick={reset} className="rounded-full">
-            try again
+            Try again
           </Button>
           <TransitionLink href="/" className="lp-read-more">
             ← Back to the landing
@@ -76,7 +76,7 @@ export default function Error({
 
         {error.digest ? (
           <p className="mt-10 font-mono text-[12px] text-muted-foreground">
-            reference {error.digest}
+            Reference {error.digest}
           </p>
         ) : null}
       </main>

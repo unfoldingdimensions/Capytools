@@ -33,7 +33,7 @@ export function TerminalLoader({ username, steps }: { username: string; steps: L
       aria-label={`Wrapping ${username}: ${done} of ${steps.length} steps complete`}
     >
       <div className="flex items-baseline justify-between font-mono text-[13px] text-muted-foreground">
-        <span>wrapping @{username}</span>
+        <span>Wrapping @{username}</span>
         <span className="tabular-nums">
           {done}/{steps.length}
         </span>

@@ -40,7 +40,7 @@ export function CapyExpenseDemo() {
       model={model}
       state={state}
       greeting="good evening"
-      name="ada"
+      name="Ada"
       weekStart={WEEK_START}
       today={SAMPLE_NOW}
       locale={DEFAULT_LOCALE}

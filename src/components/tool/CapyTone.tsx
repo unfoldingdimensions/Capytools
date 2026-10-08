@@ -37,11 +37,11 @@ import type { FamilyFilter } from "@/lib/capytone/engine/families";
 export type ModeId = "feel" | "generate" | "check" | "blend" | "extract";
 
 const MODES: readonly { id: ModeId; label: string }[] = [
-  { id: "feel", label: "feel" },
-  { id: "generate", label: "generate" },
-  { id: "check", label: "check" },
-  { id: "blend", label: "blend" },
-  { id: "extract", label: "extract" },
+  { id: "feel", label: "Feel" },
+  { id: "generate", label: "Generate" },
+  { id: "check", label: "Check" },
+  { id: "blend", label: "Blend" },
+  { id: "extract", label: "Extract" },
 ];
 
 /** The house sage — Generate mode's deterministic default base colour. */
@@ -77,7 +77,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
   );
   const palette = feel?.palette ?? null;
   const note = feel?.fallback
-    ? "no exact match yet — improvising in the closest mood family."
+    ? "No exact match yet — improvising in the closest mood family."
     : null;
 
   // --- Generate (harmony palettes) — pure state, no effects needed ---
@@ -160,7 +160,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
             key={m.id}
             active={mode === m.id}
             onClick={() => setMode(m.id)}
-            label={`Switch to ${m.label} mode`}
+            label={`Switch to ${m.label.toLowerCase()} mode`}
           >
             {m.label}
           </Pill>
@@ -177,8 +177,8 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
             chips={submitted ? <StageChip tone="sage">{palette?.slug ?? "…"}</StageChip> : null}
           >
             <p className="mt-4 text-sm text-muted-foreground">
-              pick a pill, or arrive from a shared link — every palette is constructed to pass the
-              guardrails, never filtered after the fact. same words, same card, every time.
+              Pick a pill, or arrive from a shared link — every palette is constructed to pass the
+              guardrails, never filtered after the fact. Same words, same card, every time.
             </p>
             <div className="mt-4 flex flex-col gap-4">
               <MoodPills
@@ -213,11 +213,11 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
               onFormat={setFormat}
               ariaLabel={`Your card for ${submitted ?? "mood"}`}
               onRemix={remix}
-              remixHint="space"
+              remixHint="Space"
               share
               emptyState={
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                  your card appears here. try the pills above — or “monsoon”, “late library”, “rainy tuesday”.
+                  Your card appears here. Try the pills above — or “monsoon”, “late library”, “rainy tuesday”.
                 </p>
               }
             />
@@ -227,7 +227,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
               now a section on the tool page. */}
           <StageCard index="03" title="From the lexicon">
             <p className="mt-4 text-center font-mono text-[12px] text-muted-foreground">
-              rendered live by the engine, right now
+              Rendered live by the engine, right now
             </p>
             <div className="mt-4">
               <ExampleCards />

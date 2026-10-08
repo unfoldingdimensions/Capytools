@@ -73,7 +73,7 @@ export function ExpenseDashboard({
           CapyExpense · tool no. 5
         </p>
         <h1 className="mt-4 font-display text-4xl font-light leading-[1.06] tracking-tight text-foreground sm:text-5xl">
-          {greeting}, <em className="italic">{name}</em>.
+          {greeting.charAt(0).toUpperCase() + greeting.slice(1)}, <em className="italic">{name}</em>.
         </h1>
         {workbookLabel ? (
           <p className="mt-2 font-mono text-[11px] text-muted-foreground">{workbookLabel}</p>

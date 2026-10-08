@@ -53,27 +53,27 @@ const TILINGS: Tiling[] = ["none", "grid", "diagonal"];
 const HALOS: Halo[] = ["none", "shadow", "outline"];
 
 const ANCHOR_LABELS: Record<Anchor, string> = {
-  tl: "top left",
-  tc: "top centre",
-  tr: "top right",
-  ml: "middle left",
-  mc: "centre",
-  mr: "middle right",
-  bl: "bottom left",
-  bc: "bottom centre",
-  br: "bottom right",
+  tl: "Top left",
+  tc: "Top centre",
+  tr: "Top right",
+  ml: "Middle left",
+  mc: "Centre",
+  mr: "Middle right",
+  bl: "Bottom left",
+  bc: "Bottom centre",
+  br: "Bottom right",
 };
 const ANCHORS = Object.keys(ANCHOR_LABELS) as Anchor[];
 
 /** Named swatches — the house palette, readable without a colour picker. */
 const MARK_SWATCHES = ["#ffffff", "#1a1a1a", "#8e9b7e", "#5f7a72", "#c07952", "#d9a441"] as const;
 const SWATCH_NAMES: Record<string, string> = {
-  "#ffffff": "white",
-  "#1a1a1a": "ink",
-  "#8e9b7e": "sage",
-  "#5f7a72": "water",
-  "#c07952": "clay",
-  "#d9a441": "gold",
+  "#ffffff": "White",
+  "#1a1a1a": "Ink",
+  "#8e9b7e": "Sage",
+  "#5f7a72": "Water",
+  "#c07952": "Clay",
+  "#d9a441": "Gold",
 };
 
 const labelClass =
@@ -303,7 +303,7 @@ export function CapyStamp() {
       if (images.length === 0) return;
       // The run writes results back by queue position — the queue holds still.
       if (running) {
-        setStatus("wait for this run to finish, then add more.");
+        setStatus("Wait for this run to finish, then add more.");
         return;
       }
       const room = Math.max(0, FREE_BATCH_LIMIT - items.length);
@@ -396,11 +396,11 @@ export function CapyStamp() {
       // A loaded image keeps its pixels; the URL is no longer needed.
       URL.revokeObjectURL(url);
       setLogo({ img, name: file.name, aspect: logoAspectOf(img.naturalWidth, img.naturalHeight) });
-      setStatus(`logo set — ${file.name}. pick it again after a preset applies; presets never store it.`);
+      setStatus(`Logo set — ${file.name}. Pick it again after a preset applies; presets never store it.`);
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      setStatus("that logo wouldn't open — try a PNG, WebP or SVG.");
+      setStatus("That logo wouldn't open — try a PNG, WebP or SVG.");
     };
     img.src = url;
   }, []);
@@ -468,7 +468,7 @@ export function CapyStamp() {
       } catch {
         if (cancelled) return;
         setDecoded(null);
-        setStatus(`couldn't preview ${selectedFile.name} — the browser couldn't read it.`);
+        setStatus(`Couldn't preview ${selectedFile.name} — the browser couldn't read it.`);
       }
     })();
     return () => {
@@ -628,7 +628,7 @@ export function CapyStamp() {
   const savePreset = useCallback(() => {
     setPresets(addPreset(presetName, spec));
     setPresetName("");
-    setStatus("preset saved in this browser — settings only, never your photos or logo.");
+    setStatus("Preset saved in this browser — settings only, never your photos or logo.");
   }, [presetName, spec]);
 
   const applyPreset = useCallback(
@@ -639,7 +639,7 @@ export function CapyStamp() {
       if (preset.spec.kind === "logo") {
         setStatus(`"${preset.name}" is a logo mark — pick a logo beside it to finish applying.`);
       } else {
-        setStatus(`applied "${preset.name}".`);
+        setStatus(`Applied "${preset.name}".`);
       }
     },
     [record],
@@ -720,15 +720,15 @@ export function CapyStamp() {
       setStatus(
         [
           outcome.overflow > 0 ? `${outcome.overflow} file${outcome.overflow === 1 ? " was" : "s were"} past the cap of ${FREE_BATCH_LIMIT} — drop them after this run.` : "",
-          outcome.results.length === 0 ? "nothing stamped." : "",
-          outcome.cancelled ? "cancelled — finished files are kept." : "",
+          outcome.results.length === 0 ? "Nothing stamped." : "",
+          outcome.cancelled ? "Cancelled — finished files are kept." : "",
           ...notes,
         ]
           .filter(Boolean)
           .join(" "),
       );
     } catch {
-      setStatus("the run stopped unexpectedly — finished files are listed above; try a smaller batch.");
+      setStatus("The run stopped unexpectedly — finished files are listed above; try a smaller batch.");
     } finally {
       setOverCap(0);
       setRunning(false);
@@ -752,13 +752,13 @@ export function CapyStamp() {
   const queueBytes = useMemo(() => items.reduce((sum, item) => sum + item.file.size, 0), [items]);
 
   const stampButtonLabel =
-    items.length > 1 ? `stamp ${items.length} photos` : "stamp & download";
+    items.length > 1 ? `Stamp ${items.length} photos` : "Stamp & download";
 
   const previewHint = isDemo
-    ? "a demo — drop a photo to stamp your own."
+    ? "A demo — drop a photo to stamp your own."
     : spec.tiling === "none"
-      ? "drag the mark, or nudge with arrow keys (shift for bigger steps)."
-      : "tiled marks cover the photo — the anchor picks up again when tiling is off.";
+      ? "Drag the mark, or nudge with arrow keys (Shift for bigger steps)."
+      : "Tiled marks cover the photo — the anchor picks up again when tiling is off.";
 
   return (
     <div className="grid w-full gap-5 lg:grid-cols-[minmax(0,1fr)_368px] lg:items-start">
@@ -796,7 +796,7 @@ export function CapyStamp() {
               Drop photos — up to {FREE_BATCH_LIMIT} at a time
             </span>
             <span className="text-xs text-muted-foreground">
-              or click to pick, or paste. your photos never leave this tab.
+              Or click to pick, or paste. Your photos never leave this tab.
             </span>
           </button>
         ) : (
@@ -818,10 +818,10 @@ export function CapyStamp() {
               </p>
               <div className="flex items-center gap-1.5">
                 <Button size="sm" variant="ghost" className="rounded-full" disabled={running} onClick={() => fileInput.current?.click()}>
-                  add
+                  Add
                 </Button>
                 <Button size="sm" variant="ghost" className="rounded-full" disabled={running} onClick={clearAll}>
-                  clear all
+                  Clear all
                 </Button>
               </div>
             </div>
@@ -850,11 +850,11 @@ export function CapyStamp() {
                     <span className="sr-only">{item.file.name}</span>
                     {item.status === "failed" ? (
                       <span aria-hidden className="absolute inset-x-0 bottom-0 bg-[var(--clay)]/85 py-0.5 text-center font-mono text-[12px] text-white">
-                        failed
+                        Failed
                       </span>
                     ) : item.status === "stamping" ? (
                       <span aria-hidden className="absolute inset-x-0 bottom-0 bg-primary/85 py-0.5 text-center font-mono text-[12px] text-[#141412]">
-                        stamping
+                        Stamping
                       </span>
                     ) : null}
                   </button>
@@ -881,7 +881,7 @@ export function CapyStamp() {
         )}
 
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          nothing uploaded — the stamping happens in this tab.
+          Nothing uploaded — the stamping happens in this tab.
         </p>
       </StageCard>
 
@@ -894,21 +894,21 @@ export function CapyStamp() {
           <div className="flex items-center gap-1.5">
             <Pill active={false} disabled={!canUndo} onClick={undo} label="Undo the last reset or preset">
               <Undo2 className="mr-1 inline size-3" aria-hidden />
-              undo
+              Undo
             </Pill>
             <Pill active={false} onClick={resetAll} label="Reset the design to its defaults">
               <RotateCcw className="mr-1 inline size-3" aria-hidden />
-              reset
+              Reset
             </Pill>
           </div>
         }
       >
         <div className="flex flex-wrap items-center gap-1.5">
           <Pill active={spec.kind === "text"} onClick={() => setPatch({ kind: "text" })} label="Text mark">
-            text
+            Text
           </Pill>
           <Pill active={spec.kind === "logo"} onClick={() => setPatch({ kind: "logo" })} label="Logo mark">
-            logo
+            Logo
           </Pill>
         </div>
 
@@ -916,7 +916,7 @@ export function CapyStamp() {
           <div className="mt-4 grid gap-4">
             <div>
               <label htmlFor="capystamp-text" className={labelClass}>
-                text
+                Text
               </label>
               <Input
                 id="capystamp-text"
@@ -924,14 +924,14 @@ export function CapyStamp() {
                 maxLength={80}
                 value={spec.text}
                 onChange={(e) => setSpec((prev) => (prev.kind === "text" ? { ...prev, text: e.target.value } : prev))}
-                placeholder="© your name, or anything"
+                placeholder="© Your name, or anything"
                 className="mt-1.5 bg-muted/40 font-sans"
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className={labelClass}>font</span>
+                <span className={labelClass}>Font</span>
                 {(Object.keys(FACES) as FontChoice[]).map((choice) => (
                   <Pill
                     key={choice}
@@ -944,7 +944,7 @@ export function CapyStamp() {
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className={labelClass}>weight</span>
+                <span className={labelClass}>Weight</span>
                 {WEIGHTS.map((w) => (
                   <Pill
                     key={w}
@@ -960,13 +960,13 @@ export function CapyStamp() {
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
               <Swatches
-                label="colour"
+                label="Colour"
                 value={spec.kind === "text" ? spec.colour : "#ffffff"}
                 onPick={(hex) => setSpec((prev) => (prev.kind === "text" ? { ...prev, colour: hex } : prev))}
               />
               <div className="flex items-center gap-2">
                 <label htmlFor="capystamp-colour" className={labelClass}>
-                  picker
+                  Picker
                 </label>
                 <input
                   id="capystamp-colour"
@@ -978,7 +978,7 @@ export function CapyStamp() {
                 />
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className={labelClass}>halo</span>
+                <span className={labelClass}>Halo</span>
                 {HALOS.map((h) => (
                   <Pill
                     key={h}
@@ -986,7 +986,7 @@ export function CapyStamp() {
                     onClick={() => setSpec((prev) => (prev.kind === "text" ? { ...prev, halo: h } : prev))}
                     label={`Legibility halo ${h}`}
                   >
-                    {h}
+                    {h.charAt(0).toUpperCase() + h.slice(1)}
                   </Pill>
                 ))}
               </div>
@@ -995,7 +995,7 @@ export function CapyStamp() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Slider
                 id="capystamp-spacing"
-                label="letter spacing"
+                label="Letter spacing"
                 min={0}
                 max={0.4}
                 step={0.01}
@@ -1005,7 +1005,7 @@ export function CapyStamp() {
               />
               <div className="flex items-end">
                 <p className="text-xs text-muted-foreground">
-                  the halo is a soft shadow or thin outline — it keeps the mark readable on busy photos.
+                  The halo is a soft shadow or thin outline — it keeps the mark readable on busy photos.
                 </p>
               </div>
             </div>
@@ -1016,7 +1016,7 @@ export function CapyStamp() {
               htmlFor="capystamp-logo"
               className="inline-flex cursor-pointer items-center rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
             >
-              pick a logo
+              Pick a logo
             </label>
             <input
               ref={logoInput}
@@ -1038,10 +1038,10 @@ export function CapyStamp() {
                   className="rounded-full"
                   onClick={() => {
                     setLogo(null);
-                    setStatus("logo removed.");
+                    setStatus("Logo removed.");
                   }}
                 >
-                  remove
+                  Remove
                 </Button>
               </>
             ) : (
@@ -1054,7 +1054,7 @@ export function CapyStamp() {
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <Slider
             id="capystamp-size"
-            label="size"
+            label="Size"
             min={0.02}
             max={0.5}
             step={0.005}
@@ -1064,7 +1064,7 @@ export function CapyStamp() {
           />
           <Slider
             id="capystamp-opacity"
-            label="opacity"
+            label="Opacity"
             min={0.05}
             max={1}
             step={0.05}
@@ -1074,7 +1074,7 @@ export function CapyStamp() {
           />
           <Slider
             id="capystamp-rotation"
-            label="rotation"
+            label="Rotation"
             min={-180}
             max={180}
             step={1}
@@ -1084,14 +1084,14 @@ export function CapyStamp() {
           />
           <div className="flex items-end">
             <Pill active={false} disabled={spec.rotation === 0} onClick={() => setPatch({ rotation: 0 })} label="Reset rotation to zero">
-              reset to 0°
+              Reset to 0°
             </Pill>
           </div>
         </div>
 
         <div className="mt-5">
           <span className={cn(labelClass, "block")} id="capystamp-anchor-label">
-            position
+            Position
           </span>
           <div
             role="radiogroup"
@@ -1118,23 +1118,23 @@ export function CapyStamp() {
             ))}
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {spec.tiling === "none" ? ANCHOR_LABELS[spec.anchor] : "tiling covers the whole photo"} — drag the preview to fine-tune.
+            {spec.tiling === "none" ? ANCHOR_LABELS[spec.anchor] : "Tiling covers the whole photo"} — drag the preview to fine-tune.
           </p>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className={labelClass}>tiling</span>
+            <span className={labelClass}>Tiling</span>
             {TILINGS.map((t) => (
               <Pill key={t} active={spec.tiling === t} onClick={() => setPatch({ tiling: t })} label={`Tiling ${t}`}>
-                {t}
+                {t.charAt(0).toUpperCase() + t.slice(1)}
               </Pill>
             ))}
           </div>
           <div className={cn("w-44", spec.tiling === "none" && "opacity-40")}>
             <Slider
               id="capystamp-gap"
-              label="gap"
+              label="Gap"
               min={0}
               max={2}
               step={0.1}
@@ -1150,7 +1150,7 @@ export function CapyStamp() {
             question a first visit hasn't asked yet. */}
         <details className="mt-6 rounded-2xl border border-border/70 bg-muted/30 p-4">
           <summary className="cursor-pointer select-none">
-            <span className={labelClass}>presets</span>
+            <span className={labelClass}>Presets</span>
             {presets.length > 0 ? (
               <span className="ml-2 font-mono text-[12px] text-muted-foreground">
                 {presets.length} saved
@@ -1163,13 +1163,13 @@ export function CapyStamp() {
                 type="text"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
-                placeholder="save current design as…"
+                placeholder="Save current design as…"
                 aria-label="Preset name"
                 maxLength={40}
                 className="h-9 w-44 rounded-full bg-muted/40 font-sans"
               />
               <Button size="sm" variant="outline" className="rounded-full" onClick={savePreset}>
-                save
+                Save
               </Button>
             </div>
             {presets.length > 0 ? (
@@ -1197,7 +1197,7 @@ export function CapyStamp() {
               </ul>
             ) : (
               <p className="mt-2 text-xs text-muted-foreground">
-                saved in this browser only — a preset is the design, never your photos or logo.
+                Saved in this browser only — a preset is the design, never your photos or logo.
               </p>
             )}
           </div>
@@ -1212,7 +1212,7 @@ export function CapyStamp() {
         className="lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
         chips={
           isDemo ? (
-            <StageChip>demo</StageChip>
+            <StageChip>Demo</StageChip>
           ) : (
             <StageChip>
               {running ? `${progress.total} stamping` : `${items.length} queued`}
@@ -1261,7 +1261,7 @@ export function CapyStamp() {
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex items-center gap-1.5">
-            <span className={labelClass}>format</span>
+            <span className={labelClass}>Format</span>
             {FORMATS.map((f) => (
               <Pill key={f} active={output.format === f} onClick={() => setOutput((prev) => ({ ...prev, format: f }))} label={`Format ${f}`}>
                 {f === "jpeg" ? "JPEG" : f.toUpperCase()}
@@ -1271,7 +1271,7 @@ export function CapyStamp() {
           <div className={cn("w-44", output.format === "png" && "opacity-40")}>
             <Slider
               id="capystamp-quality"
-              label="quality"
+              label="Quality"
               min={0.5}
               max={1}
               step={0.01}
@@ -1286,20 +1286,20 @@ export function CapyStamp() {
         {/* The one sage primary on the screen. */}
         <Button className="mt-4 h-11 w-full rounded-full text-base" onClick={runStamp} disabled={!canRun}>
           <Download className="mr-1.5 size-4" aria-hidden />
-          {running ? `stamping ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…` : stampButtonLabel}
+          {running ? `Stamping ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…` : stampButtonLabel}
         </Button>
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          your photos never leave this tab.
+          Your photos never leave this tab.
         </p>
         {running ? (
           <Button variant="ghost" className="mt-2 h-11 w-full rounded-full" onClick={cancelRun}>
-            cancel — finished files are kept
+            Cancel — finished files are kept
           </Button>
         ) : null}
 
         {!running && items.length > 0 && (missingText || missingLogo) ? (
           <p className="mt-2 text-center text-xs text-[var(--clay)]">
-            {missingText ? "type the text to stamp first." : "pick a logo to stamp first."}
+            {missingText ? "Type the text to stamp first." : "Pick a logo to stamp first."}
           </p>
         ) : null}
 
@@ -1311,7 +1311,7 @@ export function CapyStamp() {
               <p aria-live="polite" className={cn("rounded-2xl border px-4 py-2 text-[13px] leading-snug", STAGE_TONE.sage)}>
                 {stamped.length} stamped · {formatBytes(totals.before)} → {formatBytes(totals.after)}
                 {totals.after > totals.before ? " — a stamp adds pixels, so sizes can grow." : ""}
-                {cancelledRun ? " · cancelled, finished files kept" : ""}
+                {cancelledRun ? " · Cancelled, finished files kept" : ""}
               </p>
               {downloads?.zip ? (
                 <a
@@ -1320,7 +1320,7 @@ export function CapyStamp() {
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-primary/20 pointer-coarse:min-h-11"
                 >
                   <FileArchive className="size-4" aria-hidden />
-                  download {downloads.zip.name}
+                  Download {downloads.zip.name}
                 </a>
               ) : null}
               {downloads && downloads.links.length > 0 ? (
@@ -1378,14 +1378,14 @@ export function CapyStamp() {
                 />
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {running
-                    ? `stamping ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…`
+                    ? `Stamping ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…`
                     : stamped.length > 0
                       ? `${stamped.length} stamped, in this tab.`
                       : `${items.length} photo${items.length === 1 ? "" : "s"} waiting.`}
                 </p>
                 <Button className="h-11 flex-none rounded-full px-5" onClick={running ? cancelRun : runStamp} disabled={!running && !canRun}>
                   {running ? "cancel" : <Download className="mr-1.5 size-4" aria-hidden />}
-                  {running ? "cancel" : "stamp"}
+                  {running ? "Cancel" : "Stamp"}
                 </Button>
               </div>
             </div>,

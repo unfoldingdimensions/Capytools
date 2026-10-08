@@ -16,7 +16,7 @@ export default function CapyStripPage() {
         { text: "Your photos talk." },
         { text: "This one helps them forget", em: true, dot: true },
       ]}
-      lead="see what a photo carries — gps, device, ai fingerprints — then download a clean copy. all local."
+      lead="See what a photo carries — GPS, device, AI fingerprints — then download a clean copy. All local."
       align="left"
     >
       <CapyStrip />

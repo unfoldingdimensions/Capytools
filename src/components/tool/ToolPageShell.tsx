@@ -205,7 +205,7 @@ export function ToolPageShell({
             {/* The index, not the landing: someone who just finished one tool
                 is looking for the next, and /tools is where the suite is. */}
             <Link href="/tools" className="lp-read-more">
-              ← back to the suite
+              ← Back to the suite
             </Link>
             <span className="lp-tool-foot-ix">{index}</span>
           </div>

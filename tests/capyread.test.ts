@@ -171,11 +171,11 @@ describe("format.ts — small honest numbers", () => {
   });
 
   it("the badge words match the buckets, and carry the number", () => {
-    expect(bucketLabel("high")).toBe("high");
-    expect(bucketLabel("unsure")).toBe("unsure");
-    expect(bucketLabel("none")).toBe("nothing read");
+    expect(bucketLabel("high")).toBe("High");
+    expect(bucketLabel("unsure")).toBe("Unsure");
+    expect(bucketLabel("none")).toBe("Nothing read");
     expect(confidenceLabel(81)).toBe("81% sure");
-    expect(confidenceLabel(null)).toBe("no words");
+    expect(confidenceLabel(null)).toBe("No words");
   });
 });
 

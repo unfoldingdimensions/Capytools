@@ -13,7 +13,7 @@ export default function CapyTokenPage() {
     <ToolPageShell
       tool="CapyToken"
       headline={[{ text: "Count before you" }, { text: "spend", em: true, dot: true }]}
-      lead="exact token counts and model costs, computed entirely in your browser. all local."
+      lead="Exact token counts and model costs, computed entirely in your browser. All local."
       align="left"
     >
       <CapyTokenClient />

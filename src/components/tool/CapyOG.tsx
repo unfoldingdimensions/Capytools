@@ -246,11 +246,11 @@ export function CapyOG() {
                   className="mr-1.5 inline-block size-2 rounded-full align-middle"
                   style={{ background: accentTokens(a, variant).accent }}
                 />
-                {a}
+                {a.charAt(0).toUpperCase() + a.slice(1)}
               </Pill>
             ))}
             <span className="self-center font-mono text-[12px] text-muted-foreground">
-              variant follows the site theme
+              Variant follows the site theme
             </span>
           </div>
         </div>

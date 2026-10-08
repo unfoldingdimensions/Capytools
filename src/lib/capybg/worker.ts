@@ -185,7 +185,7 @@ async function run(request: RunRequest): Promise<void> {
   const loaded = sessions.get(request.model);
   const spec = MODELS[request.model];
   if (!loaded) {
-    post({ type: "error", id: request.id, message: "the model is not loaded yet" });
+    post({ type: "error", id: request.id, message: "The model is not loaded yet" });
     return;
   }
   const previous = runQueues.get(request.model) ?? Promise.resolve();

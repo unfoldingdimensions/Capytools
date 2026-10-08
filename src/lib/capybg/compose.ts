@@ -60,7 +60,7 @@ export function bgFilename(name: string, format: OutputFormat): string {
 /** The canvas refused the export — the silent-failure mode, made loud. */
 export class CanvasRefusedError extends Error {
   constructor() {
-    super("the browser refused this export — try a smaller size");
+    super("The browser refused this export — try a smaller size");
     this.name = "CanvasRefusedError";
   }
 }

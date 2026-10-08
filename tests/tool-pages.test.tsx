@@ -62,7 +62,7 @@ describe("tool pages — editorial shell", () => {
       expect(html).toContain('class="lp-dot"');
       // Editorial sign-off row: internal back link + index meta.
       // …to the index, where the next tool is — not the landing.
-      expect(html).toMatch(/<a[^>]*href="\/tools"[^>]*>← back to the suite/);
+      expect(html).toMatch(/<a[^>]*href="\/tools"[^>]*>← Back to the suite/);
       expect(html).toContain(index);
       // The chrome puts a nav in front of the content, so every tool page owes
       // the reader the same bypass the landing has always shipped.
@@ -250,7 +250,7 @@ describe("the shared footer's claim holds on every page it renders on", () => {
   it("never promises 'nothing stored' — CapyExpense keeps your files on disk", () => {
     const footer = renderToStaticMarkup(<CapyExpensePage />);
     expect(footer).not.toMatch(/capytools — [^<]*nothing stored/i);
-    expect(footer).toContain("no signup. no cookies. open source.");
+    expect(footer).toContain("No signup. No cookies. Open source.");
     expect(footer).not.toContain("coming soon</p>");
   });
 });
