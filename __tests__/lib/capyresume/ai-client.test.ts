@@ -3,9 +3,22 @@ import {
   completeText,
   improveText,
   normaliseBaseUrl,
+  stripThinkingTags,
   validateCredentials,
 } from '@/lib/capyresume/ai/client';
 import { SYSTEM_PROMPT, getAction } from '@/lib/capyresume/ai/prompts';
+
+describe('capyresume/ai/client — stripThinkingTags', () => {
+  it("keeps a reasoning model's working out of the résumé", () => {
+    expect(stripThinkingTags('<think>plan the bullet</think>\nLed a team of 6.')).toBe(
+      'Led a team of 6.'
+    );
+    expect(stripThinkingTags('<THINK>a</THINK>x<think>b</think>y')).toBe('xy');
+    // Output cut off mid-thought: nothing of the thought survives.
+    expect(stripThinkingTags('Led a team.<think>but maybe')).toBe('Led a team.');
+    expect(stripThinkingTags('Plain text stays.')).toBe('Plain text stays.');
+  });
+});
 
 const SECRET = 'sk-do-not-leak-me-1234567890';
 

@@ -380,11 +380,24 @@ async function readJson(response: Response, providerLabel: string): Promise<unkn
   }
 }
 
+/**
+ * Reasoning models (DeepSeek-R1, Qwen3 behind an OpenAI-compatible endpoint) put
+ * their working in <think>…</think> — and an unclosed one when output is cut off.
+ * None of it may reach a résumé. Same rule as Capytools' stripThinkingTags.
+ */
+export function stripThinkingTags(raw: string): string {
+  return raw
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/<think>[\s\S]*$/gi, '')
+    .trim();
+}
+
 function requireText(value: unknown, providerLabel: string): string {
-  if (typeof value !== 'string' || value.trim().length === 0) {
+  const text = typeof value === 'string' ? stripThinkingTags(value) : '';
+  if (text.length === 0) {
     throw new AiRequestError(unexpected(providerLabel), 'bad-response');
   }
-  return value.trim();
+  return text;
 }
 
 function unexpected(providerLabel: string): string {
