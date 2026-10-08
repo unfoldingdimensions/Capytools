@@ -2,6 +2,7 @@ import {
   emptyEntry,
   emptyResume,
   isResumeDoc,
+  isEntryEmpty,
   isResumeEmpty,
   migrate,
   uid,
@@ -170,5 +171,18 @@ describe('capyresume/schema — isResumeEmpty', () => {
     doc.contact.name = '   ';
     doc.sections[3]!.entries.push({ ...emptyEntry(), tags: ['', '  '] });
     expect(isResumeEmpty(doc)).toBe(true);
+  });
+});
+
+describe('capyresume/schema — isEntryEmpty', () => {
+  const blank = { id: 'e', bullets: [], tags: [] } as unknown as Parameters<typeof isEntryEmpty>[0];
+  it('treats a fresh entry and whitespace as empty, so it deletes without asking', () => {
+    expect(isEntryEmpty(blank)).toBe(true);
+    expect(isEntryEmpty({ ...blank, title: '  ', tags: [' '] })).toBe(true);
+  });
+  it('treats any typed field, bullet or tag as content worth confirming', () => {
+    expect(isEntryEmpty({ ...blank, organisation: 'Acme' })).toBe(false);
+    expect(isEntryEmpty({ ...blank, bullets: [{ id: 'b', text: 'Led a team' }] })).toBe(false);
+    expect(isEntryEmpty({ ...blank, tags: ['SQL'] })).toBe(false);
   });
 });

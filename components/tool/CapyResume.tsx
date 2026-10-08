@@ -25,7 +25,7 @@ import {
 } from '@/lib/capyresume/store';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { lintResume } from '@/lib/capyresume/hints';
-import { isResumeEmpty } from '@/lib/capyresume/schema';
+import { isEntryEmpty, isResumeEmpty } from '@/lib/capyresume/schema';
 import dynamic from 'next/dynamic';
 import {
   addBullet as addBulletTo,
@@ -522,8 +522,23 @@ export function CapyResume() {
     [edit]
   );
 
+  // One click used to delete a whole job with no way back; anything with content
+  // now asks first, the same way the other destructive actions do.
   const handleRemoveEntry = useCallback(
-    (sectionId: string, entryId: string) => edit((d) => removeEntryFrom(d, sectionId, entryId)),
+    (sectionId: string, entryId: string) => {
+      const entry = getSnapshot()
+        .sections.find((section) => section.id === sectionId)
+        ?.entries.find((candidate) => candidate.id === entryId);
+      const remove = () => edit((d) => removeEntryFrom(d, sectionId, entryId));
+      if (!entry || isEntryEmpty(entry)) return remove();
+      setConfirming({
+        title: `remove ${entry.title?.trim() || 'this entry'}?`,
+        message:
+          'Its details and bullets go with it, and there is no undo. Export a JSON backup first if you might want it back.',
+        confirmText: 'remove it',
+        run: remove,
+      });
+    },
     [edit]
   );
 
@@ -546,7 +561,17 @@ export function CapyResume() {
     edit((d) => addSectionTo(d, type, label));
   };
 
-  const removeSection = (id: string) => edit((d) => removeSectionFrom(d, id));
+  const removeSection = (id: string) => {
+    const section = doc.sections.find((candidate) => candidate.id === id);
+    const remove = () => edit((d) => removeSectionFrom(d, id));
+    if (!section || section.entries.every(isEntryEmpty)) return remove();
+    setConfirming({
+      title: `remove the ${section.title.trim() || 'untitled'} section?`,
+      message: `${section.entries.length === 1 ? 'Its entry goes' : `All ${section.entries.length} of its entries go`} with it, and there is no undo. Export a JSON backup first if you might want it back.`,
+      confirmText: 'remove it',
+      run: remove,
+    });
+  };
 
   const moveSection = (id: string, delta: number) => edit((d) => moveSectionIn(d, id, delta));
 

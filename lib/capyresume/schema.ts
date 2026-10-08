@@ -253,6 +253,16 @@ export function isResumeDoc(value: unknown): value is ResumeDoc {
   );
 }
 
+/** True when an entry holds nothing a user typed — safe to delete without asking. */
+export function isEntryEmpty(entry: Entry): boolean {
+  return !(
+    Boolean(entry.title?.trim() || entry.organisation?.trim() || entry.text?.trim()) ||
+    entry.bullets.some((bullet) => bullet.text.trim().length > 0) ||
+    // Blank tags are noise from a half-typed input, not content.
+    entry.tags.some((tag) => tag.trim().length > 0)
+  );
+}
+
 /** True when the résumé has nothing a user would recognise as content yet. */
 export function isResumeEmpty(doc: ResumeDoc): boolean {
   const { contact, sections } = doc;
@@ -265,13 +275,5 @@ export function isResumeEmpty(doc: ResumeDoc): boolean {
   );
   if (hasContact) return false;
 
-  return !sections.some((section) =>
-    section.entries.some(
-      (entry) =>
-        Boolean(entry.title?.trim() || entry.organisation?.trim() || entry.text?.trim()) ||
-        entry.bullets.some((bullet) => bullet.text.trim().length > 0) ||
-        // Blank tags are noise from a half-typed input, not content.
-        entry.tags.some((tag) => tag.trim().length > 0)
-    )
-  );
+  return sections.every((section) => section.entries.every(isEntryEmpty));
 }
