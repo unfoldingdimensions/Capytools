@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
 import { emptyEntry, emptyResume, emptySection } from '@/lib/capyresume/schema';
 import { collectTextTargets, findTarget, replaceTargetText } from '@/lib/capyresume/ai/targets';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';

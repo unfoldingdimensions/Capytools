@@ -78,7 +78,7 @@ describe("capystamp imports nothing new", () => {
     }
   });
 
-  it("package.json dependencies are exactly what main shipped, plus CapyRead's engines", () => {
+  it("package.json dependencies are exactly what main shipped, plus CapyRead's engines and CapyResume's PDF writer", () => {
     // A deliberate pin rather than a diff — the baseline allows zero new
     // dependencies beyond the three OCR engines CapyRead's own boundaries
     // test scopes to its three owner files; this breaks on ANY other
@@ -88,6 +88,7 @@ describe("capystamp imports nothing new", () => {
       dependencies: Record<string, string>;
     };
     expect(Object.keys(pkg.dependencies).sort()).toEqual([
+      "@react-pdf/renderer",
       "apca-w3",
       "class-variance-authority",
       "client-zip",

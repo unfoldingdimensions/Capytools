@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 /**
  * @jest-environment node
  *
@@ -8,14 +9,14 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import FreeCvBuilderIndexPage, {
   metadata as countriesMetadata,
-} from '@/app/(site)/free-cv-builder/page';
+} from '@/app/capyresume/free-cv-builder/page';
 import ResumeTemplatesIndexPage, {
   metadata as rolesMetadata,
-} from '@/app/(site)/resume-templates/page';
+} from '@/app/capyresume/resume-templates/page';
 import { COUNTRY_PAGES } from '@/lib/capyresume/seo/countries';
 import { ROLE_PAGES } from '@/lib/capyresume/seo/roles';
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -42,14 +43,14 @@ const hubs = [
     name: 'resume templates by role',
     html: renderToStaticMarkup(<ResumeTemplatesIndexPage />),
     canonical: rolesMetadata.alternates?.canonical,
-    childHref: '/resume-templates/',
+    childHref: '/capyresume/resume-templates/',
     children: ROLE_PAGES.map((page) => page.slug),
   },
   {
     name: 'free cv builder by country',
     html: renderToStaticMarkup(<FreeCvBuilderIndexPage />),
     canonical: countriesMetadata.alternates?.canonical,
-    childHref: '/free-cv-builder/',
+    childHref: '/capyresume/free-cv-builder/',
     children: COUNTRY_PAGES.map((page) => page.slug),
   },
 ] as const;
@@ -66,7 +67,8 @@ describe.each(hubs)('$name hub', ({ html, canonical, childHref, children }) => {
       .filter((word) => /^[A-Z]/.test(word));
     expect(later.length).toBeLessThanOrEqual(1);
 
-    const lead = plain(html.match(/<\/h1>\s*<p[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '');
+    // ToolPageShell sets the lead in its own lp-lead paragraph under the headline.
+    const lead = plain(html.match(/class="lp-lead[^"]*"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '');
     expect(lead.length).toBeGreaterThan(40);
     expect(lead).toMatch(/^[a-z]/);
   });

@@ -1,13 +1,25 @@
-import type { Metadata } from 'next';
-import { CapyResume } from '@/components/tool/CapyResume';
+import { ToolPageShell } from "@/components/tool/ToolPageShell";
+import { toolMetadata } from "@/lib/capytools/og";
+import { CapyResume } from "@/components/tool/CapyResume";
 
-export const metadata: Metadata = {
-  title: 'CapyResume — free resume builder in your browser',
+export const metadata = toolMetadata("CapyResume", {
+  title: "CapyResume — free resume builder in your browser",
   description:
-    'Build a clean, single-column resume and export a real PDF or DOCX — no signup, no watermark. Your details never leave this tab.',
-  alternates: { canonical: '/capyresume' },
-};
+    "Build a clean, single-column resume and export a real PDF or DOCX — no signup, no watermark. 100% in your browser: your details never leave this tab.",
+});
 
 export default function CapyResumePage() {
-  return <CapyResume />;
+  return (
+    <ToolPageShell
+      tool="CapyResume"
+      headline={[
+        { text: "A CV that's" },
+        { text: "actually yours", em: true, dot: true },
+      ]}
+      lead="build it, export a real PDF or DOCX, keep the JSON. made in your tab, uploaded nowhere."
+      align="left"
+    >
+      <CapyResume />
+    </ToolPageShell>
+  );
 }

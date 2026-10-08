@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect, vi } from 'vitest';
 /**
  * PDF exporter tests.
  *
@@ -11,9 +13,8 @@
  * Jest against the real engine.
  */
 
-jest.mock('@react-pdf/renderer', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require('react') as typeof import('react');
+vi.mock('@react-pdf/renderer', async () => {
+  const React = await vi.importActual<typeof import('react')>('react');
 
   const passthrough = (name: string) => {
     const Component = (props: Record<string, unknown>) => React.createElement(name, props);

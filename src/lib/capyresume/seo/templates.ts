@@ -1,7 +1,7 @@
 import type { TemplateId } from '@/lib/capyresume/types';
 
 /**
- * Copy for one showcase page per template (`/templates/[id]`).
+ * Copy for one showcase page per template (`/capyresume/templates/[id]`).
  *
  * Lives as data rather than inside the page component so tests can enforce the
  * rules that matter: every template has a page, no two pages share a title or

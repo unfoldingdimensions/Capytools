@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { addBullet, addEntry, setBullet, setEntryField } from '@/lib/capyresume/edits';
 import { emptyResume } from '@/lib/capyresume/schema';
 import type { ResumeDoc } from '@/lib/capyresume/types';

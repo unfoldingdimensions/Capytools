@@ -13,7 +13,7 @@
  *      present — i.e. the file has a genuine **text layer**, not an image
  *   5. asserts no watermark/attribution leaked into the rendered text
  *
- * Run: node scripts/verify-pdf-text-layer.cjs
+ * Run: node scripts/verify-capyresume-pdf.cjs
  * Exits non-zero with a readable message if any assertion fails.
  */
 
@@ -27,7 +27,7 @@ const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'node_modules', '.cache', 'capyresume-pdfverify');
 // The browser fetches the embedded fonts from /pdf-fonts/; here they are read from disk.
 const FONT_BASE = path.join(ROOT, 'public', 'pdf-fonts') + path.sep;
-const SRC_DIR = path.join(ROOT, 'lib', 'capyresume');
+const SRC_DIR = path.join(ROOT, 'src', 'lib', 'capyresume');
 
 const ENTRIES = ['types', 'format', 'schema', 'templates', 'document', 'json', 'demo', 'pdf'];
 
@@ -97,31 +97,26 @@ ok('library compiled');
 const { buildResumePdf } = require(compiledPdf);
 const { DEMO_RESUME } = require(path.join(OUT_DIR, 'demo.js'));
 const { TEMPLATE_LIST } = require(path.join(OUT_DIR, 'templates.js'));
-const pdfParseModule = require('pdf-parse');
-
 /**
- * Extract the text layer, tolerating both pdf-parse majors:
- *   v1 — the module itself is `async (buffer) => ({ text })`
- *   v2 — the module exports a `PDFParse` class with `getText()`
+ * Extract the text layer with pdfjs-dist — already a Capytools dependency (CapyRead
+ * renders PDFs with it), so this check needs no package of its own. The legacy
+ * build is the one that runs in Node.
  */
 async function extractText(buffer) {
-  if (typeof pdfParseModule === 'function') {
-    const parsed = await pdfParseModule(buffer);
-    return parsed.text || '';
-  }
-
-  const PDFParse = pdfParseModule.PDFParse;
-  if (typeof PDFParse === 'function') {
-    const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    try {
-      const result = await parser.getText();
-      return result.text || '';
-    } finally {
-      if (typeof parser.destroy === 'function') await parser.destroy();
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  // In pdf.js v6 `destroy()` lives on the loading task, not the document.
+  const task = pdfjs.getDocument({ data: new Uint8Array(buffer) });
+  const doc = await task.promise;
+  try {
+    const pages = [];
+    for (let n = 1; n <= doc.numPages; n++) {
+      const content = await (await doc.getPage(n)).getTextContent();
+      pages.push(content.items.map((item) => item.str).join(' '));
     }
+    return pages.join('\n');
+  } finally {
+    await task.destroy();
   }
-
-  throw new Error('Unsupported pdf-parse module shape');
 }
 
 function blobToBuffer(blob) {
@@ -161,7 +156,7 @@ function blobToBuffer(blob) {
   try {
     text = await extractText(buffer);
   } catch (error) {
-    fail(`pdf-parse could not read the PDF: ${error && error.message ? error.message : error}`);
+    fail(`pdf.js could not read the PDF: ${error && error.message ? error.message : error}`);
   }
 
   const normalised = text.replace(/\s+/g, ' ');

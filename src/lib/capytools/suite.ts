@@ -249,6 +249,21 @@ export const SUITE: SuiteTool[] = [
                "text recognition", "tesseract", "convert scan to text", "no upload"],
     plate: { src: "/plates/lab-14.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyResume",
+    short: "Resume",
+    href: "/capyresume",
+    cat: "browser",
+    badge: "Resume",
+    appCategory: "BusinessApplication",
+    blurb:
+      "Build a clean, single-column résumé and export a real PDF, a DOCX and a JSON backup — no signup, no watermark, no subscription. Your details never leave your tab.",
+    note: "résumé builder",
+    line: "Build a résumé and export PDF or DOCX, in your browser.",
+    keywords: ["resume builder", "free resume builder", "cv builder", "resume maker",
+               "ats resume", "resume pdf", "resume docx", "no signup", "no upload"],
+    plate: { src: "/plates/lab-15.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;

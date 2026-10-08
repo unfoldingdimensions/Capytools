@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
 /**
  * @jest-environment node
  *
@@ -14,7 +16,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-const source = readFileSync(path.join(process.cwd(), 'components/tool/CapyResume.tsx'), 'utf8');
+const source = readFileSync(path.join(process.cwd(), 'src/components/tool/CapyResume.tsx'), 'utf8');
 
 /** The "2. The page" card — everything from its marker to the next card's. */
 function pageCard(): string {
@@ -25,11 +27,14 @@ function pageCard(): string {
 }
 
 /** The pinned section's own className, not the whole card. */
+/** The pinned pane is the StageCard (sticky, offset, self-start) plus its first
+ *  inner column (viewport cap, flex): read both, as the browser applies both. */
 function pageSectionClassName(): string {
-  const match = pageCard().match(/<section className="([^"]+)"/);
-  const className = match?.[1];
-  if (!className) throw new Error('could not read the preview section className');
-  return className;
+  const card = pageCard();
+  const outer = card.match(/<StageCard[^>]*className="([^"]+)"/)?.[1];
+  const inner = card.match(/<StageCard[\s\S]*?<div className="([^"]+)"/)?.[1];
+  if (!outer || !inner) throw new Error('could not read the preview card classNames');
+  return `${outer} ${inner}`;
 }
 
 const classes = pageSectionClassName();

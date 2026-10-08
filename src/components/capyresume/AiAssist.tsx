@@ -32,7 +32,7 @@ const EMPTY_TARGETS: readonly TextTarget[] = Object.freeze([]);
 
 /** Deferred for the same reason as the editor's copy: nothing to render until pending. */
 const ConfirmDialog = dynamic(
-  () => import('@/components/ui/ConfirmDialog').then((m) => m.ConfirmDialog),
+  () => import('@/components/capyresume/ConfirmDialog').then((m) => m.ConfirmDialog),
   { ssr: false }
 );
 
@@ -129,9 +129,9 @@ export function AiAssist({
   };
 
   return (
-    <div className="space-y-3 rounded-md border border-border p-4">
+    <div className="space-y-3 rounded-2xl border border-border p-4">
       <div>
-        <h3 className="font-display text-base font-semibold">AI assist (optional)</h3>
+        <h3 className="font-display text-base font-light">AI assist (optional)</h3>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           Off unless you add your own key.{' '}
           <strong className="text-foreground">
@@ -154,7 +154,7 @@ export function AiAssist({
             <select
               id={`${ids}-provider`}
               name={`${ids}-provider`}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+              className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
               value={form.providerId}
               onChange={(event) => {
                 const next = getProvider(event.target.value);
@@ -187,7 +187,7 @@ export function AiAssist({
               placeholder={
                 keyIsSet ? 'Key saved — paste a new one to replace it' : 'Paste your key'
               }
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+              className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
               value={draft ? form.apiKey : ''}
               onChange={(event) => update({ apiKey: event.target.value })}
             />
@@ -204,7 +204,7 @@ export function AiAssist({
               autoComplete="off"
               spellCheck={false}
               placeholder={provider?.defaultModel ?? 'model name'}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+              className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
               value={form.model}
               onChange={(event) => update({ model: event.target.value })}
             />
@@ -224,7 +224,7 @@ export function AiAssist({
               autoComplete="off"
               spellCheck={false}
               placeholder="http://localhost:11434"
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+              className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
               value={form.baseUrl}
               onChange={(event) => update({ baseUrl: event.target.value })}
             />
@@ -234,7 +234,7 @@ export function AiAssist({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+            className="min-w-[84px] rounded-full border border-border px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
             onClick={saveKey}
             disabled={credentialsProblem !== null}
           >
@@ -242,7 +242,7 @@ export function AiAssist({
           </button>
           <button
             type="button"
-            className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+            className="min-w-[84px] rounded-full border border-border px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
             onClick={() => {
               // Only worth confirming when a key is actually stored; otherwise this
               // is a no-op button and a dialog would be noise.
@@ -298,7 +298,7 @@ export function AiAssist({
                   <select
                     id={`${ids}-target`}
                     name={`${ids}-target`}
-                    className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                    className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     value={activeTarget.id}
                     onChange={(event) => {
                       setTargetId(event.target.value);
@@ -320,7 +320,7 @@ export function AiAssist({
                   <select
                     id={`${ids}-action`}
                     name={`${ids}-action`}
-                    className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                    className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     value={actionId}
                     onChange={(event) => {
                       const next = getAction(event.target.value);
@@ -340,7 +340,7 @@ export function AiAssist({
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                  className="min-w-[84px] rounded-full border border-border px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                   onClick={() => {
                     void run();
                   }}
@@ -354,7 +354,7 @@ export function AiAssist({
               </div>
 
               {suggestion && (
-                <div className="space-y-2 rounded-md border border-border p-3">
+                <div className="space-y-2 rounded-2xl border border-border p-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Suggestion — nothing has been changed yet
                   </p>
@@ -364,7 +364,7 @@ export function AiAssist({
                     <button
                       type="button"
                       disabled={suggestionIsStale}
-                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70 disabled:pointer-events-none disabled:opacity-40"
+                      className="min-w-[84px] rounded-full border border-border px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
                       onClick={() => {
                         if (suggestionIsStale) return;
                         onApply(suggestion.targetId, suggestion.after);
@@ -375,7 +375,7 @@ export function AiAssist({
                     </button>
                     <button
                       type="button"
-                      className="min-w-[84px] rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                      className="min-w-[84px] rounded-full border border-border px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                       onClick={() => setSuggestion(null)}
                     >
                       discard

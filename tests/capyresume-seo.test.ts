@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
 import { TEMPLATE_PAGE_COPY, templatePageTitle } from '@/lib/capyresume/seo/templates';
 import { COUNTRY_PAGES, countryPage } from '@/lib/capyresume/seo/countries';
 import { ROLE_PAGES, ROLE_TEMPLATE_SUGGESTIONS, rolePage } from '@/lib/capyresume/seo/roles';

@@ -1,4 +1,6 @@
-import { BlockView, previewPaperStyle } from '@/components/tool/BlockView';
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
+import { BlockView, previewPaperStyle } from '@/components/capyresume/BlockView';
 import { composeDocument } from '@/lib/capyresume/document';
 import { DEMO_RESUME } from '@/lib/capyresume/demo';
 import { getTemplate } from '@/lib/capyresume/templates';

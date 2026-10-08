@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   AiRequestError,
   completeText,
@@ -22,7 +23,7 @@ describe('capyresume/ai/client — stripThinkingTags', () => {
 
 const SECRET = 'sk-do-not-leak-me-1234567890';
 
-const fetchMock = jest.fn();
+const fetchMock = vi.fn();
 
 beforeEach(() => {
   fetchMock.mockReset();

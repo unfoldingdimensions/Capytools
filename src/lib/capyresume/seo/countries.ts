@@ -1,7 +1,7 @@
 import type { PaperSize } from '@/lib/capyresume/prefs';
 
 /**
- * Child pages under `/free-cv-builder/{country}` — plan §8.4's
+ * Child pages under `/capyresume/free-cv-builder/{country}` — plan §8.4's
  * "free CV builder {country}" family.
  *
  * Only two facts are asserted about each country, and both are checkable: the

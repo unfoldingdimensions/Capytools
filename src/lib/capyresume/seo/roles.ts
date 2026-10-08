@@ -1,5 +1,5 @@
 /**
- * Child pages under `/resume-templates/{role}` — plan §8.4's
+ * Child pages under `/capyresume/resume-templates/{role}` — plan §8.4's
  * "{role} resume template" family.
  *
  * Twelve roles, each with its own introduction. The count stays small on

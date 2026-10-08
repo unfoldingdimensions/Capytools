@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * CapyResume — the tool.
@@ -7,26 +7,28 @@
  * `localStorage`, and the PDF/DOCX/JSON are produced locally. There is no
  * server call anywhere in this file.
  *
- * Styling follows the suite language: DESIGN.md at the repo root, with the tokens in
- * app/globals.css and the vocabulary in the kit under components/ui.
+ * Styling follows the suite language (DESIGN.md): three StageCards, house pills.
+ *
+ * The AI assist (src/components/capyresume/AiAssist.tsx) is deliberately not
+ * rendered: it is a planned paid feature, kept in the tree and documented in
+ * docs/plans/capyresume.md, and tests/capyresume-boundaries.test.ts fails if
+ * anything imports it.
  */
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
-import { AiAssist } from '@/components/tool/AiAssist';
-import { replaceTargetText } from '@/lib/capyresume/ai/targets';
-import { SITE } from '@/lib/site';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { StageCard } from "@/components/stage-card";
 import {
   getSnapshot,
   saveResume,
   clearResume,
   hasStoredResume,
   useResumeWithServerSnapshot,
-} from '@/lib/capyresume/store';
-import { DEMO_RESUME } from '@/lib/capyresume/demo';
-import { lintResume } from '@/lib/capyresume/hints';
-import { isEntryEmpty, isResumeEmpty } from '@/lib/capyresume/schema';
-import dynamic from 'next/dynamic';
+} from "@/lib/capyresume/store";
+import { DEMO_RESUME } from "@/lib/capyresume/demo";
+import { lintResume } from "@/lib/capyresume/hints";
+import { isEntryEmpty, isResumeEmpty } from "@/lib/capyresume/schema";
+import dynamic from "next/dynamic";
 import {
   addBullet as addBulletTo,
   addEntry as addEntryTo,
@@ -44,20 +46,35 @@ import {
   setLink as setLinkOn,
   setSectionTitle as setSectionTitleOn,
   setTags as setTagsOn,
-} from '@/lib/capyresume/edits';
-import { TEMPLATE_LIST, getTemplate, isPackUnlocked } from '@/lib/capyresume/templates';
-import { composeDocument } from '@/lib/capyresume/document';
-import { BlockView, previewPaperStyle } from '@/components/tool/BlockView';
+} from "@/lib/capyresume/edits";
+import {
+  TEMPLATE_LIST,
+  getTemplate,
+  isPackUnlocked,
+} from "@/lib/capyresume/templates";
+import { composeDocument } from "@/lib/capyresume/document";
+import {
+  BlockView,
+  previewPaperStyle,
+} from "@/components/capyresume/BlockView";
 import {
   exportResumeJson,
   MAX_BACKUP_BYTES,
   parseResumeBackup,
   resumeBackupFileName,
   resumeFileName,
-} from '@/lib/capyresume/json';
-import { getPaperSize, setPaperSize, usePaperSize } from '@/lib/capyresume/prefs';
-import { downloadBlob, downloadText, readFileAsText } from '@/lib/capyresume/download';
-import { formatBytes } from '@/lib/capyresume/format';
+} from "@/lib/capyresume/json";
+import {
+  getPaperSize,
+  setPaperSize,
+  usePaperSize,
+} from "@/lib/capyresume/prefs";
+import {
+  downloadBlob,
+  downloadText,
+  readFileAsText,
+} from "@/lib/capyresume/download";
+import { formatBytes } from "@/lib/capyresume/format";
 import type {
   Bullet,
   Entry,
@@ -65,8 +82,8 @@ import type {
   ResumeLink,
   SectionType,
   TemplateId,
-} from '@/lib/capyresume/types';
-import type { ContactField } from '@/lib/capyresume/edits';
+} from "@/lib/capyresume/types";
+import type { ContactField } from "@/lib/capyresume/edits";
 
 /**
  * Warm the exporter a user is about to ask for.
@@ -78,8 +95,8 @@ import type { ContactField } from '@/lib/capyresume/edits';
  * registry keeps the result. Pointing at the button is the signal; a user who never
  * exports never pays.
  */
-const preloadPdfExporter = () => void import('@/lib/capyresume/pdf');
-const preloadDocxExporter = () => void import('@/lib/capyresume/docx');
+const preloadPdfExporter = () => void import("@/lib/capyresume/pdf");
+const preloadDocxExporter = () => void import("@/lib/capyresume/docx");
 
 /**
  * The confirmation dialog is only reachable from an action that needs confirming, so
@@ -88,8 +105,11 @@ const preloadDocxExporter = () => void import('@/lib/capyresume/docx');
  * there is nothing to server-render and no cost to deferring it.
  */
 const ConfirmDialog = dynamic(
-  () => import('@/components/ui/ConfirmDialog').then((m) => m.ConfirmDialog),
-  { ssr: false }
+  () =>
+    import("@/components/capyresume/ConfirmDialog").then(
+      (m) => m.ConfirmDialog,
+    ),
+  { ssr: false },
 );
 
 /**
@@ -104,10 +124,12 @@ function PaperSizeSelect() {
   const paperSize = usePaperSize();
   return (
     <select
-      className="rounded-md border border-border bg-background px-3 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+      className="rounded-full border border-border bg-background px-3 py-2 transition-colors hover:border-primary hover:bg-muted/50"
       name="paper"
       value={paperSize}
-      onChange={(event) => setPaperSize(event.target.value === 'LETTER' ? 'LETTER' : 'A4')}
+      onChange={(event) =>
+        setPaperSize(event.target.value === "LETTER" ? "LETTER" : "A4")
+      }
     >
       <option value="A4">A4</option>
       <option value="LETTER">US Letter</option>
@@ -116,13 +138,13 @@ function PaperSizeSelect() {
 }
 
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
-  { type: 'summary', label: 'Summary' },
-  { type: 'experience', label: 'Experience' },
-  { type: 'education', label: 'Education' },
-  { type: 'skills', label: 'Skills' },
-  { type: 'projects', label: 'Projects' },
-  { type: 'certifications', label: 'Certifications' },
-  { type: 'custom', label: 'Custom section' },
+  { type: "summary", label: "Summary" },
+  { type: "experience", label: "Experience" },
+  { type: "education", label: "Education" },
+  { type: "skills", label: "Skills" },
+  { type: "projects", label: "Projects" },
+  { type: "certifications", label: "Certifications" },
+  { type: "custom", label: "Custom section" },
 ];
 
 /**
@@ -135,13 +157,18 @@ type FieldEdit = (
   sectionId: string,
   entryId: string,
   field: keyof Entry,
-  value: string | boolean
+  value: string | boolean,
 ) => void;
 
 type TextEdit = (sectionId: string, entryId: string, text: string) => void;
 
 /** Bullet text, which is its own edit — an Entry's `text` field is different prose. */
-type BulletTextEdit = (sectionId: string, entryId: string, bulletId: string, text: string) => void;
+type BulletTextEdit = (
+  sectionId: string,
+  entryId: string,
+  bulletId: string,
+  text: string,
+) => void;
 
 /**
  * One achievement. Split out from the entry so typing in a bullet re-renders that
@@ -164,7 +191,12 @@ const BulletRow = memo(function BulletRow({
   entryId: string;
   sectionId: string;
   onBulletText: BulletTextEdit;
-  onRemove: (sectionId: string, entryId: string, bulletId: string, label: string) => void;
+  onRemove: (
+    sectionId: string,
+    entryId: string,
+    bulletId: string,
+    label: string,
+  ) => void;
 }) {
   const label = `${sectionTitle}, entry ${entryIndex + 1}, achievement ${bulletIndex + 1}`;
   return (
@@ -175,11 +207,13 @@ const BulletRow = memo(function BulletRow({
         aria-label={label}
         placeholder="achievement"
         value={bullet.text}
-        onChange={(event) => onBulletText(sectionId, entryId, bullet.id, event.target.value)}
+        onChange={(event) =>
+          onBulletText(sectionId, entryId, bullet.id, event.target.value)
+        }
       />
       <button
         type="button"
-        className="rounded-md border border-border px-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+        className="rounded-full border border-border px-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
         onClick={() => onRemove(sectionId, entryId, bullet.id, label)}
         aria-label={`remove ${label}`}
       >
@@ -226,8 +260,8 @@ export function TagsInput({
       aria-label={label}
       autoComplete="off"
       placeholder="skills, comma separated"
-      value={draft ?? tags.join(', ')}
-      onFocus={() => setDraft(tags.join(', '))}
+      value={draft ?? tags.join(", ")}
+      onFocus={() => setDraft(tags.join(", "))}
       onChange={(event) => {
         setDraft(event.target.value);
         onTags(event.target.value);
@@ -260,45 +294,56 @@ const EntryRow = memo(function EntryRow({
   onTags: TextEdit;
   onBulletText: BulletTextEdit;
   onAddBullet: (sectionId: string, entryId: string) => void;
-  onRemoveBullet: (sectionId: string, entryId: string, bulletId: string, label: string) => void;
+  onRemoveBullet: (
+    sectionId: string,
+    entryId: string,
+    bulletId: string,
+    label: string,
+  ) => void;
   onMove: (sectionId: string, entryId: string, delta: number) => void;
   onRemove: (sectionId: string, entryId: string) => void;
 }) {
   const prefix = `${sectionTitle}, entry ${entryIndex + 1}`;
   const titlePlaceholder =
-    sectionType === 'skills'
-      ? 'Group name (optional)'
-      : sectionType === 'summary'
-        ? 'Summary heading (optional)'
-        : 'Title / role / degree';
+    sectionType === "skills"
+      ? "Group name (optional)"
+      : sectionType === "summary"
+        ? "Summary heading (optional)"
+        : "Title / role / degree";
 
   return (
-    <div className="rounded-md bg-muted/30 p-3">
+    <div className="rounded-2xl bg-muted/30 p-3">
       <div className="grid gap-2 sm:grid-cols-2">
         <input
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           name={`${entry.id}-title`}
           aria-label={`${prefix}, title`}
           placeholder={titlePlaceholder}
-          value={entry.title ?? ''}
-          onChange={(event) => onField(sectionId, entry.id, 'title', event.target.value)}
+          value={entry.title ?? ""}
+          onChange={(event) =>
+            onField(sectionId, entry.id, "title", event.target.value)
+          }
         />
         <input
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           name={`${entry.id}-organisation`}
           aria-label={`${prefix}, organisation`}
           placeholder="organisation"
-          value={entry.organisation ?? ''}
-          onChange={(event) => onField(sectionId, entry.id, 'organisation', event.target.value)}
+          value={entry.organisation ?? ""}
+          onChange={(event) =>
+            onField(sectionId, entry.id, "organisation", event.target.value)
+          }
         />
         <input
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          className="rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           name={`${entry.id}-location`}
           aria-label={`${prefix}, location`}
           autoComplete="off"
           placeholder="location"
-          value={entry.location ?? ''}
-          onChange={(event) => onField(sectionId, entry.id, 'location', event.target.value)}
+          value={entry.location ?? ""}
+          onChange={(event) =>
+            onField(sectionId, entry.id, "location", event.target.value)
+          }
         />
         <div className="flex gap-2">
           <input
@@ -308,8 +353,10 @@ const EntryRow = memo(function EntryRow({
             inputMode="text"
             autoComplete="off"
             placeholder="YYYY-MM"
-            value={entry.startDate ?? ''}
-            onChange={(event) => onField(sectionId, entry.id, 'startDate', event.target.value)}
+            value={entry.startDate ?? ""}
+            onChange={(event) =>
+              onField(sectionId, entry.id, "startDate", event.target.value)
+            }
           />
           <input
             className="w-1/2 rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"
@@ -318,9 +365,11 @@ const EntryRow = memo(function EntryRow({
             inputMode="text"
             autoComplete="off"
             placeholder="YYYY-MM"
-            value={entry.endDate ?? ''}
+            value={entry.endDate ?? ""}
             disabled={entry.current === true}
-            onChange={(event) => onField(sectionId, entry.id, 'endDate', event.target.value)}
+            onChange={(event) =>
+              onField(sectionId, entry.id, "endDate", event.target.value)
+            }
           />
         </div>
       </div>
@@ -330,7 +379,9 @@ const EntryRow = memo(function EntryRow({
           type="checkbox"
           name={`${entry.id}-current`}
           checked={entry.current === true}
-          onChange={(event) => onField(sectionId, entry.id, 'current', event.target.checked)}
+          onChange={(event) =>
+            onField(sectionId, entry.id, "current", event.target.checked)
+          }
         />
         current
       </label>
@@ -341,8 +392,10 @@ const EntryRow = memo(function EntryRow({
         aria-label={`${prefix}, description`}
         rows={2}
         placeholder="description / summary text"
-        value={entry.text ?? ''}
-        onChange={(event) => onField(sectionId, entry.id, 'text', event.target.value)}
+        value={entry.text ?? ""}
+        onChange={(event) =>
+          onField(sectionId, entry.id, "text", event.target.value)
+        }
       />
 
       <TagsInput
@@ -368,7 +421,7 @@ const EntryRow = memo(function EntryRow({
         ))}
         <button
           type="button"
-          className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
+          className="text-sm underline transition-colors hover:text-foreground"
           onClick={() => onAddBullet(sectionId, entry.id)}
         >
           add bullet
@@ -378,7 +431,7 @@ const EntryRow = memo(function EntryRow({
       <div className="mt-2 flex gap-2">
         <button
           type="button"
-          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           onClick={() => onMove(sectionId, entry.id, -1)}
           aria-label={`move ${prefix} up`}
         >
@@ -386,7 +439,7 @@ const EntryRow = memo(function EntryRow({
         </button>
         <button
           type="button"
-          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           onClick={() => onMove(sectionId, entry.id, 1)}
           aria-label={`move ${prefix} down`}
         >
@@ -394,7 +447,7 @@ const EntryRow = memo(function EntryRow({
         </button>
         <button
           type="button"
-          className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           onClick={() => onRemove(sectionId, entry.id)}
         >
           remove entry
@@ -467,7 +520,11 @@ export function CapyResume() {
       saveResume(next);
       setNotice(null);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'Could not save to this browser.');
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : "Could not save to this browser.",
+      );
     }
   }, []);
 
@@ -481,25 +538,29 @@ export function CapyResume() {
    */
   const editEntryField = useCallback<FieldEdit>(
     (sectionId, entryId, field, value) =>
-      edit((d) => setEntryFieldOn(d, sectionId, entryId, field, value as never)),
-    [edit]
+      edit((d) =>
+        setEntryFieldOn(d, sectionId, entryId, field, value as never),
+      ),
+    [edit],
   );
 
   /** The tags input is a comma-separated string, not a field assignment. */
   const editEntryTags = useCallback<TextEdit>(
-    (sectionId, entryId, raw) => edit((d) => setTagsOn(d, sectionId, entryId, raw)),
-    [edit]
+    (sectionId, entryId, raw) =>
+      edit((d) => setTagsOn(d, sectionId, entryId, raw)),
+    [edit],
   );
 
   const handleAddBullet = useCallback(
-    (sectionId: string, entryId: string) => edit((d) => addBulletTo(d, sectionId, entryId)),
-    [edit]
+    (sectionId: string, entryId: string) =>
+      edit((d) => addBulletTo(d, sectionId, entryId)),
+    [edit],
   );
 
   const handleRemoveBullet = useCallback(
     (sectionId: string, entryId: string, bulletId: string) =>
       edit((d) => removeBulletFrom(d, sectionId, entryId, bulletId)),
-    [edit]
+    [edit],
   );
 
   /**
@@ -513,13 +574,13 @@ export function CapyResume() {
   const handleBulletText = useCallback<BulletTextEdit>(
     (sectionId, entryId, bulletId, text) =>
       edit((d) => setBulletText(d, sectionId, entryId, bulletId, text)),
-    [edit]
+    [edit],
   );
 
   const handleMoveEntry = useCallback(
     (sectionId: string, entryId: string, delta: number) =>
       edit((d) => moveEntryIn(d, sectionId, entryId, delta)),
-    [edit]
+    [edit],
   );
 
   // One click used to delete a whole job with no way back; anything with content
@@ -532,14 +593,14 @@ export function CapyResume() {
       const remove = () => edit((d) => removeEntryFrom(d, sectionId, entryId));
       if (!entry || isEntryEmpty(entry)) return remove();
       setConfirming({
-        title: `remove ${entry.title?.trim() || 'this entry'}?`,
+        title: `remove ${entry.title?.trim() || "this entry"}?`,
         message:
-          'Its details and bullets go with it, and there is no undo. Export a JSON backup first if you might want it back.',
-        confirmText: 'remove it',
+          "Its details and bullets go with it, and there is no undo. Export a JSON backup first if you might want it back.",
+        confirmText: "remove it",
         run: remove,
       });
     },
-    [edit]
+    [edit],
   );
 
   // ---------------------------------------------------------------- contact
@@ -557,7 +618,8 @@ export function CapyResume() {
 
   // --------------------------------------------------------------- sections
   const addSection = (type: SectionType) => {
-    const label = SECTION_CHOICES.find((c) => c.type === type)?.label ?? 'Section';
+    const label =
+      SECTION_CHOICES.find((c) => c.type === type)?.label ?? "Section";
     edit((d) => addSectionTo(d, type, label));
   };
 
@@ -566,14 +628,15 @@ export function CapyResume() {
     const remove = () => edit((d) => removeSectionFrom(d, id));
     if (!section || section.entries.every(isEntryEmpty)) return remove();
     setConfirming({
-      title: `remove the ${section.title.trim() || 'untitled'} section?`,
-      message: `${section.entries.length === 1 ? 'Its entry goes' : `All ${section.entries.length} of its entries go`} with it, and there is no undo. Export a JSON backup first if you might want it back.`,
-      confirmText: 'remove it',
+      title: `remove the ${section.title.trim() || "untitled"} section?`,
+      message: `${section.entries.length === 1 ? "Its entry goes" : `All ${section.entries.length} of its entries go`} with it, and there is no undo. Export a JSON backup first if you might want it back.`,
+      confirmText: "remove it",
       run: remove,
     });
   };
 
-  const moveSection = (id: string, delta: number) => edit((d) => moveSectionIn(d, id, delta));
+  const moveSection = (id: string, delta: number) =>
+    edit((d) => moveSectionIn(d, id, delta));
 
   const setSectionTitle = (id: string, title: string) =>
     edit((d) => setSectionTitleOn(d, id, title));
@@ -586,33 +649,33 @@ export function CapyResume() {
 
   // ------------------------------------------------------------- exports
   const exportPdf = async () => {
-    setBusy('pdf');
+    setBusy("pdf");
     setNotice(null);
     try {
-      const { buildResumePdf } = await import('@/lib/capyresume/pdf');
+      const { buildResumePdf } = await import("@/lib/capyresume/pdf");
       // Read at click time rather than subscribing: the paper size is only needed when
       // an export runs, and subscribing at this level re-rendered the whole editor —
       // form, hints and preview — every time someone touched the paper `<select>`.
       const blob = await buildResumePdf(doc, { paperSize: getPaperSize() });
-      downloadBlob(blob, resumeFileName(doc, 'pdf'));
+      downloadBlob(blob, resumeFileName(doc, "pdf"));
       setNotice(`PDF ready — ${formatBytes(blob.size)}.`);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'PDF export failed.');
+      setNotice(error instanceof Error ? error.message : "PDF export failed.");
     } finally {
       setBusy(null);
     }
   };
 
   const exportDocx = async () => {
-    setBusy('docx');
+    setBusy("docx");
     setNotice(null);
     try {
-      const { buildResumeDocx } = await import('@/lib/capyresume/docx');
+      const { buildResumeDocx } = await import("@/lib/capyresume/docx");
       const blob = await buildResumeDocx(doc, { paperSize: getPaperSize() });
-      downloadBlob(blob, resumeFileName(doc, 'docx'));
+      downloadBlob(blob, resumeFileName(doc, "docx"));
       setNotice(`DOCX ready — ${formatBytes(blob.size)}.`);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'DOCX export failed.');
+      setNotice(error instanceof Error ? error.message : "DOCX export failed.");
     } finally {
       setBusy(null);
     }
@@ -621,9 +684,9 @@ export function CapyResume() {
   const exportJson = () => {
     try {
       downloadText(exportResumeJson(doc), resumeBackupFileName(doc));
-      setNotice('JSON backup ready.');
+      setNotice("JSON backup ready.");
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'JSON export failed.');
+      setNotice(error instanceof Error ? error.message : "JSON export failed.");
     }
   };
 
@@ -631,130 +694,121 @@ export function CapyResume() {
     try {
       if (file.size > MAX_BACKUP_BYTES) {
         setNotice(
-          `That file is ${formatBytes(file.size)} — a backup is a few KB. Nothing was replaced.`
+          `That file is ${formatBytes(file.size)} — a backup is a few KB. Nothing was replaced.`,
         );
         return;
       }
       const parsed = parseResumeBackup(await readFileAsText(file));
-      if ('error' in parsed) {
+      if ("error" in parsed) {
         setNotice(parsed.error);
         return;
       }
       const imported = parsed.doc;
       const commit = () => {
         saveResume(imported);
-        setNotice('Imported. Your résumé is back.');
+        setNotice("Imported. Your résumé is back.");
       };
       // Importing replaces the open document outright, so gate it the same way as
       // the other destructive actions rather than silently discarding edits.
       if (isResumeEmpty(doc)) commit();
       else
         setConfirming({
-          title: 'replace the open résumé?',
+          title: "replace the open résumé?",
           message:
-            'The file replaces what is open in the editor now. Export a JSON backup first if you want to keep it.',
-          confirmText: 'replace it',
+            "The file replaces what is open in the editor now. Export a JSON backup first if you want to keep it.",
+          confirmText: "replace it",
           run: commit,
         });
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'That file could not be read.');
+      setNotice(
+        error instanceof Error ? error.message : "That file could not be read.",
+      );
     }
   };
 
+  const startOver = (
+    <div className="flex items-center gap-1.5">
+      <button
+        type="button"
+        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11"
+        onClick={() => {
+          const replace = () => edit(() => ({ ...DEMO_RESUME }));
+          if (isResumeEmpty(doc)) replace();
+          else
+            setConfirming({
+              title: "load the example résumé?",
+              message:
+                "It replaces what is open in the editor now. Export a JSON backup first if you want to keep it.",
+              confirmText: "load example",
+              run: replace,
+            });
+        }}
+      >
+        load demo
+      </button>
+      <button
+        type="button"
+        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11"
+        onClick={() => {
+          const clear = () => {
+            clearResume();
+            setNotice("Cleared. Nothing of yours is left in this browser.");
+          };
+          if (isResumeEmpty(doc)) clear();
+          else
+            setConfirming({
+              title: "delete this résumé?",
+              message:
+                "It is removed from this browser for good, and there is no copy anywhere else. Export a JSON backup first if you might want it back.",
+              confirmText: "delete it",
+              run: clear,
+            });
+        }}
+      >
+        clear
+      </button>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6">
-          <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">
-              <Link
-                href="/"
-                className="transition-colors duration-fade ease-ui hover:text-sage-deep dark:hover:text-primary"
-              >
-                CapyResume
-              </Link>
-            </h1>
-            <p className="text-sm text-muted-foreground">{SITE.tagline}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-              onClick={() => {
-                const replace = () => edit(() => ({ ...DEMO_RESUME }));
-                if (isResumeEmpty(doc)) replace();
-                else
-                  setConfirming({
-                    title: 'load the example résumé?',
-                    message:
-                      'It replaces what is open in the editor now. Export a JSON backup first if you want to keep it.',
-                    confirmText: 'load example',
-                    run: replace,
-                  });
-              }}
-            >
-              load demo
-            </button>
-            <button
-              type="button"
-              className="rounded-md border border-border px-3 py-2 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
-              onClick={() => {
-                const clear = () => {
-                  clearResume();
-                  setNotice('Cleared. Nothing of yours is left in this browser.');
-                };
-                if (isResumeEmpty(doc)) clear();
-                else
-                  setConfirming({
-                    title: 'delete this résumé?',
-                    message:
-                      'It is removed from this browser for good, and there is no copy anywhere else. Export a JSON backup first if you might want it back.',
-                    confirmText: 'delete it',
-                    run: clear,
-                  });
-              }}
-            >
-              clear
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="w-full">
+      <p className="mb-5 rounded-2xl border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+        <strong className="text-foreground">
+          Stored in this browser only.
+        </strong>{" "}
+        Your details are never uploaded — there is nothing to upload them to.
+        Clearing your browser data deletes this résumé, so use{" "}
+        <em>JSON backup</em> to move it between devices.
+      </p>
 
-      <main id="main-content" className="mx-auto max-w-6xl px-6 py-8">
-        <p className="mb-6 rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
-          <strong className="text-foreground">Stored in this browser only.</strong> Your details are
-          never uploaded — there is nothing to upload them to. Clearing your browser data deletes
-          this résumé, so use <em>JSON backup</em> to move it between devices.
-        </p>
+      {/* The live region is mounted empty from the first paint and filled later.
+          A polite region that appears already populated is not reliably announced:
+          assistive tech has to be subscribed before the content changes. Once
+          there is no message it stays in the tree, just out of sight. */}
+      <p
+        role="status"
+        aria-live="polite"
+        className={
+          notice
+            ? "mb-5 rounded-2xl border border-border bg-muted/60 p-3 text-sm"
+            : "sr-only"
+        }
+      >
+        {notice}
+      </p>
 
-        {/* The live region is mounted empty from the first paint and filled later.
-            A polite region that appears already populated is not reliably announced:
-            assistive tech has to be subscribed before the content changes. Once
-            there is no message it stays in the tree, just out of sight. */}
-        <p
-          role="status"
-          aria-live="polite"
-          className={
-            notice ? 'mb-6 rounded-md border border-border bg-muted/60 p-3 text-sm' : 'sr-only'
-          }
-        >
-          {notice}
-        </p>
-
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* ---------------------------------------------------- card 1 */}
-          <section className="space-y-6">
-            <h2 className="font-display text-lg font-semibold">1. The details</h2>
-
+      <div className="grid w-full gap-5 lg:grid-cols-2 lg:items-start">
+        <StageCard index="01" title="The details" marks actions={startOver}>
+          <div className="space-y-6">
             {hints.length > 0 && (
-              <div className="rounded-md border border-border p-3">
+              <div className="rounded-2xl border border-border p-3">
                 <p className="text-xs font-medium text-foreground">
                   Worth a look — none of this blocks your export:
                 </p>
                 <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
                   {hints.map((hint) => (
                     <li key={hint.id}>
-                      {hint.tone === 'attention' ? '• ' : '· '}
+                      {hint.tone === "attention" ? "• " : "· "}
                       {hint.message}
                     </li>
                   ))}
@@ -765,36 +819,46 @@ export function CapyResume() {
             <div className="grid gap-3 sm:grid-cols-2">
               {(
                 [
-                  { field: 'name', label: 'Full name', autocomplete: 'name' },
+                  { field: "name", label: "Full name", autocomplete: "name" },
                   {
-                    field: 'email',
-                    label: 'Email',
-                    type: 'email',
-                    inputMode: 'email',
-                    autocomplete: 'email',
+                    field: "email",
+                    label: "Email",
+                    type: "email",
+                    inputMode: "email",
+                    autocomplete: "email",
                     spellCheck: false,
                   },
                   {
-                    field: 'phone',
-                    label: 'Phone',
-                    type: 'tel',
-                    inputMode: 'tel',
-                    autocomplete: 'tel',
+                    field: "phone",
+                    label: "Phone",
+                    type: "tel",
+                    inputMode: "tel",
+                    autocomplete: "tel",
                   },
-                  { field: 'location', label: 'location', autocomplete: 'address-level2' },
+                  {
+                    field: "location",
+                    label: "location",
+                    autocomplete: "address-level2",
+                  },
                 ] as const
               ).map((spec) => (
                 <label key={spec.field} className="text-sm">
-                  <span className="mb-1 block text-muted-foreground">{spec.label}</span>
+                  <span className="mb-1 block text-muted-foreground">
+                    {spec.label}
+                  </span>
                   <input
                     className="w-full rounded-md border border-border bg-background px-3 py-2"
                     name={spec.field}
-                    type={'type' in spec ? spec.type : 'text'}
-                    inputMode={'inputMode' in spec ? spec.inputMode : undefined}
+                    type={"type" in spec ? spec.type : "text"}
+                    inputMode={"inputMode" in spec ? spec.inputMode : undefined}
                     autoComplete={spec.autocomplete}
-                    spellCheck={'spellCheck' in spec ? spec.spellCheck : undefined}
-                    value={doc.contact[spec.field] ?? ''}
-                    onChange={(event) => setContact(spec.field, event.target.value)}
+                    spellCheck={
+                      "spellCheck" in spec ? spec.spellCheck : undefined
+                    }
+                    value={doc.contact[spec.field] ?? ""}
+                    onChange={(event) =>
+                      setContact(spec.field, event.target.value)
+                    }
                   />
                 </label>
               ))}
@@ -805,7 +869,7 @@ export function CapyResume() {
                 <span className="text-sm text-muted-foreground">links</span>
                 <button
                   type="button"
-                  className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
+                  className="text-sm underline transition-colors hover:text-foreground"
                   onClick={addLink}
                 >
                   add link
@@ -823,7 +887,9 @@ export function CapyResume() {
                       autoComplete="off"
                       placeholder="label"
                       value={link.label}
-                      onChange={(event) => setLink(index, 'label', event.target.value)}
+                      onChange={(event) =>
+                        setLink(index, "label", event.target.value)
+                      }
                     />
                   </label>
                   <label className="flex-1">
@@ -837,12 +903,14 @@ export function CapyResume() {
                       spellCheck={false}
                       placeholder="URL"
                       value={link.url}
-                      onChange={(event) => setLink(index, 'url', event.target.value)}
+                      onChange={(event) =>
+                        setLink(index, "url", event.target.value)
+                      }
                     />
                   </label>
                   <button
                     type="button"
-                    className="rounded-md border border-border px-3 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                    className="rounded-full border border-border px-3 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     onClick={() => removeLink(index)}
                     aria-label={`remove link ${index + 1}`}
                   >
@@ -853,18 +921,23 @@ export function CapyResume() {
             </div>
 
             {doc.sections.map((section) => (
-              <div key={section.id} className="rounded-lg border border-border p-4">
+              <div
+                key={section.id}
+                className="rounded-lg border border-border p-4"
+              >
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   <input
                     className="min-w-[10rem] flex-1 rounded-md border border-border bg-background px-3 py-2 font-medium"
                     name={`${section.id}-title`}
                     value={section.title}
-                    onChange={(event) => setSectionTitle(section.id, event.target.value)}
+                    onChange={(event) =>
+                      setSectionTitle(section.id, event.target.value)
+                    }
                     aria-label="section title"
                   />
                   <button
                     type="button"
-                    className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                    className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     onClick={() => moveSection(section.id, -1)}
                     aria-label={`Move ${section.title} up`}
                   >
@@ -872,7 +945,7 @@ export function CapyResume() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                    className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     onClick={() => moveSection(section.id, 1)}
                     aria-label={`Move ${section.title} down`}
                   >
@@ -880,7 +953,7 @@ export function CapyResume() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-border px-2 py-1 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                    className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     onClick={() => removeSection(section.id)}
                   >
                     remove
@@ -908,7 +981,7 @@ export function CapyResume() {
 
                   <button
                     type="button"
-                    className="text-sm underline transition-colors duration-fade ease-ui hover:text-foreground"
+                    className="text-sm underline transition-colors hover:text-foreground"
                     onClick={() => addEntry(section.id)}
                   >
                     add entry
@@ -918,53 +991,59 @@ export function CapyResume() {
             ))}
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground">add section:</span>
+              <span className="text-sm text-muted-foreground">
+                add section:
+              </span>
               {SECTION_CHOICES.map((choice) => (
                 <button
                   key={choice.type}
                   type="button"
-                  className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                  className="rounded-full border border-border px-3 py-1.5 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                   onClick={() => addSection(choice.type)}
                 >
                   {choice.label}
                 </button>
               ))}
             </div>
+          </div>
+        </StageCard>
 
-            <AiAssist
-              doc={doc}
-              onApply={(targetId, text) => edit((d) => replaceTargetText(d, targetId, text))}
-            />
-          </section>
-
-          {/* ---------------------------------------------------- card 2 */}
-          {/* Pinned on `lg:` so the document stays visible while the form scrolls
+        {/* ---------------------------------------------------- card 2 */}
+        {/* Pinned on `lg:` so the document stays visible while the form scrolls
               (.hermes/plans/2026-09-24_120000-sticky-preview.md). `self-start` is load-bearing:
               a grid item stretches to its row height by default, and a stretched item has no
               distance left to travel, so `sticky` would never engage. Measured before this:
               the paper is 521x1056 in a 1440x900 viewport and sat 3623px above the viewport
               top once the form was scrolled. */}
-          <section className="space-y-4 lg:sticky lg:top-6 lg:flex lg:max-h-[calc(100dvh-3rem)] lg:flex-col lg:self-start">
-            <h2 className="font-display text-lg font-semibold">2. The page</h2>
-
+        <StageCard
+          index="02"
+          title="The page"
+          className="lg:sticky lg:top-24 lg:self-start"
+        >
+          <div className="space-y-4 lg:flex lg:max-h-[calc(100dvh-10rem)] lg:flex-col">
             <div className="flex flex-wrap gap-3">
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">template</span>
+                <span className="mb-1 block text-muted-foreground">
+                  template
+                </span>
                 <select
-                  className="rounded-md border border-border bg-background px-3 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                  className="rounded-full border border-border bg-background px-3 py-2 transition-colors hover:border-primary hover:bg-muted/50"
                   name="template"
                   value={doc.templateId}
                   onChange={(event) =>
-                    edit((d) => ({ ...d, templateId: event.target.value as TemplateId }))
+                    edit((d) => ({
+                      ...d,
+                      templateId: event.target.value as TemplateId,
+                    }))
                   }
                 >
-                  {TEMPLATE_LIST.filter((template) => isPackUnlocked(template.pack)).map(
-                    (template) => (
-                      <option key={template.id} value={template.id}>
-                        {template.name}
-                      </option>
-                    )
-                  )}
+                  {TEMPLATE_LIST.filter((template) =>
+                    isPackUnlocked(template.pack),
+                  ).map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -982,7 +1061,9 @@ export function CapyResume() {
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li>✓ Single column — no columns for a parser to mangle</li>
               <li>✓ No tables, no text baked into images</li>
-              <li>✓ A real PDF text layer, so the text can be selected and read</li>
+              <li>
+                ✓ A real PDF text layer, so the text can be selected and read
+              </li>
             </ul>
 
             {/* The paper itself: white stock and black ink in both themes, because this is
@@ -996,22 +1077,23 @@ export function CapyResume() {
                 className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
                 style={previewPaperStyle(spec)}
               >
-                <div style={{ padding: '28pt 30pt' }}>
+                <div style={{ padding: "28pt 30pt" }}>
                   {blocks.map((block, index) => (
                     <BlockView key={index} block={block} spec={spec} />
                   ))}
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </StageCard>
 
-          {/* ---------------------------------------------------- card 3 */}
-          <section className="space-y-4 lg:col-span-2">
-            <h2 className="font-display text-lg font-semibold">3. The file</h2>
+        {/* ---------------------------------------------------- card 3 */}
+        <StageCard index="03" title="The file" className="lg:col-span-2">
+          <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={() => {
                   void exportPdf();
                 }}
@@ -1019,11 +1101,11 @@ export function CapyResume() {
                 onFocus={preloadPdfExporter}
                 disabled={busy !== null}
               >
-                {busy === 'pdf' ? 'Making PDF…' : 'Download PDF'}
+                {busy === "pdf" ? "Making PDF…" : "Download PDF"}
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={() => {
                   void exportDocx();
                 }}
@@ -1031,18 +1113,18 @@ export function CapyResume() {
                 onFocus={preloadDocxExporter}
                 disabled={busy !== null}
               >
-                {busy === 'docx' ? 'Making DOCX…' : 'Download DOCX'}
+                {busy === "docx" ? "Making DOCX…" : "Download DOCX"}
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={exportJson}
               >
                 JSON backup
               </button>
               <button
                 type="button"
-                className="min-w-[84px] rounded-md border border-border px-4 py-2 transition-colors duration-fade ease-ui hover:bg-muted active:bg-muted/70"
+                className="min-w-[84px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={() => fileInputRef.current?.click()}
               >
                 import JSON
@@ -1055,68 +1137,53 @@ export function CapyResume() {
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (file) void importJson(file);
-                  event.target.value = '';
+                  event.target.value = "";
                 }}
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Free, unlimited, and unwatermarked: the résumé is yours, so the download always is
-              too.
+              Free, unlimited, and unwatermarked: the résumé is yours, so the
+              download always is too.
             </p>
-          </section>
-        </div>
-      </main>
+          </div>
+        </StageCard>
+      </div>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-6xl px-6 py-6 text-xs text-muted-foreground">
-          <p className="leading-relaxed">
-            {SITE.name} — free, open source, and yours. Your résumé stays in this browser.{' '}
-            <Link href="/privacy" className="underline underline-offset-4">
-              privacy
-            </Link>{' '}
-            <Link href="/terms" className="underline underline-offset-4">
-              terms
-            </Link>{' '}
-            <Link href="/cookies" className="underline underline-offset-4">
-              cookies
-            </Link>
-          </p>
-          {/* The builder is where most people land, and it should not be a dead end: these
-              are the same four links the site header carries. The wordmark above goes
-              home, the legal links stay inline in the sentence. */}
-          <nav aria-label="site" className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
-            <Link
-              href="/templates"
-              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
-            >
-              templates
-            </Link>
-            <Link
-              href="/ats-resume-format"
-              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
-            >
-              ats resume format
-            </Link>
-            <Link
-              href="/resume-templates"
-              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
-            >
-              by role
-            </Link>
-            <Link
-              href="/free-cv-builder"
-              className="inline-block py-1 transition-colors duration-fade ease-ui hover:text-foreground"
-            >
-              by country
-            </Link>
-          </nav>
-        </div>
-      </footer>
+      {/* The builder should not be a dead end: the guides that sit beside it. */}
+      <nav
+        aria-label="CapyResume guides"
+        className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground"
+      >
+        <Link
+          href="/capyresume/templates"
+          className="inline-block py-1 transition-colors hover:text-foreground"
+        >
+          templates
+        </Link>
+        <Link
+          href="/capyresume/ats-resume-format"
+          className="inline-block py-1 transition-colors hover:text-foreground"
+        >
+          ats resume format
+        </Link>
+        <Link
+          href="/capyresume/resume-templates"
+          className="inline-block py-1 transition-colors hover:text-foreground"
+        >
+          by role
+        </Link>
+        <Link
+          href="/capyresume/free-cv-builder"
+          className="inline-block py-1 transition-colors hover:text-foreground"
+        >
+          by country
+        </Link>
+      </nav>
 
       <ConfirmDialog
         isOpen={confirming !== null}
-        title={confirming?.title ?? ''}
-        message={confirming?.message ?? ''}
+        title={confirming?.title ?? ""}
+        message={confirming?.message ?? ""}
         confirmText={confirming?.confirmText}
         confirmVariant="destructive"
         onConfirm={() => {

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_TEMPLATE_ID,
   TEMPLATE_LIST,

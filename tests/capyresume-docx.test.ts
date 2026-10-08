@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
 import { buildResumeDocx } from '@/lib/capyresume/docx';
 import { emptyResume } from '@/lib/capyresume/schema';
 import { TEMPLATE_LIST } from '@/lib/capyresume/templates';

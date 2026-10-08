@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
 import { act, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { TagsInput } from '@/components/tool/CapyResume';

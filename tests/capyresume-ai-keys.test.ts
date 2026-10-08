@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   AI_SETTINGS_KEY,
   EMPTY_AI_SETTINGS,
@@ -97,7 +99,7 @@ describe('capyresume/ai/keys — saving and removing', () => {
   });
 
   it('notifies subscribers on save and on removal', () => {
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = subscribe(listener);
 
     saveAiSettings({ providerId: 'openai', apiKey: 'sk-1', model: '', baseUrl: '' });
@@ -157,7 +159,7 @@ describe('capyresume/ai/keys — storage refusing', () => {
 
   it('a new key that cannot be stored replaces the old one for this session', () => {
     saveAiSettings({ ...EMPTY_AI_SETTINGS, apiKey: 'old-key-1234' });
-    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError');
     });
     saveAiSettings({ ...EMPTY_AI_SETTINGS, apiKey: 'new-key-5678' });
@@ -168,7 +170,7 @@ describe('capyresume/ai/keys — storage refusing', () => {
 
   it('a key that cannot be deleted from storage is still no longer used', () => {
     saveAiSettings({ ...EMPTY_AI_SETTINGS, apiKey: 'old-key-1234' });
-    const removeItem = jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+    const removeItem = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
       throw new Error('SecurityError');
     });
     clearAiSettings();

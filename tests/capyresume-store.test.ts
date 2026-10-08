@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   STORAGE_KEY,
   StorageUnavailableError,
@@ -131,7 +133,7 @@ describe('capyresume/store — persistence', () => {
   });
 
   it('fails loudly when the browser refuses to persist', () => {
-    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError');
     });
 
@@ -141,7 +143,7 @@ describe('capyresume/store — persistence', () => {
   });
 
   it('keeps editing in memory while storage refuses, and hands back to storage after', () => {
-    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError');
     });
     const typed = { ...emptyResume(), contact: { ...emptyResume().contact, name: 'Ada' } };
@@ -164,7 +166,7 @@ describe('capyresume/store — subscriptions', () => {
   });
 
   it('notifies subscribers on save and stops after unsubscribe', () => {
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = subscribe(listener);
 
     saveResume(emptyResume());
@@ -177,7 +179,7 @@ describe('capyresume/store — subscriptions', () => {
 
   it('notifies subscribers on clear', () => {
     saveResume(emptyResume());
-    const listener = jest.fn();
+    const listener = vi.fn();
     subscribe(listener);
 
     clearResume();
@@ -186,7 +188,7 @@ describe('capyresume/store — subscriptions', () => {
   });
 
   it('sees a write from another tab via the storage event', () => {
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = subscribe(listener);
 
     const other = emptyResume();

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   DEFAULT_PAPER_SIZE,
   PAPER_SIZES,
@@ -67,7 +69,7 @@ describe('capyresume/prefs — writing', () => {
   });
 
   it('notifies subscribers', () => {
-    const listener = jest.fn();
+    const listener = vi.fn();
     const unsubscribe = subscribe(listener);
     setPaperSize('LETTER');
     expect(listener).toHaveBeenCalledTimes(1);
@@ -76,7 +78,7 @@ describe('capyresume/prefs — writing', () => {
 
   it('keeps the choice in memory even when storage refuses to persist', () => {
     // jsdom's localStorage is a proxy, so the prototype is the reliable seam.
-    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceededError');
     });
 
