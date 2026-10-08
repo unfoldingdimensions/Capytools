@@ -39,31 +39,31 @@ function pageSectionClassName(): string {
 
 const classes = pageSectionClassName();
 
-describe('the live preview is pinned on large screens', () => {
+describe('the live preview is pinned on wide screens', () => {
   it('sticks below the top of the viewport with a gap', () => {
-    expect(classes).toMatch(/\blg:sticky\b/);
-    expect(classes).toMatch(/\blg:top-\d/);
+    expect(classes).toMatch(/\bxl:sticky\b/);
+    expect(classes).toMatch(/\bxl:top-\d/);
   });
 
   it('is allowed to travel, which requires opting out of the grid stretch', () => {
     // Without `self-start` the grid item stretches to its row height, the item
     // fills the row, and `sticky` has no distance left to move.
-    expect(classes).toMatch(/\blg:self-start\b/);
+    expect(classes).toMatch(/\bxl:self-start\b/);
   });
 
   it('never exceeds the viewport, so nothing in the pane is cut off', () => {
-    expect(classes).toMatch(/\blg:max-h-\[calc\(100dvh/);
-    expect(classes).toMatch(/\blg:flex\b/);
-    expect(classes).toMatch(/\blg:flex-col\b/);
+    expect(classes).toMatch(/\bxl:max-h-\[calc\(100dvh/);
+    expect(classes).toMatch(/\bxl:flex\b/);
+    expect(classes).toMatch(/\bxl:flex-col\b/);
   });
 
   it('scrolls the paper inside the pane instead of clipping it', () => {
     const card = pageCard();
-    expect(card).toMatch(/\blg:flex-1\b/);
-    expect(card).toMatch(/\blg:overflow-y-auto\b/);
+    expect(card).toMatch(/\bxl:flex-1\b/);
+    expect(card).toMatch(/\bxl:overflow-y-auto\b/);
     // `min-h-0` is what lets a flex child shrink below its content size and
     // become scrollable; without it the pane grows and the viewport cap loses.
-    expect(card).toMatch(/\blg:min-h-0\b/);
+    expect(card).toMatch(/\bxl:min-h-0\b/);
   });
 
   it('leaves the document surface as paper in both themes', () => {

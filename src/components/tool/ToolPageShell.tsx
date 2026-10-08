@@ -44,6 +44,7 @@ export function ToolPageShell({
   lead,
   align = "center",
   large = false,
+  wide = false,
   entrance = true,
   intent,
   children,
@@ -64,6 +65,8 @@ export function ToolPageShell({
   lead: string;
   /** Tool surface alignment: the four browser tools sit left, expense centers. */
   align?: "center" | "left";
+  /** A two-pane editor (CapyResume): the stage alone widens so form and page stay legible. */
+  wide?: boolean;
   /** CapyExpense's oversized stacked display. */
   large?: boolean;
   /** Mount entrance on the tool surface; expense's chart entrance draws itself. */
@@ -163,7 +166,7 @@ export function ToolPageShell({
 
         {/* The stage, on the band. */}
         <div className="lp-tool-band mt-9">
-          <div className={cn("mx-auto w-full px-6 py-10 sm:py-14", width)}>
+          <div className={cn("mx-auto w-full px-6 py-10 sm:py-14", wide ? "max-w-[88rem]" : width)}>
             {entrance ? (
               <Reveal delay={0.3} className={cn("w-full", align === "left" && "text-left")}>
                 {children}
