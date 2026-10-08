@@ -18,6 +18,7 @@ export default function CapyResumePage() {
       ]}
       lead="build it, export a real PDF or DOCX, keep the JSON. made in your tab, uploaded nowhere."
       align="left"
+      wide
     >
       <CapyResume />
     </ToolPageShell>

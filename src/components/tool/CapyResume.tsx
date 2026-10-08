@@ -797,7 +797,7 @@ export function CapyResume() {
         {notice}
       </p>
 
-      <div className="grid w-full gap-5 lg:grid-cols-2 lg:items-start">
+      <div className="grid w-full gap-5 xl:grid-cols-2 xl:items-start">
         <StageCard index="01" title="The details" marks actions={startOver}>
           <div className="space-y-6">
             {hints.length > 0 && (
@@ -1009,7 +1009,7 @@ export function CapyResume() {
         </StageCard>
 
         {/* ---------------------------------------------------- card 2 */}
-        {/* Pinned on `lg:` so the document stays visible while the form scrolls
+        {/* Pinned on `xl:` so the document stays visible while the form scrolls
               (.hermes/plans/2026-09-24_120000-sticky-preview.md). `self-start` is load-bearing:
               a grid item stretches to its row height by default, and a stretched item has no
               distance left to travel, so `sticky` would never engage. Measured before this:
@@ -1018,9 +1018,9 @@ export function CapyResume() {
         <StageCard
           index="02"
           title="The page"
-          className="lg:sticky lg:top-24 lg:self-start"
+          className="xl:sticky xl:top-24 xl:self-start"
         >
-          <div className="space-y-4 lg:flex lg:max-h-[calc(100dvh-10rem)] lg:flex-col">
+          <div className="space-y-4 xl:flex xl:max-h-[calc(100dvh-10rem)] xl:flex-col">
             <div className="flex flex-wrap gap-3">
               <label className="text-sm">
                 <span className="mb-1 block text-muted-foreground">
@@ -1072,7 +1072,7 @@ export function CapyResume() {
                 it — and `min-h-0` is what lets a flex child shrink below its content and
                 become scrollable at all. The scrollbar rides the gutter beside the paper,
                 never inside its border. */}
-            <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+            <div className="xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
               <div
                 className="max-w-[46rem] overflow-hidden rounded-md border border-border bg-white text-black"
                 style={previewPaperStyle(spec)}
@@ -1088,7 +1088,7 @@ export function CapyResume() {
         </StageCard>
 
         {/* ---------------------------------------------------- card 3 */}
-        <StageCard index="03" title="The file" className="lg:col-span-2">
+        <StageCard index="03" title="The file" className="xl:col-span-2">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
               <button
