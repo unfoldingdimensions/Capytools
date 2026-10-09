@@ -3,7 +3,7 @@ import { toolMetadata } from "@/lib/capytools/og";
 import { CapyPassport } from "@/components/tool/CapyPassport";
 
 export const metadata = toolMetadata("CapyPassport", {
-  title: "CapyPassport — passport & visa photos in your browser",
+  title: "Passport photo maker — US, UK & Schengen sizes, free, no upload | CapyPassport",
   description:
     "Crop a photo to US, UK or Schengen passport and visa specs, check the head geometry against the published rules, and print a sheet at home. Your photo never leaves this tab.",
 });
