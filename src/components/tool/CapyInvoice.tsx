@@ -692,7 +692,21 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
             </div>
 
             <div className="space-y-3 border-t border-border pt-5">
-              <p className={GROUP}>Adjustments</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className={GROUP}>Adjustments</p>
+                {doc.discountBp || doc.discountMinor || doc.amountPaidMinor ? (
+                  // One click back to none, instead of emptying each field in turn.
+                  <button
+                    type="button"
+                    className={BTN}
+                    onClick={() =>
+                      edit((d) => ({ ...d, discountBp: 0, discountMinor: 0, amountPaidMinor: 0 }))
+                    }
+                  >
+                    Clear adjustments
+                  </button>
+                ) : null}
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <span className={LABEL}>
