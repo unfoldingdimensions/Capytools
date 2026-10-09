@@ -112,7 +112,8 @@ const PACK_ZIP_NAME = "favicon-pack.zip";
 export function CapyResize({
   initialStage = "resize",
   initialFormat = "png",
-}: { initialStage?: StageId; initialFormat?: OutputFormat } = {}) {
+  initialQuality = 0.85,
+}: { initialStage?: StageId; initialFormat?: OutputFormat; initialQuality?: number } = {}) {
   const [stage, setStage] = useState<StageId>(initialStage);
 
   const [decoded, setDecoded] = useState<DecodedImage | null>(null);
@@ -130,7 +131,7 @@ export function CapyResize({
   // Stage A — the dial.
   const [width, setWidth] = useState(0);
   const [format, setFormat] = useState<OutputFormat>(initialFormat);
-  const [quality, setQuality] = useState(0.85);
+  const [quality, setQuality] = useState(initialQuality);
   const [flatten, setFlatten] = useState("#ffffff");
   const [result, setResult] = useState<ResizeResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
