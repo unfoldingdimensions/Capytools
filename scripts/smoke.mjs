@@ -95,7 +95,8 @@ const PAGES = [
   "/capyexpense", "/capyog", "/capyqr", "/capyresize", "/capytoken",
   "/capypixel", "/capytone", "/capybg", "/capyinvoice", "/notes", "/design", "/license",
   // INTENT_PAGES (src/lib/capytools/intents.ts)
-  "/favicon-generator", "/png-to-webp", "/wifi-qr-code-generator",
+  "/favicon-generator", "/png-to-webp", "/png-to-jpg", "/webp-to-png",
+  "/jpg-to-png", "/compress-image", "/wifi-qr-code-generator",
   "/vcard-qr-code-generator", "/og-image-size", "/contrast-checker", "/gradient-generator",
   "/event-qr-code-generator", "/website-color-extractor", "/midjourney-prompt-generator",
   "/free-invoice-generator", "/quote-template", "/receipt-maker",
