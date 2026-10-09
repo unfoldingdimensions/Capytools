@@ -337,8 +337,80 @@ Record both columns in `docs/research/keywords-<date>.md`, and say in the PR whi
 - **Formats shown:** hex, `rgb()`, `hsl()` (the other modes show hex only).
 **Consequence:** `rank.ts` also now sorts clusters by their *merged* count before the cap: they were ranked by the leader's own count, so a colour that merged into a big cluster could sit below a smaller one and, past 12, be dropped. Extract's order can change in that case (all existing tests pass). Copy claims checked in the browser: palette %, transparent/semi-transparent picks, keyboard steps, clipboard text. A partly transparent pixel reports its un-premultiplied RGB (the canvas rounds: 200 → 199) and says it is partly see-through. `CONTENT_UPDATED` was already `2026-10-09`. Not built: zoom/loupe, drag-to-scrub, per-pixel eyedropper API (`EyeDropper` is Chromium-only and picks screen pixels).
 
-## D51 — Verify, merge, delete the branch, confirm the deploy · **decided**
+---
+
+# Recovered from earlier sessions (2026-09-05 → 2026-10-03)
+
+*Added 2026-10-09 by a sweep of the old session transcripts, so those sessions can be deleted. Each entry was written from the transcript, then checked against the repo where the code still exists; where something was not rechecked it says so. Dates are when it happened, not when it was recorded.*
+
+## D51 — Domain: `capytools.app` · **decided**
+
+**Context:** budget about $15/year (session 2026-09-13).
+**Decision:** `capytools.app` at $14.20, renewing at the same price; `.app` reads as a tools site and is HTTPS-only by default. Runner-up `capytools.dev` ($12.20). Rejected: `.org` ($8.50 first year, $11.20 renewal — wrong meaning for a product) and `.io` ($50, over budget). It was bought through Cloudflare's own registrar in the **Capytools** Cloudflare account (see L45 for the account trap).
+
+## D52 — Hosting moved from Vercel to Cloudflare Workers; Vercel deleted · **decided**
+
+**Context:** the Cloudflare migration plan (`docs/research/cloudflare-migration/`, owner-local) ran in phases 0–7 during 2026-10-02/03; PR #28 and the follow-ups.
+**Decision:** OpenNext only (no WSL), after a phase of bundle trimming, on **Workers Paid** from the start; CI moved ahead of the DNS cutover; each deviation from the plan was written down as it happened. Once live, **Vercel was deleted** ("we only keep one dependency"); AGENTS.md §6 and README were rewritten for Workers (PRs: AGENTS/README, and a README fix that only *removed* lines contradicting the claims). Rate limiting is a Cloudflare WAF rule on the zone, not code.
+**Consequence:** the portable rules are AGENTS.md §6. Two findings behind it that are easy to lose: a Cache Rule cannot cache Worker output, so PR #34 (purge-after-deploy in `ci.yml`) was **closed unmerged** and the finding recorded in the migration plan; and the WAF rule on this plan only offers a 10-second counting period.
+
+## D53 — Privacy copy: no "telemetry"; say only what is true · **decided**
+
+**Context:** the 2026-09-13 launch review found the landing claiming "No telemetry" in about eight places while the layout mounted Vercel Analytics and Speed Insights (cookieless, but they beacon page views and Web Vitals — visible in devtools in seconds).
+**Decision:** drop the word, keep the components then; the copy became "No signup, no cookies, no server" (the owner later trimmed it to "no signup. no cookies. nothing stored"), and the notes colophon states what the analytics counted. The two components went away with Vercel (D52).
+**Consequence:** the privacy promise is the product — any new claim is checked against what the page ships (L13).
+
+## D54 — Security review of 2026-09: ten findings fixed, CSP shipped report-only · **decided**
+
+**Decision / what was fixed:**
+- **`desktop/src-tauri/src/lib.rs` — arbitrary code execution.** The "put the workbook on my desktop" button spliced a filename into a PowerShell script; a single quote is legal in a Windows filename and closes the string, so a crafted `.xlsx` name ran code on one click. Fixed by passing both paths as **environment variables**, making the script a constant. Proven with the COM object stubbed.
+- A PNG **decompression bomb** OOM'd the tab (uncatchable — the `try/catch` never fired); the CapyStrip inflate budget also charged `text.length`, so an over-limit chunk (a 60-char error string) bounded nothing.
+- No rate limit on routes that spend the server's GitHub token (41 requests per card); `sanitizeUsername` normalised but never rejected (a 5,000-character "username" was accepted, and `/u/<anything>` rendered it as the page title).
+- `shadcn` sat in production `dependencies` (dragging in Express and the MCP SDK; both `npm audit` findings); no security headers at all.
+- **CSV formula guard:** a blanket `-` prefix would have turned `-12.50` into text, because `amount` and user-added numeric columns share `escapeField`; bare numbers are exempt.
+- **CSP:** shipped as `Content-Security-Policy-Report-Only` on purpose. It caught a real gap on first load (`va.vercel-scripts.com`); it is **still report-only** (`next.config.ts`) — promoting it is open work.
+**Consequence:** 27 new tests, one per guard.
+
+## D55 — One PR per tool, branched from `main`; never stack · **decided**
+
+**Context:** CapyOG, CapyQR and CapyResize were opened as #14 → #15 → #16, each based on the last. A bug found reviewing CapyOG could only be fixed in the CapyResize tree, #14 sat open shipping the bugs it was reviewed for, and merging meant walking the stack in order.
+**Decision:** branch from current `main`, open against `main`, merge, `git pull` before the next. Several in flight in parallel is fine — only *stacked* is the problem. (D1/D15 stacked branches for the landing and tool pages; that was a one-off, not the rule.) The recipe is in CONTRIBUTING.md "Adding a tool"; AGENTS.md §5 used to describe a `TOOLS` array in `page.tsx` and now points there (the stale copy was AGENTS.md, not CONTRIBUTING).
+
+## D56 — CapyBench was designed, run once, and closed · **decided**
+
+**Context:** the owner wanted a "flappybench"-style visual benchmark with capybara theming (session 2026-09-12). PR #12 (`feat/capybench`: spec, prompt, runner, pricing) was **closed unmerged** and its branch deleted; `docs/research/capybench/` is not in the repo. Everything below exists only in that session's transcript.
+**Decision:**
+- The site shows **uploaded videos**, not live runs.
+- **The test:** one prompt for every model — make a little capybara hot spring that runs by itself in one web page, one file, no internet, no outside code. Ten capybaras drawn in code, each getting cold, hungry and lonely and deciding for itself; **four bath spots for ten animals** so they queue; rocks and a stone lantern to path around; a day passes every minute.
+- **Reversed mid-session:** API runs were replaced by each model in its **native harness** (Claude Code, Antigravity for Gemini, the Hermes agent for models with none), one isolated folder per run named `<model>-<date>` (runs live in `E:\capybench-runs`), the harness stated next to every result. The cost: tokens and time stop being comparable across models, and harness capability (can it open the page and look at it?) becomes the largest variable.
+- **Pricing correction:** the research file had Claude Fable 5.1 at $10/$25; Anthropic's canonical table and the research's own sources say **$10/$50**, and the batch note was derived from the wrong figure. Haiku's model id is undated (`claude-haiku-4-5`). Merge research data against the canonical table, never retype 18 rows.
+**First result:** nobody nailed the capybara; DeepSeek V4.1 drew the best animal, GLM 5.3 was good but guinea-pig-like, and the four runs spread clearly — which is what a discriminating benchmark needs.
+
+## D57 — CapyExpense scope: no Excel dashboard sheet · **decided**
+
+**Context:** CapyExpense became tool no. 5 (CapyOG renumbered to 6, since it then existed only as a plan). The owner is a data analyst and wanted the one analytic tool in the library.
+**Decision:** the workbook has no `Summary` dashboard sheet, and the plan also cut `ALL DATA` (further than asked, flagged for the owner): a sheet only the app refreshes goes stale behind whatever the analyst last typed in Excel — the same trap as the CSV active-sheet problem the design already avoids. The analysis core (`src/lib/capyexpense/`) stays pure — no exceljs, no Tauri, no React — so the desktop app and the web demo share it unchanged; a round-trip test forges workbooks from older and newer builds with columns reordered and unknown columns added.
+**Also:** the OpenDesign landing run used Opus and consumed about half a 5-hour limit in 16 minutes (see the memory note on confirming agent cost); its output was ported selectively into D1–D14.
+
+## D58 — CapyWrapped share and card behaviour · **decided**
+
+- **The sparkline is contributions, not stars** (the big numeral and the STARS cell are stars). The 12-month curve comes from GitHub's public contribution calendar (exact per-day counts, 365 days, no auth); the events feed keeps only ~300 events / ~90 days, so it can never show a year. Under 12 months of history the chart shows as many months as exist; months are totalled for smoothness; a dotted guide marks the busiest month ("273 contributions in Jan 2026").
+- **Sharing:** X's intent accepts only `text`, `url`, `hashtags`, `via`; LinkedIn's `share-offsite` accepts only `url` — neither can attach an image, so the image reaches a post through the **OG unfurl** of the link, and the **LinkedIn button was removed** (a test pins it gone). `navigator.share({files})` is used only on touch-primary devices (`(pointer: coarse)`). The tweet text carries no "busiest weekday" line.
+- **Naming:** the card says "GitHub wrapped" so a stranger understands it; the tool name stays CapyWrapped.
+- **The logo:** the owner rewound the first mascot-animation attempt and had it reverted; the shipped mark was traced later from the owner's SVGs with the local `capytracer` project (static frames, light/dark variants, `BrandMark`), mascot art placed in five real spots, the `CapyScene` rig retired, and custom 404 and error pages added. The animated `CapyTools.lottie` was measured on `perf/capy-lottie-spike` and not shipped; the file in the repo root is untracked and safe to delete.
+
+## D59 — CapyStrip's size limit asks the browser, not a pixel constant · **decided**
+
+**Context:** a 2.4 MB phone JPEG (about 24 MP) got "no clean copy": `clean.ts` refused anything over 16,777,216 px, which is Safari/iOS's canvas limit applied to every browser.
+**Decision:** probe what the browser can actually do. The hazard is real — past a browser's limit a canvas looks fine and paints nothing, `toBlob` hands back a valid blob of a blank image, and the re-scan of a blank bitmap says "verified". The probe catches that. **Consequence:** a 50 MP image allocates ~200 MB of canvas, and the same photo can behave differently across devices; that is the honest outcome.
+**Other review fixes (2026-09):** CapyCreator's raw ask never reached the prompt at tier 4–5; an empty polish reply (reasoning-only, stripped to `""`) deleted the output card — now guarded in shared `llm.ts` for every tool; the Cohere preset used a URL with no `/chat/completions` and now points at the compatibility surface; a partial-GPS photo hung CapyStrip (`exifr.gps()` returns a truthy `{}`).
+
+---
+
+## D60 — Verify, merge, delete the branch, confirm the deploy · **decided**
+
+*First recorded as D51 in #105; renumbered when the session sweep above claimed D51–D59.*
 
 **Context:** merged branches piled up (five deleted by hand on 2026-10-09), and a merge to `main` deploys, so "merged" is not "done".
 **Decision:** when the owner asks for a PR to be merged, the agent: (1) verifies first — full `vitest`, `npm run lint`, `npx next typegen && npx tsc --noEmit`, the change exercised in a dev server when it is visible there, and the PR's CI green; (2) merges only then, after checking no `main` deploy is still running (CI cancels in progress); (3) deletes the branch locally and on GitHub (`gh pr merge --squash --delete-branch`) and removes its worktree; (4) watches the `main` deploy to the end and reports the smoke result and the IndexNow line. A failed smoke is a fix-forward PR, not a finished task.
-**Consequence:** only `main` and branches with open PRs exist. The owner still decides *when* to merge (AGENTS.md: merging deploys); this decision is the procedure once they have.
+**Consequence:** only `main` and branches with open PRs exist. The owner still decides *when* to merge (AGENTS.md: merging deploys); this decision is the procedure once they have. AGENTS.md §6 "Merging" carries the short form.

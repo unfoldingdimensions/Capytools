@@ -203,3 +203,55 @@ The brief for IndexNow said "save the live sitemap before deploy and diff after"
 ## L40. A leader-clustering ranker must re-sort after merging
 
 `rankPalette` sorted by raw count, clustered greedily, then returned clusters in leader order — but merging adds to a cluster's weight, so the order stopped being by weight and the 12-swatch cap could cut a heavy merged cluster. On a photo it showed as 23%, 15%, 5%, 6%, 1%… Sort by the merged count before the cap (stable, so ties keep leader order).
+
+---
+
+# Recovered from earlier sessions (2026-09-05 → 2026-10-03)
+
+*Added 2026-10-09 by a sweep of the old session transcripts. Decisions for these are D51–D59 in [decisions.md](decisions.md).*
+
+## L41. A stretched SVG viewBox makes a "bad line" and a "bad dot"
+
+The CapyWrapped sparkline was built in a 300×80 viewBox and drawn into a 1092×130 box with `preserveAspectRatio="none"` — a 3.7× horizontal stretch: the dot became a 26×7 ellipse and horizontal strokes came out thick while vertical ones were thin. **Rule:** compute geometry at the true pixel size and drop `preserveAspectRatio="none"`; keep stroke, radius and opacity in one shared constant (`SPARK`) so preview, export and OG render agree.
+
+## L42. `backdrop-filter` plus a global colour transition shimmers during a theme sweep
+
+Header text and the logo "glitched" for about a second when the theme changed. A sticky header's `backdrop-blur` re-samples whatever is behind it every frame, and the content behind was changing as the reveal circle swept past; a global 150 ms colour transition was running underneath the sweep too. **Rule:** no `backdrop-filter` on chrome that a full-page transition passes over, and don't layer a blanket colour transition under an imperative reveal.
+
+## L43. The browser pane cannot composite a View Transition
+
+`document.startViewTransition` came back `ready: REJECTED — Transition was aborted because of invalid state` on every site tried, ours and the reference's, so a theme-reveal animation looked absent and the first analysis was wrong. The `::view-transition` rules with `animation: none` are the fingerprint of an imperative clip-path reveal driven from JS after `transition.ready`. **Rule:** check `ready`/`finished` before concluding an animation is missing, and judge motion in a real browser window. Same family as L19 and L37.
+
+## L44. `navigator.share({files})` on desktop opens the OS share sheet, not X
+
+On Windows it lists Paint, Outlook and Nearby Sharing and hijacks the click. It is the only API that truly attaches a file, so keep it for touch-primary devices (`(pointer: coarse)`); on desktop, share the link and let the OG card unfurl (D58).
+
+## L45. Cloudflare accounts and tokens (2026-10-03)
+
+- The domain (D51) was bought in the **Capytools** account, not the `unfoldingdimensions` one; the first deploy went to the wrong account before it was corrected and the stray Worker deleted. Pin `account_id` in `wrangler.jsonc` (AGENTS.md §6) and check `wrangler whoami` against the account the zone is in before any deploy.
+- A purge-capable token needs the **Zone** row `Cache Purge · Purge`, not an Account row; the "Edit Cloudflare Workers" template only creates Account rows. If Zone isn't offered, create a custom token with five rows: Account Workers Scripts Edit, Account Account Settings Read, Zone Workers Routes Edit, Zone DNS Edit, Zone Cache Purge Purge, scoped to the one account and zone. (Moot now — the purge PR was closed, D52 — but the rows are what a future purge or DNS change needs.)
+- A first `wrangler secret put` on a Worker that doesn't exist yet asks to create it; answer yes.
+
+## L46. Await nothing in a browser without a ceiling
+
+`cleanImage` awaited `img.decode()` with no timeout; where decode never settles (the background pane, L37; some real devices) card 03 silently never appeared. A tool that fails by showing nothing is the worst failure. **Rule:** every await on a decode, load or probe gets a ceiling and a visible message. All four CapyStrip defects found in the 2026-09 review were of this kind — paths no unit test could reach, each ending in an empty screen.
+
+## L47. A half-committed snapshot of a shared working tree fails the deploy
+
+PR #16's build failed on `tests/capyog.test.ts`: a commit had swept in new contrast *tests* but not the `themes.ts` that defines `accentText`/`accentFill`. The source half sat uncommitted in a tree several agents share. **Rule:** before pushing, run `tsc` and the tests on the committed state of a fresh worktree (L21), not the working tree.
+
+## L48. Don't repeat a PR description's claim without opening the file
+
+"CONTRIBUTING.md still describes a `TOOLS` array" came from a PR body; CONTRIBUTING had already been modernised, and the stale copy was AGENTS.md §5 — the worse one, because agents load it. Verify, then correct yourself in the open.
+
+## L49. A platform limit hard-coded as a constant gets applied everywhere
+
+16,777,216 px was Safari's canvas ceiling; applied to every browser it refused a normal 24 MP phone photo (D59). **Rule:** when code encodes one platform's limit, feature-detect instead; the original comment had already predicted the failure.
+
+## L50. A filename is untrusted input, in every language you splice it into
+
+A single quote is legal in a Windows filename and ends a PowerShell string, so `Budget 2026'; …'.xlsx` ran code (D54). **Rule:** pass paths to a script as environment variables or arguments, never interpolate them. Likewise a caught exception doesn't help against memory exhaustion: bound decompression by output size before inflating.
+
+## L51. Machine-written research needs a cross-check, not a retype
+
+The CapyBench pricing research was good and flagged its own unverifiable claims, yet still carried one 2× error on the most expensive model (D56). Diff it against the canonical source (here the Anthropic table the `claude-api` skill carries) before it reaches a money path.

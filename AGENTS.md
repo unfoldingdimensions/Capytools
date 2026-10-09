@@ -115,6 +115,15 @@ see `.env.cloudflare.example`. Pushes to `main` deploy through CI and then run
 that is what catches a page broken by the platform rather than by the change.
 Worker version history is the only rollback (`wrangler rollback`).
 
+**Merging** (decisions.md D60). The owner decides when; once asked, the agent
+(1) verifies — full `vitest`, `npm run lint`, `npx next typegen && npx tsc
+--noEmit`, the change in a dev server when it is visible there, the PR's CI
+green; (2) merges only when no `main` deploy is running (CI cancels in
+progress); (3) deletes the branch locally and on GitHub
+(`gh pr merge --squash --delete-branch`) and removes its worktree; (4) watches
+the `main` deploy to the end and reports the smoke and IndexNow lines. A failed
+smoke means a fix-forward PR, not a finished task.
+
 **On Windows**, orphaned `workerd` processes hold `.open-next` and fail the next
 build with `EPERM`. `npm run cf-clean` clears them.
 
