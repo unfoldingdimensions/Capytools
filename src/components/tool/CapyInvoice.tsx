@@ -355,8 +355,15 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
     [edit],
   );
 
-  const addLine = () =>
+  // A new line takes focus, so the click visibly lands somewhere (DESIGN.md "Controls and hierarchy").
+  const addLine = () => {
     edit((d) => ({ ...d, lines: [...d.lines, emptyLine()] }));
+    const added = getSnapshot().lines.at(-1);
+    if (added)
+      requestAnimationFrame(() =>
+        document.querySelector<HTMLInputElement>(`[name="${CSS.escape(added.id)}-description"]`)?.focus(),
+      );
+  };
 
   const moveLine = useCallback(
     (lineId: string, delta: number) =>
