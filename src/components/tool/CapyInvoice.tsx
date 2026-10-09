@@ -72,7 +72,6 @@ import {
 import {
   currencyMinorDigits,
   formatMoney,
-  isCurrencyCode,
   parseMinorUnits,
   parsePercentToBp,
   parseQuantity,
@@ -108,10 +107,28 @@ const KINDS: { value: DocKind; label: string }[] = [
   { value: "receipt", label: "Receipt" },
 ];
 
-const CURRENCY_SUGGESTIONS = [
+/** The everyday currencies first; then every other ISO 4217 code this browser knows. */
+const COMMON_CURRENCIES = [
   "USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "SEK", "NOK", "DKK",
   "INR", "SGD", "HKD", "NZD", "ZAR", "BRL", "MXN", "PLN", "CZK", "KWD",
 ];
+
+function currencyChoices(current: string): string[] {
+  const all = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("currency") : [];
+  const rest = all.filter((code) => !COMMON_CURRENCIES.includes(code));
+  const list = [...COMMON_CURRENCIES, ...rest];
+  // A document can carry a code this runtime does not list (an import); keep it choosable.
+  return list.includes(current) || !current ? list : [current, ...list];
+}
+
+function currencyLabel(code: string): string {
+  try {
+    const name = new Intl.DisplayNames(undefined, { type: "currency" }).of(code);
+    return name && name !== code ? `${code} — ${name}` : code;
+  } catch {
+    return code;
+  }
+}
 
 function kindLabels(kind: DocKind): { numberLabel: string; dueLabel: string } {
   switch (kind) {
@@ -292,8 +309,6 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
 
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  /** The currency field while focused: a half-typed code ("EU") is not yet a currency. */
-  const [currencyDraft, setCurrencyDraft] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<{
     title: string;
     message: string;
@@ -629,32 +644,29 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                   onChange={(event) => setField("number", event.target.value)}
                 />
               </Field>
-              <Field label="Currency">
-                <input
-                  className={cn(FIELD, "font-mono")}
-                  name="doc-currency"
-                  aria-label="Currency, three letters"
-                  autoComplete="off"
-                  spellCheck={false}
-                  maxLength={3}
-                  placeholder="USD"
-                  list="capyinvoice-currencies"
-                  value={currencyDraft ?? doc.currency}
-                  onFocus={() => setCurrencyDraft(doc.currency)}
-                  onChange={(event) => {
-                    // Keep every keystroke; the document takes the code once it is a real one.
-                    const raw = event.target.value.toUpperCase();
-                    setCurrencyDraft(raw);
-                    if (isCurrencyCode(raw)) setField("currency", raw);
-                  }}
-                  onBlur={() => setCurrencyDraft(null)}
-                />
-                <datalist id="capyinvoice-currencies">
-                  {CURRENCY_SUGGESTIONS.map((code) => (
-                    <option key={code} value={code} />
-                  ))}
-                </datalist>
-              </Field>
+              <div>
+                <span id="capyinvoice-currency-label" className={LABEL}>
+                  Currency
+                </span>
+                {/* A real dropdown: the earlier text box with suggestions only listed what matched
+                    the code already in it, so clicking it showed "GBP" and nothing else. */}
+                <Select value={doc.currency} onValueChange={(code) => setField("currency", code)}>
+                  <SelectTrigger
+                    className="w-full rounded-xl bg-background font-mono"
+                    aria-labelledby="capyinvoice-currency-label"
+                  >
+                    {/* The code alone, so the closed control never depends on the runtime's names. */}
+                    <SelectValue>{doc.currency}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-80">
+                    {currencyChoices(doc.currency).map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {currencyLabel(code)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Field label="Issue date">
                 <input
                   className={cn(FIELD, "tabular-nums")}
