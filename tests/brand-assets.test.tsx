@@ -14,24 +14,25 @@ import { describe, expect, it } from "vitest";
 const svg = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
 
 const VARIANTS = [
-  { file: "public/brand/logo.svg", disc: "#8e9b7e", animal: "#f9f9f7" },
-  { file: "public/brand/logo-dark.svg", disc: "#f9f9f7", animal: "#121212" },
+  { file: "public/brand/logo.svg", lines: "#8e9b7e", fill: "#f9f9f7" },
+  { file: "public/brand/logo-dark.svg", lines: "#f9f9f7", fill: "#121212" },
 ];
 
 describe("brand SVGs", () => {
-  for (const { file, disc, animal } of VARIANTS) {
+  for (const { file, lines, fill } of VARIANTS) {
     it(`${file} uses the brand tokens, not sampled approximations`, () => {
       const s = svg(file);
-      expect(s).toContain(disc);
-      expect(s).toContain(animal);
+      expect(s).toContain(`fill="${lines}" fill-rule="evenodd"`);
+      expect(s).toContain(`fill="${fill}" d=`);
     });
   }
 
-  it("the mono mark carries no disc and one ink colour", () => {
+  it("the mono mark carries only the lines, in one ink colour", () => {
     const s = svg("public/brand/logo-mono.svg");
-    expect(s).not.toContain("<circle");
+    expect(s.match(/<path/g)).toHaveLength(5);
     expect(s).toContain("#121212");
     expect(s).not.toContain("#8e9b7e");
+    expect(s).not.toContain("#f9f9f7");
   });
 
   for (const file of [...VARIANTS.map((v) => v.file), "public/brand/logo-mono.svg"]) {
@@ -71,13 +72,13 @@ describe("brand SVGs", () => {
   });
 
   it("the dark mark is visible on the dark page it is for", () => {
-    // The bug this replaces: a #121212 disc on a #121212 canvas is a 1.00:1
-    // disc — the animal floated with no container at all.
-    expect(svg("public/brand/logo-dark.svg")).not.toMatch(/<circle[^>]*fill="#121212"/);
+    // An earlier dark file was charcoal-on-charcoal (1.00:1). The lines are
+    // what outline the gear, so they must not be the canvas colour.
+    expect(svg("public/brand/logo-dark.svg")).not.toMatch(/fill="#121212" fill-rule="evenodd"/);
   });
 
-  it("the two disc variants are the same drawing, only recoloured", () => {
-    // If these ever diverge, the light and dark favicons are different animals.
+  it("the two coloured variants are the same drawing, only recoloured", () => {
+    // If these ever diverge, the light and dark favicons are different marks.
     const strip = (s: string) => s.replace(/#[0-9a-fA-F]{6}/g, "");
     expect(strip(svg("public/brand/logo.svg"))).toBe(strip(svg("public/brand/logo-dark.svg")));
   });
@@ -107,21 +108,22 @@ describe("generated icons", () => {
 
 describe("BrandMark, the inline copy", () => {
   it("draws every path the file draws — two copies of a logo silently drift", async () => {
-    const { BRAND_PATHS, BRAND_VIEWBOX } = await import("../src/lib/capytools/brand-paths");
+    const { BRAND_BASE, BRAND_PATHS, BRAND_VIEWBOX } = await import("../src/lib/capytools/brand-paths");
     const file = svg("public/brand/logo.svg");
     expect(BRAND_PATHS).toHaveLength(5);
+    expect(file).toContain(BRAND_BASE);
     for (const d of BRAND_PATHS) expect(file).toContain(d);
     expect(file).toContain(`viewBox="${BRAND_VIEWBOX}"`);
   });
 
-  it("renders the disc and all five paths, themed by token", async () => {
+  it("renders the gear's fill and all five line paths, themed by token", async () => {
     const { renderToStaticMarkup } = await import("react-dom/server");
     const { BrandMark } = await import("../src/components/brand-mark");
     const html = renderToStaticMarkup(<BrandMark />);
 
-    expect(html).toContain("<circle");
-    expect((html.match(/<path/g) ?? []).length).toBe(5);
-    // evenodd is load-bearing: without it the eye and the toe gaps fill solid.
+    expect(html).not.toContain("<circle");
+    expect((html.match(/<path/g) ?? []).length).toBe(6);
+    // evenodd is load-bearing: without it the rings and letter counters fill solid.
     expect(html).toContain('fill-rule="evenodd"');
     // Tokens, not literals — the sage lifts in dark mode, the ink does not.
     expect(html).toContain("var(--brand-disc)");

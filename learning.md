@@ -255,3 +255,7 @@ A single quote is legal in a Windows filename and ends a PowerShell string, so `
 ## L51. Machine-written research needs a cross-check, not a retype
 
 The CapyBench pricing research was good and flagged its own unverifiable claims, yet still carried one 2× error on the most expensive model (D56). Diff it against the canonical source (here the Anthropic table the `claude-api` skill carries) before it reaches a money path.
+
+## L52. VTracer's defaults over-segment flat art
+
+The CT gear traced at the default `length_threshold` (4) gave 33 KB of SVG — inlined in every page header. `length_threshold` 20 plus integer coordinates gave 12.5 KB with no visible change (0.78% pixel difference at 512 px). On the Windows wheel the extra parameters are positional too: `(…, layer_difference, corner_threshold, length_threshold, max_iterations, splice_threshold, path_precision)`. Measure the trace against the source raster (threshold both, XOR) rather than eyeballing it.

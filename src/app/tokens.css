@@ -27,8 +27,8 @@
   --primary: #8e9b7e;           /* sage */
   --primary-foreground: #141412;/* dark ink for WCAG AA 4.5:1+ contrast */
   /* The brand mark's own two colours. Separate from --primary/--background
-     because the mark must NOT invert with the theme: the animal stays cream on
-     a sage disc in both, and only the sage takes the dark-mode lift. Cream on
+     because the mark must NOT follow the UI tokens: the CT gear is drawn in sage
+     lines (--brand-disc) over a cream fill (--brand-ink). Cream on
      sage is 2.79:1, below the 3:1 non-text floor — WCAG 1.4.11 exempts
      logotypes, and this is the approved artwork, not a UI affordance. */
   --brand-disc: #8e9b7e;
@@ -100,7 +100,7 @@
   --primary-foreground: #141412;
   /* Dark mode INVERTS the mark rather than lifting it. A sage disc reads on
      the charcoal page (7.66:1) but stays a mid-tone; cream carries 17.77:1 and
-     puts the animal in charcoal, which is the same contrast the other way. It
+     draws the gear in cream over charcoal, which is the same contrast the other way. It
      is a bolder mark in dark on purpose — the one place the brand is allowed
      to be loud. */
   --brand-disc: #f9f9f7;
