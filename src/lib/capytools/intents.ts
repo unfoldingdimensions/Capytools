@@ -123,6 +123,176 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     },
   },
   {
+    href: "/png-to-jpg",
+    tool: "CapyResize",
+    label: "PNG to JPG",
+    title: "PNG to JPG converter — pick the background, free, no upload | CapyResize",
+    description:
+      "Convert PNG to JPG with a quality slider, a colour for the transparent areas and the real before-and-after file sizes. 100% in your browser, nothing uploaded.",
+    headline: [{ text: "PNG in," }, { text: "JPG out", em: true, dot: true }],
+    lead: "You choose what fills the transparent parts, set the quality, and see the real file size.",
+    guide: {
+      heading: "How to convert PNG to JPG",
+      summary:
+        "Convert a PNG to JPG in your browser: choose the colour that replaces transparency, set the quality, and see the real before-and-after file sizes.",
+      steps: [
+        "Drop a PNG, or paste one from your clipboard. JPG is already selected as the output.",
+        "If the image has transparent areas, choose the colour they are flattened onto — white until you change it — and move the quality slider.",
+        "Check the file sizes shown, then download the .jpg.",
+      ],
+      about: [
+        "JPG has no transparency, so every clear pixel in a PNG has to become some colour. This tool fills the background with the colour in “Flatten onto” before it encodes, which means you pick it — a logo for a white page gets white, one for a dark slide gets a dark fill — instead of finding out afterwards.",
+        "Quality runs from 0.50 to 1.00 and starts at 0.85. A photo saved as a PNG usually shrinks a lot as a JPG; a flat graphic or a screenshot with sharp text may not, and JPG softens hard edges. The line under the preview shows the real size of the file that will download, and says “larger” when the JPG is bigger than the PNG you dropped.",
+      ],
+      faq: [
+        {
+          q: "What happens to the transparent parts of my PNG?",
+          a: "They are filled with the “Flatten onto” colour, which starts as white. The JPG has no transparency, so there's no way to keep it — pick the fill that suits where the image will sit.",
+        },
+        {
+          q: "Why is my JPG bigger than the PNG?",
+          a: "It can happen with flat colours, icons and screenshots, which PNG compresses well. The size line says “larger” when it does. Lower the quality, or keep the PNG.",
+        },
+        {
+          q: "What quality should I choose?",
+          a: "0.85 is a safe start for photos. Slide it down while watching the preview, and stop just before you can see the difference.",
+        },
+        {
+          q: "Does the file leave my computer?",
+          a: "No. Your browser decodes the PNG and writes the JPG itself. There's no upload step to wait for, and nothing is kept afterwards.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/webp-to-png",
+    tool: "CapyResize",
+    label: "WebP to PNG",
+    title: "WebP to PNG converter — lossless, transparency kept, free | CapyResize",
+    description:
+      "Convert WebP to PNG in your browser: lossless output, transparency kept, and the real file sizes before and after. Nothing is uploaded.",
+    headline: [{ text: "WebP in," }, { text: "PNG that opens anywhere", em: true, dot: true }],
+    lead: "A lossless PNG from your WebP, with any transparency intact. Nothing leaves this tab.",
+    guide: {
+      heading: "How to convert WebP to PNG",
+      summary:
+        "Convert a WebP image to PNG in your browser: the output is lossless, transparency is kept, and the real file sizes are shown.",
+      steps: [
+        "Drop the WebP file, or paste an image you copied. PNG is already selected as the output.",
+        "Leave the width alone for a same-size copy, or set a smaller one. PNG has no quality slider, because there is nothing to trade away.",
+        "Read the size line, then download the .png.",
+      ],
+      about: [
+        "Pick PNG when the app, editor or upload form in front of you won't accept WebP. The PNG is lossless: the pixels your browser decoded from the WebP are written out exactly, and transparent pixels stay transparent — there is no flatten colour to choose, as there is for JPG.",
+        "Expect the PNG to be larger than the WebP, often by a lot for photographs, because WebP is built to be small and PNG is built to be exact. The size line shows both numbers measured from the real files.",
+      ],
+      faq: [
+        {
+          q: "Does the PNG keep the WebP's transparency?",
+          a: "Yes. Clear pixels in the WebP are clear in the PNG; nothing is filled in.",
+        },
+        {
+          q: "Why is the PNG so much larger than the WebP?",
+          a: "WebP compresses far more aggressively. A lossless PNG of the same picture stores every pixel, so it weighs more. The tool reports the exact difference.",
+        },
+        {
+          q: "Will the PNG look better than the WebP?",
+          a: "No. If the WebP was saved lossy, its lost detail is gone for good. The PNG just stops any more being lost when you edit and save again.",
+        },
+        {
+          q: "What will the file be called?",
+          a: "Your original name plus the width and the new extension — photo.webp at 1200 px wide becomes photo-1200w.png.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/jpg-to-png",
+    tool: "CapyResize",
+    label: "JPG to PNG",
+    title: "JPG to PNG converter — lossless output, free, no upload | CapyResize",
+    description:
+      "Convert JPG to PNG in your browser. The PNG is lossless but usually a bigger file, and the real before-and-after sizes are shown. Nothing is uploaded.",
+    headline: [{ text: "JPG in," }, { text: "a lossless PNG", em: true, dot: true }],
+    lead: "Honest about the trade: a PNG of your JPG is exact, and usually much bigger.",
+    guide: {
+      heading: "How to convert JPG to PNG",
+      summary:
+        "Convert a JPG to PNG in your browser. The PNG is lossless but usually larger than the JPG, and the tool shows both file sizes so you can see by how much.",
+      steps: [
+        "Drop a JPG or JPEG file. PNG is already selected as the output.",
+        "Keep the width as it is to preserve every pixel. There is no quality slider, because PNG doesn't throw anything away.",
+        "Read the size line — expect the PNG to be larger — then download the .png.",
+      ],
+      about: [
+        "A JPG is lossy: it discarded some detail when it was saved. Converting to PNG doesn't bring that back. What it does is freeze the picture as it is now, so you can edit and re-save it without losing a little more each time, or hand it to something that only accepts PNG.",
+        "That is also why the PNG is bigger. JPG's compression is designed for photographs; PNG stores pixels exactly, and a photograph as a PNG is commonly several times the size of the JPG. The size line reports it as “larger” rather than hiding it.",
+        "A JPG has no transparent pixels, so the PNG won't have any either. To cut out a background first, CapyBg on this site removes it in your browser.",
+      ],
+      faq: [
+        {
+          q: "Does converting JPG to PNG improve the quality?",
+          a: "No. The PNG is a lossless copy of what the JPG already shows, not a restoration of what it lost.",
+        },
+        {
+          q: "Why is my PNG so much bigger than the JPG?",
+          a: "Because it keeps every pixel exactly instead of approximating them. The bigger the photo, the bigger the gap.",
+        },
+        {
+          q: "Will the PNG have a transparent background?",
+          a: "No. A JPG is fully opaque, and converting the format doesn't remove the background. Run it through CapyBg first if you want one cut out.",
+        },
+        {
+          q: "Is my photo sent anywhere?",
+          a: "No — the conversion runs inside this page, so the photo stays on your device and nothing is stored once you close the tab.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/compress-image",
+    tool: "CapyResize",
+    label: "Compress image",
+    title: "Compress image — make photos smaller, free, no upload | CapyResize",
+    description:
+      "Shrink an image's file size in your browser: lower the quality, reduce the width, and see the real bytes saved after encoding. Nothing is uploaded.",
+    headline: [{ text: "Same picture," }, { text: "fewer bytes", em: true, dot: true }],
+    lead: "Starts at a lower quality than the converter. The savings shown are measured, not guessed.",
+    guide: {
+      heading: "How to compress an image",
+      summary:
+        "Make an image's file smaller in your browser by lowering the quality and, if you like, the width; the savings shown are measured after the image is actually encoded.",
+      steps: [
+        "Drop an image. JPG is selected and the quality starts at 0.70, lower than the converter's 0.85.",
+        "Lower the quality or set a smaller width — the width usually saves more — and compare the preview as you go.",
+        "Read the “before → after” line for the real saving, then download the smaller file.",
+      ],
+      about: [
+        "A file gets smaller in two ways: lower quality, or fewer pixels. A phone photo can be thousands of pixels wide, far more than a web page shows, so cutting the width often saves more than any quality setting. Both controls are on the dial, and the before-and-after figure compares the new file with the exact size of the one you dropped.",
+        "JPG is the starting format because every device opens it and every browser can write it. WebP is often smaller still and is one click away, but some browsers — Safari among them — can't encode it and quietly write a PNG, which is the opposite of smaller. When that happens the tool tells you, and names the file .png so the extension is true. JPG has no transparency, so transparent areas are filled with the “Flatten onto” colour; choose WebP if you need to keep them.",
+        "If the file was already well compressed, re-encoding can make it larger. The line says so, and then the original is the one to keep.",
+      ],
+      faq: [
+        {
+          q: "How much smaller will my image get?",
+          a: "It depends on the picture and the settings, so the tool doesn't promise a figure. It encodes the file for real and shows the exact before and after.",
+        },
+        {
+          q: "Will compressing change how it looks?",
+          a: "JPG and WebP at lower quality discard detail, and the preview shows what you'll get. Your original file is never touched; you download a new one.",
+        },
+        {
+          q: "Can I compress a PNG?",
+          a: "Yes, two ways: convert it to JPG or WebP and lower the quality, or keep PNG and set a smaller width. PNG itself has no quality setting, so its size only falls as the width does.",
+        },
+        {
+          q: "Is my image uploaded to compress it?",
+          a: "No. The compression happens in your browser, so nothing is sent or stored.",
+        },
+      ],
+    },
+  },
+  {
     href: "/wifi-qr-code-generator",
     tool: "CapyQR",
     label: "Wi-Fi QR code",

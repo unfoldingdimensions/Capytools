@@ -307,3 +307,13 @@
 - **Bing Webmaster → Keyword Research** (L36 has the bulk method).
 Record both columns in `docs/research/keywords-<date>.md`, and say in the PR which phrase the page targets and its volume on each engine. Google decides the size of the opportunity; Bing confirms the trend and shows related and question phrases. A phrase that is ≤10K on Google *and* ~0 on Bing needs a reason the owner agrees to.
 **Consequence:** no more pages picked from search-result checks alone (the four small intent pages in D46 were). Google's "Competition" column is *ad* competition, not ranking difficulty — don't rank opportunities by it.
+
+## D48 — Four format-conversion intent pages on CapyResize (D21 amended) · **decided**
+
+**Context:** the 2026-10-09 research (D46/D47) found image-format conversion is the largest demand CapyResize already serves with no page. Volumes, Google Keyword Planner (All locations, average monthly searches) / Bing Keyword Research (12 weeks, impressions):
+- `png to jpg` — 1M–10M / 166,421 → `/png-to-jpg`
+- `webp to png` — 100K–1M / 115,317 → `/webp-to-png`
+- `jpg to png` — 100K–1M / 103,129 → `/jpg-to-png`
+- `compress image` — 100K–1M / 82,678 → `/compress-image`
+**Decision:** each is an `INTENT_PAGES` row opening CapyResize on a preset: `initialFormat` jpeg / png / png / jpeg. `/compress-image` also passes a new `initialQuality={0.7}` (CapyResize's `useState(0.85)` is now `useState(initialQuality)`, default unchanged; the slider runs 0.50–1.00 in 0.05 steps). It starts on **JPEG, not WebP**: every browser can write JPEG, whereas a browser that can't encode WebP silently hands back a PNG — the opposite of "compress". The page says so and points to WebP as the one-click alternative. Copy is written to each pair's own question (alpha for PNG→JPG, size growth and no restored detail for JPG→PNG, lossless + transparency kept for WebP→PNG, measured savings and the two levers for compress); none is a format-name swap of another (D21).
+**Consequence:** copy claims checked against `CapyResize.tsx`/`render.ts`: the JPEG fill is the "Flatten onto" picker, default `#ffffff` (not sampled — `sampleCornerColor` feeds only the favicon pack's background); before = the dropped file's `size`, after = the encoded blob's `size`, shown as "% smaller/larger"; PNG has no quality slider. `CONTENT_UPDATED` was already `2026-10-09`, so there was nothing to bump. HEIC→JPG (also 1M–10M on Google) stays unbuilt: only Safari decodes HEIC.
