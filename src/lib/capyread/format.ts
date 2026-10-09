@@ -18,17 +18,17 @@ export function formatMs(ms: number): string {
 export function bucketLabel(bucket: Bucket): string {
   switch (bucket) {
     case "high":
-      return "high";
+      return "High";
     case "fair":
-      return "fair";
+      return "Fair";
     case "unsure":
-      return "unsure";
+      return "Unsure";
     case "none":
-      return "nothing read";
+      return "Nothing read";
   }
 }
 
 /** "81" → "81% sure" — the number the badge rounds to, nothing spurious. */
 export function confidenceLabel(mean: number | null): string {
-  return mean === null ? "no words" : `${mean}% sure`;
+  return mean === null ? "No words" : `${mean}% sure`;
 }

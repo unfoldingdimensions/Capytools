@@ -33,7 +33,7 @@ const LIVE_GRID_CAP = 600;
 const EXPORT_SCALES = [1, 2, 4, 8] as const;
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[12px] text-muted-foreground";
 
 type Source =
   | { kind: "photo"; img: HTMLImageElement; width: number; height: number; name: string }
@@ -57,7 +57,7 @@ function Pill({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+        "rounded-full border px-3 py-1 font-mono text-[13px] transition-colors",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -187,8 +187,8 @@ export function CapyPixel() {
           const isSvg = file.type === "image/svg+xml" || /\.svg$/i.test(file.name);
           if (!isSvg) {
             setError({
-              title: "that is not an svg.",
-              body: "logo mode reads svg files — simple-icons-style single paths are the sweet spot. put bitmaps in the photo tab.",
+              title: "That is not an SVG.",
+              body: "Logo mode reads SVG files — simple-icons-style single paths are the sweet spot. Put bitmaps in the photo tab.",
             });
             return;
           }
@@ -208,18 +208,18 @@ export function CapyPixel() {
         setSource(null);
         if (caught instanceof NoInkError) {
           setError({
-            title: "this svg produced no ink.",
-            body: "the browser parses broken path data into an empty shape with no error — nothing to rasterize here. try re-exporting the file.",
+            title: "This SVG produced no ink.",
+            body: "The browser parses broken path data into an empty shape with no error — nothing to rasterize here. Try re-exporting the file.",
           });
         } else if (caught instanceof DecodeFailedError) {
           setError({
-            title: "this file wouldn't open.",
-            body: "the browser's decoder refused it — some CMYK JPEGs and corrupt files do. if it opens anywhere else, re-save it there and bring that copy back.",
+            title: "This file wouldn't open.",
+            body: "The browser's decoder refused it — some CMYK JPEGs and corrupt files do. If it opens anywhere else, re-save it there and bring that copy back.",
           });
         } else {
           setError({
-            title: "something quiet went wrong.",
-            body: "the file stopped partway through being read. try it once more — a second read usually says more.",
+            title: "Something quiet went wrong.",
+            body: "The file stopped partway through being read. Try it once more — a second read usually says more.",
           });
         }
       } finally {
@@ -282,7 +282,7 @@ export function CapyPixel() {
         setLoading(false);
       } catch {
         if (!cancelled) {
-          setStatus("this one wouldn't render — try a smaller grid or another file.");
+          setStatus("This one wouldn't render — try a smaller grid or another file.");
         }
       }
     }, QUANTIZE_DEBOUNCE_MS);
@@ -344,7 +344,7 @@ export function CapyPixel() {
       const size = exportSize(cols, rows, params.cell, scale);
       setStatus(`saved ${name} — ${size.width}×${size.height} px.`);
     } catch {
-      setStatus("the export failed — dial the grid down and try again.");
+      setStatus("The export failed — dial the grid down and try again.");
     } finally {
       setBusy(false);
     }
@@ -364,7 +364,7 @@ export function CapyPixel() {
         marks
         chips={
           source ? (
-            <StageChip tone="sage">{source.kind === "photo" ? "photo" : "logo"}</StageChip>
+            <StageChip tone="sage">{source.kind === "photo" ? "Photo" : "Logo"}</StageChip>
           ) : null
         }
       >
@@ -378,7 +378,7 @@ export function CapyPixel() {
             }}
             label="Photo mode"
           >
-            photo
+            Photo
           </Pill>
           <Pill
             active={mode === "logo"}
@@ -387,9 +387,9 @@ export function CapyPixel() {
               setSource(null);
               setResult(null);
             }}
-            label="Logo mode, svg"
+            label="Logo mode, SVG"
           >
-            logo (svg)
+            Logo (SVG)
           </Pill>
         </div>
 
@@ -433,14 +433,14 @@ export function CapyPixel() {
           >
             <CapyArt pose="awake" className="w-16" />
             <span className="mt-1 text-sm font-medium text-foreground">
-              {mode === "photo" ? "drop a photo here" : "drop an svg logo here"}
+              {mode === "photo" ? "Drop a photo here" : "Drop an SVG logo here"}
             </span>
             <span className="text-xs text-muted-foreground">
-              click to pick one, or paste — it never leaves this tab.
+              Click to pick one, or paste — it never leaves this tab.
             </span>
             {loading ? (
-              <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                reading…
+              <span className="mt-2 font-mono text-[12px] text-muted-foreground">
+                Reading…
               </span>
             ) : null}
           </button>
@@ -475,8 +475,8 @@ export function CapyPixel() {
           <div className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             <Slider
               id="capypixel-grid"
-              label="grid width"
-              helper="how many cells across — the single biggest lever. low is chunky and graphic; high keeps detail."
+              label="Grid width"
+              helper="How many cells across — the single biggest lever. Low is chunky and graphic; high keeps detail."
               min={20}
               max={1000}
               step={2}
@@ -486,8 +486,8 @@ export function CapyPixel() {
             {derived ? (
               <Slider
                 id="capypixel-colors"
-                label="colours"
-                helper="how many colours the derived palette gets. more is faithful to the photo; fewer is bolder."
+                label="Colours"
+                helper="How many colours the derived palette gets. More is faithful to the photo; fewer is bolder."
                 min={2}
                 max={32}
                 step={1}
@@ -497,8 +497,8 @@ export function CapyPixel() {
             ) : null}
             <Slider
               id="capypixel-band"
-              label="dither band"
-              helper="how wide a range of tones gets dithered. lower values snap more areas solid — that is what makes 1-bit read as drawing."
+              label="Dither band"
+              helper="How wide a range of tones gets dithered. Lower values snap more areas solid — that is what makes 1-bit read as drawing."
               min={0}
               max={1}
               step={0.05}
@@ -507,8 +507,8 @@ export function CapyPixel() {
             />
             <Slider
               id="capypixel-black"
-              label="black point"
-              helper="anything darker than this becomes solid black. raises contrast."
+              label="Black point"
+              helper="Anything darker than this becomes solid black. Raises contrast."
               min={0}
               max={0.6}
               step={0.01}
@@ -517,8 +517,8 @@ export function CapyPixel() {
             />
             <Slider
               id="capypixel-white"
-              label="white point"
-              helper="anything brighter than this becomes solid white. brightens the highlights."
+              label="White point"
+              helper="Anything brighter than this becomes solid white. Brightens the highlights."
               min={0.4}
               max={1}
               step={0.01}
@@ -527,8 +527,8 @@ export function CapyPixel() {
             />
             <Slider
               id="capypixel-gamma"
-              label="gamma"
-              helper="bends the tones in between — above 1 brightens the mid-tones, below 1 darkens them."
+              label="Gamma"
+              helper="Bends the tones in between — above 1 brightens the mid-tones, below 1 darkens them."
               min={0.4}
               max={2.5}
               step={0.05}
@@ -538,7 +538,7 @@ export function CapyPixel() {
             {!derived ? (
               <Slider
                 id="capypixel-gutter"
-                label="gutter"
+                label="Gutter"
                 helper="gap between cells — the visible tile grid. keep it at 0 for photographs; the gaps throw away detail."
                 min={0}
                 max={4}
@@ -549,15 +549,15 @@ export function CapyPixel() {
             ) : null}
             <Toggle
               id="capypixel-outline"
-              label="outline"
-              helper="draws a dark line along strong edges so the subject stands away from the background."
+              label="Outline"
+              helper="Draws a dark line along strong edges so the subject stands away from the background."
               checked={params.outline}
               onChange={(v) => setParam("outline", v)}
             />
             <Toggle
               id="capypixel-levels"
-              label="auto-levels"
-              helper="stretches the darkest and lightest tones to fill the range. good for a hazy photo — but it fills the mid-tones, the opposite of what 1-bit needs."
+              label="Auto-levels"
+              helper="Stretches the darkest and lightest tones to fill the range. Good for a hazy photo — but it fills the mid-tones, the opposite of what 1-bit needs."
               checked={params.levels}
               onChange={(v) => setParam("levels", v)}
             />
@@ -565,19 +565,19 @@ export function CapyPixel() {
 
           {starving ? (
             <p className="mt-4 text-[13px] text-[var(--clay)]">
-              one colour is doing half the work — fewer colours, or the portrait style (it bins
+              One colour is doing half the work — fewer colours, or the portrait style (it bins
               the palette), spreads the load.
             </p>
           ) : null}
           {screenDoor ? (
             <p className="mt-4 text-[13px] text-[var(--clay)]">
-              too much dither — narrow the band and the areas go solid.
+              Too much dither — narrow the band and the areas go solid.
             </p>
           ) : null}
           {mode === "photo" && style === "whale" ? (
             <p className="mt-4 text-[13px] text-[var(--clay)]">
-              the whale look was drawn for a pale shape on a dark background — a full photo will
-              collapse into the bottom of the ramp. the logo tab is where this style belongs.
+              The whale look was drawn for a pale shape on a dark background — a full photo will
+              collapse into the bottom of the ramp. The logo tab is where this style belongs.
             </p>
           ) : null}
         </StageCard>
@@ -591,14 +591,14 @@ export function CapyPixel() {
               <div className="flex justify-center rounded-2xl border border-border bg-muted/30 p-4">
                 <canvas
                   ref={previewRef}
-                  aria-label={`pixel-art preview, ${result.cols} by ${result.rows} cells`}
+                  aria-label={`Pixel-art preview, ${result.cols} by ${result.rows} cells`}
                   role="img"
                   className="h-auto max-w-full"
                   style={{ imageRendering: "pixelated" }}
                 />
               </div>
               <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                live preview{coarse ? " (coarser than export)" : ""} — the export runs your full{" "}
+                Live preview{coarse ? " (coarser than export)" : ""} — the export runs your full{" "}
                 {params.grid}-cell grid.
               </p>
 
@@ -612,13 +612,13 @@ export function CapyPixel() {
                     role="img"
                     className="rounded-lg border border-border"
                   />
-                  <figcaption className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    100% crop · true pitch
+                  <figcaption className="font-mono text-[12px] text-muted-foreground">
+                    100% crop · True pitch
                   </figcaption>
                 </figure>
 
                 <div>
-                  <span className={labelClass}>palette in use</span>
+                  <span className={labelClass}>Palette in use</span>
                   <ul className="mt-1.5 flex max-w-[240px] flex-wrap gap-1">
                     {result.palette.map((c) => {
                       const hexValue = `#${c.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
@@ -638,7 +638,7 @@ export function CapyPixel() {
 
               <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
                 <div>
-                  <span className={labelClass}>export scale</span>
+                  <span className={labelClass}>Export scale</span>
                   <div className="mt-1.5 flex gap-1.5">
                     {EXPORT_SCALES.map((s) => (
                       <Pill
@@ -671,7 +671,7 @@ export function CapyPixel() {
             </>
           ) : (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              {loading ? "reading…" : "quantizing…"}
+              {loading ? "Reading…" : "Quantizing…"}
             </p>
           )}
         </StageCard>

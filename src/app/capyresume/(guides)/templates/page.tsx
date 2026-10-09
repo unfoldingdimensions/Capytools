@@ -56,7 +56,7 @@ export default function TemplatesIndexPage() {
             href="/capyresume"
             className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
           >
-            open the builder
+            Open the builder
           </Link>
         </div>
       </div>

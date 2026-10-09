@@ -296,9 +296,9 @@ describe("buildReport", () => {
 
   it("assembles AI signal sentences, deduplicated", () => {
     const report = buildReport(chattyRaw, chattyRaw.fileName);
-    expect(report.aiSignals).toContain("declared AI-generated (IPTC source type: Made with generative AI (model trained on sampled content))");
-    expect(report.aiSignals).toContain("carries a Stable Diffusion-style generation prompt (prompt and settings embedded)");
-    expect(report.aiSignals).toContain("content credentials present (C2PA)");
+    expect(report.aiSignals).toContain("Declared AI-generated (IPTC source type: Made with generative AI (model trained on sampled content))");
+    expect(report.aiSignals).toContain("Carries a Stable Diffusion-style generation prompt (prompt and settings embedded)");
+    expect(report.aiSignals).toContain("Content credentials present (C2PA)");
     // "c2pa" appears both as a marker and as the container — one sentence only.
     expect(report.aiSignals.filter((s) => s.includes("C2PA"))).toHaveLength(1);
   });

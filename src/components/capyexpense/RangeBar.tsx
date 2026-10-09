@@ -53,7 +53,7 @@ export function RangeBar({
         aria-pressed buttons, NOT a tablist. A tablist promises separate panels
         you can arrow between; this is a filter over one panel.
       */}
-      <div role="group" aria-label="date range" className="flex flex-wrap items-center gap-2">
+      <div role="group" aria-label="Date range" className="flex flex-wrap items-center gap-2">
         {PRESETS.map((p) => {
           const active = state.preset === p.key;
           return (
@@ -63,7 +63,7 @@ export function RangeBar({
               aria-pressed={active}
               onClick={() => setPreset(p.key)}
               className={cn(
-                "rounded-full px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+                "rounded-full px-3.5 py-1.5 font-mono text-[13px] transition-colors",
                 active
                   ? // Dark ink on sage, never white — WCAG invariant.
                     "bg-primary text-[var(--primary-foreground)]"
@@ -80,7 +80,7 @@ export function RangeBar({
         <div className="ml-1 flex items-center gap-1">
           <button
             type="button"
-            aria-label={`previous ${state.preset}`}
+            aria-label={`Previous ${state.preset}`}
             onClick={() => onChange(stepRange(state, -1, weekStart))}
             className="rounded-full border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -91,7 +91,7 @@ export function RangeBar({
           </span>
           <button
             type="button"
-            aria-label={`next ${state.preset}`}
+            aria-label={`Next ${state.preset}`}
             disabled={atPresent}
             onClick={() => onChange(stepRange(state, 1, weekStart))}
             className="rounded-full border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
@@ -105,7 +105,7 @@ export function RangeBar({
         // Native date inputs. The platform ships a keyboard-accessible,
         // localised picker; a dependency for this would be pure cost.
         <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="capyexpense-from" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <label htmlFor="capyexpense-from" className="font-mono text-[12px] text-muted-foreground">
             From
           </label>
           <input
@@ -121,7 +121,7 @@ export function RangeBar({
             }
             className="rounded-full border border-border bg-card px-3 py-1 font-mono text-[11px] text-foreground"
           />
-          <label htmlFor="capyexpense-to" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <label htmlFor="capyexpense-to" className="font-mono text-[12px] text-muted-foreground">
             To
           </label>
           <input

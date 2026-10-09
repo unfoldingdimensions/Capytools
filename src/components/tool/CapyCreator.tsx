@@ -64,6 +64,12 @@ const TIER_OPTIONS = [
   { id: "5", label: "Tier 5 (Frontier)" },
 ];
 
+/** "debug_issue" → "Debug issue" for tags and chips. */
+const spaced = (id: string) => {
+  const t = id.replace(/_/g, " ");
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
+
 export function CapyCreator() {
   const reduced = useReducedMotion();
   const [ask, setAsk] = useState("do a design review of the login page");
@@ -243,7 +249,7 @@ export function CapyCreator() {
         {showSettings && (
           <MountReveal className="mt-4 rounded-2xl border border-border/80 bg-muted/40 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)]">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-foreground">
+              <span className="font-mono text-[12px] text-foreground">
                 LLM Polish Provider Configuration
               </span>
               <span className="text-xs text-muted-foreground">Saved locally in browser</span>
@@ -251,7 +257,7 @@ export function CapyCreator() {
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <span className="font-mono text-[12px] text-muted-foreground">
                   Provider
                 </span>
                 <Select
@@ -277,7 +283,7 @@ export function CapyCreator() {
               <div>
                 <label
                   htmlFor="polish-model"
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="font-mono text-[12px] text-muted-foreground"
                 >
                   Polish Model Name
                 </label>
@@ -296,7 +302,7 @@ export function CapyCreator() {
               <div>
                 <label
                   htmlFor="polish-base-url"
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="font-mono text-[12px] text-muted-foreground"
                 >
                   Base URL
                 </label>
@@ -313,7 +319,7 @@ export function CapyCreator() {
               <div>
                 <label
                   htmlFor="polish-api-key"
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground"
+                  className="font-mono text-[12px] text-muted-foreground"
                 >
                   API Key
                 </label>
@@ -366,7 +372,7 @@ export function CapyCreator() {
         <div className="mt-4">
           <label
             htmlFor="creator-ask"
-            className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+            className="font-mono text-[12px] text-muted-foreground"
           >
             Your ask (can be vague)
           </label>
@@ -376,7 +382,7 @@ export function CapyCreator() {
             onChange={(e) => setAsk(e.target.value)}
             rows={3}
             className="mt-1.5 bg-muted/40 font-sans"
-            placeholder="e.g. do a design review of the login page"
+            placeholder="For example, do a design review of the login page"
           />
 
           {/* Quick chips */}
@@ -415,7 +421,7 @@ export function CapyCreator() {
         {/* Model selection and Tier controls */}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="select-model-family" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <label htmlFor="select-model-family" className="font-mono text-[12px] text-muted-foreground">
               Target Model Family
             </label>
             <Select value={model} onValueChange={(v) => setModel(v as ModelFamily)}>
@@ -433,7 +439,7 @@ export function CapyCreator() {
           </div>
 
           <div>
-            <label htmlFor="select-tier-override" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            <label htmlFor="select-tier-override" className="font-mono text-[12px] text-muted-foreground">
               Capability Tier Override
             </label>
             <Select value={tierOverride} onValueChange={setTierOverride}>
@@ -457,7 +463,7 @@ export function CapyCreator() {
             <span className="font-medium text-foreground">
               Target: <span className="font-mono">{activeProfile.family}</span> · Tier {effectiveTier}
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            <span className="font-mono text-[12px] text-muted-foreground">
               Derivation: {activeProfile.instruction_derivation}
             </span>
           </div>
@@ -494,7 +500,7 @@ export function CapyCreator() {
             id="questionnaire-card"
             index="02"
             title="Intent Questionnaire"
-            chips={<StageChip>{taskType.replace(/_/g, " ")} · Tier {effectiveTier}</StageChip>}
+            chips={<StageChip>{spaced(taskType)} · Tier {effectiveTier}</StageChip>}
             actions={
               <Button
                 variant="ghost"
@@ -521,12 +527,12 @@ export function CapyCreator() {
                   className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-[background-color,border-color] duration-[var(--dur-fade)] focus-within:border-ring focus-within:bg-card"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-                      {q.dimension.replace(/_/g, " ")}
+                    <span className="font-mono text-[13px] text-muted-foreground">
+                      {spaced(q.dimension)}
                     </span>
                     <span
                       className={cn(
-                        "rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em]",
+                        "rounded-full px-2.5 py-0.5 font-mono text-[12px] font-semibold",
                         q.required
                           ? "border border-[var(--clay)]/30 bg-[var(--clay)]/10 text-[var(--clay)]"
                           : "border border-border bg-muted/60 text-muted-foreground"

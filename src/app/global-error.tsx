@@ -67,7 +67,7 @@ export default function GlobalError({
               padding: "10px 22px",
             }}
           >
-            try again
+            Try again
           </button>
           <p style={{ marginTop: 24 }}>
             {/* A plain anchor on purpose. <Link /> navigates through the
@@ -75,12 +75,12 @@ export default function GlobalError({
                 page load is the only exit that does not depend on it. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/" style={{ color: "#5f7a72" }}>
-              or go back to the landing
+              Or go back to the landing
             </a>
           </p>
           {error.digest ? (
             <p style={{ marginTop: 28, fontSize: 11, letterSpacing: "0.14em", color: "#9a9891" }}>
-              REFERENCE {error.digest}
+              Reference {error.digest}
             </p>
           ) : null}
         </main>

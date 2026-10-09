@@ -273,19 +273,19 @@ describe("CapyQR export spec line", () => {
         size: 1024,
         format: "png",
       }),
-    ).toBe("error correction Q · 29 modules · quiet zone 4 (≈141 px) · 1024×1024 png");
+    ).toBe("Error correction Q · 29 modules · quiet zone 4 (≈141 px) · 1024×1024 PNG");
   });
 
   it("drops the quiet segment when the slider is at zero", () => {
     expect(
       exportSpecLine({ ecc: "H", moduleCount: 25, quietModules: 0, quietPx: 0, size: 512, format: "jpeg" }),
-    ).toBe("error correction H · 25 modules · 512×512 jpg");
+    ).toBe("Error correction H · 25 modules · 512×512 JPG");
   });
 
   it("names svg and copes with a zero module count", () => {
     expect(
       exportSpecLine({ ecc: "M", moduleCount: 0, quietModules: 2, quietPx: 20, size: 2048, format: "svg" }),
-    ).toBe("error correction M · quiet zone 2 (≈20 px) · 2048×2048 svg");
+    ).toBe("Error correction M · quiet zone 2 (≈20 px) · 2048×2048 SVG");
   });
 
   it("reports measured blob sizes, never estimates", () => {
@@ -323,7 +323,7 @@ describe("CapyQR guards", () => {
     expect(quietBand(3)).toBe("soft");
     expect(quietBand(4)).toBe("ok");
     expect(quietBand(6)).toBe("ok");
-    expect(QUIET_COPY.hard).toContain("slide it back up");
+    expect(QUIET_COPY.hard).toContain("Slide it back up");
   });
 
   it("advises on logos: ECC below H, and the H safety line", () => {

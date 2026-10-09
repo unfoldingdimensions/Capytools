@@ -85,7 +85,7 @@ export default async function CountryPage({ params }: PageProps) {
             href="/capyresume"
             className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
           >
-            start writing
+            Start writing
           </Link>
           <Link
             href="/capyresume/templates"

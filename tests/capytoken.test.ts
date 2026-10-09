@@ -173,10 +173,10 @@ describe("compute — cost, context fit, honesty labels", () => {
   });
 
   it("estimateLabelFor maps each honesty tier to its exact copy", () => {
-    expect(estimateLabelFor(row)).toEqual({ kind: "exact", text: "exact — counted with o200k_base" });
+    expect(estimateLabelFor(row)).toEqual({ kind: "exact", text: "Exact — counted with o200k_base" });
     expect(estimateLabelFor({ ...row, encoding: "cl100k" })).toEqual({
       kind: "exact",
-      text: "exact — counted with cl100k_base",
+      text: "Exact — counted with cl100k_base",
     });
     const anthropic = CURATED_PRICES.find((r) => r.provider === "Anthropic");
     expect(anthropic).toBeTruthy();
@@ -186,7 +186,7 @@ describe("compute — cost, context fit, honesty labels", () => {
     const google = CURATED_PRICES.find((r) => r.provider === "Google");
     expect(estimateLabelFor(google!)).toEqual({
       kind: "unverified-estimate",
-      text: "estimate — OpenAI-tokenizer equivalent, not verified",
+      text: "Estimate — OpenAI-tokenizer equivalent, not verified",
     });
   });
 });

@@ -75,7 +75,7 @@ export function PosterStage({
     const dpr = window.devicePixelRatio || 1;
     renderCard(canvas, palette, layout, format, dpr)
       .then(() => setDrawNote(null))
-      .catch(() => setDrawNote("something went wrong drawing that one — try again"));
+      .catch(() => setDrawNote("Something went wrong drawing that one — try again"));
   }, [palette, layout, format]);
 
   /** A fresh offscreen card at export density — the preview stays untouched. */
@@ -91,20 +91,20 @@ export function PosterStage({
   const download = useCallback(async () => {
     if (!palette) return;
     downloadPng(await exportCanvas(palette), palette);
-    flash(`saved ${pngFilename(palette)} — 2× density.`);
+    flash(`Saved ${pngFilename(palette)} — 2× density.`);
   }, [palette, exportCanvas, flash]);
 
   const copyImage = useCallback(async () => {
     if (!palette) return;
     const ok = await copyPngToClipboard(await exportCanvas(palette));
-    flash(ok ? "card copied — paste anywhere" : "clipboard blocked; try download");
+    flash(ok ? "Card copied — paste anywhere" : "Clipboard blocked; try download");
   }, [palette, exportCanvas, flash]);
 
   return (
     <>
       <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-3">
         <div className="flex items-center gap-3">
-          <span className={labelClass}>poster style</span>
+          <span className={labelClass}>Poster style</span>
           <div className="flex flex-wrap items-center gap-1.5" role="group">
             <Pill active={layout === "editorial"} onClick={() => onLayout("editorial")} label="Editorial poster style">
               Editorial
@@ -115,14 +115,14 @@ export function PosterStage({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={labelClass}>format</span>
+          <span className={labelClass}>Format</span>
           <div className="flex flex-wrap items-center gap-1.5" role="group">
             {(Object.keys(CARD_FORMATS) as CardFormat[]).map((f) => (
               <Pill
                 key={f}
                 active={format === f}
                 onClick={() => onFormat(f)}
-                label={`${f} format, ${CARD_FORMATS[f].w} by ${CARD_FORMATS[f].h}`}
+                label={`${f[0].toUpperCase()}${f.slice(1)} format, ${CARD_FORMATS[f].w} by ${CARD_FORMATS[f].h}`}
               >
                 {f === "wide" ? "Wide 1200×630" : "Square 1080×1080"}
               </Pill>
@@ -181,7 +181,7 @@ export function PosterStage({
                 variant="outline"
                 className="rounded-full"
                 onClick={() =>
-                  void copyText(shareText(palette, window.location.href)).then(() => flash("share text copied"))
+                  void copyText(shareText(palette, window.location.href)).then(() => flash("Share text copied"))
                 }
               >
                 Copy share text

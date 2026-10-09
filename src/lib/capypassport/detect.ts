@@ -93,11 +93,11 @@ export async function detectFace(
   source: DetectSource,
   onProgress?: (p: ByteProgress) => void,
 ): Promise<FaceGeometry | null> {
-  if (typeof document === "undefined") throw new DetectUnavailableError("capypassport detects in a browser tab only");
+  if (typeof document === "undefined") throw new DetectUnavailableError("CapyPassport detects in a browser tab only");
   const landmarker = await timeout(
     loadLandmarker(onProgress),
     CREATE_TIMEOUT_MS,
-    "the face model took too long to start — check your connection and try again",
+    "The face model took too long to start — check your connection and try again",
   );
   const result = landmarker.detect(source);
   const landmarks = result.faceLandmarks?.[0];

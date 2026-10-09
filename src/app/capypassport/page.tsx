@@ -13,7 +13,7 @@ export default function CapyPassportPage() {
     <ToolPageShell
       tool="CapyPassport"
       headline={[{ text: "A photo that fits" }, { text: "the rules", em: true, dot: true }]}
-      lead="passport and visa photos, checked against the published specs, in your browser. nothing uploaded."
+      lead="Passport and visa photos, checked against the published specs, in your browser. Nothing uploaded."
       align="left"
     >
       <CapyPassport />

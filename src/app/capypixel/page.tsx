@@ -13,7 +13,7 @@ export default function CapyPixelPage() {
     <ToolPageShell
       tool="CapyPixel"
       headline={[{ text: "Pictures," }, { text: "in chunks", em: true, dot: true }]}
-      lead="pixel-art photos and logos in your browser. all local."
+      lead="Pixel-art photos and logos in your browser. All local."
       align="left"
     >
       <CapyPixel />

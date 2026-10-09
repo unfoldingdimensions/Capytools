@@ -27,7 +27,7 @@ export function ErrorCard({
   title,
   body,
   onRetry,
-  retryLabel = "try again",
+  retryLabel = "Try again",
 }: {
   title: string;
   body: string;

@@ -38,10 +38,10 @@ export default function ToolsPage() {
       </a>
 
       <AmbientBackground />
-      <Header tool="All Tools" />
+      <Header tool="All tools" />
 
       <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-6 pb-24 pt-16">
-        <span className="lp-label">All Tools · The suite</span>
+        <span className="lp-label">All tools · The suite</span>
         <h1 className="lp-display mt-6 text-5xl sm:text-6xl">
           Every tool, <em>one page</em>
           <span className="lp-dot">.</span>

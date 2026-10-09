@@ -208,7 +208,7 @@ export function buildEngineOptions(input: {
 
 export async function createQrEngine(): Promise<QrEngine> {
   if (typeof window === "undefined") {
-    throw new Error("the qr engine only runs in a browser");
+    throw new Error("The QR engine only runs in a browser");
   }
   const { default: QRCodeStyling } = await import("qr-code-styling");
   const canvas = new QRCodeStyling({ type: "canvas" });

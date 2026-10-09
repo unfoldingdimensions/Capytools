@@ -45,11 +45,11 @@ export function versionForModuleCount(count: number): number {
 export function capacityNote(value: string, ec: EccLevel): string {
   const count = moduleCountFor(value, ec);
   if (count === null) {
-    return "this much data needs a quieter style or shorter text — it will not fit a scannable code.";
+    return "This much data needs a quieter style or shorter text — it will not fit a scannable code.";
   }
   const version = versionForModuleCount(count);
   const suffix = version ? ` · version ${version}` : "";
-  return `about ${count} modules wide${suffix}`;
+  return `About ${count} modules wide${suffix}`;
 }
 
 /**
@@ -66,11 +66,11 @@ export function exportSpecLine(input: {
   size: number;
   format: ExportFormat;
 }): string {
-  const parts = [`error correction ${input.ecc}`];
+  const parts = [`Error correction ${input.ecc}`];
   if (input.moduleCount > 0) parts.push(`${input.moduleCount} modules`);
   if (input.quietModules > 0) {
     parts.push(`quiet zone ${input.quietModules} (≈${Math.round(input.quietPx)} px)`);
   }
-  parts.push(`${input.size}×${input.size} ${fileExtensionFor(input.format)}`);
+  parts.push(`${input.size}×${input.size} ${fileExtensionFor(input.format).toUpperCase()}`);
   return parts.join(" · ");
 }

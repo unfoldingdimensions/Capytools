@@ -26,7 +26,7 @@ export default function FreeCvBuilderIndexPage() {
         { text: "country by country", em: true, dot: true },
       ]}
       lead={
-        "the document changes name and paper size depending on where you are applying — a CV on A4 in the UK, a resume on Letter in the US. pick your country and the builder sets the page for you."
+        "The document changes name and paper size depending on where you are applying — a CV on A4 in the UK, a resume on Letter in the US. Pick your country and the builder sets the page for you."
       }
       align="left"
     >
@@ -47,7 +47,7 @@ export default function FreeCvBuilderIndexPage() {
                   {page.description}
                 </p>
                 <p className="mt-4">
-                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[13px] text-muted-foreground">
                     {page.paper === "A4" ? "A4" : "US letter"}
                   </span>
                 </p>
@@ -58,11 +58,11 @@ export default function FreeCvBuilderIndexPage() {
 
         <div className="mt-12 flex flex-wrap items-center gap-3">
           <Button asChild size="lg" className="rounded-full">
-            <Link href="/capyresume">open the builder</Link>
+            <Link href="/capyresume">Open the builder</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-full">
             <Link href="/capyresume/resume-templates">
-              browse by role instead
+              Browse by role instead
             </Link>
           </Button>
         </div>

@@ -22,7 +22,7 @@ export const MAX_OUTPUT_PIXELS = 16_700_000; // the iOS area cap, with headroom
 
 export class DecodeFailedError extends Error {
   constructor() {
-    super("the browser could not decode this file");
+    super("The browser could not decode this file");
     this.name = "DecodeFailedError";
   }
 }
@@ -30,7 +30,7 @@ export class DecodeFailedError extends Error {
 /** The canvas refused the export — the silent-failure mode, made loud. */
 export class CanvasRefusedError extends Error {
   constructor() {
-    super("the browser refused this export — try a smaller size");
+    super("The browser refused this export — try a smaller size");
     this.name = "CanvasRefusedError";
   }
 }

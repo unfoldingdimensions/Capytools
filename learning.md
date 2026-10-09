@@ -124,3 +124,15 @@ Looking at what actually ranks before building moved three candidates: "EXIF vie
 ## L23. A new required field breaks other agents' work at merge time
 
 #90 made `ToolGuide.summary` required. It was green on its own branch, then went red in CI: the PR is tested **merged with `main`**, and meanwhile another agent's PR (#89, CapyResume) had landed a guide without the field. That is the field working as intended — a tool can't ship without a summary — but it surfaces on whoever merges second. **Rule:** before pushing a change to a shared type or registry, `git fetch` and merge `origin/main` into the branch and run `tsc`; and when adding a required field, mention it in `decisions.md` so parallel agents writing new tools see it.
+
+## L24. A rejected tool call may already have run
+
+A `gh pr merge` the owner rejected mid-call had in fact merged and deployed (#92). Five later commits were pushed to the merged branch and never reached `main`; they shipped as #93. **Rule:** after any rejected side-effectful call, check the real state (`gh pr view N --json state,mergedAt`), and confirm a PR is still open before pushing more to its branch.
+
+## L25. A sticky pane is bounded by its grid, not its row
+
+CapyResume's pinned preview sat in a grid that also held the full-width "The file" card. A sticky element's limit is its containing block — the whole grid — so the preview slid down over that card and its last section could not be scrolled to. **Rule:** keep only the two panes in the sticky grid; put anything below them outside it.
+
+## L26. Python on Windows writes CRLF
+
+`Path.write_text` translates `\n` to `\r\n` on Windows, so a scripted edit turns a whole LF file into CRLF and the next tool sees every line changed. **Rule:** read and write bytes (`read_bytes().decode()` / `write_bytes(text.encode())`) in edit scripts.

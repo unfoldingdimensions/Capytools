@@ -20,7 +20,7 @@ export type NavLink = { href: string; label: string; active?: boolean };
  * page. The brand line ("Capytools · CapyQR") says where you are.
  */
 const TOOL_LINKS: NavLink[] = [
-  { href: "/tools", label: "All Tools" },
+  { href: "/tools", label: "All tools" },
   { href: "/notes", label: "Notes" },
 ];
 
@@ -213,7 +213,7 @@ export function Header({
           <span className="lp-brand-text">
             Capytools
             {/* Not when the nav already shows it as the current page:
-                "Capytools · All Tools" beside an active "All Tools". */}
+                "Capytools · All tools" beside an active "All tools". */}
             {tool && !links.some((link) => link.label === tool) && (
               <span className="lp-brand-tool">· {tool}</span>
             )}

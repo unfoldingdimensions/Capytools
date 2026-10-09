@@ -32,7 +32,7 @@ export function UsernameForm({
         autoComplete="username"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="paste a github username…"
+        placeholder="Paste a GitHub username…"
         className="h-12 rounded-full border-border bg-card px-5 shadow-sm sm:flex-1"
         aria-label="GitHub username"
         autoCorrect="off"
@@ -40,7 +40,7 @@ export function UsernameForm({
         spellCheck={false}
       />
       <Button type="submit" size="lg" disabled={busy} className="rounded-full font-semibold">
-        {busy ? "wrapping…" : "wrap it"}
+        {busy ? "Wrapping…" : "Wrap it"}
       </Button>
     </form>
   );

@@ -72,13 +72,13 @@ export const HERO = {
   primary: { label: "Explore our tools", href: "#labs" },
   aside: { label: "CapyExpense, the desktop one — coming soon", href: "/capyexpense" },
   stats: [
-    { value: SUITE_INDEX, label: "tools", sub: "in the suite", tone: "solid" },
-    { value: "0", label: "bytes", sub: "stored by us", tone: "plain" },
+    { value: SUITE_INDEX, label: "Tools", sub: "In the suite", tone: "solid" },
+    { value: "0", label: "Bytes", sub: "Stored by us", tone: "plain" },
     // Counted, not rounded up: CapyExpense is a desktop app, so "100%
     // client-side" was false the day it joined the suite.
-    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "in-tab", sub: "one desktop", tone: "plain" },
+    { value: `${countByCategory("browser")}/${SUITE.length}`, label: "In-tab", sub: "One desktop", tone: "plain" },
   ] as { value: string; label: string; sub: string; tone: string }[],
-  meta: "↳ one quiet tab · your input stays in it",
+  meta: "↳ One quiet tab · your input stays in it",
 } as const;
 
 /**
@@ -96,37 +96,37 @@ export const PROOF = {
   ] as Headline,
   lead: "Three of the tools, running right here. Type into any of them and watch the counter: it counts every request this page makes to a server that could read what you typed.",
   counter: {
-    label: "requests to a server that could read it",
-    note: "counted by your browser's resource timing — our API or any other site, since you first typed. the page loading its own files is not one.",
+    label: "Requests to a server that could read it",
+    note: "counted by your browser's resource timing — our API or any other site, since you first typed. The page loading its own files is not one.",
   },
   demos: [
     {
       id: "qr",
       tab: "QR code",
-      prompt: "a link to encode",
+      prompt: "A link to encode",
       initial: "https://capytools.app",
-      open: { label: "open CapyQR", href: "/capyqr" },
+      open: { label: "Open CapyQR", href: "/capyqr" },
     },
     {
       id: "tokens",
       tab: "Token count",
-      prompt: "text to count",
+      prompt: "Text to count",
       initial: "Calm little tools that run in your browser and keep nothing.",
-      open: { label: "open CapyToken", href: "/capytoken" },
+      open: { label: "Open CapyToken", href: "/capytoken" },
     },
     {
       id: "palette",
       tab: "Palette",
-      prompt: "a mood",
+      prompt: "A mood",
       // A curated lexicon anchor (night-rain), so the first palette anyone sees
       // is a tuned one — "rain on a tin roof" matched nothing and improvised.
       initial: "rain on the window",
-      open: { label: "open CapyTone", href: "/capytone" },
+      open: { label: "Open CapyTone", href: "/capytone" },
     },
   ],
   /** The code behind the demos — the one external href on the landing. */
   source: {
-    label: "read the code that just ran",
+    label: "Read the code that just ran",
     href: `${EXTERNAL.repo}/blob/main/src/components/landing/ProofBand.tsx`,
   },
   /** Auto-advance until the visitor touches anything, then never again. */
@@ -180,7 +180,7 @@ export const CAPABILITIES = {
     { text: " tool keeps" },
   ] as Headline,
   lead: "The architecture is the privacy policy. Each tool is small enough to read in one sitting and quiet enough to leave open all day.",
-  ribbon: "CAPYTOOLS · CAPABILITIES MATRIX",
+  ribbon: "Capytools · Capabilities matrix",
   cards: [
     {
       num: "01",
@@ -200,8 +200,8 @@ export const CAPABILITIES = {
   /** Don't take the cards' word for it. */
   check: {
     lead: "Check it yourself:",
-    text: "open your browser's developer tools on the Network tab, then type into the demos at the top of this page. Nothing you type is sent.",
-    link: { label: "back to the demos", href: "#proof" },
+    text: "Open your browser's developer tools on the Network tab, then type into the demos at the top of this page. Nothing you type is sent.",
+    link: { label: "Back to the demos", href: "#proof" },
   },
 } as const;
 
@@ -212,7 +212,7 @@ export const LABS = {
   // ponytail: "coming" = the desktop category, true while CapyExpense is its
   // only member and has no builds; give SUITE a shipped flag when that changes.
   meta: [
-    "Labs / Tool Catalog",
+    "Labs / Tool catalog",
     `${countByCategory("browser")} of ${SUITE_INDEX} shipped · ${countByCategory("desktop")} coming`,
   ],
   label: "Labs",
@@ -230,9 +230,9 @@ export const LABS = {
   residence: {
     ring: SUITE_INDEX,
     title: "Tools in residence",
-    sub: [`one suite, ${SUITE_WORD} small rooms,`, "no lobby, no queue"],
+    sub: [`One suite, ${SUITE_WORD} small rooms,`, "no lobby, no queue"],
   },
-  foot: `${SUITE_INDEX} / ${SUITE_INDEX} TOOLS`,
+  foot: `${SUITE_INDEX} / ${SUITE_INDEX} tools`,
   /** Promises the whole suite, so it opens the index — not one tool. */
   cta: `See all ${SUITE_WORD} tools`,
   tools: SUITE.map((tool, i) => ({
@@ -248,7 +248,7 @@ export const LABS = {
 
 export const METHOD = {
   roman: "IV.",
-  meta: ["Method / House Rules", "04 steps, always"],
+  meta: ["Method / House rules", "04 steps, always"],
   label: "Method",
   ix: "· Nº 04",
   headline: [
@@ -294,7 +294,7 @@ export const METHOD = {
 
 export const COLOPHON = {
   roman: "V.",
-  meta: ["Colophon / First Line", "Quoted verbatim"],
+  meta: ["Colophon / First line", "Quoted verbatim"],
   label: "From the first line",
   ix: "· Nº 05",
   // A verbatim quote from the project README, so the count in it is NOT derived
@@ -314,7 +314,7 @@ export const COLOPHON = {
 
 export const CTA = {
   roman: "VI.",
-  meta: ["Contact / Open Tabs", "One click, no signup"],
+  meta: ["Contact / Open tabs", "One click, no signup"],
   label: "Begin quietly",
   ix: "· Nº 06",
   headline: [
@@ -327,7 +327,7 @@ export const CTA = {
   primary: { label: `See all ${SUITE_WORD} tools`, href: "/tools" },
   secondary: { label: "Open an issue", href: "/notes#issues" },
   foot: ["No account needed", "v0.1.0 / Apache-2.0"],
-  ribbon: "CAPYTOOLS · FIN.",
+  ribbon: "Capytools · Fin.",
   plate: { src: "/plates/cta.webp", width: 1024, height: 1024 },
 } as const;
 

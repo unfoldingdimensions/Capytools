@@ -44,7 +44,7 @@ const FORMATS: OutputFormat[] = ["png", "jpeg", "webp"];
 const PREVIEW_SIZES = [16, 32, 96] as const;
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[12px] text-muted-foreground";
 
 function Pill({
   active,
@@ -64,7 +64,7 @@ function Pill({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+        "rounded-full border px-3 py-1 font-mono text-[13px] transition-colors",
         active
           ? "border-primary bg-primary/10 text-foreground"
           : "border-border bg-muted/30 text-muted-foreground hover:border-primary hover:text-foreground",
@@ -99,7 +99,7 @@ function ColorField({
         aria-label={label}
         className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5"
       />
-      <span className="font-mono text-[11px] uppercase tabular-nums text-muted-foreground">
+      <span className="font-mono text-[13px] tabular-nums text-muted-foreground">
         {value}
       </span>
     </div>
@@ -189,8 +189,8 @@ export function CapyResize({
       setLoaderStep(-1);
       setStatus({
         text: next.animated
-          ? `read ${next.width}×${next.height} — animated gif, the first frame is the one that gets used.`
-          : `read ${next.width}×${next.height} — the dial above sets the rest.`,
+          ? `Read ${next.width}×${next.height} — animated GIF, the first frame is the one that gets used.`
+          : `Read ${next.width}×${next.height} — the dial above sets the rest.`,
         file: "",
       });
     } catch (caught) {
@@ -200,13 +200,13 @@ export function CapyResize({
       setDecoded(null);
       if (caught instanceof DecodeFailedError) {
         setError({
-          title: "this file wouldn't open.",
-          body: "the browser's decoder refused it — some CMYK JPEGs and corrupt files do. if it opens anywhere else, re-save it there and bring that copy back.",
+          title: "This file wouldn't open.",
+          body: "The browser's decoder refused it — some CMYK JPEGs and corrupt files do. If it opens anywhere else, re-save it there and bring that copy back.",
         });
       } else {
         setError({
-          title: "something quiet went wrong.",
-          body: "the file stopped partway through being read. try it once more — a second read usually says more.",
+          title: "Something quiet went wrong.",
+          body: "The file stopped partway through being read. Try it once more — a second read usually says more.",
         });
       }
     }
@@ -257,9 +257,9 @@ export function CapyResize({
         } catch (caught) {
           if (cancelled) return;
           if (caught instanceof CanvasRefusedError) {
-            setStatus({ text: "the browser refused this export — try a smaller size.", file: "" });
+            setStatus({ text: "The browser refused this export — try a smaller size.", file: "" });
           } else {
-            setStatus({ text: "the export failed — dial the size down and try again.", file: "" });
+            setStatus({ text: "The export failed — dial the size down and try again.", file: "" });
           }
         }
       })();
@@ -340,11 +340,11 @@ export function CapyResize({
           if (cancelled) return;
           if (caught instanceof CanvasRefusedError) {
             setStatus({
-              text: "the browser refused this export — try a smaller source image.",
+              text: "The browser refused this export — try a smaller source image.",
               file: "",
             });
           } else {
-            setStatus({ text: "the pack build failed — try the file again.", file: "" });
+            setStatus({ text: "The pack build failed — try the file again.", file: "" });
           }
         }
       })();
@@ -370,8 +370,8 @@ export function CapyResize({
       saveBlob(result.blob, name);
       setStatus({
         text: result.webpFallback
-          ? `saved ${name} — this browser writes webp as png, so png is what you got.`
-          : `saved ${name}.`,
+          ? `Saved ${name} — this browser writes WebP as PNG, so PNG is what you got.`
+          : `Saved ${name}.`,
         file: name,
       });
     } finally {
@@ -385,7 +385,7 @@ export function CapyResize({
     try {
       saveBlob(await zipPack(packFiles), PACK_ZIP_NAME);
       setStatus({
-        text: `saved favicon-pack.zip — ${packFiles.length} files, unzips where you drop it.`,
+        text: `Saved favicon-pack.zip — ${packFiles.length} files, unzips where you drop it.`,
         file: PACK_ZIP_NAME,
       });
     } finally {
@@ -399,7 +399,7 @@ export function CapyResize({
       setSnippetCopied(true);
       window.setTimeout(() => setSnippetCopied(false), COPIED_MS);
     } catch {
-      setStatus({ text: "this browser blocked the copy — select the text above by hand.", file: "" });
+      setStatus({ text: "This browser blocked the copy — select the text above by hand.", file: "" });
     }
   }, [snippet]);
 
@@ -423,8 +423,8 @@ export function CapyResize({
         chips={
           decoded ? (
             <StageChip tone="sage">
-              {decoded.kind}
-              {decoded.animated ? " · animated" : ""}
+              {decoded.kind.toUpperCase()}
+              {decoded.animated ? " · Animated" : ""}
             </StageChip>
           ) : null
         }
@@ -435,10 +435,10 @@ export function CapyResize({
             onClick={() => setStage("resize")}
             label="Stage resize and convert"
           >
-            resize &amp; convert
+            Resize &amp; convert
           </Pill>
           <Pill active={stage === "favicon"} onClick={() => setStage("favicon")} label="Stage favicon pack">
-            favicon pack
+            Favicon pack
           </Pill>
         </div>
 
@@ -484,7 +484,7 @@ export function CapyResize({
             <span className="mt-1 text-sm font-medium text-foreground">{IDLE_HEADLINE}</span>
             <span className="text-xs text-muted-foreground">{IDLE_HINT}</span>
             {loading ? (
-              <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              <span className="mt-2 font-mono text-[12px] text-muted-foreground">
                 {LOADER_STEPS.map((step, i) => (
                   <span key={step} className={i <= loaderStep ? "text-foreground" : undefined}>
                     {i > 0 && " · "}
@@ -510,7 +510,7 @@ export function CapyResize({
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="capyresize-width" className={labelClass}>
-                  target width (px)
+                  Target width (px)
                 </label>
                 <Input
                   id="capyresize-width"
@@ -525,7 +525,7 @@ export function CapyResize({
               </div>
 
               <div>
-                <span className={labelClass}>format</span>
+                <span className={labelClass}>Format</span>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {FORMATS.map((f) => (
                     <Pill key={f} active={format === f} onClick={() => setFormat(f)} label={`Format ${f}`}>
@@ -535,7 +535,7 @@ export function CapyResize({
                 </div>
                 {format === "webp" ? (
                   <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    chrome and firefox encode webp; safari quietly saves png — the note below says which happened.
+                    Chrome and Firefox encode WebP; Safari quietly saves PNG — the note below says which happened.
                   </p>
                 ) : null}
               </div>
@@ -545,7 +545,7 @@ export function CapyResize({
               {format !== "png" ? (
                 <div className="flex items-center gap-3">
                   <label htmlFor="capyresize-quality" className={labelClass}>
-                    quality
+                    Quality
                   </label>
                   <input
                     id="capyresize-quality"
@@ -564,24 +564,24 @@ export function CapyResize({
               ) : null}
 
               {format === "jpeg" ? (
-                <ColorField id="capyresize-flatten" label="flatten onto" value={flatten} onChange={setFlatten} />
+                <ColorField id="capyresize-flatten" label="Flatten onto" value={flatten} onChange={setFlatten} />
               ) : null}
             </div>
 
             {format === "jpeg" ? (
               <p className="mt-2 text-[11px] text-muted-foreground">
-                jpeg has no transparency — this fills the background behind every clear pixel.
+                JPEG has no transparency — this fills the background behind every clear pixel.
               </p>
             ) : null}
 
             {upscaled ? (
               <p className="mt-3 text-[13px] text-[var(--clay)]">
-                this grows the image — pixels get softer, not sharper.
+                This grows the image — pixels get softer, not sharper.
               </p>
             ) : null}
             {refused ? (
               <p className="mt-3 text-[13px] text-[var(--clay)]">
-                that size is past what a browser canvas guarantees — keep it under 8192 a side and about 16 megapixels.
+                That size is past what a browser canvas guarantees — keep it under 8192 a side and about 16 megapixels.
               </p>
             ) : null}
           </StageCard>
@@ -590,7 +590,7 @@ export function CapyResize({
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="capyresize-site-name" className={labelClass}>
-                  site name
+                  Site name
                 </label>
                 <Input
                   id="capyresize-site-name"
@@ -603,44 +603,44 @@ export function CapyResize({
               </div>
               <div>
                 <label htmlFor="capyresize-short-name" className={labelClass}>
-                  short name
+                  Short name
                 </label>
                 <Input
                   id="capyresize-short-name"
                   type="text"
                   value={shortName}
                   onChange={(e) => setShortName(e.target.value)}
-                  placeholder="same as the site name"
+                  placeholder="Same as the site name"
                   className="mt-1.5 bg-muted/40 font-sans"
                 />
               </div>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <ColorField id="capyresize-bg" label="background" value={background} onChange={setBackground} />
+              <ColorField id="capyresize-bg" label="Background" value={background} onChange={setBackground} />
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-muted/30 px-3 py-2">
                 <label htmlFor="capyresize-pad" className={labelClass}>
-                  pad the apple icon
+                  Pad the Apple icon
                 </label>
                 <Switch
                   id="capyresize-pad"
                   checked={applePad}
                   onCheckedChange={(v) => setApplePad(v === true)}
-                  aria-label="Pad the apple touch icon"
+                  aria-label="Pad the Apple touch icon"
                 />
               </div>
             </div>
 
             <p className="mt-2 text-[11px] text-muted-foreground">
               {applePad
-                ? "the padding is ~6% of the side — a community convention, not a spec."
-                : "edge to edge — some home screens will kiss the corners."}{" "}
-              {decoded.kind === "svg" ? "the svg ships through as favicon.svg, untouched." : ""}
+                ? "The padding is ~6% of the side — a community convention, not a spec."
+                : "Edge to edge — some home screens will kiss the corners."}{" "}
+              {decoded.kind === "svg" ? "The SVG ships through as favicon.svg, untouched." : ""}
             </p>
 
             {decoded.width !== decoded.height ? (
               <p className="mt-3 text-[13px] text-[var(--clay)]">
-                input is {decoded.width}×{decoded.height} — the icons come from a centered square crop.
+                Input is {decoded.width}×{decoded.height} — the icons come from a centered square crop.
               </p>
             ) : null}
           </StageCard>
@@ -662,7 +662,7 @@ export function CapyResize({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={previewUrl}
-                      alt={`resized output, ${result.width} by ${result.height} pixels`}
+                      alt={`Resized output, ${result.width} by ${result.height} pixels`}
                       width={result.width}
                       height={result.height}
                       className="max-w-full h-auto"
@@ -678,7 +678,7 @@ export function CapyResize({
                   </StageChip>
                   {result.webpFallback ? (
                     <p className="mt-2 text-[13px] text-[var(--clay)]">
-                      this browser saves webp as png — the export you got is png.
+                      This browser saves WebP as PNG — the export you got is PNG.
                     </p>
                   ) : null}
                 </div>
@@ -700,7 +700,7 @@ export function CapyResize({
               </>
             ) : (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                {refused ? "no proof until the size fits the guard above." : "measuring the encoded bytes…"}
+                {refused ? "No proof until the size fits the guard above." : "Measuring the encoded bytes…"}
               </p>
             )}
           </StageCard>
@@ -716,24 +716,24 @@ export function CapyResize({
                         <img
                           // True pixel sizes — the "does it survive the tab" strip.
                           src={stripUrls[i]}
-                          alt={`icon preview at ${size} pixels`}
+                          alt={`Icon preview at ${size} pixels`}
                           width={size}
                           height={size}
                           style={{ imageRendering: "pixelated" }}
                         />
                       ) : null}
-                      <figcaption className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      <figcaption className="font-mono text-[12px] text-muted-foreground">
                         {size} px
                       </figcaption>
                     </figure>
                   ))}
                 </div>
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                  true pixel sizes — if the 16 px one still reads like your logo, ship it.
+                  True pixel sizes — if the 16 px one still reads like your logo, ship it.
                 </p>
 
                 <div className="mt-4">
-                  <span className={labelClass}>in the zip</span>
+                  <span className={labelClass}>In the zip</span>
                   <ul className="mt-1.5 rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
                     {packFiles.map((file) => (
                       <li key={file.name} className="flex items-center justify-between gap-4">
@@ -748,12 +748,12 @@ export function CapyResize({
                 </div>
 
                 <div className="mt-4">
-                  <span className={labelClass}>paste into your head</span>
+                  <span className={labelClass}>Paste into your head</span>
                   <div className="mt-1.5 overflow-x-auto rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
                     <pre className="whitespace-pre">{snippet}</pre>
                   </div>
                   <p className="mt-2 text-[11px] text-muted-foreground">
-                    the svg line waits for a file you can add later — browsers skip it quietly until it exists.
+                    The SVG line waits for a file you can add later — browsers skip it quietly until it exists.
                   </p>
                 </div>
 
@@ -782,7 +782,7 @@ export function CapyResize({
                 </p>
               </>
             ) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">building the pack…</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">Building the pack…</p>
             )}
           </StageCard>
         )

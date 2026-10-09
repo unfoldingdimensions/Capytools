@@ -78,7 +78,7 @@ export function MoodPills({
         {ids.map((id) => (
           <MoodPill key={id} id={id} onPick={onPick} />
         ))}
-        {ids.length === 0 && <p className="text-sm text-muted-foreground">nothing here yet</p>}
+        {ids.length === 0 && <p className="text-sm text-muted-foreground">Nothing here yet</p>}
       </div>
     </div>
   );

@@ -36,7 +36,7 @@ export function loadManifest(): Promise<Manifest> {
   // from before public/_headers stopped sending one.
   manifestPromise ??= fetch(MANIFEST_URL, { cache: "no-cache" })
     .then((res) => {
-      if (!res.ok) throw new Error(`the asset manifest could not be read (HTTP ${res.status})`);
+      if (!res.ok) throw new Error(`The asset manifest could not be read (HTTP ${res.status})`);
       return res.json();
     })
     .then((json) => validateManifest(json));
@@ -83,7 +83,7 @@ async function fetchAllParts(
   return Promise.all(
     parts.map(async (part) => {
       const res = await fetch(part.path);
-      if (!res.ok) throw new Error(`a model file failed to download (HTTP ${res.status})`);
+      if (!res.ok) throw new Error(`A model file failed to download (HTTP ${res.status})`);
       const bytes = new Uint8Array(part.bytes);
       if (res.body) {
         const reader = res.body.getReader();
@@ -96,10 +96,10 @@ async function fetchAllParts(
           received += value.length;
           report();
         }
-        if (offset !== part.bytes) throw new Error("a model file was truncated in transit");
+        if (offset !== part.bytes) throw new Error("A model file was truncated in transit");
       } else {
         const whole = new Uint8Array(await res.arrayBuffer());
-        if (whole.length !== part.bytes) throw new Error("a model file was truncated in transit");
+        if (whole.length !== part.bytes) throw new Error("A model file was truncated in transit");
         bytes.set(whole);
         received += part.bytes;
         report();
@@ -149,7 +149,7 @@ export async function loadFile(
       }
     }
     if (attempt > 0) {
-      throw new Error("the model download failed its integrity check twice — please try again");
+      throw new Error("The model download failed its integrity check twice — please try again");
     }
     onProgress?.({ received: 0, total: file.bytes });
   }
@@ -173,7 +173,7 @@ export async function loadModel(
 ): Promise<Uint8Array> {
   const manifest = await loadManifest();
   const file = manifest.models[id];
-  if (!file) throw new Error(`the ${id} model is missing from the asset manifest`);
+  if (!file) throw new Error(`The ${id} model is missing from the asset manifest`);
   return loadFile(file, onProgress);
 }
 

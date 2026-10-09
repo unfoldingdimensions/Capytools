@@ -13,7 +13,7 @@ export default function CapyStampPage() {
     <ToolPageShell
       tool="CapyStamp"
       headline={[{ text: "Put your" }, { text: "mark on it", em: true, dot: true }]}
-      lead="watermark one photo or a whole batch, in your browser. nothing uploaded."
+      lead="Watermark one photo or a whole batch, in your browser. Nothing uploaded."
       align="left"
     >
       <CapyStamp />

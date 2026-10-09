@@ -38,7 +38,7 @@ function formatValue(value: unknown): string {
     if (!Number.isFinite(value)) return "";
     return Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100);
   }
-  if (typeof value === "boolean") return value ? "yes" : "no";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
   if (Array.isArray(value)) return value.map(formatValue).filter(Boolean).join(", ");
   if (typeof value === "object") return JSON.stringify(value);
   return String(value).trim();
@@ -88,48 +88,48 @@ function buildAiSignals(raw: RawMetadata): string[] {
   // XMP when it parses, or via the raw marker scan when it doesn't.
   const sourceType = formatValue(pick(raw.xmp, ["DigitalSourceType"]) ?? pick(raw.exif, ["DigitalSourceType"]));
   if (sourceType && isAiSourceType(sourceType)) {
-    signals.add(`declared AI-generated (IPTC source type: ${digitalSourceLabel(sourceType)})`);
+    signals.add(`Declared AI-generated (IPTC source type: ${digitalSourceLabel(sourceType)})`);
   } else {
     const vocabMarker = raw.markers.find((m) => IPTC_VOCAB_MARKERS.has(m));
     if (vocabMarker) {
-      signals.add(`declared AI-generated (IPTC source type: ${digitalSourceLabel(vocabMarker)})`);
+      signals.add(`Declared AI-generated (IPTC source type: ${digitalSourceLabel(vocabMarker)})`);
     }
   }
 
   // A1111 `parameters` chunk — prompt, negative and settings, embedded.
   const parameters = raw.pngText?.find((c) => c.key === "parameters");
-  if (parameters) signals.add("carries a Stable Diffusion-style generation prompt (prompt and settings embedded)");
+  if (parameters) signals.add("Carries a Stable Diffusion-style generation prompt (prompt and settings embedded)");
 
   // ComfyUI / NovelAI-style recipe chunks.
   const recipe = raw.pngText?.find(
     (c) => (c.key === "prompt" || c.key === "workflow") && isInterestingPngKey(c.key),
   );
-  if (recipe) signals.add("carries a generation recipe (ComfyUI-style workflow metadata)");
+  if (recipe) signals.add("Carries a generation recipe (ComfyUI-style workflow metadata)");
   const novelAiComment = raw.pngText?.find(
     (c) => c.key === "Comment" && /NovelAI/i.test(c.value),
   );
-  if (novelAiComment) signals.add("carries NovelAI generation metadata");
+  if (novelAiComment) signals.add("Carries NovelAI generation metadata");
 
   // Content credentials.
-  if (raw.c2pa) signals.add("content credentials present (C2PA)");
+  if (raw.c2pa) signals.add("Content credentials present (C2PA)");
 
   // Photoshop-style editing lineage.
   if (pick(raw.xmp, ["DocumentAncestors"]) || pick(raw.exif, ["DocumentAncestors"]) ||
       pick(raw.xmp, ["DerivedFrom"]) || pick(raw.exif, ["DerivedFrom"])) {
-    signals.add("edited with lineage metadata (Photoshop-style history)");
+    signals.add("Edited with lineage metadata (Photoshop-style history)");
   }
 
   // Tool fingerprints in the raw bytes.
   for (const marker of raw.markers) {
     const tool = TOOL_MARKERS[marker];
-    if (tool) signals.add(`mentions ${tool} in the file bytes`);
+    if (tool) signals.add(`Mentions ${tool} in the file bytes`);
   }
 
   // Generation-settings text without a parseable parameters chunk — the
   // marker scan saw "Steps:/Sampler:" somewhere we couldn't structure.
   const hasSettingsMarkers = raw.markers.some((m) => m === "Steps:" || m === "Sampler:" || m === "Negative prompt:");
   if (hasSettingsMarkers && !parameters && !recipe) {
-    signals.add("carries generation-recipe text (sampler settings in the file)");
+    signals.add("Carries generation-recipe text (sampler settings in the file)");
   }
 
   return [...signals];
@@ -199,7 +199,7 @@ function collectFields(raw: RawMetadata): MetadataField[] {
       if (!isInterestingPngKey(chunk.key)) continue;
       if (chunk.key === "Comment" && chunk.value.length > 200) {
         // NovelAI-style metadata: summarize rather than dump.
-        fields.push(field("generation-recipe", "Generation recipe", `carries a ${formatBytes(chunk.value.length)} metadata comment`, "software_ai", true));
+        fields.push(field("generation-recipe", "Generation recipe", `Carries a ${formatBytes(chunk.value.length)} metadata comment`, "software_ai", true));
         continue;
       }
       if (chunk.key === "Software") {
@@ -218,13 +218,13 @@ function collectFields(raw: RawMetadata): MetadataField[] {
                 : chunk.key === "Source"
                   ? "Source"
                   : chunk.key;
-      const value = chunk.key === "workflow" ? `workflow JSON (${formatBytes(chunk.value.length)})` : chunk.value;
+      const value = chunk.key === "workflow" ? `Workflow JSON (${formatBytes(chunk.value.length)})` : chunk.value;
       fields.push(field(`png-${chunk.key.toLowerCase()}`, label, value, "software_ai", chunk.key === "prompt" || chunk.key === "workflow"));
     }
   }
 
   if (raw.c2pa) {
-    fields.push(field("c2pa", "Content credentials (C2PA)", `present — ${C2PA_CONTAINER_LABEL[raw.c2pa]}`, "software_ai", true));
+    fields.push(field("c2pa", "Content credentials (C2PA)", `Present — ${C2PA_CONTAINER_LABEL[raw.c2pa]}`, "software_ai", true));
   }
 
   // ---- camera settings ----
@@ -256,7 +256,7 @@ function collectFields(raw: RawMetadata): MetadataField[] {
     field("color-profile", "Color profile", pick(exif, ["ProfileDescription"]) ?? pick(exif, ["ColorSpaceData"]), "technical", false),
   );
   if (raw.thumbnailPresent) {
-    fields.push(field("thumbnail", "Hidden thumbnail", "yes — an embedded preview image", "technical", false));
+    fields.push(field("thumbnail", "Hidden thumbnail", "Yes — an embedded preview image", "technical", false));
   }
 
   return fields.filter((f): f is MetadataField => f !== null);

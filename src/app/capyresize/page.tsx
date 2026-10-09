@@ -13,7 +13,7 @@ export default function CapyResizePage() {
     <ToolPageShell
       tool="CapyResize"
       headline={[{ text: "Every size it" }, { text: "needs to be", em: true, dot: true }]}
-      lead="resize, convert and favicon-pack images in your browser. all local."
+      lead="Resize, convert and favicon-pack images in your browser. All local."
       align="left"
     >
       <CapyResize />

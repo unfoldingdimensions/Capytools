@@ -77,9 +77,9 @@ export function checkCorners(data: Uint8ClampedArray, w: number, h: number): Bac
 
   let note: string | null = null;
   if (!plain) {
-    note = "the background looks busy — the guidance asks for a plain, light-coloured backdrop behind you.";
+    note = "The background looks busy — the guidance asks for a plain, light-coloured backdrop behind you.";
   } else if (!light) {
-    note = "the background looks plain but darker than a plain, light backdrop — a lighter wall or an opt-in fill may read better.";
+    note = "The background looks plain but darker than a plain, light backdrop — a lighter wall or an opt-in fill may read better.";
   }
   return { plain, light, note };
 }
@@ -90,4 +90,4 @@ export function checkCorners(data: Uint8ClampedArray, w: number, h: number): Bac
  * be "unaltered by computer software".
  */
 export const FILL_WARNING =
-  "many authorities require an unaltered photo — only fill the background if your official guidance allows it.";
+  "Many authorities require an unaltered photo — only fill the background if your official guidance allows it.";

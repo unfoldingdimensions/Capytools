@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
  */
 
 const labelClass =
-  "font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[13px] text-muted-foreground";
 
 /** The backdrop swatches: house tones, each with a spoken name. */
 const SWATCHES: { hex: string; name: string }[] = [
@@ -268,7 +268,7 @@ export function CapyBg() {
         if (err instanceof DetailedModelUnavailableError) throw err;
         if (err instanceof CutCancelledError) {
           setPhase("error");
-          setError({ title: "Stopped.", body: "the cut was stopped. your photo is still here — try again whenever you like." });
+          setError({ title: "Stopped.", body: "The cut was stopped. Your photo is still here — try again whenever you like." });
           return;
         }
         setPhase("error");
@@ -330,7 +330,7 @@ export function CapyBg() {
   const handleDownload = useCallback(() => {
     if (!result || !file) return;
     saveBlob(result.blob, nameFor(file.name, { format: result.mimeType === "image/jpeg" ? "jpeg" : "png" }));
-    setStatus(`saved ${nameFor(file.name, { format: result.mimeType === "image/jpeg" ? "jpeg" : "png" })} (${formatBytes(result.bytesAfter)}).`);
+    setStatus(`Saved ${nameFor(file.name, { format: result.mimeType === "image/jpeg" ? "jpeg" : "png" })} (${formatBytes(result.bytesAfter)}).`);
   }, [result, file]);
 
   const handleCopy = useCallback(async () => {
@@ -353,20 +353,20 @@ export function CapyBg() {
       setCopied(true);
       window.setTimeout(() => setCopied(false), COPIED_MS);
     } catch {
-      setStatus("this browser blocked the image copy. download instead — same pixels.");
+      setStatus("This browser blocked the image copy. Download instead — same pixels.");
     }
   }, [result]);
 
   const handleRemoveModels = useCallback(async () => {
     await deleteCachedModels();
-    setStatus("downloaded models removed from this browser — the next cut downloads them again.");
+    setStatus("Downloaded models removed from this browser — the next cut downloads them again.");
   }, []);
 
   const working = phase === "working";
   const downloadPct = progress?.total ? Math.min(100, Math.round(((progress.received ?? 0) / progress.total) * 100)) : 0;
   const backendLine =
     result !== null
-      ? `ran on your ${result.backend === "webgpu" ? "GPU (WebGPU)" : "CPU (WebAssembly)"} · ${Math.round(result.modelMs) >= 1000 ? `${(result.modelMs / 1000).toFixed(1)} s` : `${Math.round(result.modelMs)} ms`}`
+      ? `Ran on your ${result.backend === "webgpu" ? "GPU (WebGPU)" : "CPU (WebAssembly)"} · ${Math.round(result.modelMs) >= 1000 ? `${(result.modelMs / 1000).toFixed(1)} s` : `${Math.round(result.modelMs)} ms`}`
       : "";
 
   const previewSrc = showOriginal ? originalUrl : resultUrl;
@@ -408,17 +408,17 @@ export function CapyBg() {
         >
           <span className="mt-1 text-sm font-medium text-foreground">Drop a photo here</span>
           <span className="text-xs text-muted-foreground">
-            or click to pick one — or paste a screenshot. it never leaves this tab, and nothing is uploaded.
+            Or click to pick one — or paste a screenshot. It never leaves this tab, and nothing is uploaded.
           </span>
         </button>
 
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[12px] text-muted-foreground">
           <ClipboardPaste className="size-3" aria-hidden />
-          ctrl/⌘+V works too
+          Ctrl/⌘+V works too
         </p>
 
         <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
-          <span className={labelClass}>model</span>
+          <span className={labelClass}>Model</span>
           <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Model">
             <Pill
               active={model === "modnet" && !group}
@@ -432,7 +432,7 @@ export function CapyBg() {
               }}
               label={`Model ${MODELS.modnet.label}, ${formatBytes(MODELS.modnet.bytes)} downloaded once`}
             >
-              {MODELS.modnet.label.toLowerCase()} · {formatBytes(MODELS.modnet.bytes)}, once
+              {MODELS.modnet.label} · {formatBytes(MODELS.modnet.bytes)}, once
             </Pill>
             <Pill
               active={model === "modnet" && group}
@@ -445,7 +445,7 @@ export function CapyBg() {
               }}
               label={`Group mode: people model plus a ${formatBytes(MODELS.u2human.bytes)} helper, downloaded once`}
             >
-              groups · +{formatBytes(MODELS.u2human.bytes)}, once
+              Groups · +{formatBytes(MODELS.u2human.bytes)}, once
             </Pill>
             {backend === "webgpu" && detailedId && !detailedBlocked ? (
               <Pill
@@ -459,18 +459,18 @@ export function CapyBg() {
                 }}
                 label={`Model ${MODELS[detailedId].label}, ${formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)} downloaded once`}
               >
-                {MODELS[detailedId].label.toLowerCase()} · {formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once
+                {MODELS[detailedId].label} · {formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once
               </Pill>
             ) : null}
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {backend === "wasm"
-              ? "this browser has no GPU support, so the cut runs on your CPU — it works, just slower. the detailed model needs a browser with GPU support."
+              ? "This browser has no GPU support, so the cut runs on your CPU — it works, just slower. The detailed model needs a browser with GPU support."
               : detailedBlocked
-                ? "the detailed model can't run on this GPU — it's hidden for the rest of this visit."
+                ? "The detailed model can't run on this GPU — it's hidden for the rest of this visit."
                 : backend === "webgpu" && !detailedId
                   ? DETAILED_UNFIT_NOTE
-                  : "the only download is the model. your photo never leaves this tab."}
+                  : "The only download is the model. Your photo never leaves this tab."}
           </p>
           {modelNote ? (
             <p className="mt-1 text-xs text-[var(--clay)]" role="status">
@@ -489,7 +489,7 @@ export function CapyBg() {
         ariaLive="polite"
         chips={
           <>
-            {isDemo && <StageChip>demo</StageChip>}
+            {isDemo && <StageChip>Demo</StageChip>}
             {result && <StageChip>{result.width}×{result.height}</StageChip>}
           </>
         }
@@ -505,7 +505,7 @@ export function CapyBg() {
                   aria-valuenow={downloadPct}
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  aria-label="model download progress"
+                  aria-label="Model download progress"
                 >
                   <div className="h-full rounded-full bg-primary transition-[width] duration-200" style={{ width: `${downloadPct}%` }} />
                 </div>
@@ -519,13 +519,13 @@ export function CapyBg() {
                 {/* The clock only means something while the model runs — during
                     warm-up it is noise, so it appears with the cut phase. */}
                 {progress?.phase === "cut"
-                  ? `${progress.message ?? "cutting"} — ${elapsed.toFixed(1)} s`
-                  : progress?.message ?? "reading the photo"}
+                  ? `${progress.message ?? "Cutting"} — ${elapsed.toFixed(1)} s`
+                  : progress?.message ?? "Reading the photo"}
               </p>
             )}
             {backend === "wasm" ? (
               <p className="text-xs text-muted-foreground">
-                a multi-second cut on the CPU is normal — the page stays responsive because it runs off the main thread.
+                A multi-second cut on the CPU is normal — the page stays responsive because it runs off the main thread.
               </p>
             ) : null}
             {/* A way out of any wait. Stopping tears the worker down; the
@@ -535,7 +535,7 @@ export function CapyBg() {
               onClick={() => cancelCut()}
               className="self-start text-xs text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground pointer-coarse:min-h-11"
             >
-              stop
+              Stop
             </button>
           </div>
         ) : error ? (
@@ -575,7 +575,7 @@ export function CapyBg() {
                 <img
                   data-capybg-preview
                   src={previewSrc}
-                  alt={showOriginal ? "the original photo" : "the cutout, on a checkerboard"}
+                  alt={showOriginal ? "The original photo" : "The cutout, on a checkerboard"}
                   className="mx-auto block max-h-[420px] w-auto max-w-full"
                 />
               ) : null}
@@ -601,18 +601,18 @@ export function CapyBg() {
                   }}
                   className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
                 >
-                  {showOriginal ? "release to see the cut" : "press and hold to show original"}
+                  {showOriginal ? "Release to see the cut" : "Press and hold to show original"}
                 </button>
               ) : (
                 <span className="text-xs text-muted-foreground">
-                  this is a hand-drawn demo — drop a photo above to cut your own.
+                  This is a hand-drawn demo — drop a photo above to cut your own.
                 </span>
               )}
             </div>
 
             {result && !isDemo ? (
               <div className="text-center">
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{backendLine}</p>
+                <p className="font-mono text-[13px] text-muted-foreground">{backendLine}</p>
                 {modelNote ? (
                   <p className="mt-1 text-xs text-[var(--clay)]" role="status">
                     {modelNote}
@@ -636,7 +636,7 @@ export function CapyBg() {
                 }}
                 className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
               >
-                missing someone? try group mode (+{formatBytes(MODELS.u2human.bytes)}, once)
+                Missing someone? Try group mode (+{formatBytes(MODELS.u2human.bytes)}, once)
               </button>
             ) : null}
 
@@ -651,7 +651,7 @@ export function CapyBg() {
                 }}
                 className="rounded-full border border-border bg-muted/30 px-3 py-1 font-sans text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11 pointer-coarse:px-4"
               >
-                not a person? try the detailed model ({formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once)
+                Not a person? Try the detailed model ({formatBytes(MODELS[detailedId].bytes + MODELS.vitmatte.bytes)}, once)
               </button>
             ) : null}
           </div>
@@ -666,25 +666,25 @@ export function CapyBg() {
         className="lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1"
       >
         <div className="mt-1 flex flex-wrap items-center gap-1.5" role="group" aria-label="Backdrop">
-          <span className={labelClass}>backdrop</span>
+          <span className={labelClass}>Backdrop</span>
           <Pill active={backdrop === "transparent"} onClick={() => setBackdrop("transparent")} label="Transparent backdrop">
-            transparent
+            Transparent
           </Pill>
           <Pill active={backdrop === "light"} onClick={() => setBackdrop("light")} label="Light backdrop">
-            light
+            Light
           </Pill>
           <Pill active={backdrop === "dark"} onClick={() => setBackdrop("dark")} label="Dark backdrop">
-            dark
+            Dark
           </Pill>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className={cn(labelClass, "sr-only")}>backdrop colour swatches</span>
+          <span className={cn(labelClass, "sr-only")}>Backdrop colour swatches</span>
           {SWATCHES.map((swatch) => (
             <button
               key={swatch.hex}
               type="button"
-              aria-label={`backdrop colour: ${swatch.name}`}
+              aria-label={`Backdrop colour: ${swatch.name}`}
               aria-pressed={backdrop === swatch.hex}
               onClick={() => setBackdrop({ color: swatch.hex })}
               className={cn(
@@ -699,7 +699,7 @@ export function CapyBg() {
           <input
             id="capybg-colour"
             type="color"
-            aria-label="backdrop colour picker"
+            aria-label="Backdrop colour picker"
             value={backdrop === "transparent" || backdrop === "light" || backdrop === "dark" ? "#ffffff" : backdrop.color}
             onChange={(e) => setBackdrop({ color: e.target.value })}
             className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5 pointer-coarse:size-11"
@@ -707,7 +707,7 @@ export function CapyBg() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-1.5" role="group" aria-label="Format">
-          <span className={labelClass}>format</span>
+          <span className={labelClass}>Format</span>
           <Pill active={format === "png"} onClick={() => setFormat("png")} label="PNG format">
             PNG
           </Pill>
@@ -752,12 +752,12 @@ export function CapyBg() {
             {formatBytes(result.bytesBefore)} → {formatBytes(result.bytesAfter)} · {downloadName}
             {result.bytesAfter > result.bytesBefore ? (
               <span className="mt-1 block font-sans text-xs normal-case tracking-normal">
-                the cut is bigger than the original — transparency costs bytes.
+                The cut is bigger than the original — transparency costs bytes.
               </span>
             ) : null}
           </p>
         ) : (
-          <p className="mt-4 text-xs text-muted-foreground">the download waits for a cut.</p>
+          <p className="mt-4 text-xs text-muted-foreground">The download waits for a cut.</p>
         )}
 
         <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
@@ -772,7 +772,7 @@ export function CapyBg() {
         </div>
 
         <p aria-live="polite" className="mt-3 min-h-5 text-xs text-muted-foreground">
-          {status || (result ? "nothing uploaded, nothing stored — the cut was made in this tab." : "")}
+          {status || (result ? "Nothing uploaded, nothing stored — the cut was made in this tab." : "")}
         </p>
 
         <button
@@ -780,7 +780,7 @@ export function CapyBg() {
           onClick={() => void handleRemoveModels()}
           className="mt-3 text-xs text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground pointer-coarse:min-h-11"
         >
-          remove downloaded models from this browser
+          Remove downloaded models from this browser
         </button>
       </StageCard>
 
@@ -815,10 +815,10 @@ export function CapyBg() {
                 )}
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {result
-                    ? "cut ready — download the PNG here."
+                    ? "Cut ready — download the PNG here."
                     : working
-                      ? "cutting, in this tab…"
-                      : "drop a photo to cut."}
+                      ? "Cutting, in this tab…"
+                      : "Drop a photo to cut."}
                 </p>
                 <Button className="h-11 flex-none rounded-full px-5" onClick={handleDownload} disabled={!result}>
                   <Download className="mr-1.5 size-4" />

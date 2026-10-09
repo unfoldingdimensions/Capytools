@@ -89,7 +89,7 @@ export function StageCard({
               <h2
                 // 12px and ink: a stage heading at 10px sat below the 11px
                 // field labels it heads.
-                className="font-mono text-xs font-medium uppercase tracking-[0.16em] text-foreground"
+                className="font-mono text-xs font-medium text-foreground"
               >
                 {eyebrow}
               </h2>
@@ -129,7 +129,7 @@ export function StageChip({
   return (
     <span
       className={cn(
-        "rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em]",
+        "rounded-full border px-2.5 py-0.5 font-mono text-[12px]",
         STAGE_TONE[tone],
         className,
       )}

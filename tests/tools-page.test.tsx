@@ -117,16 +117,16 @@ describe("/tools is reachable from the chrome", () => {
     // Inline row and the disclosure it folds into both carry it, and both
     // are in the markup whichever one the width ends up showing.
     expect(markup.match(/href="\/tools"/g) ?? []).toHaveLength(2);
-    expect(markup).toContain(">All Tools<");
+    expect(markup).toContain(">All tools<");
   });
 
-  it("is the switcher: the masthead carries All Tools and Notes, nothing else", () => {
+  it("is the switcher: the masthead carries All tools and Notes, nothing else", () => {
     // It carried all eleven tools by name, needed ~1,370px, and folded into
     // the menu at every common laptop width.
     const markup = renderToStaticMarkup(<Header tool="CapyQR" />);
     const row = markup.match(/<nav class="lp-nav-links"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
     const labels = [...row.matchAll(/>([^<>]+)<\/a>/g)].map((m) => m[1]);
-    expect(labels).toEqual(["All Tools", "Notes"]);
+    expect(labels).toEqual(["All tools", "Notes"]);
   });
 
   it("marks itself as the current page on /tools", () => {
@@ -134,7 +134,7 @@ describe("/tools is reachable from the chrome", () => {
     expect(markup).toContain('<a class="is-active" aria-current="page" href="/tools">');
   });
 
-  it("carries no persistent CTA — All Tools already reaches the suite", () => {
+  it("carries no persistent CTA — All tools already reaches the suite", () => {
     const markup = renderToStaticMarkup(<Header />);
     expect(markup).not.toContain("lp-nav-cta");
     expect(markup).not.toContain("Explore our tools");
@@ -157,6 +157,6 @@ describe("the /tools empty state points the right way", () => {
   it("offers to clear the search, and never says the tools are above it", () => {
     const src = readFileSync(join(process.cwd(), "src/components/tools/ToolsGrid.tsx"), "utf8");
     expect(src).not.toContain("listed above");
-    expect(src).toContain("clear search");
+    expect(src).toContain("Clear search");
   });
 });

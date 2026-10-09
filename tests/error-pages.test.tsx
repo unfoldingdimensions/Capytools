@@ -48,7 +48,7 @@ describe("the route error boundary", () => {
     expect(file.startsWith('"use client"')).toBe(true);
   });
 
-  it("wires reset, so 'try again' is real and not decoration", () => {
+  it("wires reset, so 'Try again' is real and not decoration", () => {
     expect(file).toContain("onClick={reset}");
   });
 
@@ -89,7 +89,7 @@ describe("the global error boundary", () => {
   });
 
   it("gives a retry and a link home", () => {
-    expect(html).toContain("try again");
+    expect(html).toContain("Try again");
     expect(html).toContain('href="/"');
   });
 

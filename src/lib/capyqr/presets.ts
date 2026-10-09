@@ -20,7 +20,7 @@ export interface CapyPreset {
 export const CAPY_PRESETS: CapyPreset[] = [
   {
     id: "sage",
-    label: "sage",
+    label: "Sage",
     style: {
       dotType: "square",
       cornerSquareType: "square",
@@ -34,7 +34,7 @@ export const CAPY_PRESETS: CapyPreset[] = [
   },
   {
     id: "water",
-    label: "water",
+    label: "Water",
     style: {
       dotType: "rounded",
       cornerSquareType: "extra-rounded",
@@ -48,7 +48,7 @@ export const CAPY_PRESETS: CapyPreset[] = [
   },
   {
     id: "clay",
-    label: "clay",
+    label: "Clay",
     style: {
       dotType: "classy-rounded",
       cornerSquareType: "dot",
@@ -62,7 +62,7 @@ export const CAPY_PRESETS: CapyPreset[] = [
   },
   {
     id: "gold",
-    label: "gold",
+    label: "Gold",
     style: {
       dotType: "extra-rounded",
       cornerSquareType: "square",
@@ -76,7 +76,7 @@ export const CAPY_PRESETS: CapyPreset[] = [
   },
   {
     id: "mono",
-    label: "mono",
+    label: "Mono",
     style: {
       dotType: "dots",
       cornerSquareType: "square",
@@ -101,17 +101,17 @@ export const DEFAULT_STYLE: QrStyleState = CAPY_PRESETS[0].style;
  */
 /** What a screen reader says for each swatch — "#4a6741" names nothing. */
 export const SWATCH_NAMES: Readonly<Record<string, string>> = {
-  "#1a1a1a": "ink",
-  "#4a6741": "deep sage",
-  "#5f7a72": "water",
-  "#c07952": "clay",
-  "#d9a441": "gold",
-  "#7a8e6e": "sage",
-  "#f9f9f7": "cream",
-  "#ffffff": "white",
-  "#f1efea": "linen",
-  "#dfe5d6": "pale sage",
-  "#1e1e1e": "charcoal",
+  "#1a1a1a": "Ink",
+  "#4a6741": "Deep sage",
+  "#5f7a72": "Water",
+  "#c07952": "Clay",
+  "#d9a441": "Gold",
+  "#7a8e6e": "Sage",
+  "#f9f9f7": "Cream",
+  "#ffffff": "White",
+  "#f1efea": "Linen",
+  "#dfe5d6": "Pale sage",
+  "#1e1e1e": "Charcoal",
 };
 
 export const CODE_SWATCHES: readonly string[] = [

@@ -34,7 +34,7 @@ export function Hero() {
         <div className="lp-sec-rule">
           <span className="lp-roman">I.</span>
           <span className="lp-meta-grp">
-            <span>Hero / Cover Plate</span>
+            <span>Hero / Cover plate</span>
             <span aria-hidden="true">•</span>
             <span>Capytools / Volume 01</span>
           </span>

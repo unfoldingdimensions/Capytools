@@ -29,7 +29,7 @@ function vcard(fields: NonNullable<PayloadFields["contact"]>): PayloadResult {
   const first = fields.first.trim();
   const last = fields.last.trim();
   if (!first && !last) {
-    return { ok: false, error: "a contact code needs a name — add a first or last name." };
+    return { ok: false, error: "A contact code needs a name — add a first or last name." };
   }
   const full = [first, last].filter(Boolean).join(" ");
   const lines = ["BEGIN:VCARD", "VERSION:3.0", `N:${last};${first};;;`, `FN:${full}`];
@@ -48,7 +48,7 @@ function vcard(fields: NonNullable<PayloadFields["contact"]>): PayloadResult {
 function wifi(fields: NonNullable<PayloadFields["wifi"]>): PayloadResult {
   const ssid = fields.ssid.trim();
   if (!ssid) {
-    return { ok: false, error: "a Wi-Fi code needs a network name — add the SSID." };
+    return { ok: false, error: "A Wi-Fi code needs a network name — add the SSID." };
   }
   const parts = [`T:${fields.encryption}`, `S:${escapeWifiValue(ssid)}`];
   if (fields.encryption !== "nopass") {
@@ -61,7 +61,7 @@ function wifi(fields: NonNullable<PayloadFields["wifi"]>): PayloadResult {
 function email(fields: NonNullable<PayloadFields["email"]>): PayloadResult {
   const to = fields.to.trim();
   if (!to) {
-    return { ok: false, error: "an email code needs an address — add who it goes to." };
+    return { ok: false, error: "An email code needs an address — add who it goes to." };
   }
   // RFC 6068 percent-encoding — a `+` in a mailto query arrives as a literal
   // plus, so URLSearchParams' `+`-for-space convention would corrupt subjects.
@@ -74,19 +74,19 @@ function email(fields: NonNullable<PayloadFields["email"]>): PayloadResult {
 function link(fields: NonNullable<PayloadFields["link"]>): PayloadResult {
   const text = fields.text.trim();
   if (!text) {
-    return { ok: false, error: "add a link or some text first — there is nothing to encode yet." };
+    return { ok: false, error: "Add a link or some text first — there is nothing to encode yet." };
   }
   return { ok: true, value: text };
 }
 
-const NOTHING_TO_ENCODE = "add a link or some text first — there is nothing to encode yet.";
+const NOTHING_TO_ENCODE = "Add a link or some text first — there is nothing to encode yet.";
 
 function tel(fields: NonNullable<PayloadFields["tel"]>): PayloadResult {
   // Whitespace is visual sugar in a dialed number — strip it; everything
   // else (the plus, the country code, dashes) rides along untouched.
   const phone = fields.phone.replace(/\s+/g, "");
   if (!phone) {
-    return { ok: false, error: "a phone code needs a number — add who it dials." };
+    return { ok: false, error: "A phone code needs a number — add who it dials." };
   }
   return { ok: true, value: `tel:${phone}` };
 }
@@ -95,17 +95,17 @@ function geo(fields: NonNullable<PayloadFields["geo"]>): PayloadResult {
   const lat = fields.lat.trim();
   const long = fields.long.trim();
   if (!lat && !long) {
-    return { ok: false, error: "a location code needs coordinates — add a latitude and longitude." };
+    return { ok: false, error: "A location code needs coordinates — add a latitude and longitude." };
   }
   const latNum = Number(lat);
   const longNum = Number(long);
   if (lat === "" || long === "" || !Number.isFinite(latNum) || !Number.isFinite(longNum)) {
-    return { ok: false, error: "a location code needs coordinates — add a latitude and longitude." };
+    return { ok: false, error: "A location code needs coordinates — add a latitude and longitude." };
   }
   if (Math.abs(latNum) > 90 || Math.abs(longNum) > 180) {
     return {
       ok: false,
-      error: "those coordinates are out of range — latitude runs ±90, longitude ±180.",
+      error: "Those coordinates are out of range — latitude runs ±90, longitude ±180.",
     };
   }
   return { ok: true, value: `geo:${lat},${long}` };
@@ -135,13 +135,13 @@ function event(fields: NonNullable<PayloadFields["event"]>): PayloadResult {
   const start = toIcalStamp(fields.start);
   const end = toIcalStamp(fields.end);
   if (!title) {
-    return { ok: false, error: "an event code needs a title — name what it is." };
+    return { ok: false, error: "An event code needs a title — name what it is." };
   }
   if (!start || !end) {
-    return { ok: false, error: "an event code needs a start and an end — fill both times." };
+    return { ok: false, error: "An event code needs a start and an end — fill both times." };
   }
   if (end < start) {
-    return { ok: false, error: "the end is before the start — check the times." };
+    return { ok: false, error: "The end is before the start — check the times." };
   }
   const location = fields.location?.trim();
   const lines = ["BEGIN:VEVENT", `SUMMARY:${title}`, `DTSTART:${start}`, `DTEND:${end}`];
@@ -158,29 +158,29 @@ export function buildPayload(kind: PayloadKind, fields: PayloadFields): PayloadR
     case "wifi":
       return fields.wifi
         ? wifi(fields.wifi)
-        : { ok: false, error: "a Wi-Fi code needs a network name — add the SSID." };
+        : { ok: false, error: "A Wi-Fi code needs a network name — add the SSID." };
     case "contact":
       return fields.contact
         ? vcard(fields.contact)
-        : { ok: false, error: "a contact code needs a name — add a first or last name." };
+        : { ok: false, error: "A contact code needs a name — add a first or last name." };
     case "email":
       return fields.email
         ? email(fields.email)
-        : { ok: false, error: "an email code needs an address — add who it goes to." };
+        : { ok: false, error: "An email code needs an address — add who it goes to." };
     case "tel":
       return fields.tel
         ? tel(fields.tel)
-        : { ok: false, error: "a phone code needs a number — add who it dials." };
+        : { ok: false, error: "A phone code needs a number — add who it dials." };
     case "geo":
       return fields.geo
         ? geo(fields.geo)
         : {
             ok: false,
-            error: "a location code needs coordinates — add a latitude and longitude.",
+            error: "A location code needs coordinates — add a latitude and longitude.",
           };
     case "event":
       return fields.event
         ? event(fields.event)
-        : { ok: false, error: "an event code needs a title — name what it is." };
+        : { ok: false, error: "An event code needs a title — name what it is." };
   }
 }

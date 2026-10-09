@@ -134,7 +134,7 @@ describe("ErrorCard", () => {
     const retryable = renderToStaticMarkup(
       <ErrorCard title="t" body="b" onRetry={() => {}} />,
     );
-    expect(retryable).toContain("try again");
+    expect(retryable).toContain("Try again");
     expect(retryable).toContain("<button");
   });
 

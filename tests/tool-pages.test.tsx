@@ -62,7 +62,7 @@ describe("tool pages — editorial shell", () => {
       expect(html).toContain('class="lp-dot"');
       // Editorial sign-off row: internal back link + index meta.
       // …to the index, where the next tool is — not the landing.
-      expect(html).toMatch(/<a[^>]*href="\/tools"[^>]*>← back to the suite/);
+      expect(html).toMatch(/<a[^>]*href="\/tools"[^>]*>← Back to the suite/);
       expect(html).toContain(index);
       // The chrome puts a nav in front of the content, so every tool page owes
       // the reader the same bypass the landing has always shipped.
@@ -172,11 +172,9 @@ describe("tool pages — editorial shell", () => {
 });
 
 describe("copy register", () => {
-  // Client decision, 2026-09-12: the lowercase register is the house voice for
-  // UI copy — but titles take sentence case. Four tools were already
-  // consistent and two were wrong in opposite directions: CapyStrip's headline
-  // was lowercase, CapyExpense's lead was not. The rule itself is written down
-  // in DESIGN.md under "Register".
+  // Owner decision, 2026-10-09: everything is sentence case — headline and
+  // lead alike — replacing the lowercase register of 2026-09-12. The rule is
+  // written down in DESIGN.md under "Register".
   const pages = [
     ["CapyWrapped", CapyWrappedPage],
     ["CapyImagine", CapyImaginePage],
@@ -193,10 +191,11 @@ describe("copy register", () => {
     ["CapyStamp", CapyStampPage],
     ["CapyRead", CapyReadPage],
     ["CapyPassport", CapyPassportPage],
+    ["CapyResume", CapyResumePage],
   ] as const;
 
   for (const [name, Page] of pages) {
-    it(`${name}: sentence-case headline, lowercase lead`, () => {
+    it(`${name}: sentence-case headline and lead`, () => {
       const html = markup(<Page />);
 
       const h1 = html.match(/<h1[\s\S]*?<\/h1>/)?.[0] ?? "";
@@ -204,7 +203,7 @@ describe("copy register", () => {
       expect(firstSegment, `${name} headline should start uppercase`).toMatch(/^[A-Z]/);
 
       const lead = html.match(/class="lp-lead[^"]*">([^<]+)</)?.[1] ?? "";
-      expect(lead, `${name} lead should start lowercase`).toMatch(/^[a-z]/);
+      expect(lead, `${name} lead should start with a capital`).toMatch(/^[A-Z]/);
     });
   }
 });
@@ -251,7 +250,7 @@ describe("the shared footer's claim holds on every page it renders on", () => {
   it("never promises 'nothing stored' — CapyExpense keeps your files on disk", () => {
     const footer = renderToStaticMarkup(<CapyExpensePage />);
     expect(footer).not.toMatch(/capytools — [^<]*nothing stored/i);
-    expect(footer).toContain("no signup. no cookies. open source.");
+    expect(footer).toContain("No signup. No cookies. Open source.");
     expect(footer).not.toContain("coming soon</p>");
   });
 });

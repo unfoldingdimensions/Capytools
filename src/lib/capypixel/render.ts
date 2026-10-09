@@ -18,7 +18,7 @@ import type { Palette } from "./types";
 /** The browser's decoder refused the file. */
 export class DecodeFailedError extends Error {
   constructor() {
-    super("the browser could not decode this file");
+    super("The browser could not decode this file");
     this.name = "DecodeFailedError";
   }
 }
@@ -26,7 +26,7 @@ export class DecodeFailedError extends Error {
 /** The SVG produced no ink — Path2D parses garbage into an empty path, silently. */
 export class NoInkError extends Error {
   constructor() {
-    super("this svg produced no ink");
+    super("This SVG produced no ink");
     this.name = "NoInkError";
   }
 }
@@ -72,7 +72,7 @@ export function sampleGrid(
   } catch (e) {
     if (e instanceof Error && e.name === "SecurityError") {
       const err = new Error(
-        "canvas readback blocked by the same-origin policy — load the image from a blob: URL (upload) or an inlined data: URI",
+        "Canvas readback blocked by the same-origin policy — load the image from a blob: URL (upload) or an inlined data: URI",
       );
       err.name = "TaintedCanvasError";
       throw err;

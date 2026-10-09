@@ -24,7 +24,7 @@ export const PROVIDER_PRESETS: Record<LlmProvider, ProviderPreset> = {
     name: "OpenCode-Go",
     defaultBaseUrl: "https://opencode.ai/zen/go/v1",
     defaultModel: "qwen3.8-flash",
-    placeholderKey: "opencode-go API key...",
+    placeholderKey: "OpenCode-Go API key...",
     description: "High-speed Qwen 3.8 Flash via opencode.ai GO endpoint",
   },
   openrouter: {
@@ -40,7 +40,7 @@ export const PROVIDER_PRESETS: Record<LlmProvider, ProviderPreset> = {
     name: "Nous Portal",
     defaultBaseUrl: "https://inference.nousresearch.com/v1",
     defaultModel: "hermes-3-llama-3.1-70b",
-    placeholderKey: "nous-portal API key...",
+    placeholderKey: "Nous Portal API key...",
     description: "Nous Research Hermes 3 and reasoning models",
   },
   command: {
@@ -48,7 +48,7 @@ export const PROVIDER_PRESETS: Record<LlmProvider, ProviderPreset> = {
     name: "Command Code (Cohere)",
     defaultBaseUrl: "https://api.cohere.ai/compatibility/v1",
     defaultModel: "command-a-plus-05-2026",
-    placeholderKey: "cohere API key...",
+    placeholderKey: "Cohere API key...",
     description: "Cohere Command Code / Command R models",
   },
   custom: {
