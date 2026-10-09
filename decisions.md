@@ -192,7 +192,7 @@
 | Listicles ("Best X for Y in 2026") | **open** | Only as honest comparisons that treat competitors fairly (e.g. "background removers that don't upload"); a list that ranks ourselves first hurts trust. |
 | A `.md` twin of every page, served by content negotiation | **declined for now** | Google ignores it, `llms.txt` already covers AI readers, and it's a second copy of every page to keep in sync. |
 | Sitemap to Google, Bing and IndexNow | **done** | GSC and Bing submitted by the owner; D27 |
-| Submit to Brave Search | **recommended, owner action** | Free. The submission route hasn't been checked by an agent yet. |
+| Submit to Brave Search | **recommended, owner action** | Free, manual: [search.brave.com/submit-url](https://search.brave.com/submit-url). No console, no sitemap upload, and IndexNow (D27) doesn't reach it — see L32. |
 | Track AI search performance in GSC and Bing | **recommended, owner action** | Check what each console actually reports before relying on it. |
 | SEO audit tool (squirrelscan) | **open** | We audit with the seoo pack (installed at `~/.claude/skills/`) plus live checks. Review any third-party skill before installing it. |
 | Claude / OpenAI connectors | **open — conflicts with the ethos** | The tools run in the tab and store nothing; a server-side connector breaks that promise. Only revisit for something that needs no user data. |

@@ -159,3 +159,7 @@ The rendered invoice's text layer contains only what a `<Text>` drew: the two 20
 ## L31. A lib that compiles under tsc-CLI cannot import via `@/`
 
 `scripts/verify-*-pdf.mjs` compiles `src/lib/<tool>` entries with bare `tsc` (no `paths`), so any `@/lib/...` import inside a lib file is "Cannot find module". Keep lib-to-lib imports relative; once files reach OUTSIDE their tool folder, the entry list's common root moves — pass `--rootDir src` and load outputs from `OUT_DIR/lib/<tool>/…` (both verify scripts now do).
+
+## L32. Brave Search has no console; IndexNow doesn't reach it (checked 2026-10)
+
+Getting into Brave Search is one manual step: [search.brave.com/submit-url](https://search.brave.com/submit-url) (the page exists; an agent couldn't see its form). There's no webmaster console, no sitemap upload and no indexing report, and third-party guides say Brave doesn't take IndexNow — so the post-deploy ping (D27) covers Bing, Yandex, Seznam and Naver, not Brave. Its crawler finds the sitemap through `robots.txt`, which already allows every crawler. Check progress with `site:capytools.app` on Brave. These details come from SEO blogs and Brave community replies, not official Brave docs — re-check before relying on them.
