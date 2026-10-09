@@ -167,3 +167,15 @@ Getting into Brave Search is one manual step: [search.brave.com/submit-url](http
 ## L33. A smoke check that calls a third party tests the third party
 
 Run 37893710031 (a docs-only deploy) failed one check: `/api/contributions/torvalds` → 502. Our route was right — github.com itself answered **504** for that account's contributions page (probed directly), and our route maps an upstream failure to 502. A minute later GitHub recovered. Because a failed smoke also skips IndexNow, GitHub's worst moment for its heaviest profile was failing our deploys. The smoke's GitHub checks now use `octocat` (a handful of repos: ~0.3 s upstream, a light card render). **Rule:** a post-deploy check that crosses into someone else's service should use the smallest input that still proves our route works; to tell our failure from theirs, probe the upstream directly before touching code.
+
+## L34. Agents can work in Search Console through the browser pane (2026-10-09)
+
+The owner signs in to Google once, in the Claude desktop app's browser pane; the sign-in persists, so later sessions can read the reports directly. Ask the owner before anything that submits (sitemap, Request indexing). What tripped us up:
+- The property is a **domain property** (`sc-domain:capytools.app`). Its sitemap field rejects a bare `sitemap.xml` ("Invalid sitemap address") — enter `https://capytools.app/sitemap.xml`.
+- There's no deep link for URL Inspection (`/search-console/inspect?id=…` is a 404); use the "Inspect any URL" bar at the top.
+- Readings on 2026-10-09: 12 indexed. "Duplicate without user-selected canonical" was two old `http://` URLs crawled before the HTTPS redirect — they clear on recrawl, nothing to fix. "Crawled – currently not indexed" were pages crawled before their summaries existed. The sitemap had last been read on 2026-10-04 (24 of 35 pages) until it was resubmitted.
+- Bing Webmaster's **URL Submission** page lists only hand-submitted URLs; IndexNow submissions show under its separate **IndexNow** report.
+
+## L35. The Claude browser extension connects from Opera but can't drive it
+
+Installed in Opera, the extension shows up as a connected browser, but every action fails at `Failed to query tabs: No group with id: …` — it depends on Chrome's tab-group behaviour, which Opera doesn't match. Don't retry; use the browser pane (L34) or the console APIs instead.

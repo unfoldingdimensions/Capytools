@@ -48,6 +48,10 @@ next-env.d.ts
 .zdiag/
 .hermes/
 .zcode/
+.zcodeignore
+.impeccable/
+# owner's working animation file, not a site asset
+/CapyTools.lottie
 
 # capyexpense desktop app (Tauri) build output
 desktop/node_modules/
