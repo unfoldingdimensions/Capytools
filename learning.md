@@ -187,3 +187,7 @@ Bing Webmaster → Keyword Research shows 12 weeks of Bing impressions per phras
 ## L37. Driving a file input in the browser pane: front the tab first (2026-10-09)
 
 Setting `input.files` from a `DataTransfer` and dispatching `change` works for testing a converter with a file generated in the page (`canvas.toBlob` → `new File`). But on a freshly navigated tab the drop silently did nothing until a `screenshot` call fronted the tab — `img.decode()` doesn't settle in a background tab. If a feed "does nothing", screenshot once, then feed again; and poll for the output `<img src="blob:…">` instead of sleeping a fixed time.
+
+## L38. Diff against the last thing that succeeded, not the last thing that ran
+
+The brief for IndexNow said "save the live sitemap before deploy and diff after". That baseline is wrong whenever the step after the deploy can be skipped: #95's smoke failed, IndexNow never ran, and the next deploy's "before" would already have contained CapyInvoice's pages — announced never. **Rule:** when a step reports changes since "last time", "last time" is the last *successful* run, persisted by that run — here, the CI cache saved only on success.

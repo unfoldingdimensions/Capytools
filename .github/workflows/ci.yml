@@ -111,6 +111,23 @@ jobs:
       # version. The production host, never DEPLOY_URL: IndexNow refuses URLs
       # whose host doesn't own the key. Non-blocking — the deploy already
       # happened, and a search engine's outage must not turn main red.
+      # Only URLs that changed since the last SUCCESSFUL submission are sent
+      # (D49): that sitemap lives in the cache, and a failed or skipped ping
+      # leaves it alone, so pages from a deploy whose smoke failed still go
+      # out with the next one. No cache yet means everything is sent once.
+      - name: Restore the last submitted sitemap
+        uses: actions/cache/restore@v4
+        with:
+          path: .indexnow/last-sitemap.xml
+          key: indexnow-${{ github.run_id }}
+          restore-keys: indexnow-
       - name: Ping IndexNow
+        id: indexnow
         continue-on-error: true
-        run: node scripts/indexnow.mjs https://capytools.app
+        run: node scripts/indexnow.mjs https://capytools.app .indexnow/last-sitemap.xml
+      - name: Remember the submitted sitemap
+        if: steps.indexnow.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: .indexnow/last-sitemap.xml
+          key: indexnow-${{ github.run_id }}

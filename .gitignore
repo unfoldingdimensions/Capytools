@@ -109,3 +109,6 @@ evolution-drafts/
 .open-next/
 .wrangler/
 .dev.vars
+
+# IndexNow keeps the last submitted sitemap here (CI cache; D49)
+/.indexnow/
