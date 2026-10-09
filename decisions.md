@@ -131,6 +131,7 @@
 **Decision:** `INTENT_PAGES` (`src/lib/capytools/intents.ts`) — each row is a URL that opens its tool on a real preset (a stage, a payload, a mode, an engine) with its own copy and guide. A row that would only repeat a tool page under a new URL doesn't belong. The registry drives the page, the sitemap, `llms.txt`, the "More with \<Tool\>" cross-links, and `tests/intent-pages.test.ts` (page file ↔ sitemap ↔ smoke list).
 **Live (10):** favicon-generator, png-to-webp, wifi-qr-code-generator, vcard-qr-code-generator, og-image-size, contrast-checker, gradient-generator, event-qr-code-generator, website-color-extractor, midjourney-prompt-generator.
 **Consequence:** no programmatic grids. A matrix of format-pair converters (jpg-to-png, png-to-jpg, …) or hundreds of templated pages is what Google's scaled-content policy targets (see D32).
+**Amended 2026-10-09 (owner):** the keyword research (D46, D47) showed format conversion is the largest demand our tools can honestly serve — png to jpg 1M–10M/month on Google; webp to png, jpg to png, compress image 100K–1M each — so a **capped** set of format pages is allowed. Each must: (1) clear ~100K/month on Google *and* show real volume on Bing; (2) be a conversion CapyResize does in the browser today (no HEIC — only Safari decodes it; no `.ico` or SVG page until the tool handles them, see the brief); (3) open CapyResize on a real preset (output format, starting quality) with its own copy, guide and summary — not the same text with the format names swapped; (4) ship in batches of at most four, with ~4 weeks of Search Console data before the next batch (D34). First batch: `/png-to-jpg`, `/webp-to-png`, `/jpg-to-png`, `/compress-image`. Still **no exhaustive matrix**; the ban on hundreds of templated pages stands.
 
 ## D22 — Overlapping intent goes on the existing page, not a new URL · **decided**
 
@@ -296,4 +297,13 @@
 - `/capyresume`: "Free resume builder — no signup, PDF & Word download" (resume builder ~101K over 3 months on Bing; free resume builder ~40K). It was brand-first, against D20.
 - `/capypassport`: "Passport photo maker — US, UK & Schengen sizes, free, no upload" (passport photo ~26K). Also brand-first.
 - `/capyresize`: "Image resizer — resize and convert PNG, JPG and WebP, free, no upload" (image resizer ~262K; resize image ~179K, +73%). The favicon pack has its own page, `/favicon-generator`.
-**Open:** format-conversion pages (png-to-jpg ~166K, webp-to-png ~115K, jpg-to-png ~103K, compress image ~83K) would need D21 amended to allow the few highest-volume pairs; and a CapyTone "palette from image" mode ("color picker from image" ~20K, which no tool of ours serves). Both await the owner.
+**Resolved 2026-10-09:** the owner approved both open items — format-conversion pages (D21 amended) and a CapyTone "palette from image" mode ("color picker from image": 100K–1M/month on Google, ~20K on Bing). The build list for the orchestrator is `docs/research/seo-build-brief-2026-10-09.md` (owner-local).
+
+## D47 — Check Google and Bing before building the next tool or page · **decided**
+
+**Context:** on 2026-10-09 the same 59 phrases were checked on both engines, and they disagreed sharply. Bing alone made `/wifi-qr-code-generator` (~2.3K/3 mo) and `/favicon-generator` (~7.4K) look minor; Google puts both at **100K–1M/month**. Bing alone also made "color picker from image" look modest (~20K); Google says 100K–1M. One engine is not enough to decide what to build.
+**Decision:** before building a **new tool**, an intent page, or retitling a page, look up its phrases in **both**:
+- **Google Ads → Keyword Planner → "Get search volume and forecasts"**, location **All locations** (the owner's account defaults to India — change it), all languages. Without ad spend it gives ranges.
+- **Bing Webmaster → Keyword Research** (L36 has the bulk method).
+Record both columns in `docs/research/keywords-<date>.md`, and say in the PR which phrase the page targets and its volume on each engine. Google decides the size of the opportunity; Bing confirms the trend and shows related and question phrases. A phrase that is ≤10K on Google *and* ~0 on Bing needs a reason the owner agrees to.
+**Consequence:** no more pages picked from search-result checks alone (the four small intent pages in D46 were). Google's "Competition" column is *ad* competition, not ranking difficulty — don't rank opportunities by it.
