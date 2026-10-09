@@ -13,7 +13,7 @@ export default function CapyReadPage() {
     <ToolPageShell
       tool="CapyRead"
       headline={[{ text: "The words are" }, { text: "in there", em: true, dot: true }]}
-      lead="read the text out of a photo or a scanned pdf, in your browser. nothing uploaded."
+      lead="Read the text out of a photo or a scanned pdf, in your browser. Nothing uploaded."
       align="left"
     >
       <CapyRead />

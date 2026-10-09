@@ -191,7 +191,7 @@ export function ProofBand() {
             </div>
             {rotating ? (
               <button type="button" className="lp-proof-stop" onClick={() => setTouched(true)}>
-                stop rotating
+                Stop rotating
               </button>
             ) : null}
           </div>
@@ -248,7 +248,7 @@ export function ProofBand() {
           {/* Shown by CSS only when the demos cannot run: scripting off, or a
               script that never hydrated (landing.css). Otherwise display:none. */}
           <p className="lp-proof-note lp-proof-failsafe">
-            these demos run in your browser, and their script did not start. refresh
+            These demos run in your browser, and their script did not start. Refresh
             the page to try again.
           </p>
         </div>
@@ -259,7 +259,7 @@ export function ProofBand() {
         <span className="lp-proof-counter-n">{armed ? (requests ?? "—") : "—"}</span>
         <span className="lp-proof-counter-label">
           <b>{PROOF.counter.label}</b>
-          {armed ? PROOF.counter.note : "starts counting when you type in any demo."}
+          {armed ? PROOF.counter.note : "Starts counting when you type in any demo."}
         </span>
       </div>
       <a className="lp-proof-open lp-proof-source" href={PROOF.source.href}>
@@ -269,6 +269,9 @@ export function ProofBand() {
     </div>
   );
 }
+
+/** Sentence-case a note that comes from an engine we do not own the copy of. */
+const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** Debounce a value, so an engine is not re-run on every keystroke. */
 function useSettled<T>(value: T, ms: number): T {
@@ -314,23 +317,23 @@ function QrDemo({ near, value, load }: { near: boolean; value: string; load: () 
       <div className={`lp-proof-qr${drawn ? " is-drawn" : ""}`} ref={host} aria-hidden="true" />
       <p className="lp-proof-result" aria-live="polite">
         {failed ? (
-          "the qr engine failed to load — refresh to try again."
+          "The QR engine failed to load — refresh to try again."
         ) : !stage ? (
-          "loading the qr engine into this tab…"
+          "Loading the QR engine into this tab…"
         ) : outcome?.kind === "empty" ? (
-          "type a link to encode."
+          "Type a link to encode."
         ) : outcome?.kind === "too-long" ? (
-          outcome.note
+          cap(outcome.note)
         ) : outcome?.kind === "scanned" && outcome.result.ok ? (
           <>
-            <span className="lp-proof-chip">verified scannable</span>
+            <span className="lp-proof-chip">Verified scannable</span>
             decoded “{outcome.result.data.length > 48 ? `${outcome.result.data.slice(0, 48)}…` : outcome.result.data}”
             {outcome.result.inverted ? " — inverted scanners only" : ""}, in this tab.
           </>
         ) : outcome?.kind === "scanned" ? (
-          <span className="lp-proof-chip is-warn">does not scan</span>
+          <span className="lp-proof-chip is-warn">Does not scan</span>
         ) : (
-          "drawing…"
+          "Drawing…"
         )}
       </p>
     </div>
@@ -362,9 +365,9 @@ function TokenDemo({ value, armed, load }: { value: string; armed: boolean; load
     return (
       <div className="lp-proof-tokens">
         <button type="button" className="lp-btn lp-btn-quiet lp-btn-sm" onClick={() => setWanted(true)}>
-          count it here
+          Count it here
         </button>
-        <p className="lp-proof-result">loads the exact tokenizer into this tab — about 1.1 MB, once.</p>
+        <p className="lp-proof-result">Loads the exact tokenizer into this tab — about 1.1 MB, once.</p>
       </div>
     );
   }
@@ -372,19 +375,19 @@ function TokenDemo({ value, armed, load }: { value: string; armed: boolean; load
   return (
     <div className="lp-proof-tokens" aria-live="polite">
       {failed ? (
-        <p className="lp-proof-result">the tokenizer failed to load — refresh to try again.</p>
+        <p className="lp-proof-result">The tokenizer failed to load — refresh to try again.</p>
       ) : readout ? (
         <>
           <p className="lp-proof-big">
             {readout.tokens}
-            <small>tokens</small>
+            <small>Tokens</small>
           </p>
           <p className="lp-proof-result">
-            exact o200k count — {readout.cost} to send to {readout.model}, counted in this tab.
+            Exact o200k count — {readout.cost} to send to {readout.model}, counted in this tab.
           </p>
         </>
       ) : (
-        <p className="lp-proof-result">loading the tokenizer into this tab — about 1.1 MB, once…</p>
+        <p className="lp-proof-result">Loading the tokenizer into this tab — about 1.1 MB, once…</p>
       )}
     </div>
   );
@@ -412,7 +415,7 @@ function PaletteDemo({ near, value, load }: { near: boolean; value: string; load
   return (
     <div className="lp-proof-palette">
       <ol className="lp-proof-swatches" aria-label="Generated palette">
-        {(swatches ?? Array.from({ length: 5 }, (_, i) => ({ role: `swatch ${i + 1}`, hex: "" }))).map((swatch) => (
+        {(swatches ?? Array.from({ length: 5 }, (_, i) => ({ role: `Swatch ${i + 1}`, hex: "" }))).map((swatch) => (
           <li key={swatch.role}>
             <span
               className="lp-proof-swatch"
@@ -427,10 +430,10 @@ function PaletteDemo({ near, value, load }: { near: boolean; value: string; load
       <p className="lp-proof-result" aria-live="polite">
         {swatches ? (
           <>
-            {note ? `${note}. ` : ""}same phrase, same colours, every time.
+            {note ? `${cap(note)}. ` : ""}Same phrase, same colours, every time.
           </>
         ) : (
-          "loading the palette engine…"
+          "Loading the palette engine…"
         )}
       </p>
     </div>

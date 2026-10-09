@@ -56,7 +56,7 @@ const hubs = [
 ] as const;
 
 describe.each(hubs)('$name hub', ({ html, canonical, childHref, children }) => {
-  it('opens with one sentence-case headline over a lowercase lead', () => {
+  it('opens with one sentence-case headline over a sentence-case lead', () => {
     expect(html.match(/<h1/g) ?? []).toHaveLength(1);
     const heading = plain(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? '');
     expect(heading).toMatch(/^[A-Z]/);
@@ -70,7 +70,7 @@ describe.each(hubs)('$name hub', ({ html, canonical, childHref, children }) => {
     // ToolPageShell sets the lead in its own lp-lead paragraph under the headline.
     const lead = plain(html.match(/class="lp-lead[^"]*"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '');
     expect(lead.length).toBeGreaterThan(40);
-    expect(lead).toMatch(/^[a-z]/);
+    expect(lead).toMatch(/^[A-Z]/);
   });
 
   it('links every child page exactly once', () => {

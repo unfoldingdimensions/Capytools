@@ -83,7 +83,7 @@ export function ToolsGrid() {
             aria-keyshortcuts="/"
             value={query}
             onChange={(event) => search(event.target.value)}
-            placeholder="try “qr”, “exif”, “tokens”…"
+            placeholder="Try “qr”, “exif”, “tokens”…"
             autoComplete="off"
             className="w-full rounded-full border border-border bg-card px-5 py-3 pr-28 text-base text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary"
           />
@@ -91,7 +91,7 @@ export function ToolsGrid() {
               typing to pause. aria-live="polite" on the count itself still
               queued one announcement per letter. */}
           <span
-            className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+            className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[12px] text-muted-foreground"
             aria-hidden="true"
           >
             {shown.length} / {ROWS.length}
@@ -113,7 +113,7 @@ export function ToolsGrid() {
             onClick={() => search("")}
             className="min-h-11 rounded-full border border-border px-4 text-sm text-foreground transition-colors hover:border-primary/60"
           >
-            clear search
+            Clear search
           </button>
         </div>
       ) : (
@@ -125,13 +125,13 @@ export function ToolsGrid() {
                 className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-primary/60 focus-visible:border-primary"
               >
                 <span className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                  <span className="font-mono text-[12px] text-muted-foreground">
                     {tool.no}
                   </span>
                   {/* Only the exception is labelled: ten "Browser" chips marked the
                       rule, not the one tool that breaks it. */}
                   {tool.cat === "desktop" ? (
-                    <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[12px] text-muted-foreground">
                       Desktop
                     </span>
                   ) : null}

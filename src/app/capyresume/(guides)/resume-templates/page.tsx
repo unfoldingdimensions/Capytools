@@ -26,7 +26,7 @@ export default function ResumeTemplatesIndexPage() {
         { text: "by role", em: true, dot: true },
       ]}
       lead={
-        "every page below starts from the same single column, built the way parsers read best. what changes is what a reader looks for first — a licence for nursing, key stages for teaching, a stack for engineering."
+        "Every page below starts from the same single column, built the way parsers read best. What changes is what a reader looks for first — a licence for nursing, key stages for teaching, a stack for engineering."
       }
       align="left"
     >
@@ -53,11 +53,11 @@ export default function ResumeTemplatesIndexPage() {
 
         <div className="mt-12 flex flex-wrap items-center gap-3">
           <Button asChild size="lg" className="rounded-full">
-            <Link href="/capyresume">open the builder</Link>
+            <Link href="/capyresume">Open the builder</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-full">
             <Link href="/capyresume/ats-resume-format">
-              read the ats format guide
+              Read the ATS format guide
             </Link>
           </Button>
         </div>

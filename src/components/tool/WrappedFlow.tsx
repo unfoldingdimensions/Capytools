@@ -75,7 +75,7 @@ export function WrappedFlow() {
       <UsernameForm onSubmit={handleGenerate} busy={status === "loading"} />
 
       <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 font-mono text-[11px] text-muted-foreground">
-        <span>try:</span>
+        <span>Try:</span>
         {PRESETS.map((preset) => (
           <button
             key={preset}
@@ -99,7 +99,7 @@ export function WrappedFlow() {
               corners
             />
             <p className="text-center font-mono text-[10px] text-muted-foreground">
-              a calm example — paste a real username above to wrap your own
+              A calm example — paste a real username above to wrap your own
             </p>
           </div>
         )}

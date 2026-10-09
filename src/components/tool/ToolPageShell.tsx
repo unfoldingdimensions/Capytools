@@ -155,7 +155,7 @@ export function ToolPageShell({
                 {guide.summary}
               </p>
             ) : null}
-            <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="mt-4 text-center font-mono text-[13px] text-muted-foreground">
               Updated <time dateTime={CONTENT_UPDATED}>{formatUpdated()}</time> · by{" "}
               <Link href="/notes#author" className="underline decoration-border underline-offset-4 hover:text-foreground">
                 {AUTHOR.byline}
@@ -205,7 +205,7 @@ export function ToolPageShell({
             {/* The index, not the landing: someone who just finished one tool
                 is looking for the next, and /tools is where the suite is. */}
             <Link href="/tools" className="lp-read-more">
-              ← back to the suite
+              ← Back to the suite
             </Link>
             <span className="lp-tool-foot-ix">{index}</span>
           </div>

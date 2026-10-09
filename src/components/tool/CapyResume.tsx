@@ -314,7 +314,7 @@ const BulletRow = memo(function BulletRow({
         type="button"
         className={cn(ICON_BTN, "hover:border-destructive hover:bg-destructive hover:text-background")}
         onClick={() => onRemove(sectionId, entryId, bullet.id)}
-        aria-label={`remove ${label}`}
+        aria-label={`Remove ${label}`}
       >
         ×
       </button>
@@ -476,7 +476,7 @@ const EntryRow = memo(function EntryRow({
             type="button"
             className={ICON_BTN}
             onClick={() => onMove(sectionId, entry.id, -1)}
-            aria-label={`move ${prefix} up`}
+            aria-label={`Move ${prefix} up`}
           >
             ↑
           </button>
@@ -484,7 +484,7 @@ const EntryRow = memo(function EntryRow({
             type="button"
             className={ICON_BTN}
             onClick={() => onMove(sectionId, entry.id, 1)}
-            aria-label={`move ${prefix} down`}
+            aria-label={`Move ${prefix} down`}
           >
             ↓
           </button>
@@ -492,7 +492,7 @@ const EntryRow = memo(function EntryRow({
             type="button"
             className={DANGER_BTN}
             onClick={() => onRemove(sectionId, entry.id)}
-            aria-label={`remove ${prefix}`}
+            aria-label={`Remove ${prefix}`}
           >
             Remove
           </button>
@@ -1268,7 +1268,7 @@ export function CapyResume() {
                       type="button"
                       className={cn(DANGER_BTN, "mb-0.5")}
                       onClick={() => removeLink(index)}
-                      aria-label={`remove link ${index + 1}`}
+                      aria-label={`Remove link ${index + 1}`}
                     >
                       Remove
                     </button>
@@ -1295,7 +1295,7 @@ export function CapyResume() {
                         autoFocus
                         className={cn(FIELD, "max-w-xs font-display text-xl")}
                         name={`${section.id}-title`}
-                        aria-label="section title"
+                        aria-label="Section title"
                         value={section.title}
                         onChange={(event) =>
                           setSectionTitle(section.id, event.target.value)
@@ -1319,7 +1319,7 @@ export function CapyResume() {
                         type="button"
                         className={BTN}
                         onClick={() => setRenaming(section.id)}
-                        aria-label={`rename ${title}`}
+                        aria-label={`Rename ${title}`}
                       >
                         Rename
                       </button>
@@ -1343,7 +1343,7 @@ export function CapyResume() {
                         type="button"
                         className={DANGER_BTN}
                         onClick={() => removeSection(section.id)}
-                        aria-label={`remove the ${title} section`}
+                        aria-label={`Remove the ${title} section`}
                       >
                         Remove
                       </button>

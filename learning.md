@@ -125,26 +125,37 @@ Looking at what actually ranks before building moved three candidates: "EXIF vie
 
 #90 made `ToolGuide.summary` required. It was green on its own branch, then went red in CI: the PR is tested **merged with `main`**, and meanwhile another agent's PR (#89, CapyResume) had landed a guide without the field. That is the field working as intended — a tool can't ship without a summary — but it surfaces on whoever merges second. **Rule:** before pushing a change to a shared type or registry, `git fetch` and merge `origin/main` into the branch and run `tsc`; and when adding a required field, mention it in `decisions.md` so parallel agents writing new tools see it.
 
+## L24. A rejected tool call may already have run
+
+A `gh pr merge` the owner rejected mid-call had in fact merged and deployed (#92). Five later commits were pushed to the merged branch and never reached `main`; they shipped as #93. **Rule:** after any rejected side-effectful call, check the real state (`gh pr view N --json state,mergedAt`), and confirm a PR is still open before pushing more to its branch.
+
+## L25. A sticky pane is bounded by its grid, not its row
+
+CapyResume's pinned preview sat in a grid that also held the full-width "The file" card. A sticky element's limit is its containing block — the whole grid — so the preview slid down over that card and its last section could not be scrolled to. **Rule:** keep only the two panes in the sticky grid; put anything below them outside it.
+
+## L26. Python on Windows writes CRLF
+
+`Path.write_text` translates `\n` to `\r\n` on Windows, so a scripted edit turns a whole LF file into CRLF and the next tool sees every line changed. **Rule:** read and write bytes (`read_bytes().decode()` / `write_bytes(text.encode())`) in edit scripts.
 ---
 
 # CapyInvoice (2026-10-09)
 
-## L24. Mimosa's write hook blocks Bash writes everywhere — and false-positives on pure code
+## L27. Mimosa's write hook blocks Bash writes everywhere — and false-positives on pure code
 
 `sed -i` was refused on `src/` AND on `tests/` — every source-shaped write must go through Edit/Write so the hook can scan it. The hook also hard-blocked a pure formatting module as "command injection" (a template literal with no shell anywhere in a browser lib); retrying after restructuring the flagged lines — regex `exec` swapped for `split`, template pieces joined with `array.join()` — went through. **Rule:** when a write is blocked, restructure the flagged region and retry the same content; don't fight it via Bash. (Also: keep scratch scripts in `.scratch-<tool>/`, which the hook leaves alone, and delete it when done.)
 
-## L25. A stale `.next/dev` type validator fails a fresh `next build`
+## L28. A stale `.next/dev` type validator fails a fresh `next build`
 
 After another agent's route-group changes, `next build` failed in TypeScript on `.next/dev/types/validator.ts` pointing at paths that no longer exist (`src/app/capyresume/ats-resume-format/...` — the `(guides)` group stripped). Nothing in the diff was wrong; the artifacts were stale. **Rule:** when build-time TypeScript names `.next/dev/types` errors that don't match reality, `rm -rf .next` and rebuild — same family as L1's stale-`.next` freeze.
 
-## L26. pdf.js text extraction sees Text elements, not arithmetic
+## L29. pdf.js text extraction sees Text elements, not arithmetic
 
 The rendered invoice's text layer contains only what a `<Text>` drew: the two 20% lines' individual taxes (£228.00, £129.20) never appear — they are summed into the grouped "Tax at 20% £357.20" row before print. Expectations written against the computation, not the print, will "fail" against a correct PDF. **Rule:** assert extracted text against printed ROWS (what the renderer actually draws), and dump the extraction when pinning new strings.
 
-## L27. The playwright MCP hands you downloads as files — use it
+## L30. The playwright MCP hands you downloads as files — use it
 
 `browser_click` on a download button reports the saved path under `.playwright-mcp/`; from there the file is verifiable in Node (pdf.js text extraction, size, header). That closes the loop the mocked unit tests can't: browser click → in-tab render → real file → parsed content.
 
-## L28. A lib that compiles under tsc-CLI cannot import via `@/`
+## L31. A lib that compiles under tsc-CLI cannot import via `@/`
 
 `scripts/verify-*-pdf.mjs` compiles `src/lib/<tool>` entries with bare `tsc` (no `paths`), so any `@/lib/...` import inside a lib file is "Cannot find module". Keep lib-to-lib imports relative; once files reach OUTSIDE their tool folder, the entry list's common root moves — pass `--rootDir src` and load outputs from `OUT_DIR/lib/<tool>/…` (both verify scripts now do).

@@ -28,7 +28,7 @@ import type { WorkerRequest, WorkerResponse } from "./worker";
 
 export class UnsupportedImageError extends Error {
   constructor() {
-    super("this browser can't open that file — if it's a HEIC, export it as JPEG first and try again");
+    super("This browser can't open that file — if it's a HEIC, export it as JPEG first and try again");
     this.name = "UnsupportedImageError";
   }
 }
@@ -49,7 +49,7 @@ export class CutFailedError extends Error {
  */
 export class DetailedModelUnavailableError extends Error {
   constructor() {
-    super("your GPU couldn't run the detailed model");
+    super("Your GPU couldn't run the detailed model");
     this.name = "DetailedModelUnavailableError";
   }
 }
@@ -57,7 +57,7 @@ export class DetailedModelUnavailableError extends Error {
 /** The visitor pressed stop. Not an error to explain — a choice to respect. */
 export class CutCancelledError extends Error {
   constructor() {
-    super("the cut was stopped");
+    super("The cut was stopped");
     this.name = "CutCancelledError";
   }
 }
@@ -211,19 +211,19 @@ async function loadOnBackend(
   const label = spec.label.toLowerCase();
 
   const modelBytes = await loadModel(model, ({ received, total }) =>
-    onProgress?.({ phase: "download", received, total, message: `downloading the ${label} model` }),
+    onProgress?.({ phase: "download", received, total, message: `Downloading the ${label} model` }),
   );
   const ortBinary = await loadOrtBinary(ortBinaryFor(backend), ({ received, total }) =>
-    onProgress?.({ phase: "download", received, total, message: "downloading the runtime" }),
+    onProgress?.({ phase: "download", received, total, message: "Downloading the runtime" }),
   );
 
-  onProgress?.({ phase: "load", message: "warming up the model" });
+  onProgress?.({ phase: "load", message: "Warming up the model" });
   const response = await send(
     { type: "load", model, backend, modelBytes: modelBytes.buffer as ArrayBuffer, ortBinary: ortBinary.buffer as ArrayBuffer, ortVersion: manifest.ort.version },
     [modelBytes.buffer as ArrayBuffer, ortBinary.buffer as ArrayBuffer],
     LOAD_TIMEOUT_MS,
   );
-  if (response.type !== "ready") throw new CutFailedError("the model could not start");
+  if (response.type !== "ready") throw new CutFailedError("The model could not start");
   eng.loaded[model] = backend;
 }
 
@@ -339,14 +339,14 @@ function drawSource(
     canvas.width = w;
     canvas.height = h;
     ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) throw new CutFailedError("this browser wouldn't give the tool a canvas to work on");
+    if (!ctx) throw new CutFailedError("This browser wouldn't give the tool a canvas to work on");
     if (canvasIsUsable(ctx, w, h)) break;
-    if (w === 1 || h === 1) throw new CutFailedError("this browser can't cut a photo this size");
+    if (w === 1 || h === 1) throw new CutFailedError("This browser can't cut a photo this size");
     w = Math.max(1, Math.floor(w / 2));
     h = Math.max(1, Math.floor(h / 2));
   }
   if (w !== width || h !== height) {
-    notes.push(`this photo is bigger than the browser can hold at full size, so the cut came out at ${w}×${h}`);
+    notes.push(`This photo is bigger than the browser can hold at full size, so the cut came out at ${w}×${h}`);
   }
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
@@ -423,7 +423,7 @@ function modelTensor(source: HTMLCanvasElement, model: ModelId, size: { width: n
   modelCanvas.width = size.width;
   modelCanvas.height = size.height;
   const modelCtx = modelCanvas.getContext("2d", { willReadFrequently: true });
-  if (!modelCtx) throw new CutFailedError("this browser wouldn't give the tool a canvas to work on");
+  if (!modelCtx) throw new CutFailedError("This browser wouldn't give the tool a canvas to work on");
   modelCtx.imageSmoothingEnabled = true;
   modelCtx.imageSmoothingQuality = "high";
   modelCtx.drawImage(source, 0, 0, size.width, size.height);
@@ -438,7 +438,7 @@ async function runModel(
   notes: string[],
 ): Promise<{ matte: Float32Array; ms: number; backend: Backend }> {
   let backend = await ensureModel(model, onProgress, notes);
-  onProgress?.({ phase: "cut", message: `cutting${backend === "webgpu" ? " on your GPU" : " on your CPU"}` });
+  onProgress?.({ phase: "cut", message: `Cutting${backend === "webgpu" ? " on your GPU" : " on your CPU"}` });
   for (;;) {
     // A fresh copy every attempt: the previous attempt transferred (and
     // detached) its buffer on the way to the worker.
@@ -471,7 +471,7 @@ async function runModel(
 const REFINE_MAX_SIDE = 2048;
 const REFINE_TILE = 512;
 const REFINE_OVERLAP = 64;
-export const REFINE_SKIPPED_NOTE = "the edges couldn't be refined on this GPU, so they come straight from the model.";
+export const REFINE_SKIPPED_NOTE = "The edges couldn't be refined on this GPU, so they come straight from the model.";
 
 /**
  * Recompute alpha in the cut's unsure band with ViTMatte, on 512² tiles over a
@@ -508,7 +508,7 @@ async function refineEdges(
   const weights = new Float32Array(W * H);
   let ms = 0;
   try {
-    onProgress?.({ phase: "cut", message: "refining the edges" });
+    onProgress?.({ phase: "cut", message: "Refining the edges" });
     for (const ty of tileStarts(H, th, REFINE_OVERLAP)) {
       for (const tx of tileStarts(W, tw, REFINE_OVERLAP)) {
         const P = tw * th;
@@ -643,7 +643,7 @@ export async function removeBackground(
  *  does not run again. Throws when there is no latest cut. */
 export async function recomposeCut(opts: BgOptions): Promise<BgResult> {
   guardBrowser();
-  if (!lastCut) throw new CutFailedError("nothing has been cut yet");
+  if (!lastCut) throw new CutFailedError("Nothing has been cut yet");
   return composeFrom(lastCut, opts, lastCut.file.size);
 }
 

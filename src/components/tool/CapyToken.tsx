@@ -34,13 +34,13 @@ const ENCODING_NAMES: Record<TokenEncodingId, string> = { o200k: "o200k_base", c
 const REFERENCE_MODEL_ID = "gpt-5";
 
 const labelClass =
-  "font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground";
+  "font-mono text-[12px] text-muted-foreground";
 
 /** The short chip text per honesty tier; the full sentences sit in the legend. */
 const TIER_CHIP: Record<EstimateLabel["kind"], string> = {
-  exact: "exact",
-  "claude-estimate": "estimate",
-  "unverified-estimate": "not verified",
+  exact: "Exact",
+  "claude-estimate": "Estimate",
+  "unverified-estimate": "Not verified",
 };
 
 const TIER_TONE: Record<EstimateLabel["kind"], "plain" | "clay" | "sage"> = {
@@ -58,9 +58,9 @@ const ESTIMATE_LEGEND = (() => {
     ),
   };
   return {
-    claude: exemplars["claude-estimate"] ? estimateLabelFor(exemplars["claude-estimate"]).text : "",
+    claude: exemplars["claude-estimate"] ? estimateLabelFor(exemplars["claude-estimate"]).text.replace(/^Estimate — /, "") : "",
     unverified: exemplars["unverified-estimate"]
-      ? estimateLabelFor(exemplars["unverified-estimate"]).text
+      ? estimateLabelFor(exemplars["unverified-estimate"]).text.replace(/^Estimate — /, "")
       : "",
   };
 })();
@@ -125,8 +125,8 @@ export function CapyToken() {
         if (runId.current !== run) return;
         setEngineLoading(false);
         setError({
-          title: "the tokenizer didn't load.",
-          body: "the rank files are part of the page, so this is a load hiccup, not a permission — one more try usually settles it. nothing you pasted went anywhere.",
+          title: "The tokenizer didn't load.",
+          body: "The rank files are part of the page, so this is a load hiccup, not a permission — one more try usually settles it. Nothing you pasted went anywhere.",
           retry: true,
         });
       });
@@ -175,21 +175,21 @@ export function CapyToken() {
     const lines = [
       `CapyToken — ${ENCODING_NAMES.o200k}: ${formatTokens(o)} tokens · ${ENCODING_NAMES.cl100k}: ${formatTokens(c)} tokens`,
       `${reference.label}: ${formatCost(read.input)} in + ${formatCost(read.output)} out per call${read.perDollar ? ` — about ${formatTokens(read.perDollar)} calls per dollar` : ""}`,
-      `prices verified ${PRICES_VERIFIED} · ${PRICES_SOURCE_COMMIT}`,
+      `Prices verified ${PRICES_VERIFIED} · ${PRICES_SOURCE_COMMIT}`,
     ];
     try {
       await navigator.clipboard.writeText(lines.join("\n"));
       setCopied(true);
-      setStatus("copied the counts and the cost summary.");
+      setStatus("Copied the counts and the cost summary.");
       window.setTimeout(() => setCopied(false), COPIED_MS);
     } catch {
-      setStatus("this browser blocked the copy — select the numbers by hand.");
+      setStatus("This browser blocked the copy — select the numbers by hand.");
     }
   }, [countFor, reference, read]);
 
   const trySample = useCallback(() => {
     setText(DEMO_TEXT);
-    setStatus("sample loaded — the counts below are the demo's own.");
+    setStatus("Sample loaded — the counts below are the demo's own.");
   }, []);
 
   return (
@@ -199,7 +199,7 @@ export function CapyToken() {
         <div className="mt-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <label htmlFor="capytoken-text" className={labelClass}>
-              your prompt
+              Your prompt
             </label>
             <button
               type="button"
@@ -207,14 +207,14 @@ export function CapyToken() {
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
             >
               <Smile className="size-3" aria-hidden />
-              try a sample
+              Try a sample
             </button>
           </div>
           <Textarea
             id="capytoken-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="paste the prompt you are about to send…"
+            placeholder="Paste the prompt you are about to send…"
             className="mt-1.5 min-h-40 field-sizing-content bg-muted/40 font-mono text-[13px]"
           />
           <p className="mt-1.5 text-[11px] tabular-nums text-muted-foreground">
@@ -232,12 +232,12 @@ export function CapyToken() {
                   key={encoding.id}
                   className="inline-flex items-baseline gap-2 rounded-full border border-border bg-muted/30 px-3 py-1"
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <span className="font-mono text-[13px] text-muted-foreground">
                     {encoding.name}
                   </span>
                   {tokens === null ? (
                     <span className="font-mono text-[11px] text-muted-foreground">
-                      {engineLoading ? "loading tokenizer…" : "—"}
+                      {engineLoading ? "Loading tokenizer…" : "—"}
                     </span>
                   ) : (
                     <span className="font-mono text-[12px] tabular-nums text-foreground">
@@ -250,7 +250,7 @@ export function CapyToken() {
           </div>
           <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-muted/30 px-3 py-2">
             <label htmlFor="capytoken-overhead" className={labelClass}>
-              this is one chat message (+{chatOverhead(1)} framing tokens)
+              This is one chat message (+{chatOverhead(1)} framing tokens)
             </label>
             <Switch
               id="capytoken-overhead"
@@ -262,10 +262,10 @@ export function CapyToken() {
         </div>
 
         <p className="mt-2 text-[11px] text-muted-foreground">
-          exact for both OpenAI encodings — and a cross-check, OpenAI&apos;s own rule of thumb: ≈{" "}
+          Exact for both OpenAI encodings — and a cross-check, OpenAI&apos;s own rule of thumb: ≈{" "}
           {formatTokens(stats.byChars)} tokens by characters (chars ÷ 4), ≈ {formatTokens(stats.byWords)}{" "}
           by words (words × ¾).{" "}
-          {overheadOn ? "framing is added on top; OpenAI documents it for its own models only." : ""}
+          {overheadOn ? "Framing is added on top; OpenAI documents it for its own models only." : ""}
         </p>
       </StageCard>
 
@@ -274,7 +274,7 @@ export function CapyToken() {
         <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-3">
           <div>
             <label htmlFor="capytoken-output" className={labelClass}>
-              planned output (tokens)
+              Planned output (tokens)
             </label>
             <Input
               id="capytoken-output"
@@ -287,7 +287,7 @@ export function CapyToken() {
             />
           </div>
           <p className="text-[11px] text-muted-foreground">
-            output is the reply you expect back — input and output share one window but carry separate
+            Output is the reply you expect back — input and output share one window but carry separate
             caps.
           </p>
         </div>
@@ -295,14 +295,14 @@ export function CapyToken() {
         <div className="mt-4 max-h-96 overflow-y-auto rounded-2xl border border-border/70">
           <table className="w-full border-collapse text-left text-[13px]">
             <thead className="sticky top-0 z-10 bg-card">
-              <tr className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                <th scope="col" className="px-3 py-2 font-medium">model</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">in / 1M</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">out / 1M</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">input</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">output</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">total</th>
-                <th scope="col" className="px-3 py-2 font-medium">window</th>
+              <tr className="font-mono text-[12px] text-muted-foreground">
+                <th scope="col" className="px-3 py-2 font-medium">Model</th>
+                <th scope="col" className="px-3 py-2 text-right font-medium">In / 1M</th>
+                <th scope="col" className="px-3 py-2 text-right font-medium">Out / 1M</th>
+                <th scope="col" className="px-3 py-2 text-right font-medium">Input</th>
+                <th scope="col" className="px-3 py-2 text-right font-medium">Output</th>
+                <th scope="col" className="px-3 py-2 text-right font-medium">Total</th>
+                <th scope="col" className="px-3 py-2 font-medium">Window</th>
               </tr>
             </thead>
             <tbody className="tabular-nums">
@@ -330,8 +330,8 @@ export function CapyToken() {
                     </td>
                     <td className="px-3 py-2">
                       {!fit.fitsInput ? (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
-                          input over the window
+                        <span className="font-mono text-[12px] text-[var(--clay)]">
+                          Input over the window
                         </span>
                       ) : (
                         <span
@@ -355,14 +355,14 @@ export function CapyToken() {
 
         <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
           <p>
-            <span className="font-mono uppercase tracking-[0.1em]">exact</span> rows are counted in this
-            tab. <span className="font-mono uppercase tracking-[0.1em]">estimate</span> — {ESTIMATE_LEGEND.claude}
+            <span className="font-mono">Exact</span> rows are counted in this
+            tab. <span className="font-mono">Estimate</span> — {ESTIMATE_LEGEND.claude}
           </p>
           <p>
-            <span className="font-mono uppercase tracking-[0.1em]">not verified</span> — {ESTIMATE_LEGEND.unverified}
+            <span className="font-mono">Not verified</span> — {ESTIMATE_LEGEND.unverified}
           </p>
           <p className="pt-1">
-            prices verified {PRICES_VERIFIED} · source: LiteLLM model_prices ({PRICES_SOURCE_COMMIT})
+            Prices verified {PRICES_VERIFIED} · source: LiteLLM model_prices ({PRICES_SOURCE_COMMIT})
           </p>
         </div>
       </StageCard>
@@ -372,13 +372,13 @@ export function CapyToken() {
         {read && readTokens !== null ? (
           <>
             <p className="text-[15px] leading-relaxed text-foreground">
-              your prompt is ~{formatTokens(readTokens)} tokens ({ENCODING_NAMES.o200k}
+              Your prompt is ~{formatTokens(readTokens)} tokens ({ENCODING_NAMES.o200k}
               {overheadOn ? `, including +${chatOverhead(1)} framing` : ""}). At {reference.label} rates
               that&apos;s {formatCost(read.input)} in + {formatCost(read.output)} out per call
               {read.perDollar ? ` — about ${formatTokens(read.perDollar)} calls per dollar` : ""}.
             </p>
             <p className="mt-2 text-[13px] text-muted-foreground">
-              compare across the table above — the exact counts are OpenAI&apos;s encodings; every other
+              Compare across the table above — the exact counts are OpenAI&apos;s encodings; every other
               row wears its own label.
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -390,7 +390,7 @@ export function CapyToken() {
           </>
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            {engineLoading ? "loading tokenizer…" : "the read appears once the text is counted."}
+            {engineLoading ? "Loading tokenizer…" : "The read appears once the text is counted."}
           </p>
         )}
         <p aria-live="polite" className="mt-3 min-h-5 text-center text-xs text-muted-foreground">

@@ -25,7 +25,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 
 /** In-page sections, in place of the tool switcher other pages get. */
 const LANDING_LINKS = [
-  { href: "/tools", label: "All Tools" },
+  { href: "/tools", label: "All tools" },
   { href: "#proof", label: "Try it" },
   { href: "#method", label: "House rules" },
   { href: "/notes", label: "Notes" },

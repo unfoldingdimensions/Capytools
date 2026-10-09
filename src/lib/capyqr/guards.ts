@@ -40,9 +40,9 @@ export function contrastBand(ratio: number): GuardBand {
 }
 
 export const CONTRAST_COPY: Record<GuardBand, string> = {
-  ok: "contrast is comfortable — the code reads at a glance.",
-  soft: "contrast is under 3:1 — phones may hesitate. bump it above 3:1.",
-  hard: "contrast is under 2:1 — many phones will refuse this. raise it above 3:1.",
+  ok: "Contrast is comfortable — the code reads at a glance.",
+  soft: "Contrast is under 3:1 — phones may hesitate. Bump it above 3:1.",
+  hard: "Contrast is under 2:1 — many phones will refuse this. Raise it above 3:1.",
 };
 
 /**
@@ -62,9 +62,9 @@ export function quietBand(quietModules: number): GuardBand {
 }
 
 export const QUIET_COPY: Record<GuardBand, string> = {
-  ok: "quiet zone is at the spec's four modules.",
-  soft: "quiet zone is tight — 2–3 modules scan, but 4 is the spec.",
-  hard: "quiet zone is under 2 modules — phones read the page into the code. slide it back up.",
+  ok: "Quiet zone is at the spec's four modules.",
+  soft: "Quiet zone is tight — 2–3 modules scan, but 4 is the spec.",
+  hard: "Quiet zone is under 2 modules — phones read the page into the code. Slide it back up.",
 };
 
 /**
@@ -80,9 +80,9 @@ export function logoAdvice(hasLogo: boolean, ecc: EccLevel): string[] {
   if (!hasLogo) return [];
   const notes: string[] = [];
   if (ecc === "H") {
-    notes.push("error correction is at H — about 30% of the code can be covered and still scan.");
+    notes.push("Error correction is at H — about 30% of the code can be covered and still scan.");
   } else {
-    notes.push("a logo covers data modules — raise error correction to H so the code still reads.");
+    notes.push("A logo covers data modules — raise error correction to H so the code still reads.");
   }
   return notes;
 }

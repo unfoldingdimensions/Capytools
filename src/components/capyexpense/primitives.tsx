@@ -50,7 +50,7 @@ export function ChartDetails({ label, rows }: { label: string; rows: [string, st
   if (rows.length === 0) return null;
   return (
     <details className="group mt-4 border-t border-border/70 pt-3">
-      <summary className="cursor-pointer list-none font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground">
+      <summary className="cursor-pointer list-none font-mono text-[12px] text-muted-foreground transition-colors hover:text-foreground">
         {label}
         <span className="ml-1 inline-block transition-transform group-open:rotate-90">›</span>
       </summary>
@@ -95,7 +95,7 @@ export function EmptyBody({
 export function DeltaPill({ delta, locale }: { delta: Delta; locale?: string }) {
   if (delta.direction === "unknown") {
     return (
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+      <span className="font-mono text-[12px] text-muted-foreground">
         {delta.previous === null ? "No earlier period" : "No spend last period"}
       </span>
     );
@@ -136,7 +136,7 @@ export function StatTile({
 }) {
   return (
     <div className="flex flex-col rounded-3xl border border-border bg-card p-5 shadow-sm">
-      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+      <span className="font-mono text-[12px] text-muted-foreground">
         {index} · {label}
       </span>
       <p className="mt-3 font-display text-3xl font-light leading-none tracking-tight text-foreground">

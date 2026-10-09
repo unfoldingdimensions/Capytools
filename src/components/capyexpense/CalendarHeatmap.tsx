@@ -63,7 +63,7 @@ export function CalendarHeatmap({
               key={`${m.label}-${m.x}`}
               x={m.x}
               y={10}
-              className="fill-[var(--muted-foreground)] font-mono text-[9px] uppercase tracking-[0.14em]"
+              className="fill-[var(--muted-foreground)] font-mono text-[11px]"
             >
               {m.label}
             </text>
@@ -76,7 +76,7 @@ export function CalendarHeatmap({
                 key={l}
                 x={0}
                 y={HEAT.padT + row * (HEAT.cell + HEAT.gap) + HEAT.cell - 2}
-                className="fill-[var(--muted-foreground)] font-mono text-[8px] uppercase tracking-[0.1em]"
+                className="fill-[var(--muted-foreground)] font-mono text-[8px]"
               >
                 {l}
               </text>
@@ -113,7 +113,7 @@ export function CalendarHeatmap({
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <p className="text-sm text-muted-foreground">{summary}.</p>
-        <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+        <div className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
           <span>No spend</span>
           <span className="size-2.5 rounded-[2px] border border-border bg-[var(--muted)]" />
           {[1, 2, 3, 4].map((level) => (

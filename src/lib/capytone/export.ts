@@ -74,5 +74,5 @@ export function tailwindTokens(palette: MoodPalette): string {
 
 /** Plain-language share text — the X-post voice. */
 export function shareText(palette: MoodPalette, url: string): string {
-  return `"${palette.mood}" → this little poster. made in my browser, no AI, no signup: ${url}`;
+  return `"${palette.mood}" → this little poster. Made in my browser, no AI, no signup: ${url}`;
 }

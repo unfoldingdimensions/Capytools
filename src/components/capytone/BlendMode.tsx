@@ -23,9 +23,9 @@ import type { MoodPalette } from "@/lib/capytone/types";
 import { ColorPick, Pill, WellCopy, labelClass } from "./controls";
 
 const TYPES: readonly { id: GradientType; label: string }[] = [
-  { id: "linear", label: "linear" },
-  { id: "radial", label: "radial" },
-  { id: "conic", label: "conic" },
+  { id: "linear", label: "Linear" },
+  { id: "radial", label: "Radial" },
+  { id: "conic", label: "Conic" },
 ];
 
 const THIRD_STOP_DEFAULT = "#d9a441";
@@ -63,8 +63,8 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
     <>
       <StageCard index="01" title="The mix">
         <p className="mt-4 text-sm text-muted-foreground">
-          two or three stops, a shape, a space to blend in. the modern string
-          interpolates where css does by default — oklab — and says so out
+          Two or three stops, a shape, a space to blend in. The modern string
+          interpolates where CSS does by default — OKLab — and says so out
           loud; the fallback samples the same ramp in hex for older engines.
         </p>
 
@@ -73,7 +73,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
             <ColorPick
               key={i}
               id={`capytone-blend-stop-${i}`}
-              label={`stop ${i + 1}`}
+              label={`Stop ${i + 1}`}
               value={stop}
               onChange={(hex) => setStop(i, hex)}
             />
@@ -81,18 +81,18 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
           <div className="flex items-center gap-1.5">
             {stops.length < 3 ? (
               <Pill active={false} onClick={addStop} label="Add a third stop">
-                + a stop
+                + A stop
               </Pill>
             ) : (
               <Pill active={false} onClick={removeStop} label="Remove the third stop">
-                − the third stop
+                − The third stop
               </Pill>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <div>
-              <span className={labelClass}>shape</span>
+              <span className={labelClass}>Shape</span>
               <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-label="Gradient shape">
                 {TYPES.map((t) => (
                   <Pill key={t.id} active={type === t.id} onClick={() => setType(t.id)} label={`${t.label} gradient`}>
@@ -105,7 +105,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
             {type !== "radial" ? (
               <div className="min-w-56">
                 <label htmlFor="capytone-blend-angle" className={labelClass}>
-                  angle
+                  Angle
                 </label>
                 <div className="mt-2 flex items-center gap-3">
                   <input
@@ -127,7 +127,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
           </div>
 
           <div>
-            <span className={labelClass}>blend in</span>
+            <span className={labelClass}>Blend in</span>
             <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-label="Interpolation space">
               {INTERP_SPACES.map((space) => (
                 <Pill
@@ -141,7 +141,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
               ))}
             </div>
             <p className="mt-1.5 text-[11px] text-muted-foreground">
-              css defaults to oklab; “oklch longer hue” takes the long way
+              CSS defaults to OKLab; “oklch longer hue” takes the long way
               round the wheel instead of the short one.
             </p>
           </div>
@@ -164,14 +164,14 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
               style={{ background: result.fallback }}
             />
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
-              top — the modern string. bottom — what an older engine paints
+              Top — the modern string. Bottom — what an older engine paints
               from the hex fallback.
             </p>
 
             <div className="mt-4 flex flex-col gap-3">
               <div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className={labelClass}>the css</span>
+                  <span className={labelClass}>The CSS</span>
                   <WellCopy text={result.css} />
                 </div>
                 <pre className="mt-1.5 overflow-x-auto rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
@@ -180,7 +180,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
               </div>
               <div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className={labelClass}>the fallback</span>
+                  <span className={labelClass}>The fallback</span>
                   <WellCopy text={result.fallback} />
                 </div>
                 <pre className="mt-1.5 overflow-x-auto rounded-2xl border border-border/70 bg-muted/50 p-4 font-mono text-[13px] leading-relaxed">
@@ -191,7 +191,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
           </>
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            one of the stops won’t parse — fix it above and the ramp returns.
+            One of the stops won’t parse — fix it above and the ramp returns.
           </p>
         )}
       </StageCard>

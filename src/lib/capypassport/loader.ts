@@ -47,7 +47,7 @@ async function readCached(cache: Cache | null, asset: PinnedAsset): Promise<Uint
 
 async function fetchVerified(asset: PinnedAsset, onProgress?: (p: ByteProgress) => void): Promise<Uint8Array<ArrayBuffer>> {
   const res = await fetch(asset.path);
-  if (!res.ok) throw new Error(`the face model failed to download (HTTP ${res.status})`);
+  if (!res.ok) throw new Error(`The face model failed to download (HTTP ${res.status})`);
   const bytes = new Uint8Array(asset.bytes);
   if (res.body) {
     const reader = res.body.getReader();
@@ -59,16 +59,16 @@ async function fetchVerified(asset: PinnedAsset, onProgress?: (p: ByteProgress) 
       received += value.length;
       onProgress?.({ received, total: asset.bytes });
     }
-    if (received !== asset.bytes) throw new Error("the face model was truncated in transit");
+    if (received !== asset.bytes) throw new Error("The face model was truncated in transit");
   } else {
     const whole = new Uint8Array(await res.arrayBuffer());
-    if (whole.length !== asset.bytes) throw new Error("the face model was truncated in transit");
+    if (whole.length !== asset.bytes) throw new Error("The face model was truncated in transit");
     bytes.set(whole);
     onProgress?.({ received: bytes.length, total: asset.bytes });
   }
   const hash = await sha256Hex(bytes);
   if (hash !== asset.sha256) {
-    throw new Error("the face model failed its integrity check — please try again");
+    throw new Error("The face model failed its integrity check — please try again");
   }
   return bytes;
 }

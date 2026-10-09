@@ -88,7 +88,7 @@ export function SubscriptionPanel({
       </div>
 
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="font-mono text-[12px] text-muted-foreground">
           Next 60 days
         </p>
         {upcoming.length === 0 ? (
@@ -110,7 +110,7 @@ export function SubscriptionPanel({
                   {formatDay(l.nextDue)}
                 </span>
                 <span className="flex-1 truncate text-sm text-foreground">{l.label}</span>
-                <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[12px] text-muted-foreground">
                   {l.interval}
                 </span>
                 <span className="shrink-0 font-mono text-xs tabular-nums text-foreground">

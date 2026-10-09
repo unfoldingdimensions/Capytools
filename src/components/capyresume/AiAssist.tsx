@@ -355,7 +355,7 @@ export function AiAssist({
 
               {suggestion && (
                 <div className="space-y-2 rounded-2xl border border-border p-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs font-medium text-muted-foreground">
                     Suggestion — nothing has been changed yet
                   </p>
                   <p className="text-sm text-muted-foreground line-through">{suggestion.before}</p>

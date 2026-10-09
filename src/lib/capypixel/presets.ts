@@ -56,15 +56,15 @@ const BASE: QuantParams = {
 export const STYLE_PRESETS: Record<StyleId, StylePreset> = {
   faithful: {
     id: "faithful",
-    label: "faithful",
-    blurb: "natural colours taken from the image itself — the safe starting point for a photograph.",
+    label: "Faithful",
+    blurb: "Natural colours taken from the image itself — the safe starting point for a photograph.",
     params: { ...BASE },
   },
   portrait: {
     id: "portrait",
-    label: "portrait",
+    label: "Portrait",
     blurb:
-      "for a subject against a busy background: more colours, dither off, palette bins on, an outline to pull the subject forward.",
+      "For a subject against a busy background: more colours, dither off, palette bins on, an outline to pull the subject forward.",
     params: {
       ...BASE,
       palette: "median",
@@ -78,9 +78,9 @@ export const STYLE_PRESETS: Record<StyleId, StylePreset> = {
   },
   whale: {
     id: "whale",
-    label: "whale",
+    label: "Whale",
     blurb:
-      "the seven-blue brand ramp with visible tile gaps — drawn for a pale shape on a dark background, not a filter for any photo.",
+      "The seven-blue brand ramp with visible tile gaps — drawn for a pale shape on a dark background, not a filter for any photo.",
     params: {
       ...BASE,
       palette: "fixed",
@@ -94,8 +94,8 @@ export const STYLE_PRESETS: Record<StyleId, StylePreset> = {
   },
   gameboy: {
     id: "gameboy",
-    label: "game boy",
-    blurb: "the four greens of the original game boy screen.",
+    label: "Game Boy",
+    blurb: "The four greens of the original Game Boy screen.",
     params: {
       ...BASE,
       palette: "fixed",
@@ -112,7 +112,7 @@ export const STYLE_PRESETS: Record<StyleId, StylePreset> = {
     id: "1bit",
     label: "1-bit",
     blurb:
-      "pure black and white — large solid areas, dither only where tones change. the coarse grid is part of the look.",
+      "Pure black and white — large solid areas, dither only where tones change. the coarse grid is part of the look.",
     params: {
       ...BASE,
       palette: "fixed",
@@ -128,7 +128,7 @@ export const STYLE_PRESETS: Record<StyleId, StylePreset> = {
     id: "1bit-halftone",
     label: "1-bit halftone",
     blurb:
-      "a fine dot screen, like newspaper print — a real look, and honestly a halftone rather than 1-bit drawing.",
+      "A fine dot screen, like newspaper print — a real look, and honestly a halftone rather than 1-bit drawing.",
     params: {
       ...BASE,
       palette: "fixed",

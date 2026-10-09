@@ -98,7 +98,7 @@ describe("the second critique's harden pass", () => {
 describe("CapyQR prints its verdict as a sentence", () => {
   it("never uppercases the scan note, which carries the decoded payload", () => {
     const html = renderToStaticMarkup(<CapyQRPage />);
-    const note = html.match(/<p class="([^"]*)">scanning the render…<\/p>/);
+    const note = html.match(/<p class="([^"]*)">Scanning the render…<\/p>/);
     expect(note).not.toBeNull();
     expect(note![1]).not.toContain("uppercase");
     expect(note![1]).toContain("text-[13px]");
@@ -136,7 +136,7 @@ describe("CapyQR's simple mode is one decision per row", () => {
     expect(html).not.toContain('id="capyqr-quiet"');
     expect(html).not.toContain('id="capyqr-ecc"');
     expect(html).toContain('id="capyqr-dot-type"');
-    expect(html).toContain("upload logo");
+    expect(html).toContain("Upload logo");
   });
 
   it("offers a way back, and Download before the export options", () => {

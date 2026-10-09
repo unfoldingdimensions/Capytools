@@ -45,7 +45,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Drop one logo, get favicon.ico, apple-touch-icon, 192/512 and maskable icons, a web manifest and the <head> snippet in a ZIP. 100% in your browser.",
     headline: [{ text: "One logo," }, { text: "every favicon", em: true, dot: true }],
-    lead: "drop a logo, get the whole icon pack and the html to paste. nothing uploaded.",
+    lead: "Drop a logo, get the whole icon pack and the HTML to paste. Nothing uploaded.",
     guide: {
       heading: "How to make a favicon for your website",
       summary:
@@ -88,7 +88,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Convert PNG or JPEG to WebP with a quality slider and real before/after file sizes. Resize at the same time. 100% in your browser, nothing uploaded.",
     headline: [{ text: "PNG in," }, { text: "WebP out", em: true, dot: true }],
-    lead: "convert to webp with a quality you can see and the real byte count. nothing uploaded.",
+    lead: "Convert to WebP with a quality you can see and the real byte count. Nothing uploaded.",
     guide: {
       heading: "How to convert PNG to WebP",
       summary:
@@ -130,7 +130,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Make a QR code that joins your Wi-Fi in one scan. WPA, WEP or open networks, hidden SSIDs, symbols escaped correctly. Free, no tracking, 100% in your browser.",
     headline: [{ text: "Scan," }, { text: "you're on the Wi-Fi", em: true, dot: true }],
-    lead: "a qr code that joins your network in one scan. the password never leaves this tab.",
+    lead: "A QR code that joins your network in one scan. The password never leaves this tab.",
     guide: {
       heading: "How to make a QR code for your Wi-Fi",
       summary:
@@ -172,7 +172,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Turn your name, phone, email and company into a QR code that saves straight to contacts. For business cards and name badges. Free, no tracking, 100% in your browser.",
     headline: [{ text: "Your card," }, { text: "in one scan", em: true, dot: true }],
-    lead: "a qr code that saves you to someone's contacts. nothing uploaded, nothing tracked.",
+    lead: "A QR code that saves you to someone's contacts. Nothing uploaded, nothing tracked.",
     guide: {
       heading: "How to make a QR code for your contact details",
       summary:
@@ -214,7 +214,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "The Open Graph and social image sizes each platform documents — 1200×630 link cards, Instagram, Stories, YouTube, Pinterest — with a free generator to make them.",
     headline: [{ text: "The right size," }, { text: "for every feed", em: true, dot: true }],
-    lead: "the social image sizes each platform documents, and a card maker that exports them.",
+    lead: "The social image sizes each platform documents, and a card maker that exports them.",
     guide: {
       heading: "Open Graph and social image sizes, by platform",
       summary:
@@ -239,7 +239,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Check text and background colours against WCAG 2 AA and AAA for normal and large text, with APCA Lc beside it. Free, in your browser, nothing stored.",
     headline: [{ text: "Can they read it?" }, { text: "Check the contrast", em: true, dot: true }],
-    lead: "wcag 2 ratios and apca lc for any two colours, with the verdicts spelled out.",
+    lead: "WCAG 2 ratios and APCA Lc for any two colours, with the verdicts spelled out.",
     guide: {
       heading: "How to check colour contrast for accessibility",
       summary:
@@ -281,7 +281,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Make linear, radial and conic CSS gradients with two or three stops, blended in Oklab, OKLCH or sRGB. Copy modern CSS with a fallback. Free, in your browser.",
     headline: [{ text: "Two colours," }, { text: "a clean blend", em: true, dot: true }],
-    lead: "linear, radial or conic, blended in oklab or oklch, copied as css that works everywhere.",
+    lead: "Linear, radial or conic, blended in Oklab or OKLCH, copied as CSS that works everywhere.",
     guide: {
       heading: "How to make a smooth CSS gradient",
       summary:
@@ -323,7 +323,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Make a QR code that adds your event — title, start, end and place — to a phone's calendar in one scan. Never expires, no tracking. 100% in your browser.",
     headline: [{ text: "Scan it," }, { text: "it's on the calendar", em: true, dot: true }],
-    lead: "a qr code that holds the whole event. no short link, no tracking, nothing uploaded.",
+    lead: "A QR code that holds the whole event. No short link, no tracking, nothing uploaded.",
     guide: {
       heading: "How to make a QR code that adds an event to a calendar",
       summary:
@@ -365,7 +365,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Paste a website's address and get its colour palette as hex codes, read from its HTML, stylesheets, theme colour and manifest and ranked by use. Free, nothing stored.",
     headline: [{ text: "Any site's colours," }, { text: "from its address", em: true, dot: true }],
-    lead: "paste a public url, get the palette its code declares, ranked. honest about what it can't see.",
+    lead: "Paste a public URL, get the palette its code declares, ranked. Honest about what it can't see.",
     guide: {
       heading: "How to get the colour palette of a website",
       summary:
@@ -408,7 +408,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Roll a random, ready-to-paste Midjourney prompt: subject, setting, light, lens and style, with --s, a --no clause and --ar for your format. Free, no signup, no API key.",
     headline: [{ text: "Stuck at /imagine?" }, { text: "Roll one", em: true, dot: true }],
-    lead: "random midjourney prompts in midjourney's own syntax. made in your tab, nothing stored.",
+    lead: "Random Midjourney prompts in Midjourney's own syntax. Made in your tab, nothing stored.",
     guide: {
       heading: "How to get a random Midjourney prompt",
       summary:

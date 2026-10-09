@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 };
 
 const COLORS = [
-  { name: "Cream", hex: "#f9f9f7", role: "canvas", css: "var(--background)" },
-  { name: "Ink", hex: "#1a1a1a", role: "type", css: "var(--foreground)" },
-  { name: "Sage", hex: "#8e9b7e", role: "primary", css: "var(--primary)" },
-  { name: "Water", hex: "#5f7a72", role: "data signal", css: "var(--water)" },
-  { name: "Clay", hex: "#c07952", role: "celebration", css: "var(--clay)" },
-  { name: "Gold", hex: "#d9a441", role: "milestones", css: "var(--gold)" },
+  { name: "Cream", hex: "#f9f9f7", role: "Canvas", css: "var(--background)" },
+  { name: "Ink", hex: "#1a1a1a", role: "Type", css: "var(--foreground)" },
+  { name: "Sage", hex: "#8e9b7e", role: "Primary", css: "var(--primary)" },
+  { name: "Water", hex: "#5f7a72", role: "Data signal", css: "var(--water)" },
+  { name: "Clay", hex: "#c07952", role: "Celebration", css: "var(--clay)" },
+  { name: "Gold", hex: "#d9a441", role: "Milestones", css: "var(--gold)" },
 ];
 
 const VOICES = [
@@ -37,8 +37,8 @@ const VOICES = [
   {
     name: "Albert Sans",
     role: "Labels",
-    note: "Eyebrows, tags and code, uppercase with 0.24em tracking. The quiet technician.",
-    className: "font-mono text-sm uppercase tracking-[0.24em]",
+    note: "Eyebrows, tags and code, with 0.24em tracking. The quiet technician.",
+    className: "font-mono text-sm",
   },
 ];
 
@@ -95,7 +95,7 @@ export default function DesignNotesPage() {
                 />
                 <span className="leading-tight">
                   <span className="block text-sm font-semibold">{color.name}</span>
-                  <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="block font-mono text-[12px] text-muted-foreground">
                     {color.hex} · {color.role}
                   </span>
                 </span>

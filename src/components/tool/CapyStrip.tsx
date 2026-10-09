@@ -53,7 +53,7 @@ const KIND_LABELS: Record<ImageKind, string> = {
   heic: "HEIC",
   avif: "AVIF",
   tiff: "TIFF",
-  unknown: "unknown",
+  unknown: "Unknown",
 };
 
 /** Only these get a clean copy; TIFF is report-only everywhere. */
@@ -77,9 +77,9 @@ const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 
 function loaderSteps(): LoadStep[] {
   return [
-    { label: "reading bytes", state: "pending" },
-    { label: "walking EXIF", state: "pending" },
-    { label: "scanning for AI fingerprints", state: "pending" },
+    { label: "Reading bytes", state: "pending" },
+    { label: "Walking EXIF", state: "pending" },
+    { label: "Scanning for AI fingerprints", state: "pending" },
   ];
 }
 
@@ -340,13 +340,13 @@ export function CapyStrip() {
           <CapyArt pose="awake" className="w-16" />
           <span className="mt-1 text-sm font-medium text-foreground">Drop a photo here</span>
           <span className="text-xs text-muted-foreground">
-            or click to pick one — or paste a screenshot. it never leaves this tab.
+            Or click to pick one — or paste a screenshot. It never leaves this tab.
           </span>
         </button>
 
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[12px] text-muted-foreground">
           <ClipboardPaste className="size-3" aria-hidden />
-          ctrl/⌘+V works too
+          Ctrl/⌘+V works too
         </p>
       </StageCard>
 
@@ -365,7 +365,7 @@ export function CapyStrip() {
             ariaLive="polite"
             chips={
               <>
-                {isDemo && <StageChip>demo</StageChip>}
+                {isDemo && <StageChip>Demo</StageChip>}
                 <StageChip>
                   {KIND_LABELS[report.kind]} · {formatBytes(report.byteSize)}
                 </StageChip>
@@ -386,14 +386,14 @@ export function CapyStrip() {
             <p className="mt-1 text-sm text-muted-foreground">
               {report.fileName} — {report.chattyCount > 0
                 ? `${report.chattyCount} sensitive ${report.chattyCount === 1 ? "detail" : "details"} found.`
-                : "nothing sensitive found."}
+                : "Nothing sensitive found."}
             </p>
 
             {/* GPS mini-card */}
             {report.gps && (
               <div className="mt-4 rounded-2xl border border-border/70 bg-muted/40 p-4">
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--clay)]">
-                  location · sensitive
+                <span className="font-mono text-[12px] text-[var(--clay)]">
+                  Location · sensitive
                 </span>
                 <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3">
                   <div>
@@ -410,7 +410,7 @@ export function CapyStrip() {
                     rel="noopener noreferrer"
                     className="text-sm font-medium text-foreground transition-colors hover:text-primary"
                   >
-                    open in OpenStreetMap →
+                    Open in OpenStreetMap →
                   </a>
                 </div>
               </div>
@@ -419,8 +419,8 @@ export function CapyStrip() {
             {/* AI signals */}
             {report.aiSignals.length > 0 && (
               <div className="mt-4">
-                <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                  what it confesses
+                <h4 className="font-mono text-[12px] text-muted-foreground">
+                  What it confesses
                 </h4>
                 <ul className="mt-2 space-y-1.5">
                   {report.aiSignals.map((signal) => (
@@ -438,7 +438,7 @@ export function CapyStrip() {
               <div className="mt-5 space-y-5">
                 {grouped.map((group) => (
                   <div key={group.category}>
-                    <h4 className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    <h4 className="font-mono text-[12px] text-muted-foreground">
                       {CATEGORY_LABELS[group.category]}
                     </h4>
                     <dl className="mt-2 divide-y divide-border/60">
@@ -451,7 +451,7 @@ export function CapyStrip() {
               </div>
             ) : (
               <p className="mt-5 text-sm text-muted-foreground">
-                No readable metadata — {VERDICT_COPY[report.verdict].toLowerCase()}
+                No readable metadata. {VERDICT_COPY[report.verdict]}
               </p>
             )}
           </StageCard>
@@ -467,9 +467,9 @@ export function CapyStrip() {
             title="The clean copy"
             chips={
               clean.verified ? (
-                <StageChip tone="sage">re-scanned — clean</StageChip>
+                <StageChip tone="sage">Re-scanned — clean</StageChip>
               ) : (
-                <StageChip tone="clay">couldn&apos;t verify</StageChip>
+                <StageChip tone="clay">Couldn&apos;t verify</StageChip>
               )
             }
           >
@@ -497,8 +497,8 @@ export function CapyStrip() {
 
                 {clean.mimeType === "image/jpeg" && (
                   <div className="mt-3">
-                    <label htmlFor="clean-quality" className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                      quality · {Math.round(quality * 100)}
+                    <label htmlFor="clean-quality" className="font-mono text-[12px] text-muted-foreground">
+                      Quality · {Math.round(quality * 100)}
                     </label>
                     <input
                       id="clean-quality"
@@ -538,7 +538,7 @@ export function CapyStrip() {
             )}
 
             <p className="mt-3 text-xs text-muted-foreground">
-              redrawn from scratch through a canvas — the copy carries none of the metadata above. your
+              Redrawn from scratch through a canvas — the copy carries none of the metadata above. Your
               photo never left this tab.
             </p>
           </StageCard>
@@ -565,8 +565,8 @@ function FieldRow({ item }: { item: MetadataField }) {
       <dt className="flex items-center gap-2 text-sm text-muted-foreground">
         {item.label}
         {item.critical && (
-          <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--clay)]">
-            sensitive
+          <span className="rounded-full border border-[var(--clay)]/30 bg-[var(--clay)]/10 px-2 py-0.5 font-mono text-[12px] text-[var(--clay)]">
+            Sensitive
           </span>
         )}
       </dt>

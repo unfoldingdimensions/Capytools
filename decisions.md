@@ -217,11 +217,28 @@
 - One hand-set date, `CONTENT_UPDATED` (`src/lib/capytools/updated.ts`), drives the sitemap's `lastmod`, the visible byline and `SoftwareApplication.dateModified`, so the three can't disagree. Bump it whenever page copy changes.
 **Consequence:** every page shows the same date, even when only one page changed (a `ponytail:` comment in `updated.ts` names the upgrade to per-page dates). Tests assert the summary and byline render on every tool page and that `dateModified` equals the shared date.
 
+# Copy, CapyResume and the next four tools (2026-10-09)
+
+## D36 — Sentence case everywhere; no all-caps labels · **decided**
+
+**Context:** the owner found the lowercase register (2026-09-12) and the capitals label style odd to read.
+**Decision:** all UI copy and titles are sentence case; labels are normal text at `label` (13px) / `label-sm` (12px), never `uppercase` + wide tracking. DESIGN.md "Register" and AGENTS.md say so; `tests/tool-pages.test.tsx` requires a capital on every tool page's headline and lead. Left as written: generated prompt content, sample data, model names, the README quote chain, `<title>` strings, and text baked into share images (og.png, share cards, CapyTone posters) until those are regenerated.
+**Consequence:** new tools must ship in sentence case (the house rules in `docs/research/expansion/next-four-prompts.md` say so); CapyStamp still matches one decode error by exact string, so rewording that message needs the match updated too.
+
+## D37 — Tools 17–20 and how candidates are picked · **decided**
+
+**Decision:** 17 CapyInvoice, 18 CapyVeil, 19 CapyCrop, 20 CapyPDF (merge, split, reorder, compress and sign in one tool), merged strictly in that order. Candidates must (a) not be something an AI agent does instantly — pure text-in/text-out tools like diff, JSON/CSV, calculators, markdown and cron are out; (b) not be heavy — no ffmpeg.wasm or new multi-MB models until there is an audience (video/GIF tools parked); (c) fold overlapping features into one tool.
+**Consequence:** CapyDiff was dropped; CapyCrop owns the frame (crop, mask, split), CapyResize keeps pixel size and format.
+
+## D38 — CapyResume guide pages held for the paid tier · **decided**
+
+**Decision:** templates, by-role, by-country and ATS-format pages sit in `src/app/capyresume/(guides)` (URLs unchanged); its layout answers 404 while `CAPYRESUME_GUIDES_LIVE` (`src/lib/capyresume/seo/live.ts`) is false, and the sitemap and the tool's links follow the same switch. The AI assist stays built but unrouted (paid).
+**Consequence:** flipping the one constant publishes all guide pages together.
 ---
 
 # CapyInvoice (2026-10-09)
 
-## D36 — CapyResume's plumbing moved to shared modules, CapyResume re-binds · **decided**
+## D39 — CapyResume's plumbing moved to shared modules, CapyResume re-binds · **decided**
 
 **Context:** the CapyInvoice kickoff said reuse, not rebuild: pieces of `src/lib/capyresume/` that are genuinely tool-agnostic move to a shared home while CapyResume's tests stay green.
 **Decision:** five extractions, each proven by CapyResume's existing tests running UNCHANGED:
@@ -232,7 +249,7 @@
 - `src/lib/capytools/uid.ts` — the id helper, re-exported from `capyresume/schema.ts`.
 **Consequence:** per-tool copies remain only where the repo convention already had them (`formatBytes`/`fileNameSafe` — capyread and capypassport each carry their own). `saveBlob` and `downloadBlob` still co-exist in `src/lib/download.ts` with slightly different bodies; unifying them is a follow-up that touches eight tools and stayed out of this PR.
 
-## D37 — Money math: integer minor units, per-line tax, no-lost-cent discount spread · **decided**
+## D40 — Money math: integer minor units, per-line tax, no-lost-cent discount spread · **decided**
 
 **Context:** the part of the tool most likely to be wrong, per the kickoff; test hardest.
 **Decision:**
@@ -243,24 +260,24 @@
 - Currency digits come from Intl (`JPY` → 0, `KWD` → 3); an unknown but well-formed code degrades to 2 rather than throwing.
 **Consequence:** the demo invoice's totals (£2,442.45 / balance £1,942.45) are hand-checked in tests AND extracted back out of a real rendered PDF by `scripts/verify-capyinvoice-pdf.mjs`.
 
-## D38 — Number inputs: one lexer, last-separator-wins, dot-preferring · **decided**
+## D41 — Number inputs: one lexer, last-separator-wins, dot-preferring · **decided**
 
 **Context:** typed amounts arrive with dots, commas, spaces, currency symbols.
 **Decision:** `parseDecimalInput` accepts both marks — when both appear, the LAST separator is the decimal mark ("1,234.56" en, "1.234,56" de); a lone comma with 1–2 digits after it is a decimal mark ("12,5"), with three it is grouping ("1,234"); a lone dot is always the decimal mark ("12.345" is over-precise, not twelve thousand); multiple dots are all groupings. Symbols £$€¥₹, spaces and apostrophes are stripped; parentheses or a leading minus make a negative.
 **Consequence:** the rule is documented in the tool's own hint line ("the last separator counts") and pinned by 27 money tests. UI numeric fields use the TagsInput focus-draft pattern, so typing "12." is never fought by the parser.
 
-## D39 — CapyInvoice's intent pages open the tool on the document kind · **decided**
+## D42 — CapyInvoice's intent pages open the tool on the document kind · **decided**
 
 **Context:** D21 requires an intent page to open the tool on a real preset.
 **Decision:** `CapyInvoice` takes `initialKind`; `/free-invoice-generator`, `/quote-template` and `/receipt-maker` pass invoice/quote/receipt. On mount, a landing with a stored draft of a different kind switches the KIND only — every line, party and total is kept; a first visit seeds the demo wearing that kind.
 **Consequence:** quote↔invoice↔receipt is a one-click conversion, which the quote guide names explicitly.
 
-## D40 — Owner assets: lab-17 prompt delivered; og.png regenerated in-repo · **decided**
+## D43 — Owner assets: lab-17 prompt delivered; og.png regenerated in-repo · **decided**
 
 **Decision:** the lab-17 plate prompt (brass counting frame beside a shapes-only invoice sheet) is appended to `docs/research/plates/lab-prompts.md` — the plate FILE stays the owner's step, and the landing asset test is the expected-red canary until it lands (the D-CapyPassport precedent). The share card's count was regenerated the way the CapyResume count commit documents it: clear the old text box (x 818–1068, y 54–80, `#f9f9f7`), composite "SEVENTEEN TOOLS" right-aligned at ink edge 1064, baseline 74.5, Albert Sans 500 19.75px, tracking 4.2px, `#6b6a66`, via sharp with a scratch fontconfig pointing at a downloaded Albert Sans 500 TTF, alpha removed to keep the 3-channel RGB. `OG_CARD_TOOL_COUNT` bumped to 17 with it.
 **Consequence:** next count bump can copy the recipe from this entry; the scratch dir was deleted after use.
 
-## D41 — lib-internal imports stay relative, not `@/` · **decided**
+## D44 — lib-internal imports stay relative, not `@/` · **decided**
 
 **Context:** `scripts/verify-*-pdf.mjs` compile `src/lib/<tool>` with bare `tsc`, which has no `paths` mapping; `@/lib/...` imports inside lib files broke it.
 **Decision:** modules under `src/lib/` import each other by RELATIVE path (components keep `@/`). Both verify scripts pass `--rootDir src`, so shared modules emit under `OUT_DIR/lib/capytools/` and the loaders point there.

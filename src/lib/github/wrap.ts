@@ -6,11 +6,11 @@ import type { WrappedStats } from "./types";
 
 /** The four requests a wrap needs, in the order the loader lists them. */
 export const WRAP_STEPS = [
-  "profile",
-  "repositories",
-  "recent events",
-  "contribution calendar",
-  "language bytes",
+  "Profile",
+  "Repositories",
+  "Recent events",
+  "Contribution calendar",
+  "Language bytes",
 ] as const;
 
 export type StepReporter = (

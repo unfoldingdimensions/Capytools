@@ -213,7 +213,7 @@ export const SUITE: SuiteTool[] = [
     appCategory: "MultimediaApplication",
     blurb:
       "Cut the background out of any photo — people in a blink, products and pets with the detailed model — and download a transparent PNG. The photo never leaves your tab.",
-    note: "background remover",
+    note: "Background remover",
     line: "Remove a photo's background, in your browser.",
     keywords: ["remove background", "background remover", "remove bg", "transparent png",
                "cutout", "product photo", "headshot", "no upload", "onnx", "webgpu"],
@@ -228,7 +228,7 @@ export const SUITE: SuiteTool[] = [
     appCategory: "MultimediaApplication",
     blurb:
       "Put your mark on one photo or twenty — text or a logo, placed once and carried across every shape of image, tiled if you like. The photos never leave your tab.",
-    note: "watermarks",
+    note: "Watermarks",
     line: "Watermark one photo or a whole batch, in your browser.",
     keywords: ["watermark", "add watermark", "logo watermark", "batch watermark",
                "copyright", "stamp photos", "brand photos", "no upload"],
@@ -243,7 +243,7 @@ export const SUITE: SuiteTool[] = [
     appCategory: "UtilitiesApplication",
     blurb:
       "Lift the text out of a photo, screenshot or scanned PDF — on your device, with a confidence badge per paragraph and a plain [unreadable] marker where it couldn't read. The file never leaves your tab.",
-    note: "ocr, on-device",
+    note: "OCR, on-device",
     line: "Read the text out of images and PDFs, in your browser.",
     keywords: ["ocr", "image to text", "pdf to text", "extract text", "scanned pdf",
                "text recognition", "tesseract", "convert scan to text", "no upload"],
@@ -258,7 +258,7 @@ export const SUITE: SuiteTool[] = [
     appCategory: "UtilitiesApplication",
     blurb:
       "Crop a portrait to the US, UK or Schengen passport and visa rules — head height, margins and eye line checked against the published numbers, a print sheet laid out at exact size. Your photo never leaves your tab.",
-    note: "passport photos",
+    note: "Passport photos",
     line: "Passport and visa photos, measured to the published rules, in your browser.",
     keywords: ["passport photo", "visa photo", "id photo", "passport photo maker",
                "35x45", "2x2", "biometric photo", "print passport photos", "no upload"],
@@ -273,7 +273,7 @@ export const SUITE: SuiteTool[] = [
     appCategory: "BusinessApplication",
     blurb:
       "Build a clean, single-column résumé and export a real PDF, a DOCX and a JSON backup — no signup, no watermark, no subscription. Your details never leave your tab.",
-    note: "résumé builder",
+    note: "Résumé builder",
     line: "Build a résumé and export PDF or DOCX, in your browser.",
     keywords: ["resume builder", "free resume builder", "cv builder", "resume maker",
                "ats resume", "resume pdf", "resume docx", "no signup", "no upload"],

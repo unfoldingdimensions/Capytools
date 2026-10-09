@@ -84,7 +84,7 @@ export async function runBatch(
       const reason =
         error instanceof StampError
           ? error.reason
-          : error instanceof Error && error.message === "the browser could not decode this file"
+          : error instanceof Error && error.message === "The browser could not decode this file"
             ? REASONS.decode
             : REASONS.unknown;
       outcome.failures.push({ name: file.name, reason });

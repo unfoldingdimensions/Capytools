@@ -40,7 +40,7 @@ export function CapyExpenseDemo() {
       model={model}
       state={state}
       greeting="good evening"
-      name="ada"
+      name="Ada"
       weekStart={WEEK_START}
       today={SAMPLE_NOW}
       locale={DEFAULT_LOCALE}
@@ -48,7 +48,7 @@ export function CapyExpenseDemo() {
       onRangeChange={setState}
       banner={
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/70 bg-muted/40 px-4 py-3">
-          <span className="rounded-full border border-border bg-card px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="rounded-full border border-border bg-card px-2.5 py-0.5 font-mono text-[12px] text-muted-foreground">
             Demo
           </span>
           <p className="text-sm text-muted-foreground">

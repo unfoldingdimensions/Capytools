@@ -98,11 +98,11 @@ export function paletteForProof(phrase: string): { swatches: Swatch[]; note?: st
   const { palette, note } = generatePalette(phrase.trim() || "calm");
   return {
     swatches: [
-      { role: "field", hex: palette.bg },
-      { role: "mid", hex: palette.mid },
-      { role: "accent", hex: palette.accent },
-      { role: "surface", hex: palette.surface },
-      { role: "ink", hex: palette.ink },
+      { role: "Field", hex: palette.bg },
+      { role: "Mid", hex: palette.mid },
+      { role: "Accent", hex: palette.accent },
+      { role: "Surface", hex: palette.surface },
+      { role: "Ink", hex: palette.ink },
     ],
     note,
   };
