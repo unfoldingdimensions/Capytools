@@ -495,6 +495,43 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
     ],
   },
+  CapyInvoice: {
+    heading: "How to make an invoice, quote or receipt in your browser",
+    summary:
+      "CapyInvoice turns line items into an invoice, quote or receipt and downloads it as a real PDF — per-line tax, a percent or fixed discount, any currency — without uploading a thing.",
+    steps: [
+      "Pick the document kind — invoice, quote or receipt — and fill in From and To. “Save as my profile” keeps your business details for next time.",
+      "Add the line items: quantity (whole or fractional), unit price and each line's own tax rate, then an optional discount and what has already been paid.",
+      "Pick any ISO 4217 currency and A4 or US Letter, then download the PDF — or a JSON backup of the whole document.",
+    ],
+    about: [
+      "CapyInvoice is a free invoice generator that runs entirely in your browser. The draft and your business profile live in this browser's own storage, and the PDF is built in the tab: there is no account, no server copy and no upload route in the code.",
+      "The arithmetic is built to be checked. Every amount is held as an integer of the currency's smallest unit from input to print; tax is calculated on each line at the line's own rate; a discount is applied before tax and spread across the lines in proportion to their amounts. The rules are printed in the PDF's fine print, and the same totals object feeds the summary on the page and the file, so the two cannot disagree.",
+      "Currencies carry their correct minor units through Intl — yen with none, dollars with two, Kuwaiti dinar with three — so an amount is never shown to the wrong precision. A quote prints “Valid until” where an invoice prints “Due” and leaves the payment rows off; a receipt leads with what was paid.",
+    ],
+    faq: [
+      {
+        q: "Is my invoice data uploaded anywhere?",
+        a: "No. The draft, the business profile and the logo never leave this browser, and the PDF is produced in the tab. Clearing your browser data deletes the draft, so use the JSON backup to keep or move a document.",
+      },
+      {
+        q: "Can each line have a different tax rate?",
+        a: "Yes — that is why tax is computed per line. Lines at the same rate are grouped into one “Tax at 20%” row, and each line's printed amount is what its rate actually applied to.",
+      },
+      {
+        q: "How is the discount applied, before or after tax?",
+        a: "Before tax, spread across the lines in proportion to their amounts (a credit line takes no share), so each line's tax applies to its discounted amount. A discount larger than the subtotal is capped. The PDF's fine print states all of this next to the numbers.",
+      },
+      {
+        q: "Which currencies can I use?",
+        a: "Any ISO 4217 code — type three letters. Minor units come from the standard: two for dollars and euros, none for yen, three for dinars. The totals always add up in the currency's smallest unit.",
+      },
+      {
+        q: "Is there a watermark or a limit?",
+        a: "No. Every download is free, unlimited and unwatermarked, and the JSON backup is the escape hatch — clearing browser data deletes the draft, so a backup is how you keep it.",
+      },
+    ],
+  },
   CapyStrip: {
     heading: "How to view and remove EXIF metadata from a photo",
     summary:

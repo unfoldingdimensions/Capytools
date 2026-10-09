@@ -93,11 +93,12 @@ async function pageStatus(path) {
 const PAGES = [
   "/", "/capywrapped", "/capyimagine", "/capycreator", "/capystrip",
   "/capyexpense", "/capyog", "/capyqr", "/capyresize", "/capytoken",
-  "/capypixel", "/capytone", "/capybg", "/notes", "/design", "/license",
+  "/capypixel", "/capytone", "/capybg", "/capyinvoice", "/notes", "/design", "/license",
   // INTENT_PAGES (src/lib/capytools/intents.ts)
   "/favicon-generator", "/png-to-webp", "/wifi-qr-code-generator",
   "/vcard-qr-code-generator", "/og-image-size", "/contrast-checker", "/gradient-generator",
   "/event-qr-code-generator", "/website-color-extractor", "/midjourney-prompt-generator",
+  "/free-invoice-generator", "/quote-template", "/receipt-maker",
   "/sitemap.xml", "/robots.txt", "/llms.txt", "/og.png",
 ];
 

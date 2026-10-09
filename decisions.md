@@ -216,3 +216,52 @@
 - Every tool and intent page carries a byline: "Updated \<date\> · by Unfolding Dimensions", the name linking to `/notes#author`. The owner chose **Unfolding Dimensions** for the byline; the JSON-LD `Person` stays Utkarsh Benjwal (D26). `AUTHOR.byline` holds it.
 - One hand-set date, `CONTENT_UPDATED` (`src/lib/capytools/updated.ts`), drives the sitemap's `lastmod`, the visible byline and `SoftwareApplication.dateModified`, so the three can't disagree. Bump it whenever page copy changes.
 **Consequence:** every page shows the same date, even when only one page changed (a `ponytail:` comment in `updated.ts` names the upgrade to per-page dates). Tests assert the summary and byline render on every tool page and that `dateModified` equals the shared date.
+
+---
+
+# CapyInvoice (2026-10-09)
+
+## D36 — CapyResume's plumbing moved to shared modules, CapyResume re-binds · **decided**
+
+**Context:** the CapyInvoice kickoff said reuse, not rebuild: pieces of `src/lib/capyresume/` that are genuinely tool-agnostic move to a shared home while CapyResume's tests stay green.
+**Decision:** five extractions, each proven by CapyResume's existing tests running UNCHANGED:
+- `src/lib/download.ts` gains `downloadBlob`/`downloadText`/`readFileAsText` (moved from `capyresume/download.ts`, which is now a re-export shim); `saveBlob` stays as-is for its eight existing callers.
+- `src/lib/capytools/doc-store.ts` — `createDocStore<T>()`, the battle-tested localStorage store (stable snapshots, versioned key, storage-refusal memory). `capyresume/store.ts` binds it with a `stamp` hook for the schema version; `capyinvoice/store.ts` and `capyinvoice/business.ts` bind their own.
+- `src/lib/capytools/paper-size-pref.ts` — `createPaperSizePref(key)`; each tool keeps its OWN key (an invoice and a résumé print independently).
+- `src/lib/capytools/pdf-fonts.ts` — `registerLiberationFonts()` + `PDF_FONT_BASE`, shared by both PDF exporters.
+- `src/lib/capytools/uid.ts` — the id helper, re-exported from `capyresume/schema.ts`.
+**Consequence:** per-tool copies remain only where the repo convention already had them (`formatBytes`/`fileNameSafe` — capyread and capypassport each carry their own). `saveBlob` and `downloadBlob` still co-exist in `src/lib/download.ts` with slightly different bodies; unifying them is a follow-up that touches eight tools and stayed out of this PR.
+
+## D37 — Money math: integer minor units, per-line tax, no-lost-cent discount spread · **decided**
+
+**Context:** the part of the tool most likely to be wrong, per the kickoff; test hardest.
+**Decision:**
+- Every amount is an integer of the currency's minor unit from parse to print (`src/lib/capyinvoice/money.ts`). Parsing is the one boundary where text becomes an integer (half away from zero at the currency's own digits); the only float in the model is `qty`, rounded once when the line amount forms.
+- **Tax is per line**, at each line's own rate (held in basis points), grouped by rate for the totals — never tax-on-the-total. Stated on the page and in the PDF's fine print via `roundingNote()`, one string in one place.
+- A document discount applies before tax and is spread across lines **in proportion to their amounts**, walking the lines and giving the last positive line the remainder, so shares always sum to exactly the discount. **Credit lines take no share** (a test caught the first version's remainder logic overwriting a share when a credit line trailed).
+- Rounding is half **away from zero**, symmetric for credit lines; pinned against `Math.round`, which rounds negative ties toward +∞.
+- Currency digits come from Intl (`JPY` → 0, `KWD` → 3); an unknown but well-formed code degrades to 2 rather than throwing.
+**Consequence:** the demo invoice's totals (£2,442.45 / balance £1,942.45) are hand-checked in tests AND extracted back out of a real rendered PDF by `scripts/verify-capyinvoice-pdf.mjs`.
+
+## D38 — Number inputs: one lexer, last-separator-wins, dot-preferring · **decided**
+
+**Context:** typed amounts arrive with dots, commas, spaces, currency symbols.
+**Decision:** `parseDecimalInput` accepts both marks — when both appear, the LAST separator is the decimal mark ("1,234.56" en, "1.234,56" de); a lone comma with 1–2 digits after it is a decimal mark ("12,5"), with three it is grouping ("1,234"); a lone dot is always the decimal mark ("12.345" is over-precise, not twelve thousand); multiple dots are all groupings. Symbols £$€¥₹, spaces and apostrophes are stripped; parentheses or a leading minus make a negative.
+**Consequence:** the rule is documented in the tool's own hint line ("the last separator counts") and pinned by 27 money tests. UI numeric fields use the TagsInput focus-draft pattern, so typing "12." is never fought by the parser.
+
+## D39 — CapyInvoice's intent pages open the tool on the document kind · **decided**
+
+**Context:** D21 requires an intent page to open the tool on a real preset.
+**Decision:** `CapyInvoice` takes `initialKind`; `/free-invoice-generator`, `/quote-template` and `/receipt-maker` pass invoice/quote/receipt. On mount, a landing with a stored draft of a different kind switches the KIND only — every line, party and total is kept; a first visit seeds the demo wearing that kind.
+**Consequence:** quote↔invoice↔receipt is a one-click conversion, which the quote guide names explicitly.
+
+## D40 — Owner assets: lab-17 prompt delivered; og.png regenerated in-repo · **decided**
+
+**Decision:** the lab-17 plate prompt (brass counting frame beside a shapes-only invoice sheet) is appended to `docs/research/plates/lab-prompts.md` — the plate FILE stays the owner's step, and the landing asset test is the expected-red canary until it lands (the D-CapyPassport precedent). The share card's count was regenerated the way the CapyResume count commit documents it: clear the old text box (x 818–1068, y 54–80, `#f9f9f7`), composite "SEVENTEEN TOOLS" right-aligned at ink edge 1064, baseline 74.5, Albert Sans 500 19.75px, tracking 4.2px, `#6b6a66`, via sharp with a scratch fontconfig pointing at a downloaded Albert Sans 500 TTF, alpha removed to keep the 3-channel RGB. `OG_CARD_TOOL_COUNT` bumped to 17 with it.
+**Consequence:** next count bump can copy the recipe from this entry; the scratch dir was deleted after use.
+
+## D41 — lib-internal imports stay relative, not `@/` · **decided**
+
+**Context:** `scripts/verify-*-pdf.mjs` compile `src/lib/<tool>` with bare `tsc`, which has no `paths` mapping; `@/lib/...` imports inside lib files broke it.
+**Decision:** modules under `src/lib/` import each other by RELATIVE path (components keep `@/`). Both verify scripts pass `--rootDir src`, so shared modules emit under `OUT_DIR/lib/capytools/` and the loaders point there.
+**Consequence:** the repo's lib style is now stated: `@/` is for components and tests; lib-to-lib is relative.

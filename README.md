@@ -1,6 +1,6 @@
 # Capytools
 
-A home for small, quiet tools. Sixteen so far. Fifteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.
+A home for small, quiet tools. Seventeen so far. Sixteen run in your browser and keep nothing; one lives on your desktop and keeps your files there.
 
 **[capytools.app](https://capytools.app)**
 
@@ -169,6 +169,14 @@ A résumé that's actually yours, made in your tab. Fill in your details and sec
 - **Stored in this browser only**: what you type stays in this browser's own storage so it's there next visit, and never goes anywhere else — there is no account, no server copy and no upload route in the code.
 - **A real PDF**: selectable, copyable text in embedded open-licence fonts (Latin, Cyrillic and Greek), with clickable links — not a picture of a document. Every template is one plain column, the layout parsers read best; no template is promised to pass any particular hiring system.
 - **Free, unlimited, unwatermarked**: every export, every time. The JSON backup is the escape hatch — clearing browser data deletes the résumé, so a backup is how you keep it, and a file that isn't one is refused rather than imported empty.
+
+## 17. CapyInvoice
+
+Invoices, quotes and receipts, printed properly. Fill in the parties, the line items and the tax, and download a real PDF — A4 or US Letter, in any ISO 4217 currency.
+
+- **The arithmetic is checkable**: every amount is held as an integer of the currency's smallest unit; tax is calculated on each line at the line's own rate; a discount is applied before tax and spread across the lines in proportion to their amounts. The rules are printed in the PDF's fine print.
+- **One document, three voices**: a quote prints "Valid until" where an invoice prints "Due" and leaves the payment rows off; a receipt leads with what was paid and shows the balance.
+- **Stored in this browser only**: the draft, your business profile and the logo never leave this tab — there is no account, no server copy and no upload route in the code. The JSON backup is the escape hatch, and a file that isn't one is refused rather than imported empty.
 
 ## Privacy
 

@@ -16,3 +16,35 @@ export function saveBlob(blob: Blob, filename: string): void {
   a.click();
   window.setTimeout(() => URL.revokeObjectURL(url), REVOKE_AFTER_MS);
 }
+
+/**
+ * The document-tool download helpers, moved here from CapyResume so
+ * CapyInvoice reuses them unchanged (`capyresume/download.ts` re-exports them).
+ * The same revoke race as above, guarded a little harder for the tools that
+ * download whole documents: an SSR-safe window check, and the anchor attached
+ * to the document — Firefox ignores clicks on detached anchors.
+ */
+
+/** Trigger a download of an in-memory Blob. */
+export function downloadBlob(blob: Blob, filename: string): void {
+  if (typeof window === "undefined") return;
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  // Revoke on the next tick so Safari has started the download.
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
+}
+
+/** Trigger a download of a string (used for the JSON backup). */
+export function downloadText(text: string, filename: string, mimeType = "application/json"): void {
+  downloadBlob(new Blob([text], { type: `${mimeType};charset=utf-8` }), filename);
+}
+
+/** Read a user-picked file as text. Never leaves the browser. */
+export function readFileAsText(file: File): Promise<string> {
+  return file.text();
+}

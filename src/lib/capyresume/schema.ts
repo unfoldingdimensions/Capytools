@@ -19,14 +19,9 @@ import {
   type TemplateId,
 } from './types';
 
-/** Deterministic-enough unique id. Prefers the platform UUID when available. */
-export function uid(prefix = 'id'): string {
-  const cryptoRef = typeof globalThis !== 'undefined' ? globalThis.crypto : undefined;
-  if (cryptoRef && typeof cryptoRef.randomUUID === 'function') {
-    return `${prefix}_${cryptoRef.randomUUID()}`;
-  }
-  return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
-}
+/** Shared id helper — the canonical definition lives in `src/lib/capytools/uid`. */
+import { uid } from '../capytools/uid';
+export { uid };
 
 export const DEFAULT_TEMPLATE: TemplateId = 'classic';
 

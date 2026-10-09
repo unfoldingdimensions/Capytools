@@ -67,6 +67,10 @@ try {
       ),
       '--outDir',
       OUT_DIR,
+      // The library reaches shared modules under src/lib/capytools, so the
+      // common root is src/ and the output lands under OUT_DIR/lib/...
+      '--rootDir',
+      path.join(ROOT, 'src'),
       '--module',
       'commonjs',
       '--moduleResolution',
@@ -88,7 +92,7 @@ try {
   fail(`tsc failed while compiling the library:\n${output}`);
 }
 
-const compiledPdf = path.join(OUT_DIR, 'pdf.js');
+const compiledPdf = path.join(OUT_DIR, 'lib', 'capyresume', 'pdf.js');
 if (!fs.existsSync(compiledPdf)) fail(`expected ${compiledPdf} to exist after compilation`);
 ok('library compiled');
 
@@ -97,8 +101,8 @@ ok('library compiled');
 // ---------------------------------------------------------------------------
 
 const { buildResumePdf } = load(compiledPdf);
-const { DEMO_RESUME } = load(path.join(OUT_DIR, 'demo.js'));
-const { TEMPLATE_LIST } = load(path.join(OUT_DIR, 'templates.js'));
+const { DEMO_RESUME } = load(path.join(OUT_DIR, 'lib', 'capyresume', 'demo.js'));
+const { TEMPLATE_LIST } = load(path.join(OUT_DIR, 'lib', 'capyresume', 'templates.js'));
 /**
  * Extract the text layer with pdfjs-dist — already a Capytools dependency (CapyRead
  * renders PDFs with it), so this check needs no package of its own. The legacy

@@ -29,6 +29,10 @@ const eslintConfig = defineConfig([
     // directory; a clean checkout, and therefore CI, never sees them, and
     // locally they turn `npm run lint` into an error page.
     "public/ocr/**",
+    // CapyPassport's fetched face model + wasm, same story: gitignored, fetched
+    // by the prebuild script, minified vendor code that fails half a dozen
+    // rules a clean checkout never sees.
+    "public/capypassport/**",
   ]),
 ]);
 
