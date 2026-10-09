@@ -216,3 +216,21 @@
 - Every tool and intent page carries a byline: "Updated \<date\> · by Unfolding Dimensions", the name linking to `/notes#author`. The owner chose **Unfolding Dimensions** for the byline; the JSON-LD `Person` stays Utkarsh Benjwal (D26). `AUTHOR.byline` holds it.
 - One hand-set date, `CONTENT_UPDATED` (`src/lib/capytools/updated.ts`), drives the sitemap's `lastmod`, the visible byline and `SoftwareApplication.dateModified`, so the three can't disagree. Bump it whenever page copy changes.
 **Consequence:** every page shows the same date, even when only one page changed (a `ponytail:` comment in `updated.ts` names the upgrade to per-page dates). Tests assert the summary and byline render on every tool page and that `dateModified` equals the shared date.
+
+# Copy, CapyResume and the next four tools (2026-10-09)
+
+## D36 — Sentence case everywhere; no all-caps labels · **decided**
+
+**Context:** the owner found the lowercase register (2026-09-12) and the capitals label style odd to read.
+**Decision:** all UI copy and titles are sentence case; labels are normal text at `label` (13px) / `label-sm` (12px), never `uppercase` + wide tracking. DESIGN.md "Register" and AGENTS.md say so; `tests/tool-pages.test.tsx` requires a capital on every tool page's headline and lead. Left as written: generated prompt content, sample data, model names, the README quote chain, `<title>` strings, and text baked into share images (og.png, share cards, CapyTone posters) until those are regenerated.
+**Consequence:** new tools must ship in sentence case (the house rules in `docs/research/expansion/next-four-prompts.md` say so); CapyStamp still matches one decode error by exact string, so rewording that message needs the match updated too.
+
+## D37 — Tools 17–20 and how candidates are picked · **decided**
+
+**Decision:** 17 CapyInvoice, 18 CapyVeil, 19 CapyCrop, 20 CapyPDF (merge, split, reorder, compress and sign in one tool), merged strictly in that order. Candidates must (a) not be something an AI agent does instantly — pure text-in/text-out tools like diff, JSON/CSV, calculators, markdown and cron are out; (b) not be heavy — no ffmpeg.wasm or new multi-MB models until there is an audience (video/GIF tools parked); (c) fold overlapping features into one tool.
+**Consequence:** CapyDiff was dropped; CapyCrop owns the frame (crop, mask, split), CapyResize keeps pixel size and format.
+
+## D38 — CapyResume guide pages held for the paid tier · **decided**
+
+**Decision:** templates, by-role, by-country and ATS-format pages sit in `src/app/capyresume/(guides)` (URLs unchanged); its layout answers 404 while `CAPYRESUME_GUIDES_LIVE` (`src/lib/capyresume/seo/live.ts`) is false, and the sitemap and the tool's links follow the same switch. The AI assist stays built but unrouted (paid).
+**Consequence:** flipping the one constant publishes all guide pages together.
