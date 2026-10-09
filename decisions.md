@@ -307,3 +307,9 @@
 - **Bing Webmaster → Keyword Research** (L36 has the bulk method).
 Record both columns in `docs/research/keywords-<date>.md`, and say in the PR which phrase the page targets and its volume on each engine. Google decides the size of the opportunity; Bing confirms the trend and shows related and question phrases. A phrase that is ≤10K on Google *and* ~0 on Bing needs a reason the owner agrees to.
 **Consequence:** no more pages picked from search-result checks alone (the four small intent pages in D46 were). Google's "Competition" column is *ad* competition, not ranking difficulty — don't rank opportunities by it.
+
+## D49 — IndexNow sends only what changed since the last successful submission · **decided**
+
+**Context:** Bing's IndexNow report showed 171 submissions in 8 hours: every deploy resent all ~35 sitemap URLs, docs-only deploys included (D27's `ponytail:` note).
+**Decision:** `scripts/indexnow.mjs` diffs the live sitemap against the sitemap of the **last successful submission** — kept in the CI cache (`.indexnow/last-sitemap.xml`, restored before the ping, saved only when the ping succeeds) — and sends only URLs that are new or whose `<lastmod>` changed; nothing when none did. Not the pre-deploy sitemap: a deploy whose smoke fails skips the ping, and diffing against what was live before the *next* deploy would lose that deploy's new pages for good (#95's smoke failed exactly so). No usable previous sitemap → everything is sent once, and the log says why. Removed URLs are not sent.
+**Consequence:** `lastmod` is the one shared `CONTENT_UPDATED` date (D35), so a copy change still bumps — and sends — every page; per-page dates remain the upgrade. The first deploy after this lands sends all 35 (empty cache).
