@@ -189,15 +189,20 @@ async function main() {
   check("sitemap has no vercel.app", sitemap.includes("vercel.app"), false);
 
   console.log("\nAPI surface");
-  const languages = await apiGet("/api/languages/torvalds");
+  // A small, stable account, so this checks OUR routes rather than GitHub's
+  // worst case. With torvalds, run 37893710031 failed when github.com itself
+  // answered 504 for his contributions page, and the card route spends up to
+  // 55 upstream calls on a profile that size. octocat has a handful of repos.
+  const GITHUB_PROBE = "octocat";
+  const languages = await apiGet(`/api/languages/${GITHUB_PROBE}`);
   check("languages 200", languages.status, 200);
   // Real data, not an empty 200: proves the Worker's GITHUB_TOKEN resolved and
   // that the User-Agent header is present (without it GitHub answers 403).
   check("languages returns real shares",
     (await languages.json()).languages?.length > 0, true);
-  check("contributions 200", (await apiGet("/api/contributions/torvalds")).status, 200);
+  check("contributions 200", (await apiGet(`/api/contributions/${GITHUB_PROBE}`)).status, 200);
 
-  const og = await apiGet("/api/og/torvalds");
+  const og = await apiGet(`/api/og/${GITHUB_PROBE}`);
   check("og 200", og.status, 200);
   const png = new Uint8Array(await og.arrayBuffer());
   const isPng = png[0] === 0x89 && png[1] === 0x50 && png[2] === 0x4e && png[3] === 0x47;
