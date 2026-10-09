@@ -288,3 +288,12 @@
 **Context:** the owner found CapyResume's first builder and CapyInvoice's first pass flat — every control the same grey pill, no headings, hovers that barely changed.
 **Decision:** DESIGN.md "Controls and hierarchy" is the rule: every button fills on hover, from one shared set (`src/components/ui/house.tsx` — `PRIMARY_BTN`, `BTN`, `ADD_BTN`, `DANGER_BTN`, `ICON_BTN`, `CHOICE_BTN`, plus `FIELD`, `<Field>`, `SECTION`, `GROUP`, `SELECT_TRIGGER`); a visible label on every field; grouped fields under headings split by hairlines; one emphasis per card; repeated entries as rows; the house Select, never `<select>`. CapyResume and CapyInvoice use it; AGENTS.md and the house rules in `docs/research/expansion/next-four-prompts.md` point new tools at it.
 **Consequence:** the other fourteen tools predate the rule and still carry their own button classes; bring them over when each is next touched.
+
+## D46 — Search volume comes before building a page · **decided**
+
+**Context:** Bing Webmaster's Keyword Research (2026-10-09) gave real volumes for the first time. Several intent pages chosen earlier from search-result checks alone — midjourney-prompt-generator, website-color-extractor, event-qr-code-generator, and og-image-size's "og image generator" — show **0** on Bing (below its reporting threshold), while phrases our tools already serve run into the hundreds of thousands.
+**Decision:** before a new intent page or a title change, check the phrase's volume (Bing Keyword Research; method in L36; latest table in `docs/research/keywords-2026-10-09.md`, owner-local). Titles lead with the highest-volume phrase the page honestly serves (D20). Applied first to three titles:
+- `/capyresume`: "Free resume builder — no signup, PDF & Word download" (resume builder ~101K over 3 months on Bing; free resume builder ~40K). It was brand-first, against D20.
+- `/capypassport`: "Passport photo maker — US, UK & Schengen sizes, free, no upload" (passport photo ~26K). Also brand-first.
+- `/capyresize`: "Image resizer — resize and convert PNG, JPG and WebP, free, no upload" (image resizer ~262K; resize image ~179K, +73%). The favicon pack has its own page, `/favicon-generator`.
+**Open:** format-conversion pages (png-to-jpg ~166K, webp-to-png ~115K, jpg-to-png ~103K, compress image ~83K) would need D21 amended to allow the few highest-volume pairs; and a CapyTone "palette from image" mode ("color picker from image" ~20K, which no tool of ours serves). Both await the owner.
