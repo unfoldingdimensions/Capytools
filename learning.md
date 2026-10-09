@@ -191,3 +191,15 @@ Setting `input.files` from a `DataTransfer` and dispatching `change` works for t
 ## L38. Diff against the last thing that succeeded, not the last thing that ran
 
 The brief for IndexNow said "save the live sitemap before deploy and diff after". That baseline is wrong whenever the step after the deploy can be skipped: #95's smoke failed, IndexNow never ran, and the next deploy's "before" would already have contained CapyInvoice's pages — announced never. **Rule:** when a step reports changes since "last time", "last time" is the last *successful* run, persisted by that run — here, the CI cache saved only on success.
+
+## L39. Verifying a pixel picker in the browser pane (2026-10-09)
+
+- Feed a real photo by copying it to a temporary `public/__verify/` folder, `fetch` it in the page, wrap it in a `File` and dispatch a `drop` `DragEvent` with a `DataTransfer` on the drop zone; **delete the folder afterwards**. Count `performance.getEntriesByType("resource")` before and after to prove no request — decoding the image only adds two `blob:` entries to the Network panel, which are local.
+- Independent truth for "the hex matches the pixel": `createImageBitmap(blob)` → draw at full size on a separate canvas → `getImageData(x, y, 1, 1)`. A different path from the tool's 1×1 source-rect read, so agreement means something.
+- Capture each click's `clientX/Y` and the result **synchronously** (a bubbling `document` listener runs after React's handler). A `setTimeout(…, 50)` read gave stale, identical results: consecutive tool clicks arrive faster than 50 ms.
+- `navigator.clipboard.readText()` is denied in the pane; stub `navigator.clipboard.writeText` to record what the buttons copy.
+- The `computer` screenshot frame is scaled (800 wide for a 986 px viewport): convert frame → CSS px before computing the expected pixel, or compare against the recorded `clientX/Y`.
+
+## L40. A leader-clustering ranker must re-sort after merging
+
+`rankPalette` sorted by raw count, clustered greedily, then returned clusters in leader order — but merging adds to a cluster's weight, so the order stopped being by weight and the 12-swatch cap could cut a heavy merged cluster. On a photo it showed as 23%, 15%, 5%, 6%, 1%… Sort by the merged count before the cap (stable, so ties keep leader order).

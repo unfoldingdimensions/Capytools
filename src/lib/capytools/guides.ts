@@ -314,7 +314,7 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
     about: [
       "CapyTone is a colour palette generator that starts from words. A hand-tuned set of mood anchors turns your phrase into a palette, and the same phrase always gives the same palette, so you can share it.",
       "Every palette is built to pass WCAG AA contrast for its text before anything is drawn.",
-      "Four more modes sit beside it: Generate builds palettes from colour-harmony rules (complementary, analogous, triadic and more); Check compares two colours with both WCAG 2 and APCA contrast; Blend makes gradients in Oklab or OKLCH; and Extract reads the colours from a public website.",
+      "Five more modes sit beside it: Generate builds palettes from colour-harmony rules (complementary, analogous, triadic and more); Check compares two colours with both WCAG 2 and APCA contrast; Blend makes gradients in Oklab or OKLCH; Extract reads the colours from a public website; and Image reads a palette from a photo you drop in and lets you click any pixel for its hex, all inside your tab.",
     ],
     faq: [
       {
@@ -331,7 +331,7 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
       {
         q: "Is anything stored?",
-        a: "No. Palettes are made in your browser. Extract mode is the one exception: the site's server fetches the public page you name, returns the colours, and keeps nothing.",
+        a: "No. Palettes are made in your browser, and Image mode never uploads your photo. Extract mode is the one exception: the site's server fetches the public page you name, returns the colours, and keeps nothing.",
       },
     ],
   },

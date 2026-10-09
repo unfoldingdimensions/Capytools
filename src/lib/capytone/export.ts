@@ -45,31 +45,41 @@ export async function copyText(text: string): Promise<boolean> {
   }
 }
 
+/** A named colour: the unit both token exporters write out. */
+export type TokenRole = readonly [name: string, hex: string];
+
+const roles = (palette: MoodPalette): TokenRole[] => [
+  ["bg", palette.bg],
+  ["mid", palette.mid],
+  ["accent", palette.accent],
+  ["surface", palette.surface],
+  ["ink", palette.ink],
+];
+
+/** CSS custom properties for any named colours — the image palette's too. */
+export function cssVariables(slug: string, entries: readonly TokenRole[]): string {
+  return entries.map(([name, hex]) => `--capytone-${slug}-${name}: ${hex};`).join("\n");
+}
+
+/** Tailwind theme extension snippet for any named colours. */
+export function tailwindColors(slug: string, entries: readonly TokenRole[]): string {
+  return [
+    `// tailwind.config — theme.extend.colors`,
+    `"${slug}": {`,
+    ...entries.map(([name, hex]) => `  ${name}: "${hex}",`),
+    `},`,
+  ].join("\n");
+}
+
 /** CSS custom properties, ready to paste into a :root block. */
 export function cssTokens(palette: MoodPalette): string {
   const slug = palette.slug.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
-  return [
-    `--capytone-${palette.slug}-bg: ${palette.bg};`,
-    `--capytone-${palette.slug}-mid: ${palette.mid};`,
-    `--capytone-${palette.slug}-accent: ${palette.accent};`,
-    `--capytone-${palette.slug}-surface: ${palette.surface};`,
-    `--capytone-${palette.slug}-ink: ${palette.ink};`,
-    `/* camelCase alias: ${slug} */`,
-  ].join("\n");
+  return [cssVariables(palette.slug, roles(palette)), `/* camelCase alias: ${slug} */`].join("\n");
 }
 
 /** Tailwind theme extension snippet. */
 export function tailwindTokens(palette: MoodPalette): string {
-  return [
-    `// tailwind.config — theme.extend.colors`,
-    `"${palette.slug}": {`,
-    `  bg: "${palette.bg}",`,
-    `  mid: "${palette.mid}",`,
-    `  accent: "${palette.accent}",`,
-    `  surface: "${palette.surface}",`,
-    `  ink: "${palette.ink}",`,
-    `},`,
-  ].join("\n");
+  return tailwindColors(palette.slug, roles(palette));
 }
 
 /** Plain-language share text — the X-post voice. */

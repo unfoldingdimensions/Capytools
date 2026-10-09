@@ -39,7 +39,19 @@ export function rankPalette(entries: readonly ColourOccurrence[]): RankedColour[
       counts.set(hex, { count: 1, source });
     }
   }
+  return rankCounts(counts);
+}
 
+/**
+ * The clustering half of `rankPalette`, for callers that already hold counts
+ * (the image mode counts pixels in buckets, never as one entry per pixel).
+ * `clusterDeltaE` defaults to CLUSTER_DELTA_E — the page palette's meaning of
+ * "the same colour".
+ */
+export function rankCounts(
+  counts: ReadonlyMap<string, { count: number; source: string }>,
+  clusterDeltaE: number = CLUSTER_DELTA_E,
+): RankedColour[] {
   // Most frequent first; ties break on hex so the order is total.
   const byCount = [...counts.entries()].sort(([hexA, a], [hexB, b]) =>
     b.count - a.count || (hexA < hexB ? -1 : hexA > hexB ? 1 : 0),
@@ -48,18 +60,23 @@ export function rankPalette(entries: readonly ColourOccurrence[]): RankedColour[
   // Greedy leader clustering: each colour joins the first cluster whose
   // leader is within ΔE00, else founds its own. Leaders never change, so
   // the result is stable under input permutation (after the sort above).
+  // Leaders are parsed once, here, not once per comparison.
   const clusters: RankedColour[] = [];
+  const leaders: NonNullable<ReturnType<typeof parse>>[] = [];
   for (const [hex, { count, source }] of byCount) {
     const colour = parse(hex);
     if (!colour) continue; // unreachable — hexes are normalised upstream
-    const home = clusters.find((cluster) => deltaE00(parse(cluster.hex)!, colour) <= CLUSTER_DELTA_E);
-    if (home) {
-      home.count += count;
+    const home = leaders.findIndex((leader) => deltaE00(leader, colour) <= clusterDeltaE);
+    if (home >= 0) {
+      clusters[home].count += count;
     } else {
       clusters.push({ hex, count, source });
+      leaders.push(colour);
     }
   }
-  return clusters.slice(0, PALETTE_MAX);
+  // Merging changes a cluster's weight, so rank again by the merged count
+  // (Array.sort is stable: ties keep leader order).
+  return clusters.sort((a, b) => b.count - a.count).slice(0, PALETTE_MAX);
 }
 
 /**

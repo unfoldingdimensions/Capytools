@@ -528,6 +528,49 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     },
   },
   {
+    href: "/color-picker-from-image",
+    tool: "CapyTone",
+    label: "Colour picker from image",
+    title: "Color picker from image — any pixel's hex, plus a palette | CapyTone",
+    description:
+      "Drop a photo, click any pixel for its hex, RGB and HSL, and get a ranked palette to copy as CSS variables or Tailwind tokens. Free, runs in your browser, nothing uploaded.",
+    headline: [{ text: "Click a photo," }, { text: "get its colour", em: true, dot: true }],
+    lead: "Drop, paste or pick a photo. Click any pixel for its hex, or take the palette it's made of. Never uploaded.",
+    guide: {
+      heading: "How to pick a colour from an image",
+      summary:
+        "Drop a photo, click any pixel to read its hex, RGB and HSL values, and copy a ranked palette of the photo's main colours — all in your browser, with nothing uploaded.",
+      steps: [
+        "Drop a photo onto the page, paste one from your clipboard, or choose a file.",
+        "Click any pixel to see its colour and copy it as hex, RGB or HSL. With the keyboard, focus the photo and move the picker with the arrow keys (Shift for bigger steps).",
+        "Click a swatch in the palette to copy its hex, or copy the whole palette as CSS variables or Tailwind tokens.",
+      ],
+      about: [
+        "A click reads the original pixel, not a shrunken copy: even on a 12-megapixel phone photo, the hex you get is the value of the pixel under the cursor. Photos are only shrunk, to 400 px on the long side, for the palette, which would otherwise have millions of pixels to count.",
+        "The palette counts how much of the photo each colour covers, merges colours that are almost the same using the CIEDE2000 colour-difference formula, and shows up to twelve swatches with their share of the photo. Fully see-through parts of a PNG are skipped rather than counted as black.",
+        "Everything happens in your tab: the photo is decoded by your browser, drawn to a canvas and read back, with no upload and no server. That is the opposite of CapyTone's Extract mode, which asks the site's server to fetch a public web page, because a browser can't read another site's code directly.",
+      ],
+      faq: [
+        {
+          q: "Is my photo uploaded anywhere?",
+          a: "No. The photo is read by your browser and never sent anywhere, and nothing is stored when you close the page.",
+        },
+        {
+          q: "How exact is the pixel I pick?",
+          a: "It's the exact pixel you clicked, read from the full-size photo. JPEGs carry compression noise, so neighbouring pixels can differ by a few values; click again, or step one pixel at a time with the arrow keys.",
+        },
+        {
+          q: "Why does the hex differ from another tool's?",
+          a: "The browser converts the photo to sRGB when it draws it, and the hex is that sRGB value. A tool that reads the file's raw numbers or works in another colour space can differ, mostly on photos with a wide-gamut profile such as Display P3.",
+        },
+        {
+          q: "What kinds of image can I use?",
+          a: "Whatever your browser can open: typically PNG, JPEG, WebP, GIF and AVIF. HEIC photos open only in Safari, and an animated GIF is read from its first frame.",
+        },
+      ],
+    },
+  },
+  {
     href: "/website-color-extractor",
     tool: "CapyTone",
     label: "Website colour extractor",
