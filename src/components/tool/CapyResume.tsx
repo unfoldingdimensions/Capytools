@@ -23,9 +23,20 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
+import {
+  ADD_BTN,
+  BTN,
+  DANGER_BTN,
+  FIELD,
+  FOCUS,
+  Field,
+  GROUP,
+  ICON_BTN,
+  LABEL,
+  SELECT_TRIGGER,
+} from "@/components/ui/house";
 import { CAPYRESUME_GUIDES_LIVE } from "@/lib/capyresume/seo/live";
 import {
   Select,
@@ -159,10 +170,6 @@ function PaperSizeSelect() {
   );
 }
 
-/** The suite's own dropdown (as CapyQR and CapyOG use), not the OS list. */
-const SELECT_TRIGGER =
-  "min-w-36 rounded-full bg-background transition-colors hover:border-primary";
-
 const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: "summary", label: "Summary" },
   { type: "experience", label: "Experience" },
@@ -173,26 +180,9 @@ const SECTION_CHOICES: { type: SectionType; label: string }[] = [
   { type: "custom", label: "Custom section" },
 ];
 
-/*
- * The builder's controls come in three weights, and every one fills on hover so it
- * reads as pressable: neutral (sage fill), additive (sage-tinted at rest), and
- * destructive (fills red). Before, every control was the same grey pill and the
- * same grey well, so nothing told the eye what was content and what was chrome.
- */
-const FOCUS =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background";
-const BTN = `inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-[13px] transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground pointer-coarse:min-h-11 ${FOCUS}`;
-const ICON_BTN = `inline-grid size-8 shrink-0 place-items-center rounded-full border border-border text-sm transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground pointer-coarse:size-11 ${FOCUS}`;
-const DANGER_BTN = `inline-flex items-center rounded-full border border-border px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-destructive hover:bg-destructive hover:text-background pointer-coarse:min-h-11 ${FOCUS}`;
-const ADD_BTN = `inline-flex items-center gap-1.5 rounded-full border border-primary/60 bg-primary/10 px-3.5 py-1.5 text-[13px] transition-colors hover:bg-primary hover:text-primary-foreground pointer-coarse:min-h-11 ${FOCUS}`;
-const FIELD =
-  "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground/70 hover:border-primary/60 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50";
-const LABEL =
-  "mb-1.5 block text-xs font-medium text-muted-foreground";
+// Control styles and <Field> are the house set: @/components/ui/house.
 /** A just-added row glows briefly, so the click visibly landed somewhere. */
 const FRESH = "bg-primary/15";
-/** A group heading inside an open entry: a step above the field labels. */
-const GROUP = "text-[13px] font-semibold text-foreground";
 
 type EntryPart = "organisation" | "location" | "dates" | "text" | "tags" | "bullets";
 
@@ -222,24 +212,6 @@ const ENTRY_SHAPES: Record<
   certifications: { parts: ["organisation", "dates"], basics: "The certificate", title: "Certificate", organisation: "Issuer", current: "Ongoing", prose: "Details", text: "Description", tags: "Skills" },
   custom: { parts: ["organisation", "location", "dates", "text", "tags", "bullets"], basics: "The entry", title: "Title", organisation: "Organisation", current: "Current", prose: "In your words", text: "Description", tags: "Skills" },
 };
-
-/** A visible label above its control — placeholders vanish once you type. */
-function Field({
-  label,
-  className,
-  children,
-}: {
-  label: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className={cn("block min-w-0", className)}>
-      <span className={LABEL}>{label}</span>
-      {children}
-    </label>
-  );
-}
 
 /**
  * The helpers below exist so the memoized rows can be handed stable functions only.

@@ -282,3 +282,9 @@
 **Context:** `scripts/verify-*-pdf.mjs` compile `src/lib/<tool>` with bare `tsc`, which has no `paths` mapping; `@/lib/...` imports inside lib files broke it.
 **Decision:** modules under `src/lib/` import each other by RELATIVE path (components keep `@/`). Both verify scripts pass `--rootDir src`, so shared modules emit under `OUT_DIR/lib/capytools/` and the loaders point there.
 **Consequence:** the repo's lib style is now stated: `@/` is for components and tests; lib-to-lib is relative.
+
+## D45 — Controls and hierarchy for every editor · **decided**
+
+**Context:** the owner found CapyResume's first builder and CapyInvoice's first pass flat — every control the same grey pill, no headings, hovers that barely changed.
+**Decision:** DESIGN.md "Controls and hierarchy" is the rule: every button fills on hover, from one shared set (`src/components/ui/house.tsx` — `PRIMARY_BTN`, `BTN`, `ADD_BTN`, `DANGER_BTN`, `ICON_BTN`, `CHOICE_BTN`, plus `FIELD`, `<Field>`, `SECTION`, `GROUP`, `SELECT_TRIGGER`); a visible label on every field; grouped fields under headings split by hairlines; one emphasis per card; repeated entries as rows; the house Select, never `<select>`. CapyResume and CapyInvoice use it; AGENTS.md and the house rules in `docs/research/expansion/next-four-prompts.md` point new tools at it.
+**Consequence:** the other fourteen tools predate the rule and still carry their own button classes; bring them over when each is next touched.

@@ -20,6 +20,22 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { StageCard } from "@/components/stage-card";
 import {
+  ADD_BTN,
+  BTN,
+  CHOICE_BTN,
+  DANGER_BTN,
+  FIELD,
+  Field,
+  GROUP,
+  ICON_BTN,
+  LABEL,
+  PRIMARY_BTN,
+  SECTION,
+  SELECT_TRIGGER,
+} from "@/components/ui/house";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import {
   DEMO_INVOICE,
 } from "@/lib/capyinvoice/demo";
 import {
@@ -146,7 +162,7 @@ function NumericInput({
   const [draft, setDraft] = useState<string | null>(null);
   return (
     <input
-      className={className ?? "w-full rounded-md border border-border bg-background px-3 py-2 text-sm tabular-nums"}
+      className={className ?? cn(FIELD, "tabular-nums")}
       name={name}
       aria-label={label}
       inputMode="decimal"
@@ -189,23 +205,48 @@ const LineRow = memo(function LineRow({
 }) {
   const prefix = `Item ${index + 1}`;
   return (
-    <div className="rounded-2xl bg-muted/30 p-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-        <label className="flex-1">
-          <span className="sr-only">{`${prefix}, description`}</span>
-          <input
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            name={`${line.id}-description`}
-            aria-label={`${prefix}, description`}
-            placeholder="What was delivered"
-            value={line.description}
-            onChange={(event) => onField(line.id, "description", event.target.value)}
-          />
-        </label>
+    // A row reads like the printed line: what it is, then the numbers, its amount on the right.
+    <div className="py-4 first:pt-0 last:pb-0">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={GROUP}>{prefix}</span>
+        <span className="ml-auto text-sm font-semibold tabular-nums">{formatMoney(amountMinor, currency)}</span>
+        <button
+          type="button"
+          className={ICON_BTN}
+          onClick={() => onMove(line.id, -1)}
+          aria-label={`Move ${prefix.toLowerCase()} up`}
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          className={ICON_BTN}
+          onClick={() => onMove(line.id, 1)}
+          aria-label={`Move ${prefix.toLowerCase()} down`}
+        >
+          ↓
+        </button>
+        <button
+          type="button"
+          className={DANGER_BTN}
+          onClick={() => onRemove(line.id)}
+          aria-label={`Remove ${prefix.toLowerCase()}`}
+        >
+          Remove
+        </button>
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <label>
-          <span className="mb-1 block text-xs text-muted-foreground">Qty</span>
+      <Field label="Description" className="mt-2">
+        <input
+          className={FIELD}
+          name={`${line.id}-description`}
+          aria-label={`${prefix}, description`}
+          placeholder="What was delivered"
+          value={line.description}
+          onChange={(event) => onField(line.id, "description", event.target.value)}
+        />
+      </Field>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <Field label="Quantity">
           <NumericInput
             name={`${line.id}-qty`}
             label={`${prefix}, quantity`}
@@ -215,9 +256,8 @@ const LineRow = memo(function LineRow({
             placeholder="1"
             onCommit={(value) => onField(line.id, "qty", value)}
           />
-        </label>
-        <label>
-          <span className="mb-1 block text-xs text-muted-foreground">Unit price</span>
+        </Field>
+        <Field label="Unit price">
           <NumericInput
             name={`${line.id}-unit`}
             label={`${prefix}, unit price`}
@@ -227,9 +267,8 @@ const LineRow = memo(function LineRow({
             placeholder={formatMoney(0, currency)}
             onCommit={(value) => onField(line.id, "unitPriceMinor", value)}
           />
-        </label>
-        <label>
-          <span className="mb-1 block text-xs text-muted-foreground">Tax %</span>
+        </Field>
+        <Field label="Tax rate %">
           <NumericInput
             name={`${line.id}-tax`}
             label={`${prefix}, tax rate percent`}
@@ -239,38 +278,7 @@ const LineRow = memo(function LineRow({
             placeholder="0"
             onCommit={(value) => onField(line.id, "taxBp", value)}
           />
-        </label>
-        <div>
-          <span className="mb-1 block text-xs text-muted-foreground">Amount</span>
-          <p className="overflow-hidden text-ellipsis whitespace-nowrap rounded-md border border-border bg-muted/40 px-3 py-2 text-sm tabular-nums">
-            {formatMoney(amountMinor, currency)}
-          </p>
-        </div>
-      </div>
-      <div className="mt-2 flex gap-2">
-        <button
-          type="button"
-          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          onClick={() => onMove(line.id, -1)}
-          aria-label={`Move ${prefix.toLowerCase()} up`}
-        >
-          ↑
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          onClick={() => onMove(line.id, 1)}
-          aria-label={`Move ${prefix.toLowerCase()} down`}
-        >
-          ↓
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-          onClick={() => onRemove(line.id)}
-        >
-          Remove line
-        </button>
+        </Field>
       </div>
     </div>
   );
@@ -516,7 +524,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
     <div className="flex items-center gap-1.5">
       <button
         type="button"
-        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11"
+        className={BTN}
         onClick={() => {
           const replace = () => edit(() => ({ ...DEMO_INVOICE, kind: doc.kind }));
           if (isInvoiceEmpty(doc)) replace();
@@ -533,7 +541,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
       </button>
       <button
         type="button"
-        className="rounded-full border border-border bg-muted/30 px-3 py-1 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground pointer-coarse:min-h-11"
+        className={DANGER_BTN}
         onClick={() => {
           const clear = () => {
             clearInvoice();
@@ -579,21 +587,20 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
         {notice}
       </p>
 
-      <div className="grid w-full gap-5 xl:grid-cols-2 xl:items-start">
+      {/* The form on the left, the totals pinned beside it — the way CapyResume pins its page.
+          Cards 1–3 stack in one column so a tall card never leaves a hole beside a short one. */}
+      <div className="grid w-full gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:items-start">
+        <div className="min-w-0 space-y-5">
         {/* ---------------------------------------------------- card 1 */}
         <StageCard index="01" title="The document" marks actions={startOver}>
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-6">
+            <div role="group" aria-label="Document type" className="flex flex-wrap gap-2">
               {KINDS.map((choice) => (
                 <button
                   key={choice.value}
                   type="button"
                   aria-pressed={doc.kind === choice.value}
-                  className={`rounded-full border px-4 py-1.5 text-sm transition-colors pointer-coarse:min-h-11 ${
-                    doc.kind === choice.value
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-primary hover:bg-muted/50"
-                  }`}
+                  className={CHOICE_BTN(doc.kind === choice.value)}
                   onClick={() => setField("kind", choice.value)}
                 >
                   {choice.label}
@@ -602,10 +609,9 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">{labels.numberLabel}</span>
+              <Field label={labels.numberLabel}>
                 <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                  className={FIELD}
                   name="doc-number"
                   aria-label={labels.numberLabel}
                   autoComplete="off"
@@ -613,11 +619,10 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                   value={doc.number}
                   onChange={(event) => setField("number", event.target.value)}
                 />
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Currency</span>
+              </Field>
+              <Field label="Currency">
                 <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono"
+                  className={cn(FIELD, "font-mono")}
                   name="doc-currency"
                   aria-label="Currency, three letters"
                   autoComplete="off"
@@ -636,276 +641,262 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                     <option key={code} value={code} />
                   ))}
                 </datalist>
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Issue date</span>
+              </Field>
+              <Field label="Issue date">
                 <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 tabular-nums"
+                  className={cn(FIELD, "tabular-nums")}
                   name="doc-issued"
                   type="date"
                   aria-label="Issue date"
                   value={doc.issueDate}
                   onChange={(event) => setField("issueDate", event.target.value)}
                 />
-              </label>
+              </Field>
               {doc.kind !== "receipt" ? (
-                <label className="text-sm">
-                  <span className="mb-1 block text-muted-foreground">{labels.dueLabel}</span>
+                <Field label={labels.dueLabel}>
                   <input
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 tabular-nums"
+                    className={cn(FIELD, "tabular-nums")}
                     name="doc-due"
                     type="date"
                     aria-label={labels.dueLabel}
                     value={doc.dueDate}
                     onChange={(event) => setField("dueDate", event.target.value)}
                   />
-                </label>
+                </Field>
               ) : null}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <span className="mb-1 block text-sm text-muted-foreground">Discount</span>
-                <div className="flex gap-2">
-                  <select
-                    className="rounded-md border border-border bg-background px-2 py-2 text-sm"
-                    name="discount-mode"
-                    aria-label="Discount type"
-                    value={doc.discountMode}
-                    onChange={(event) =>
-                      setField("discountMode", event.target.value === "fixed" ? "fixed" : "percent")
-                    }
-                  >
-                    <option value="percent">%</option>
-                    <option value="fixed">{doc.currency}</option>
-                  </select>
-                  {doc.discountMode === "percent" ? (
+            <div className="space-y-3 border-t border-border pt-5">
+              <p className={GROUP}>Adjustments</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <span className={LABEL}>
+                    Discount
+                  </span>
+                  <div className="flex gap-2">
+                    <Select
+                      value={doc.discountMode}
+                      onValueChange={(value) => setField("discountMode", value === "fixed" ? "fixed" : "percent")}
+                    >
+                      <SelectTrigger className="w-20 shrink-0 rounded-xl bg-background" aria-label="Discount type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="percent">%</SelectItem>
+                        <SelectItem value="fixed">{doc.currency || "Amount"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {doc.discountMode === "percent" ? (
+                      <NumericInput
+                        name="discount-percent"
+                        label="Discount percent"
+                        value={doc.discountBp}
+                        parse={parsePercentToBp}
+                        format={(value) => (value === 0 ? "" : (value / 100).toString())}
+                        placeholder="0"
+                        onCommit={(value) => setField("discountBp", value)}
+                      />
+                    ) : (
+                      <NumericInput
+                        name="discount-fixed"
+                        label="Discount amount"
+                        value={doc.discountMinor}
+                        parse={(raw) => parseMinorUnits(raw, digits)}
+                        format={(value) => (value === 0 ? "" : formatMoney(value, doc.currency))}
+                        placeholder={formatMoney(0, doc.currency)}
+                        onCommit={(value) => setField("discountMinor", value)}
+                      />
+                    )}
+                  </div>
+                </div>
+                {doc.kind !== "quote" ? (
+                  <Field label="Amount already paid">
                     <NumericInput
-                      name="discount-percent"
-                      label="Discount percent"
-                      value={doc.discountBp}
-                      parse={parsePercentToBp}
-                      format={(value) => (value === 0 ? "" : (value / 100).toString())}
-                      placeholder="0"
-                      onCommit={(value) => setField("discountBp", value)}
-                    />
-                  ) : (
-                    <NumericInput
-                      name="discount-fixed"
-                      label="Discount amount"
-                      value={doc.discountMinor}
+                      name="doc-paid"
+                      label="Amount already paid"
+                      value={doc.amountPaidMinor}
                       parse={(raw) => parseMinorUnits(raw, digits)}
                       format={(value) => (value === 0 ? "" : formatMoney(value, doc.currency))}
                       placeholder={formatMoney(0, doc.currency)}
-                      onCommit={(value) => setField("discountMinor", value)}
+                      onCommit={(value) => setField("amountPaidMinor", value)}
                     />
-                  )}
-                </div>
+                  </Field>
+                ) : null}
               </div>
-              {doc.kind !== "quote" ? (
-                <label className="text-sm">
-                  <span className="mb-1 block text-muted-foreground">Amount already paid</span>
-                  <NumericInput
-                    name="doc-paid"
-                    label="Amount already paid"
-                    value={doc.amountPaidMinor}
-                    parse={(raw) => parseMinorUnits(raw, digits)}
-                    format={(value) => (value === 0 ? "" : formatMoney(value, doc.currency))}
-                    placeholder={formatMoney(0, doc.currency)}
-                    onCommit={(value) => setField("amountPaidMinor", value)}
-                  />
-                </label>
-              ) : null}
+              <p className="text-xs text-muted-foreground">
+                {doc.kind === "quote"
+                  ? "A quote is the same document with its own words: “Valid until” instead of a due date, and no payment rows."
+                  : "Type amounts with your usual decimal mark — the last separator counts. Amounts are held as integers, so nothing drifts."}
+              </p>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              {doc.kind === "quote"
-                ? "A quote is the same document with its own words: “Valid until” instead of a due date, and no payment rows."
-                : "Type amounts with your usual decimal mark — the last separator counts. Amounts are held as integers, so nothing drifts."}
-            </p>
           </div>
         </StageCard>
 
         {/* ---------------------------------------------------- card 2 */}
         <StageCard index="02" title="From · To">
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                onClick={saveProfile}
-              >
-                Save as my profile
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                onClick={loadProfile}
-              >
-                Load my profile
-              </button>
-              {profile.name ? (
-                <span className="text-xs text-muted-foreground">Profile: {profile.name}</span>
-              ) : null}
-            </div>
-
-            <div className="grid gap-3">
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">From — your business</span>
+          <div className="space-y-6">
+            <section aria-label="From" className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className={SECTION}>From</h3>
+                <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                  <button type="button" className={BTN} onClick={saveProfile}>
+                    Save as my profile
+                  </button>
+                  <button type="button" className={BTN} onClick={loadProfile}>
+                    Load my profile
+                  </button>
+                </div>
+              </div>
+              {profile.name ? <p className="text-xs text-muted-foreground">Saved profile: {profile.name}</p> : null}
+              <Field label="Business name">
                 <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                  className={FIELD}
                   name="from-name"
-                  aria-label="From name, your business"
+                  aria-label="From, business name"
                   autoComplete="organization"
                   placeholder="Meridian Design Studio"
                   value={doc.fromName}
                   onChange={(event) => setField("fromName", event.target.value)}
                 />
-              </label>
-              <label className="text-sm">
-                <span className="sr-only">From details, address and tax number</span>
+              </Field>
+              <Field label="Address and tax number">
                 <textarea
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  className={FIELD}
                   name="from-details"
-                  aria-label="From details, one line each"
+                  aria-label="From, address and tax number, one line each"
                   rows={3}
                   placeholder={"48 Callow Lane\nBristol BS1 5QT\nVAT GB …"}
                   value={doc.fromDetails}
                   onChange={(event) => setField("fromDetails", event.target.value)}
                 />
-              </label>
-            </div>
+              </Field>
+              <div className="flex flex-wrap items-center gap-3">
+                <button type="button" className={BTN} onClick={() => logoInputRef.current?.click()}>
+                  {doc.logoDataUrl ? "Replace logo" : "Add logo"}
+                </button>
+                {doc.logoDataUrl ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={doc.logoDataUrl}
+                      alt="Your logo, added to the document"
+                      className="h-10 w-auto rounded border border-border bg-white p-0.5"
+                    />
+                    <button type="button" className={DANGER_BTN} onClick={() => setField("logoDataUrl", "")}>
+                      Remove logo
+                    </button>
+                  </>
+                ) : null}
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void pickLogo(file);
+                    event.target.value = "";
+                  }}
+                />
+              </div>
+            </section>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                onClick={() => logoInputRef.current?.click()}
-              >
-                {doc.logoDataUrl ? "Replace logo" : "Add logo"}
-              </button>
-              {doc.logoDataUrl ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={doc.logoDataUrl}
-                    alt="Your logo, added to the document"
-                    className="h-10 w-auto rounded border border-border bg-white p-0.5"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-                    onClick={() => setField("logoDataUrl", "")}
-                  >
-                    Remove logo
-                  </button>
-                </>
-              ) : null}
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void pickLogo(file);
-                  event.target.value = "";
-                }}
-              />
-            </div>
+            <section aria-label="To" className="space-y-3 border-t border-border pt-5">
+              <h3 className={SECTION}>To</h3>
+              <Field label="Client name">
+                <input
+                  className={FIELD}
+                  name="to-name"
+                  aria-label="To, client name"
+                  autoComplete="off"
+                  placeholder="Harbor & Lane Coffee Co."
+                  value={doc.toName}
+                  onChange={(event) => setField("toName", event.target.value)}
+                />
+              </Field>
+              <Field label="Address">
+                <textarea
+                  className={FIELD}
+                  name="to-details"
+                  aria-label="To, address, one line each"
+                  rows={2}
+                  placeholder={"12 Quay Street\nBristol BS1 4HT"}
+                  value={doc.toDetails}
+                  onChange={(event) => setField("toDetails", event.target.value)}
+                />
+              </Field>
+            </section>
 
-            <label className="block text-sm">
-              <span className="mb-1 block text-muted-foreground">To — your client</span>
-              <input
-                className="w-full rounded-md border border-border bg-background px-3 py-2"
-                name="to-name"
-                aria-label="To name, your client"
-                autoComplete="off"
-                placeholder="Harbor & Lane Coffee Co."
-                value={doc.toName}
-                onChange={(event) => setField("toName", event.target.value)}
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="sr-only">To details, address lines</span>
-              <textarea
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                name="to-details"
-                aria-label="To details, one line each"
-                rows={2}
-                placeholder={"12 Quay Street\nBristol BS1 4HT"}
-                value={doc.toDetails}
-                onChange={(event) => setField("toDetails", event.target.value)}
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block text-muted-foreground">Payment details</span>
-              <textarea
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                name="doc-payment"
-                aria-label="Payment details, one line each"
-                rows={2}
-                placeholder={"Sort code · Account\nReference: …"}
-                value={doc.paymentDetails}
-                onChange={(event) => setField("paymentDetails", event.target.value)}
-              />
-            </label>
+            <section aria-label="Payment" className="space-y-3 border-t border-border pt-5">
+              <h3 className={SECTION}>Payment</h3>
+              <Field label="Bank details and reference">
+                <textarea
+                  className={FIELD}
+                  name="doc-payment"
+                  aria-label="Payment, bank details and reference, one line each"
+                  rows={2}
+                  placeholder={"Sort code · Account\nReference: …"}
+                  value={doc.paymentDetails}
+                  onChange={(event) => setField("paymentDetails", event.target.value)}
+                />
+              </Field>
+            </section>
           </div>
         </StageCard>
 
         {/* ---------------------------------------------------- card 3 */}
         <StageCard index="03" title="The items">
-          <div className="space-y-3">
-            {doc.lines.map((line, index) => (
-              <LineRow
-                key={line.id}
-                line={line}
-                index={index}
-                digits={digits}
-                currency={doc.currency}
-                amountMinor={totals.lines[index]?.amountMinor ?? 0}
-                onField={setLineField}
-                onMove={moveLine}
-                onRemove={removeLine}
-              />
-            ))}
-            <button
-              type="button"
-              className="text-sm underline transition-colors hover:text-foreground pointer-coarse:min-h-11"
-              onClick={addLine}
-            >
-              Add line
+          <div className="space-y-5">
+            <div className="divide-y divide-border">
+              {doc.lines.map((line, index) => (
+                <LineRow
+                  key={line.id}
+                  line={line}
+                  index={index}
+                  digits={digits}
+                  currency={doc.currency}
+                  amountMinor={totals.lines[index]?.amountMinor ?? 0}
+                  onField={setLineField}
+                  onMove={moveLine}
+                  onRemove={removeLine}
+                />
+              ))}
+            </div>
+            <button type="button" className={ADD_BTN} onClick={addLine}>
+              <span aria-hidden>+</span> Add line
             </button>
 
-            <div className="grid gap-3 pt-2 sm:grid-cols-2">
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Notes</span>
-                <textarea
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  name="doc-notes"
-                  aria-label="Notes"
-                  rows={2}
-                  placeholder="Working files are handed over on final payment."
-                  value={doc.notes}
-                  onChange={(event) => setField("notes", event.target.value)}
-                />
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Terms</span>
-                <textarea
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  name="doc-terms"
-                  aria-label="Terms"
-                  rows={2}
-                  placeholder="Payment due within 30 days."
-                  value={doc.terms}
-                  onChange={(event) => setField("terms", event.target.value)}
-                />
-              </label>
+            <div className="space-y-3 border-t border-border pt-5">
+              <p className={GROUP}>Notes and terms</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Notes">
+                  <textarea
+                    className={FIELD}
+                    name="doc-notes"
+                    aria-label="Notes"
+                    rows={2}
+                    placeholder="Working files are handed over on final payment."
+                    value={doc.notes}
+                    onChange={(event) => setField("notes", event.target.value)}
+                  />
+                </Field>
+                <Field label="Terms">
+                  <textarea
+                    className={FIELD}
+                    name="doc-terms"
+                    aria-label="Terms"
+                    rows={2}
+                    placeholder="Payment due within 30 days."
+                    value={doc.terms}
+                    onChange={(event) => setField("terms", event.target.value)}
+                  />
+                </Field>
+              </div>
             </div>
           </div>
         </StageCard>
+
+        </div>
 
         {/* ---------------------------------------------------- card 4 */}
         <StageCard
@@ -913,7 +904,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
           title="The totals"
           className="xl:sticky xl:top-24 xl:self-start"
         >
-          <div className="space-y-4">
+          <div className="space-y-5">
             <dl className="rounded-2xl bg-muted/30 p-4 text-sm">
               <div className="flex items-baseline justify-between py-1">
                 <dt className="text-muted-foreground">Subtotal</dt>
@@ -933,7 +924,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                   <dd className="tabular-nums">{formatMoney(group.taxMinor, doc.currency)}</dd>
                 </div>
               ))}
-              <div className="mt-1 flex items-baseline justify-between border-t border-border pt-2 font-medium">
+              <div className="mt-2 flex items-baseline justify-between border-t border-border pt-3 text-base font-semibold">
                 <dt>Total</dt>
                 <dd className="tabular-nums">{formatMoney(totals.totalMinor, doc.currency)}</dd>
               </div>
@@ -943,9 +934,9 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                     <dt className="text-muted-foreground">Amount paid</dt>
                     <dd className="tabular-nums">{formatMoney(totals.amountPaidMinor, doc.currency)}</dd>
                   </div>
-                  <div className="mt-1 flex items-baseline justify-between rounded-xl bg-primary/10 px-3 py-2 font-medium">
-                    <dt>Balance due</dt>
-                    <dd className="tabular-nums">{formatMoney(totals.balanceMinor, doc.currency)}</dd>
+                  <div className="mt-2 flex items-baseline justify-between rounded-xl bg-primary/15 px-3 py-3">
+                    <dt className="font-medium">Balance due</dt>
+                    <dd className="font-display text-2xl tabular-nums">{formatMoney(totals.balanceMinor, doc.currency)}</dd>
                   </div>
                 </>
               ) : null}
@@ -956,18 +947,10 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
               </p>
             ) : null}
 
-            {/* The same statement the PDF prints in its fine print. */}
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Line amounts are quantity × unit price. Any discount is applied
-              before tax and spread across the lines in proportion to their
-              amounts. Tax is calculated on each line at the line&apos;s own rate
-              and rounded half up to the smallest unit of {doc.currency}.
-            </p>
-
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-end gap-3 border-t border-border pt-5">
               <button
                 type="button"
-                className="min-w-[120px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50 pointer-coarse:min-h-11"
+                className={cn(PRIMARY_BTN, "min-w-[140px]")}
                 onClick={() => {
                   void exportPdf();
                 }}
@@ -977,18 +960,13 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
               >
                 {busy === "pdf" ? "Making PDF…" : "Download PDF"}
               </button>
-              <button
-                type="button"
-                className="min-w-[100px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50 pointer-coarse:min-h-11"
-                onClick={exportJson}
-              >
+              <PaperPicker />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={BTN} onClick={exportJson}>
                 JSON backup
               </button>
-              <button
-                type="button"
-                className="min-w-[100px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50 pointer-coarse:min-h-11"
-                onClick={() => fileInputRef.current?.click()}
-              >
+              <button type="button" className={BTN} onClick={() => fileInputRef.current?.click()}>
                 Import JSON
               </button>
               <input
@@ -1004,12 +982,12 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
               />
             </div>
 
-            <details className="text-xs text-muted-foreground">
-              <summary className="cursor-pointer select-none underline">Paper size</summary>
-              <PaperPicker />
-            </details>
-
-            <p className="text-xs text-muted-foreground">
+            {/* The same statement the PDF prints in its fine print. */}
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Line amounts are quantity × unit price. Any discount is applied
+              before tax and spread across the lines in proportion to their
+              amounts. Tax is calculated on each line at the line&apos;s own rate
+              and rounded half up to the smallest unit of {doc.currency}.
               Free, unlimited, unwatermarked: the document is yours, so the
               download always is too.
             </p>
@@ -1036,21 +1014,25 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
 /**
  * The paper-size control, subscribing to the prefs store on its own — the
  * value is only needed at export time, and subscribing at the top of the
- * editor would re-render every card to move one `<select>` (the CapyResume
+ * editor would re-render every card to move one control (the CapyResume
  * lesson, which keeps its own PaperSizeSelect for the same reason).
  */
 function PaperPicker() {
   const paper = usePaperSize();
   return (
-    <select
-      className="mt-2 rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
-      name="paper"
-      aria-label="Paper size"
-      value={paper}
-      onChange={(event) => setPaperSize(event.target.value === "LETTER" ? "LETTER" : "A4")}
-    >
-      <option value="A4">A4</option>
-      <option value="LETTER">US Letter</option>
-    </select>
+    <div>
+      <span id="capyinvoice-paper-label" className={LABEL}>
+        Paper
+      </span>
+      <Select value={paper} onValueChange={(value) => setPaperSize(value === "LETTER" ? "LETTER" : "A4")}>
+        <SelectTrigger className={SELECT_TRIGGER} aria-labelledby="capyinvoice-paper-label">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="A4">A4</SelectItem>
+          <SelectItem value="LETTER">US Letter</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

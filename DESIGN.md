@@ -290,6 +290,35 @@ replaced the lowercase register of 2026-09-12:
 `tests/tool-pages.test.tsx` enforces the mechanical half: on every tool page
 the headline and the lead both start with a capital.
 
+## Controls and hierarchy
+
+Owner rule, 2026-10-09. An editor must show what is content and what is chrome
+at a glance; the first CapyResume builder, a flat stack of identical grey
+pills, is the counter-example.
+
+- **Every button fills on hover.** Use the house set in
+  `src/components/ui/house.tsx` rather than writing button classes:
+  `PRIMARY_BTN` (filled sage at rest — the one action a card exists for, e.g.
+  Download PDF), `BTN` (outlined, fills sage on hover), `ADD_BTN` (sage-tinted,
+  fills on hover), `DANGER_BTN` (fills red on hover), `ICON_BTN` (↑ ↓ ×),
+  `CHOICE_BTN` (segmented choice, the chosen one filled).
+- **A visible label above every field** (`<Field>`), never a placeholder alone;
+  placeholders only carry format hints. The accessible name contains the
+  visible label.
+- **Group, then head the group.** Inside a card, split fields into named groups
+  separated by a hairline (`border-t pt-5`): a `SECTION` heading (Fraunces) for
+  big parts such as From / To / Payment, a `GROUP` heading for smaller ones
+  (Adjustments, Notes and terms). No nested grey wells.
+- **One emphasis per card.** The total, the balance due, the open entry — one
+  thing is bigger or tinted; the rest is quiet.
+- **Repeated entries collapse or read as rows**: a one-line summary (title ·
+  detail · amount) with its actions on the right, separated by hairlines.
+- **Dropdowns use the house Select** (`@/components/ui/select`), never a native
+  `<select>`.
+- **Feedback:** a new row takes focus and glows briefly; removals offer undo or
+  confirm first; a pinned preview or totals pane sits beside the form, with
+  nothing else in its grid.
+
 ## Layout
 
 4px baseline scale: `xs` intra-chip gaps, `md` (16px) intra-component,
