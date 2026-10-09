@@ -279,6 +279,21 @@ export const SUITE: SuiteTool[] = [
                "ats resume", "resume pdf", "resume docx", "no signup", "no upload"],
     plate: { src: "/plates/lab-16.webp", width: 896, height: 1200 },
   },
+  {
+    name: "CapyInvoice",
+    short: "Invoice",
+    href: "/capyinvoice",
+    cat: "browser",
+    badge: "Invoice",
+    appCategory: "FinanceApplication",
+    blurb:
+      "Invoices, quotes and receipts as real PDFs — per-line tax, discounts, any ISO currency — with the draft and your business profile kept in this browser. Nothing is uploaded.",
+    note: "Invoices & receipts",
+    line: "Invoices, quotes and receipts to PDF, in your browser.",
+    keywords: ["invoice generator", "free invoice generator", "invoice maker", "quote template",
+               "receipt maker", "billing", "invoice pdf", "vat invoice", "no signup", "no upload"],
+    plate: { src: "/plates/lab-17.webp", width: 896, height: 1200 },
+  },
 ];
 
 export const SUITE_SIZE = SUITE.length;
@@ -309,6 +324,7 @@ const WORDS = [
   "fourteen",
   "fifteen",
   "sixteen",
+  "seventeen",
 ] as const;
 
 /** 7 → "seven": any count, spelled out for prose; digits past the table. */

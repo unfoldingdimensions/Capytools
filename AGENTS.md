@@ -23,6 +23,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Tool naming: `Capy<Name>` (e.g., `CapyWrapped`, `CapyImagine`, `CapyCreator`).
 - Tool eyebrow: `font-mono text-[13px] text-muted-foreground` (`Capy<Name> · tool no. X`), in sentence case.
 - UI copy is **sentence case** everywhere (DESIGN.md, "Register"). No all-caps labels: never `uppercase` + wide tracking.
+- Editors follow DESIGN.md **"Controls and hierarchy"**: buttons from `src/components/ui/house.tsx` (every one fills on hover), a visible label on every field, grouped fields under headings, one emphasis per card, the house Select instead of `<select>`.
 
 ### 2. Design System & Tokens
 - **Canvas**: Cream `#f9f9f7` (light) / Deep charcoal `#121212` (dark).

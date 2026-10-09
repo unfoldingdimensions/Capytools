@@ -17,7 +17,6 @@
 
 import { SIZE_PRESETS } from "@/lib/capyog/sizes";
 import type { ToolGuide } from "@/lib/capytools/guides";
-
 export type IntentPage = {
   href: string;
   /** The SUITE row whose component this page renders. */
@@ -439,6 +438,127 @@ export const INTENT_PAGES: readonly IntentPage[] = [
         {
           q: "Can I get prompts for other models?",
           a: "Yes. Switch the engine to Flux, SDXL, Gemini or a video model and the same roll is rewritten in that model's style.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/free-invoice-generator",
+    tool: "CapyInvoice",
+    label: "Free invoice generator",
+    title: "Free invoice generator — PDF, per-line tax, any currency, no signup | CapyInvoice",
+    description:
+      "Make an invoice with per-line tax rates, a percent or fixed discount, and any currency, then download a real PDF. Free, unwatermarked, 100% in your browser.",
+    headline: [{ text: "An invoice," }, { text: "without the subscription", em: true, dot: true }],
+    lead: "Per-line tax, honest totals, a real PDF. Your client's details never leave this tab.",
+    guide: {
+      heading: "How to make an invoice for free",
+      summary:
+        "Fill in your business, your client and the line items — with per-line tax and a discount if you use one — and download a real PDF, free and without an account.",
+      steps: [
+        "Type your business details into From, then your client into To. “Save as my profile” keeps them for next time.",
+        "Add each line item with its quantity, unit price and tax rate — lines can carry different rates, and quantities can be fractional.",
+        "Set the currency, an issue and due date, an optional discount, and download the PDF on A4 or US Letter.",
+      ],
+      about: [
+        "CapyInvoice is a free invoice generator that runs entirely in your browser. The draft and your business profile are kept in this browser's own storage, and the PDF is built in the tab — there is no account, no server copy and no upload route in the code.",
+        "The arithmetic is done the way an accountant checks it: every amount is held as an integer of the currency's smallest unit, tax is calculated on each line at the line's own rate, and the rules are printed in the PDF's fine print so the numbers can be verified.",
+        "Any ISO 4217 currency works, with the right minor units — yen with none, dollars with two, dinars with three — and every export is free, unlimited and unwatermarked.",
+      ],
+      faq: [
+        {
+          q: "Is it really free?",
+          a: "Yes — every invoice, every time, with no watermark and no account. The JSON backup is also free, so your records are never trapped in the tool.",
+        },
+        {
+          q: "Where do my invoice details go?",
+          a: "Nowhere. They are typed, stored and printed in your browser. Clearing your browser data deletes the draft, which is why the JSON backup exists.",
+        },
+        {
+          q: "Can different lines have different tax rates?",
+          a: "Yes. Each line carries its own rate, tax is calculated on each line, and the totals group the rates — “Tax at 20%” beside “Tax at 0%”, for example.",
+        },
+        {
+          q: "What file do I get?",
+          a: "A PDF with selectable, copyable text on A4 or US Letter, in embedded open-licence fonts — not a picture of an invoice.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/quote-template",
+    tool: "CapyInvoice",
+    label: "Quote template",
+    title: "Quote template — fill it in and download a PDF, free, in your browser | CapyInvoice",
+    description:
+      "A quote template you fill in the browser: line items with prices and tax, a valid-until date, and a real PDF download. Free, no signup, nothing uploaded.",
+    headline: [{ text: "The quote," }, { text: "ready to send", em: true, dot: true }],
+    lead: "The same document as an invoice, with “Valid until” in place of a due date.",
+    guide: {
+      heading: "How to fill in a quote template",
+      summary:
+        "Open the template, fill in the work, the prices and a valid-until date, and download it as a PDF your client can read — free, in your browser.",
+      steps: [
+        "The document kind is already set to Quote. Fill in From and To, and the lines with quantities and unit prices.",
+        "Set the “valid until” date instead of a due date, and add terms if you use them — payment terms, revisions, expiry.",
+        "Download the PDF. When the client accepts, switch the kind to Invoice and the same document becomes the invoice.",
+      ],
+      about: [
+        "A quote and an invoice are the same shape of document — parties, line items, a total — wearing different words. CapyInvoice prints “Quote” and “Valid until” where an invoice says “Invoice” and “Due”, and leaves the payment rows off the quote entirely.",
+        "Prices work the same way as on an invoice: per-line tax at each line's own rate, an optional percent or fixed discount, and amounts held as integers of the currency's smallest unit so nothing rounds astray.",
+        "When the job is accepted, the quote becomes the invoice with one click, keeping every line you priced.",
+      ],
+      faq: [
+        {
+          q: "Does the quote show payment details?",
+          a: "You can keep them in — they print under the totals — but a quote carries no amount-paid or balance rows. Those appear when you switch the document to an invoice.",
+        },
+        {
+          q: "Can I turn the quote into an invoice?",
+          a: "Yes — switch the kind from Quote to Invoice at the top and the same document becomes one, keeping the lines, parties and totals. Update the number and the due date before sending.",
+        },
+        {
+          q: "Is the template really free?",
+          a: "Yes, with no signup and no watermark. It runs in your browser and nothing you type is uploaded.",
+        },
+      ],
+    },
+  },
+  {
+    href: "/receipt-maker",
+    tool: "CapyInvoice",
+    label: "Receipt maker",
+    title: "Receipt maker — a payment receipt as a PDF, free, in your browser | CapyInvoice",
+    description:
+      "Make a receipt for a payment you received or sent: what was paid, the amount, the date — and download a real PDF. Free, no signup, nothing uploaded.",
+    headline: [{ text: "Payment received," }, { text: "in writing", em: true, dot: true }],
+    lead: "The same careful totals as an invoice, minus the due date.",
+    guide: {
+      heading: "How to make a receipt for a payment",
+      summary:
+        "Enter what was paid, the amount and the date paid, and download a receipt as a PDF — free, in your browser, with nothing uploaded.",
+      steps: [
+        "Switch the document kind to Receipt. The due-date field steps aside; the issue date is the date of payment.",
+        "Add the line items for what was paid, and put the full amount into “amount already paid” — the balance reads zero when the receipt is whole.",
+        "Download the PDF and send it, or keep it for your records.",
+      ],
+      about: [
+        "A receipt is an invoice's afterword: what was provided, what was paid, and when. CapyInvoice's receipt drops the due date, leads with the payment, and shows the balance — which reads zero when the receipt is whole, or the remainder when it is a deposit.",
+        "Amounts use the same integer arithmetic as every other document the tool prints, in any ISO 4217 currency, so a receipt in yen has no decimal point and one in Kuwaiti dinar carries three places.",
+        "Receipts are kept as a draft in this browser like everything else, and the JSON backup moves them between devices.",
+      ],
+      faq: [
+        {
+          q: "Can a receipt show a part payment?",
+          a: "Yes. Enter what has been paid and the balance line shows what remains; a fully paid receipt reads zero.",
+        },
+        {
+          q: "Is this suitable for a formal tax invoice?",
+          a: "It prints what you type — amounts, tax, dates and parties — and many businesses use it for exactly that. Whether it satisfies your tax authority's extra rules (sequential numbering, registration numbers) is yours to check; the tool does not claim compliance with any of them.",
+        },
+        {
+          q: "Does it cost anything?",
+          a: "No. Receipts, like every export here, are free, unlimited and unwatermarked, and the tool runs entirely in your browser.",
         },
       ],
     },

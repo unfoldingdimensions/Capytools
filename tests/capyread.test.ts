@@ -338,7 +338,7 @@ describe("registration — the suite knows CapyRead", () => {
   it("SUITE row 14 is CapyRead at /capyread, with its plate", () => {
     // Row 14 by position, not "the last row" — CapyPassport joined after it.
     const row = SUITE[13];
-    expect(SUITE.length).toBe(16);
+    expect(SUITE.length).toBe(17);
     expect(row.name).toBe("CapyRead");
     expect(row.short).toBe("Read");
     expect(row.href).toBe("/capyread");

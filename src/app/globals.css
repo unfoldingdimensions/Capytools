@@ -418,6 +418,15 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* The house Select locks scroll while open (react-remove-scroll) and pads the
+   body by a scrollbar's width to make up for the one it hides. The gutter above
+   already keeps that lane, so the padding counted it twice and every open
+   dropdown shoved the page sideways. More specific than the injected rule. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* The native search clear button is the OS's blue. Same glyph, house ink. */
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
