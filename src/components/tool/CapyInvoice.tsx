@@ -292,6 +292,8 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
 
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** The currency field while focused: a half-typed code ("EU") is not yet a currency. */
+  const [currencyDraft, setCurrencyDraft] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<{
     title: string;
     message: string;
@@ -637,11 +639,15 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                   maxLength={3}
                   placeholder="USD"
                   list="capyinvoice-currencies"
-                  value={doc.currency}
+                  value={currencyDraft ?? doc.currency}
+                  onFocus={() => setCurrencyDraft(doc.currency)}
                   onChange={(event) => {
+                    // Keep every keystroke; the document takes the code once it is a real one.
                     const raw = event.target.value.toUpperCase();
+                    setCurrencyDraft(raw);
                     if (isCurrencyCode(raw)) setField("currency", raw);
                   }}
+                  onBlur={() => setCurrencyDraft(null)}
                 />
                 <datalist id="capyinvoice-currencies">
                   {CURRENCY_SUGGESTIONS.map((code) => (

@@ -53,7 +53,9 @@ function buildStyles() {
       color: INK,
     },
     headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-    kindWord: { fontFamily: 'Liberation Sans', fontWeight: 'bold', fontSize: 24, color: SAGE },
+    // Its own line height: the page's 1.45 resolves against the 9.5pt body, so a 24pt word
+    // inherited a line box shorter than itself and the number line drew over it.
+    kindWord: { fontFamily: 'Liberation Sans', fontWeight: 'bold', fontSize: 24, lineHeight: 1.2, marginBottom: 4, color: SAGE },
     logo: { maxHeight: 64, maxWidth: 160, objectFit: 'contain' },
     metaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
     metaLine: { fontSize: 9 },
