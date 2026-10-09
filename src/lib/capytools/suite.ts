@@ -288,7 +288,7 @@ export const SUITE: SuiteTool[] = [
     appCategory: "FinanceApplication",
     blurb:
       "Invoices, quotes and receipts as real PDFs — per-line tax, discounts, any ISO currency — with the draft and your business profile kept in this browser. Nothing is uploaded.",
-    note: "invoices & receipts",
+    note: "Invoices & receipts",
     line: "Invoices, quotes and receipts to PDF, in your browser.",
     keywords: ["invoice generator", "free invoice generator", "invoice maker", "quote template",
                "receipt maker", "billing", "invoice pdf", "vat invoice", "no signup", "no upload"],

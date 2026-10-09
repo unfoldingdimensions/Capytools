@@ -450,7 +450,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Make an invoice with per-line tax rates, a percent or fixed discount, and any currency, then download a real PDF. Free, unwatermarked, 100% in your browser.",
     headline: [{ text: "An invoice," }, { text: "without the subscription", em: true, dot: true }],
-    lead: "per-line tax, honest totals, a real pdf. your client's details never leave this tab.",
+    lead: "Per-line tax, honest totals, a real PDF. Your client's details never leave this tab.",
     guide: {
       heading: "How to make an invoice for free",
       summary:
@@ -493,7 +493,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "A quote template you fill in the browser: line items with prices and tax, a valid-until date, and a real PDF download. Free, no signup, nothing uploaded.",
     headline: [{ text: "The quote," }, { text: "ready to send", em: true, dot: true }],
-    lead: "the same document as an invoice, with “valid until” in place of a due date.",
+    lead: "The same document as an invoice, with “Valid until” in place of a due date.",
     guide: {
       heading: "How to fill in a quote template",
       summary:
@@ -532,7 +532,7 @@ export const INTENT_PAGES: readonly IntentPage[] = [
     description:
       "Make a receipt for a payment you received or sent: what was paid, the amount, the date — and download a real PDF. Free, no signup, nothing uploaded.",
     headline: [{ text: "Payment received," }, { text: "in writing", em: true, dot: true }],
-    lead: "the same careful totals as an invoice, minus the due date.",
+    lead: "The same careful totals as an invoice, minus the due date.",
     guide: {
       heading: "How to make a receipt for a payment",
       summary:

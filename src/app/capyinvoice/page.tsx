@@ -16,7 +16,7 @@ export default function CapyInvoicePage() {
         { text: "Paid on time," },
         { text: "in one quiet tab", em: true, dot: true },
       ]}
-      lead="invoices, quotes and receipts to pdf, with the arithmetic done properly. made in your tab, uploaded nowhere."
+      lead="Invoices, quotes and receipts to PDF, with the arithmetic done properly. Made in your tab, uploaded nowhere."
       align="left"
       wide
     >

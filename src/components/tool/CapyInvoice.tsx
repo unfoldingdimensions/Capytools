@@ -187,7 +187,7 @@ const LineRow = memo(function LineRow({
   onMove: (lineId: string, delta: number) => void;
   onRemove: (lineId: string) => void;
 }) {
-  const prefix = `item ${index + 1}`;
+  const prefix = `Item ${index + 1}`;
   return (
     <div className="rounded-2xl bg-muted/30 p-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
@@ -205,7 +205,7 @@ const LineRow = memo(function LineRow({
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <label>
-          <span className="mb-1 block text-xs text-muted-foreground">qty</span>
+          <span className="mb-1 block text-xs text-muted-foreground">Qty</span>
           <NumericInput
             name={`${line.id}-qty`}
             label={`${prefix}, quantity`}
@@ -217,7 +217,7 @@ const LineRow = memo(function LineRow({
           />
         </label>
         <label>
-          <span className="mb-1 block text-xs text-muted-foreground">unit price</span>
+          <span className="mb-1 block text-xs text-muted-foreground">Unit price</span>
           <NumericInput
             name={`${line.id}-unit`}
             label={`${prefix}, unit price`}
@@ -229,7 +229,7 @@ const LineRow = memo(function LineRow({
           />
         </label>
         <label>
-          <span className="mb-1 block text-xs text-muted-foreground">tax %</span>
+          <span className="mb-1 block text-xs text-muted-foreground">Tax %</span>
           <NumericInput
             name={`${line.id}-tax`}
             label={`${prefix}, tax rate percent`}
@@ -241,7 +241,7 @@ const LineRow = memo(function LineRow({
           />
         </label>
         <div>
-          <span className="mb-1 block text-xs text-muted-foreground">amount</span>
+          <span className="mb-1 block text-xs text-muted-foreground">Amount</span>
           <p className="overflow-hidden text-ellipsis whitespace-nowrap rounded-md border border-border bg-muted/40 px-3 py-2 text-sm tabular-nums">
             {formatMoney(amountMinor, currency)}
           </p>
@@ -252,7 +252,7 @@ const LineRow = memo(function LineRow({
           type="button"
           className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           onClick={() => onMove(line.id, -1)}
-          aria-label={`move ${prefix} up`}
+          aria-label={`Move ${prefix.toLowerCase()} up`}
         >
           ↑
         </button>
@@ -260,7 +260,7 @@ const LineRow = memo(function LineRow({
           type="button"
           className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           onClick={() => onMove(line.id, 1)}
-          aria-label={`move ${prefix} down`}
+          aria-label={`Move ${prefix.toLowerCase()} down`}
         >
           ↓
         </button>
@@ -269,7 +269,7 @@ const LineRow = memo(function LineRow({
           className="rounded-full border border-border px-2 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
           onClick={() => onRemove(line.id)}
         >
-          remove line
+          Remove line
         </button>
       </div>
     </div>
@@ -430,7 +430,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
   const loadProfile = () => {
     const storedProfile = getBusinessSnapshot();
     if (isBusinessEmpty(storedProfile)) {
-      setNotice("No business profile in this browser yet — fill the From block, then “save as my profile”.");
+      setNotice("No business profile in this browser yet — fill the From block, then “Save as my profile”.");
       return;
     }
     const apply = () => {
@@ -446,9 +446,9 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
     const occupied = doc.fromName.trim() || doc.fromDetails.trim() || doc.paymentDetails.trim();
     if (!occupied) return apply();
     setConfirming({
-      title: "load your profile into From?",
+      title: "Load your profile into From?",
       message: "It replaces the From block, the logo and the payment details now in the document.",
-      confirmText: "load it",
+      confirmText: "Load it",
       run: apply,
     });
   };
@@ -502,9 +502,9 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
       };
       if (isInvoiceEmpty(doc)) return commit();
       setConfirming({
-        title: "replace the open document?",
+        title: "Replace the open document?",
         message: "The file replaces what is open in the editor now. Export a JSON backup first if you want to keep it.",
-        confirmText: "replace it",
+        confirmText: "Replace it",
         run: commit,
       });
     } catch {
@@ -522,14 +522,14 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
           if (isInvoiceEmpty(doc)) replace();
           else
             setConfirming({
-              title: "load the example invoice?",
+              title: "Load the example invoice?",
               message: "It replaces what is open in the editor now. Export a JSON backup first if you want to keep it.",
-              confirmText: "load example",
+              confirmText: "Load example",
               run: replace,
             });
         }}
       >
-        load demo
+        Load demo
       </button>
       <button
         type="button"
@@ -549,14 +549,14 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
           if (isInvoiceEmpty(doc)) clear();
           else
             setConfirming({
-              title: "delete this document?",
+              title: "Delete this document?",
               message: "It is removed from this browser for good, and there is no copy anywhere else. Export a JSON backup first if you might want it back.",
-              confirmText: "delete it",
+              confirmText: "Delete it",
               run: clear,
             });
         }}
       >
-        clear
+        Clear
       </button>
     </div>
   );
@@ -615,11 +615,11 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 />
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">currency</span>
+                <span className="mb-1 block text-muted-foreground">Currency</span>
                 <input
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono uppercase"
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono"
                   name="doc-currency"
-                  aria-label="currency, three letters"
+                  aria-label="Currency, three letters"
                   autoComplete="off"
                   spellCheck={false}
                   maxLength={3}
@@ -638,12 +638,12 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 </datalist>
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">issue date</span>
+                <span className="mb-1 block text-muted-foreground">Issue date</span>
                 <input
                   className="w-full rounded-md border border-border bg-background px-3 py-2 tabular-nums"
                   name="doc-issued"
                   type="date"
-                  aria-label="issue date"
+                  aria-label="Issue date"
                   value={doc.issueDate}
                   onChange={(event) => setField("issueDate", event.target.value)}
                 />
@@ -665,12 +665,12 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <span className="mb-1 block text-sm text-muted-foreground">discount</span>
+                <span className="mb-1 block text-sm text-muted-foreground">Discount</span>
                 <div className="flex gap-2">
                   <select
                     className="rounded-md border border-border bg-background px-2 py-2 text-sm"
                     name="discount-mode"
-                    aria-label="discount type"
+                    aria-label="Discount type"
                     value={doc.discountMode}
                     onChange={(event) =>
                       setField("discountMode", event.target.value === "fixed" ? "fixed" : "percent")
@@ -682,7 +682,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                   {doc.discountMode === "percent" ? (
                     <NumericInput
                       name="discount-percent"
-                      label="discount percent"
+                      label="Discount percent"
                       value={doc.discountBp}
                       parse={parsePercentToBp}
                       format={(value) => (value === 0 ? "" : (value / 100).toString())}
@@ -692,7 +692,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                   ) : (
                     <NumericInput
                       name="discount-fixed"
-                      label="discount amount"
+                      label="Discount amount"
                       value={doc.discountMinor}
                       parse={(raw) => parseMinorUnits(raw, digits)}
                       format={(value) => (value === 0 ? "" : formatMoney(value, doc.currency))}
@@ -704,10 +704,10 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
               </div>
               {doc.kind !== "quote" ? (
                 <label className="text-sm">
-                  <span className="mb-1 block text-muted-foreground">amount already paid</span>
+                  <span className="mb-1 block text-muted-foreground">Amount already paid</span>
                   <NumericInput
                     name="doc-paid"
-                    label="amount already paid"
+                    label="Amount already paid"
                     value={doc.amountPaidMinor}
                     parse={(raw) => parseMinorUnits(raw, digits)}
                     format={(value) => (value === 0 ? "" : formatMoney(value, doc.currency))}
@@ -720,7 +720,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
 
             <p className="text-xs text-muted-foreground">
               {doc.kind === "quote"
-                ? "A quote is the same document with its own words: “valid until” instead of a due date, and no payment rows."
+                ? "A quote is the same document with its own words: “Valid until” instead of a due date, and no payment rows."
                 : "Type amounts with your usual decimal mark — the last separator counts. Amounts are held as integers, so nothing drifts."}
             </p>
           </div>
@@ -735,27 +735,27 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={saveProfile}
               >
-                save as my profile
+                Save as my profile
               </button>
               <button
                 type="button"
                 className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={loadProfile}
               >
-                load my profile
+                Load my profile
               </button>
               {profile.name ? (
-                <span className="text-xs text-muted-foreground">profile: {profile.name}</span>
+                <span className="text-xs text-muted-foreground">Profile: {profile.name}</span>
               ) : null}
             </div>
 
             <div className="grid gap-3">
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">from — your business</span>
+                <span className="mb-1 block text-muted-foreground">From — your business</span>
                 <input
                   className="w-full rounded-md border border-border bg-background px-3 py-2"
                   name="from-name"
-                  aria-label="from name, your business"
+                  aria-label="From name, your business"
                   autoComplete="organization"
                   placeholder="Meridian Design Studio"
                   value={doc.fromName}
@@ -763,11 +763,11 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 />
               </label>
               <label className="text-sm">
-                <span className="sr-only">from details, address and tax number</span>
+                <span className="sr-only">From details, address and tax number</span>
                 <textarea
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                   name="from-details"
-                  aria-label="from details, one line each"
+                  aria-label="From details, one line each"
                   rows={3}
                   placeholder={"48 Callow Lane\nBristol BS1 5QT\nVAT GB …"}
                   value={doc.fromDetails}
@@ -782,14 +782,14 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                 onClick={() => logoInputRef.current?.click()}
               >
-                {doc.logoDataUrl ? "replace logo" : "add logo"}
+                {doc.logoDataUrl ? "Replace logo" : "Add logo"}
               </button>
               {doc.logoDataUrl ? (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={doc.logoDataUrl}
-                    alt="your logo, added to the document"
+                    alt="Your logo, added to the document"
                     className="h-10 w-auto rounded border border-border bg-white p-0.5"
                   />
                   <button
@@ -797,7 +797,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                     className="rounded-full border border-border px-3 py-1 text-sm transition-colors hover:border-primary hover:bg-muted/50"
                     onClick={() => setField("logoDataUrl", "")}
                   >
-                    remove logo
+                    Remove logo
                   </button>
                 </>
               ) : null}
@@ -815,11 +815,11 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
             </div>
 
             <label className="block text-sm">
-              <span className="mb-1 block text-muted-foreground">to — your client</span>
+              <span className="mb-1 block text-muted-foreground">To — your client</span>
               <input
                 className="w-full rounded-md border border-border bg-background px-3 py-2"
                 name="to-name"
-                aria-label="to name, your client"
+                aria-label="To name, your client"
                 autoComplete="off"
                 placeholder="Harbor & Lane Coffee Co."
                 value={doc.toName}
@@ -827,11 +827,11 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
               />
             </label>
             <label className="block text-sm">
-              <span className="sr-only">to details, address lines</span>
+              <span className="sr-only">To details, address lines</span>
               <textarea
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                 name="to-details"
-                aria-label="to details, one line each"
+                aria-label="To details, one line each"
                 rows={2}
                 placeholder={"12 Quay Street\nBristol BS1 4HT"}
                 value={doc.toDetails}
@@ -840,11 +840,11 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
             </label>
 
             <label className="block text-sm">
-              <span className="mb-1 block text-muted-foreground">payment details</span>
+              <span className="mb-1 block text-muted-foreground">Payment details</span>
               <textarea
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                 name="doc-payment"
-                aria-label="payment details, one line each"
+                aria-label="Payment details, one line each"
                 rows={2}
                 placeholder={"Sort code · Account\nReference: …"}
                 value={doc.paymentDetails}
@@ -875,16 +875,16 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
               className="text-sm underline transition-colors hover:text-foreground pointer-coarse:min-h-11"
               onClick={addLine}
             >
-              add line
+              Add line
             </button>
 
             <div className="grid gap-3 pt-2 sm:grid-cols-2">
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">notes</span>
+                <span className="mb-1 block text-muted-foreground">Notes</span>
                 <textarea
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                   name="doc-notes"
-                  aria-label="notes"
+                  aria-label="Notes"
                   rows={2}
                   placeholder="Working files are handed over on final payment."
                   value={doc.notes}
@@ -892,11 +892,11 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 />
               </label>
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">terms</span>
+                <span className="mb-1 block text-muted-foreground">Terms</span>
                 <textarea
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                   name="doc-terms"
-                  aria-label="terms"
+                  aria-label="Terms"
                   rows={2}
                   placeholder="Payment due within 30 days."
                   value={doc.terms}
@@ -916,35 +916,35 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
           <div className="space-y-4">
             <dl className="rounded-2xl bg-muted/30 p-4 text-sm">
               <div className="flex items-baseline justify-between py-1">
-                <dt className="text-muted-foreground">subtotal</dt>
+                <dt className="text-muted-foreground">Subtotal</dt>
                 <dd className="tabular-nums">{formatMoney(totals.subtotalMinor, doc.currency)}</dd>
               </div>
               {totals.discountMinor > 0 ? (
                 <div className="flex items-baseline justify-between py-1">
-                  <dt className="text-muted-foreground">discount</dt>
+                  <dt className="text-muted-foreground">Discount</dt>
                   <dd className="tabular-nums">−{formatMoney(totals.discountMinor, doc.currency)}</dd>
                 </div>
               ) : null}
               {totals.taxGroups.map((group) => (
                 <div key={group.bp} className="flex items-baseline justify-between py-1">
                   <dt className="text-muted-foreground">
-                    {group.bp === 0 ? "tax (0%)" : `tax at ${(group.bp / 100).toString()}%`}
+                    {group.bp === 0 ? "Tax (0%)" : `Tax at ${(group.bp / 100).toString()}%`}
                   </dt>
                   <dd className="tabular-nums">{formatMoney(group.taxMinor, doc.currency)}</dd>
                 </div>
               ))}
               <div className="mt-1 flex items-baseline justify-between border-t border-border pt-2 font-medium">
-                <dt>total</dt>
+                <dt>Total</dt>
                 <dd className="tabular-nums">{formatMoney(totals.totalMinor, doc.currency)}</dd>
               </div>
               {doc.kind !== "quote" ? (
                 <>
                   <div className="flex items-baseline justify-between py-1">
-                    <dt className="text-muted-foreground">amount paid</dt>
+                    <dt className="text-muted-foreground">Amount paid</dt>
                     <dd className="tabular-nums">{formatMoney(totals.amountPaidMinor, doc.currency)}</dd>
                   </div>
                   <div className="mt-1 flex items-baseline justify-between rounded-xl bg-primary/10 px-3 py-2 font-medium">
-                    <dt>balance due</dt>
+                    <dt>Balance due</dt>
                     <dd className="tabular-nums">{formatMoney(totals.balanceMinor, doc.currency)}</dd>
                   </div>
                 </>
@@ -989,7 +989,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
                 className="min-w-[100px] rounded-full border border-border px-4 py-2 transition-colors hover:border-primary hover:bg-muted/50 pointer-coarse:min-h-11"
                 onClick={() => fileInputRef.current?.click()}
               >
-                import JSON
+                Import JSON
               </button>
               <input
                 ref={fileInputRef}
@@ -1005,7 +1005,7 @@ export function CapyInvoice({ initialKind }: { initialKind?: DocKind } = {}) {
             </div>
 
             <details className="text-xs text-muted-foreground">
-              <summary className="cursor-pointer select-none underline">paper size</summary>
+              <summary className="cursor-pointer select-none underline">Paper size</summary>
               <PaperPicker />
             </details>
 
@@ -1045,7 +1045,7 @@ function PaperPicker() {
     <select
       className="mt-2 rounded-full border border-border bg-background px-3 py-2 text-sm transition-colors hover:border-primary hover:bg-muted/50"
       name="paper"
-      aria-label="paper size"
+      aria-label="Paper size"
       value={paper}
       onChange={(event) => setPaperSize(event.target.value === "LETTER" ? "LETTER" : "A4")}
     >
