@@ -98,6 +98,7 @@ const PAGES = [
   "/favicon-generator", "/png-to-webp", "/png-to-jpg", "/webp-to-png",
   "/jpg-to-png", "/compress-image", "/wifi-qr-code-generator",
   "/vcard-qr-code-generator", "/og-image-size", "/contrast-checker", "/gradient-generator",
+  "/color-picker-from-image",
   "/event-qr-code-generator", "/website-color-extractor", "/midjourney-prompt-generator",
   "/free-invoice-generator", "/quote-template", "/receipt-maker",
   "/sitemap.xml", "/robots.txt", "/llms.txt", "/og.png",

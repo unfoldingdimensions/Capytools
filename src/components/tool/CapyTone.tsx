@@ -11,6 +11,7 @@ import { StartColors } from "@/components/capytone/StartColors";
 import { BlendMode } from "@/components/capytone/BlendMode";
 import { CheckMode } from "@/components/capytone/CheckMode";
 import { ExtractMode } from "@/components/capytone/ExtractMode";
+import { ImageMode } from "@/components/capytone/ImageMode";
 import { GenerateInputs } from "@/components/capytone/GenerateMode";
 import { PosterStage } from "@/components/capytone/PosterStage";
 import { Pill } from "@/components/capytone/controls";
@@ -26,15 +27,16 @@ import type { CardFormat } from "@/lib/capytone/types";
 import type { FamilyFilter } from "@/lib/capytone/engine/families";
 
 /**
- * The colour hub (Phase B + C): five modes on one page — Feel (the original
+ * The colour hub (Phase B + C): six modes on one page — Feel (the original
  * mood flow, untouched), Generate (harmony palettes), Check (WCAG + APCA),
  * Blend (gradient builder), Extract (a URL's palette, via the suite's one
- * user-URL route). The plan's §6b.3 architecture: Feel and Generate share
+ * user-URL route), Image (a photo's palette and a pixel picker, entirely in
+ * the tab — no route). The plan's §6b.3 architecture: Feel and Generate share
  * the poster stage; the other modes own their output cards; the ?mood=&s=
  * share URLs stay byte-for-byte and no new params exist.
  */
 
-export type ModeId = "feel" | "generate" | "check" | "blend" | "extract";
+export type ModeId = "feel" | "generate" | "check" | "blend" | "extract" | "image";
 
 const MODES: readonly { id: ModeId; label: string }[] = [
   { id: "feel", label: "Feel" },
@@ -42,6 +44,7 @@ const MODES: readonly { id: ModeId; label: string }[] = [
   { id: "check", label: "Check" },
   { id: "blend", label: "Blend" },
   { id: "extract", label: "Extract" },
+  { id: "image", label: "Image" },
 ];
 
 /** The house sage — Generate mode's deterministic default base colour. */
@@ -276,13 +279,15 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
         <CheckMode palette={palette} />
       ) : mode === "blend" ? (
         <BlendMode palette={palette} />
-      ) : (
+      ) : mode === "extract" ? (
         <ExtractMode
           onJumpToFeel={(phrase) => {
             setMode("feel");
             pick(phrase);
           }}
         />
+      ) : (
+        <ImageMode />
       )}
     </div>
   );
