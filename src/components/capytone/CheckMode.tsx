@@ -124,12 +124,24 @@ export function CheckMode({
               Swap ⇅
             </Pill>
             {palette ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className={labelClass}>From the card</span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {ROLES.map((role) => (
-                    <RoleSwatch key={role} palette={palette} role={role} onLoad={onFg} />
-                  ))}
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className={labelClass}>From the card, as text</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {ROLES.map((role) => (
+                      <RoleSwatch key={role} palette={palette} role={role} onLoad={onFg} />
+                    ))}
+                  </div>
+                </div>
+                {/* The natural "ink vs field" check: the card's own roles,
+                    one tap into the background slot too. */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className={labelClass}>From the card, as background</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {ROLES.map((role) => (
+                      <RoleSwatch key={role} palette={palette} role={role} onLoad={onBg} />
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : null}
