@@ -89,8 +89,17 @@ export function ColorPick({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const parsed = toOklchOrNull(value);
-  const pickerValue = parsed ? formatHex(parse(value.trim())!) : "#000000";
+  // While the user types, invalid text lives in a local draft: the note
+  // shows here, but the parent keeps its last valid colour — so Check's
+  // verdicts and Blend's ramp hold steady instead of vanishing per
+  // keystroke, and the picker shows the last valid colour rather than
+  // snapping to black. Valid text pushes through immediately.
+  const [draft, setDraft] = useState<string | null>(null);
+  const shown = draft ?? value;
+  const parsed = toOklchOrNull(shown);
+  const pickerHex = parsed
+    ? (formatHex(parse(shown.trim())!) ?? "#000000")
+    : (formatHex(parse(value.trim())!) ?? "#000000");
   return (
     <div className="flex flex-wrap items-center gap-2">
       <label htmlFor={`${id}-text`} className={labelClass}>
@@ -99,15 +108,27 @@ export function ColorPick({
       <input
         type="color"
         aria-label={`${label} picker`}
-        value={pickerValue}
-        onChange={(e) => onChange(e.target.value)}
+        value={pickerHex}
+        onChange={(e) => {
+          setDraft(null);
+          onChange(e.target.value);
+        }}
         className="size-7 cursor-pointer rounded-full border border-border bg-transparent p-0.5"
       />
       <Input
         id={`${id}-text`}
         type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={shown}
+        onChange={(e) => {
+          const text = e.target.value;
+          if (toOklchOrNull(text)) {
+            setDraft(null);
+            onChange(text);
+          } else {
+            setDraft(text);
+          }
+        }}
+        onBlur={() => setDraft(null)}
         aria-label={label}
         className="w-28 bg-muted/40 font-mono text-xs"
       />
