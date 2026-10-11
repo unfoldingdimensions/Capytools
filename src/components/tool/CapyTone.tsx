@@ -65,6 +65,15 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
 
   const [mode, setMode] = useState<ModeId>(initialMode);
 
+  // The card Check and Blend review: the last card-owning mode the user
+  // visited. Previously they only ever saw the feel card, so a palette just
+  // built in Generate was unreachable there and the defaults showed instead.
+  const [cardSource, setCardSource] = useState<"feel" | "generate">("feel");
+  const switchMode = useCallback((next: ModeId) => {
+    if (next === "feel" || next === "generate") setCardSource(next);
+    setMode(next);
+  }, []);
+
   // --- Feel (the mood flow, exactly as Phase A shipped it) ---
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [seed, setSeed] = useState<string | null>(null);
@@ -117,6 +126,10 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
       seed: genJitter,
     });
   }, [genHex, genHarmony, genField, genJitter]);
+
+  // Declared after `generated`: the card Check and Blend review follows the
+  // last card-owning mode the user visited.
+  const cardPalette = cardSource === "generate" ? generated : palette;
 
   // Deep-link: ?mood=&s= reproduces the card exactly.
   // A proof-band hand-off arrives in the fragment instead, so the phrase is
@@ -190,7 +203,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           <Pill
             key={m.id}
             active={mode === m.id}
-            onClick={() => setMode(m.id)}
+            onClick={() => switchMode(m.id)}
             label={`Switch to ${m.label.toLowerCase()} mode`}
           >
             {m.label}
@@ -304,13 +317,13 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           </StageCard>
         </>
       ) : mode === "check" ? (
-        <CheckMode palette={palette} />
+        <CheckMode palette={cardPalette} />
       ) : mode === "blend" ? (
-        <BlendMode palette={palette} />
+        <BlendMode palette={cardPalette} />
       ) : mode === "extract" ? (
         <ExtractMode
           onJumpToFeel={(phrase) => {
-            setMode("feel");
+            switchMode("feel");
             pick(phrase);
           }}
         />
