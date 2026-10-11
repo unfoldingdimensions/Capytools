@@ -59,9 +59,8 @@ const ARROWS: Record<string, readonly [number, number]> = {
   ArrowDown: [0, 1],
 };
 
-/** The small bridge-pill voice (Check / Generate) under each swatch. */
-const SWATCH_ACT =
-  "rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground";
+/** The small bridge-pill voice (Check / Generate) under each swatch: the house button, smaller. */
+const SWATCH_ACT = cn(BTN, "px-2.5 font-mono text-[12px]");
 
 const CHECKER =
   "repeating-conic-gradient(var(--border) 0% 25%, var(--card) 0% 50%) 0 0 / 16px 16px";
