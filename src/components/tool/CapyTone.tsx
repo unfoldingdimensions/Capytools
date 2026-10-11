@@ -110,8 +110,10 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
     if (!parsed) return;
     setGenHex(v);
     // The field follows the colour: a dark pick makes a deep card, a light
-    // pick a light one; mid-tones keep whatever is selected.
-    const implied = fieldForBaseLightness(parsed.l);
+    // pick a light one; mid-tones keep whatever is selected. Not on 3/4-digit
+    // shorthands: typing #6b6b6b passes through #6b6, which is light, and
+    // would leave a mid-tone's card on the wrong field.
+    const implied = /^#?[0-9a-f]{3,4}$/i.test(v.trim()) ? null : fieldForBaseLightness(parsed.l);
     if (implied) setGenField(implied);
   }, []);
 
