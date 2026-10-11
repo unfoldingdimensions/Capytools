@@ -158,11 +158,15 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Remix only when the page itself has focus. Exempting just inputs
+      // meant Space on a focused pill/button cancelled its native
+      // activation (preventDefault) and remixed instead — keyboard users
+      // could not activate mood pills at all.
       if (
         e.code === "Space" &&
         submitted &&
         mode === "feel" &&
-        !(e.target instanceof HTMLInputElement)
+        (e.target === document.body || e.target === document.documentElement)
       ) {
         e.preventDefault();
         remix();
