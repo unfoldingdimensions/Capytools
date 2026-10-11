@@ -10,13 +10,14 @@ import { MoodPills } from "@/components/capytone/MoodPills";
 import { StartColors } from "@/components/capytone/StartColors";
 import { BlendMode } from "@/components/capytone/BlendMode";
 import { CheckMode } from "@/components/capytone/CheckMode";
-import { ExtractMode } from "@/components/capytone/ExtractMode";
+import { ExtractMode, type ExtractStatus } from "@/components/capytone/ExtractMode";
 import { ImageMode } from "@/components/capytone/ImageMode";
 import { GenerateInputs } from "@/components/capytone/GenerateMode";
 import { PosterStage } from "@/components/capytone/PosterStage";
 import { Pill } from "@/components/capytone/controls";
 import { generatePalette } from "@/lib/capytone/engine/generate";
 import type { LayoutName } from "@/lib/capytone/render";
+import type { GradientType, InterpSpace } from "@/lib/capytone/blend";
 import {
   harmonyPalette,
   fieldForBaseLightness,
@@ -130,6 +131,27 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
   // Declared after `generated`: the card Check and Blend review follows the
   // last card-owning mode the user visited.
   const cardPalette = cardSource === "generate" ? generated : palette;
+
+  // Check / Blend / Extract state lives here so mode switches keep it —
+  // those components unmount, and the old local state lost your work on
+  // every switch. Untouched state follows the current card (the seeded view
+  // the modes used to initialise with); once edited, it persists.
+  const [checkEdits, setCheckEdits] = useState<{ fg?: string; bg?: string } | null>(null);
+  const checkFg = checkEdits?.fg ?? cardPalette?.ink ?? "#1a1a1a";
+  const checkBg = checkEdits?.bg ?? cardPalette?.bg ?? "#f9f9f7";
+
+  const [blendEdits, setBlendEdits] = useState<
+    Partial<{ stops: string[]; type: GradientType; angle: number; interp: InterpSpace }> | null
+  >(null);
+  const blendStops =
+    blendEdits?.stops ??
+    (cardPalette ? [cardPalette.bg, cardPalette.accent] : ["#8e9b7e", "#c07952"]);
+  const blendType = blendEdits?.type ?? "linear";
+  const blendAngle = blendEdits?.angle ?? 135;
+  const blendInterp = blendEdits?.interp ?? "oklab";
+
+  const [extractUrl, setExtractUrl] = useState("");
+  const [extractStatus, setExtractStatus] = useState<ExtractStatus>({ state: "idle" });
 
   // Deep-link: ?mood=&s= reproduces the card exactly.
   // A proof-band hand-off arrives in the fragment instead, so the phrase is
@@ -317,11 +339,30 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           </StageCard>
         </>
       ) : mode === "check" ? (
-        <CheckMode palette={cardPalette} />
+        <CheckMode
+          palette={cardPalette}
+          fg={checkFg}
+          bg={checkBg}
+          onFg={(fg) => setCheckEdits((prev) => ({ ...prev, fg }))}
+          onBg={(bg) => setCheckEdits((prev) => ({ ...prev, bg }))}
+        />
       ) : mode === "blend" ? (
-        <BlendMode palette={cardPalette} />
+        <BlendMode
+          stops={blendStops}
+          type={blendType}
+          angle={blendAngle}
+          interp={blendInterp}
+          onStops={(stops) => setBlendEdits((prev) => ({ ...prev, stops }))}
+          onType={(type) => setBlendEdits((prev) => ({ ...prev, type }))}
+          onAngle={(angle) => setBlendEdits((prev) => ({ ...prev, angle }))}
+          onInterp={(interp) => setBlendEdits((prev) => ({ ...prev, interp }))}
+        />
       ) : mode === "extract" ? (
         <ExtractMode
+          url={extractUrl}
+          onUrl={setExtractUrl}
+          status={extractStatus}
+          onStatus={setExtractStatus}
           onJumpToFeel={(phrase) => {
             switchMode("feel");
             pick(phrase);

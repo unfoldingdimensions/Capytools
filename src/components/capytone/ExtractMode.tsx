@@ -11,7 +11,7 @@
  * nearest curated stop (the engine's stop commands match phrases, not hexes).
  */
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import { StageCard } from "@/components/stage-card";
 import { ErrorCard } from "@/components/tool/ErrorCard";
@@ -103,22 +103,32 @@ const FAILURE_NOTICES: Record<FailureKind, { title: string; body: string; retry:
   },
 };
 
-type Status =
+/** Lifted to the hub so an extraction survives mode switches. */
+export type ExtractStatus =
   | { state: "idle" }
   | { state: "loading" }
   | { state: "done"; result: ExtractResult }
   | { state: "error"; failure: FailureKind };
 
-export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) => void }) {
-  const [url, setUrl] = useState("");
-  const [status, setStatus] = useState<Status>({ state: "idle" });
-
+export function ExtractMode({
+  url,
+  onUrl,
+  status,
+  onStatus,
+  onJumpToFeel,
+}: {
+  url: string;
+  onUrl: (url: string) => void;
+  status: ExtractStatus;
+  onStatus: (status: ExtractStatus) => void;
+  onJumpToFeel: (phrase: string) => void;
+}) {
   const submit = useCallback(async () => {
     const raw = url.trim();
     if (raw === "") return;
     // Bare "example.com" is what people type; the server remains the gate.
     const target = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
-    setStatus({ state: "loading" });
+    onStatus({ state: "loading" });
     try {
       const response = await fetch("/api/extract-palette", {
         method: "POST",
@@ -127,17 +137,17 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
       });
       const data = (await response.json()) as ExtractResult | { error: string };
       if (!response.ok || !("palette" in data)) {
-        setStatus({
+        onStatus({
           state: "error",
           failure: ("error" in data && data.error) as FailureKind,
         });
         return;
       }
-      setStatus({ state: "done", result: data });
+      onStatus({ state: "done", result: data });
     } catch {
-      setStatus({ state: "error", failure: "network" });
+      onStatus({ state: "error", failure: "network" });
     }
-  }, [url]);
+  }, [url, onStatus]);
 
   return (
     <>
@@ -167,7 +177,7 @@ export function ExtractMode({ onJumpToFeel }: { onJumpToFeel: (phrase: string) =
             autoComplete="url"
             spellCheck={false}
             value={url}
-            onChange={(event) => setUrl(event.target.value)}
+            onChange={(event) => onUrl(event.target.value)}
             placeholder="example.com"
             disabled={status.state === "loading"}
             aria-label="Website address to read colours from"
