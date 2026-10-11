@@ -209,24 +209,30 @@ export function harmonyPalette({ baseHue, baseColor, harmony, field, seed }: Har
   // Field lightness: a picked colour IS the field — its lightness and
   // chroma pass through verbatim and are gamut-clamped at their own (L, H)
   // below. Only a pick outside the chosen regime (the Field pill set
-  // against the colour) is brought inside. Role lightness then translates
-  // by the same delta, so the band's internal spacing survives mid-tone
-  // and clamped fields instead of washing them toward the band's own pole.
+  // against the colour) is brought inside.
   const [regimeLo, regimeHi] = BASE_FIELD_L[field];
+  const inkPole = field === "light" ? 0.22 : 0.94;
+  const bandMid = (bands.bg.l[0] + bands.bg.l[1]) / 2;
   let bgL: number;
   let bgC: number;
-  let roleLift = 0;
   if (baseColor) {
     bgL = Math.min(regimeHi, Math.max(regimeLo, baseColor.l));
     bgC = baseColor.c;
-    roleLift = bgL - (bands.bg.l[0] + bands.bg.l[1]) / 2;
   } else {
     const bgDraw = drawBand(bands.bg);
     bgL = bgDraw.l;
     bgC = bgDraw.c;
   }
-  // Keeps a translated band inside the physical range at extreme fields.
-  const roleL = (l: number) => Math.min(0.985, Math.max(0.02, l + roleLift));
+  // Each role keeps its PROPORTIONAL place between the field and the ink
+  // pole, not a fixed offset: translating every band by (bgL - bandMid)
+  // slid the accent onto the ink on fields far from the band's middle
+  // (#2f4a80 deep: accent/ink 1.01:1). At bgL = bandMid this is the band
+  // itself; without a base colour bgL is drawn, so the map is the identity
+  // only on average — the band still decides, as before.
+  const roleL = (l: number) =>
+    baseColor
+      ? Math.min(0.985, Math.max(0.02, bgL + ((l - bandMid) * (inkPole - bgL)) / (inkPole - bandMid)))
+      : l;
 
   const midDraw = drawBand(bands.mid);
   const accentDraw = drawBand(bands.accent);
@@ -249,7 +255,7 @@ export function harmonyPalette({ baseHue, baseColor, harmony, field, seed }: Har
   // windows above guarantee bg.l sits on the field's own side of 0.5 — and
   // the contrast walk finishes the job (it only moves lightness, never hue).
   const inkStart: Oklch = {
-    l: field === "light" ? 0.22 : 0.94,
+    l: inkPole,
     c: Math.min(bg.c, 0.03),
     h: hue,
   };

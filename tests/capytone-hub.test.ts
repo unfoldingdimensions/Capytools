@@ -261,12 +261,14 @@ describe("check verdict logic table", () => {
     expect(r.wcag.aaaLarge).toBe(aaal);
   });
 
-  it("the guidance band table reads |Lc| on the published ladder (90/75/45/30/15)", () => {
+  it("the guidance band table reads |Lc| on the published ladder (90/75/60/45/30/15)", () => {
     expect(apcaBandOf(106)).toBe("preferred-body");
     expect(apcaBandOf(90)).toBe("preferred-body");
     expect(apcaBandOf(89.9)).toBe("body-min");
     expect(apcaBandOf(75)).toBe("body-min");
-    expect(apcaBandOf(60)).toBe("large"); // 60 is no named level — it clears large-text minimum
+    expect(apcaBandOf(74.9)).toBe("content-min");
+    expect(apcaBandOf(60)).toBe("content-min"); // the published ladder is 90/75/60/45/30/15
+    expect(apcaBandOf(59.9)).toBe("large");
     expect(apcaBandOf(45)).toBe("large");
     expect(apcaBandOf(31)).toBe("text-min");
     expect(apcaBandOf(16)).toBe("non-text");
@@ -435,6 +437,31 @@ describe("the picked base colour is honoured (review P0)", () => {
         expect(contrastRatio(p.ink, p.bg), `${hex}/${field}/${seed} contrast`).toBeGreaterThanOrEqual(4.5);
       }
     }
+  });
+
+  it("the accent stays clearly apart from the ink and the field, whatever the pick", () => {
+    // The first cut translated every role band by (field − band middle), which
+    // slid the accent onto the ink: #2f4a80 deep gave accent/ink 1.01:1 and
+    // #8a3b2a forced light a near-black accent beside black ink.
+    let minInk = Infinity;
+    let minField = Infinity;
+    for (const hex of ["#2f4a80", "#8a3b2a", "#1a1a2e", "#8e9b7e", "#d9a441", "#f4f1ea", "#0b0b0b", "#C74FA8", "#5f7a72"]) {
+      const base = toOklchOrNull(hex)!;
+      for (const field of ["light", "deep"] as const) {
+        for (const harmony of HARMONIES.map((r) => r.id)) {
+          for (const seed of ["", "ab12", "zz9"]) {
+            const p = harmonyPalette({ baseHue: base.h, baseColor: base, harmony, field, seed });
+            minInk = Math.min(minInk, contrastRatio(p.accent, p.ink));
+            minField = Math.min(minField, contrastRatio(p.accent, p.bg));
+          }
+        }
+      }
+    }
+    // Measured floors: 1.38 (ink) / 1.67 (field). Without a picked colour the
+    // engine's own floor is 1.57 — a pick at a regime's edge (deep at L 0.45)
+    // leaves less room, but no longer collapses (the first cut hit 1.01).
+    expect(minInk).toBeGreaterThanOrEqual(1.35);
+    expect(minField).toBeGreaterThanOrEqual(1.6);
   });
 
   it("role hues still land on the harmony offsets when a base colour is given", () => {
