@@ -135,11 +135,19 @@ export function ExtractMode({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: target }),
       });
-      const data = (await response.json()) as ExtractResult | { error: string };
-      if (!response.ok || !("palette" in data)) {
+      // A proxy 502 page or a truncated body arrives as non-JSON; parse
+      // defensively so the failure reads as the truth ("upstream") instead
+      // of the JSON throw landing in the catch as a network drop.
+      let data: ExtractResult | { error: string } | null = null;
+      try {
+        data = (await response.json()) as ExtractResult | { error: string };
+      } catch {
+        data = null;
+      }
+      if (!response.ok || !data || !("palette" in data)) {
         onStatus({
           state: "error",
-          failure: ("error" in data && data.error) as FailureKind,
+          failure: data && "error" in data ? (data.error as FailureKind) : "upstream",
         });
         return;
       }
