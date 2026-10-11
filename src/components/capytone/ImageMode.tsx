@@ -59,6 +59,9 @@ const ARROWS: Record<string, readonly [number, number]> = {
   ArrowDown: [0, 1],
 };
 
+/** The small bridge-pill voice (Check / Generate) under each swatch: the house button, smaller. */
+const SWATCH_ACT = cn(BTN, "px-2.5 font-mono text-[12px]");
+
 const CHECKER =
   "repeating-conic-gradient(var(--border) 0% 25%, var(--card) 0% 50%) 0 0 / 16px 16px";
 
@@ -79,7 +82,15 @@ function readPixel(img: HTMLImageElement, x: number, y: number): Picked {
   return { x, y, hex: a === 0 ? null : rgbToHex(r, g, b), alpha: a };
 }
 
-export function ImageMode() {
+export function ImageMode({
+  onSendToCheck,
+  onSendToGenerate,
+}: {
+  /** Hand a hex to the hub's Check mode as the text colour. */
+  onSendToCheck?: (hex: string) => void;
+  /** Hand a hex to the hub's Generate mode as its base colour. */
+  onSendToGenerate?: (hex: string) => void;
+}) {
   const fileInput = useRef<HTMLInputElement>(null);
   const display = useRef<HTMLCanvasElement>(null);
   const copiedTimer = useRef<number | undefined>(undefined);
@@ -87,13 +98,13 @@ export function ImageMode() {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [picked, setPicked] = useState<Picked | null>(null);
   const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failedKind, setFailedKind] = useState<"decode" | "unexpected" | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
 
   const processFile = useCallback(async (file: File) => {
     setLoading(true);
-    setFailed(false);
+    setFailedKind(null);
     try {
       const { img, width, height } = await decodeImage(file);
       const { w, h } = fitWithin(width, height, SAMPLE_MAX_SIDE);
@@ -102,8 +113,11 @@ export function ImageMode() {
       const palette = paletteFromPixels(ctx.getImageData(0, 0, w, h).data);
       setLoaded({ img, width, height, name: file.name, palette });
       setPicked(null);
-    } catch {
-      setFailed(true);
+    } catch (error) {
+      // The decode step has its own honest copy; anything else (a failed
+      // palette build, a canvas refusal) is a different failure and gets a
+      // different sentence.
+      setFailedKind(error instanceof DecodeFailedError ? "decode" : "unexpected");
     } finally {
       setLoading(false);
     }
@@ -193,12 +207,16 @@ export function ImageMode() {
           }}
         />
 
-        {failed ? (
+        {failedKind ? (
           <div className="mt-4">
             <ErrorCard
-              title="That file wouldn't open."
-              body="The browser's decoder refused it — some CMYK JPEGs, HEIC photos outside Safari, and SVGs without a size do. If it opens anywhere else, re-save it as a PNG or JPEG and bring that copy back."
-              onRetry={() => setFailed(false)}
+              title={failedKind === "decode" ? "That file wouldn't open." : "That file wouldn't read."}
+              body={
+                failedKind === "decode"
+                  ? "The browser's decoder refused it — some CMYK JPEGs, HEIC photos outside Safari, and SVGs without a size do. If it opens anywhere else, re-save it as a PNG or JPEG and bring that copy back."
+                  : "The file opened, but building its palette failed — this is a tool fault, not a file fault. Trying again usually works; a different photo will too."
+              }
+              onRetry={() => setFailedKind(null)}
             />
           </div>
         ) : loaded ? (
@@ -281,6 +299,30 @@ export function ImageMode() {
                           colour shown is the pixel’s own, without the see-through.
                         </p>
                       ) : null}
+                      {onSendToCheck || onSendToGenerate ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {onSendToCheck ? (
+                            <button
+                              type="button"
+                              onClick={() => onSendToCheck(formats.hex)}
+                              aria-label="Check this colour's contrast"
+                              className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                            >
+                              Check contrast
+                            </button>
+                          ) : null}
+                          {onSendToGenerate ? (
+                            <button
+                              type="button"
+                              onClick={() => onSendToGenerate(formats.hex)}
+                              aria-label="Generate a palette from this colour"
+                              className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                            >
+                              Generate from it
+                            </button>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -300,7 +342,7 @@ export function ImageMode() {
           </div>
         ) : null}
 
-        {!failed ? (
+        {failedKind === null ? (
           <button
             type="button"
             onClick={() => fileInput.current?.click()}
@@ -360,30 +402,55 @@ export function ImageMode() {
             </p>
             <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {colours.map((colour) => (
-                <button
+                <div
                   key={colour.hex}
-                  type="button"
-                  onClick={() => copy(`swatch-${colour.hex}`, colour.hex)}
-                  aria-label={copied === `swatch-${colour.hex}` ? "Copied" : `Copy ${colour.hex}`}
-                  className={cn(
-                    "group overflow-hidden rounded-2xl border border-border/70 bg-card text-left transition-colors hover:border-primary",
-                    FOCUS,
-                  )}
+                  className="overflow-hidden rounded-2xl border border-border/70 bg-card transition-colors hover:border-primary"
                 >
-                  <span
-                    aria-hidden
-                    className="block h-16 border-b border-border/50"
-                    style={{ backgroundColor: colour.hex }}
-                  />
-                  <span className="flex items-baseline justify-between gap-2 px-3 py-2 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <span className="font-mono text-xs">
-                      {copied === `swatch-${colour.hex}` ? "Copied" : colour.hex}
+                  <button
+                    type="button"
+                    onClick={() => copy(`swatch-${colour.hex}`, colour.hex)}
+                    aria-label={copied === `swatch-${colour.hex}` ? "Copied" : `Copy ${colour.hex}`}
+                    className={cn("group block w-full text-left", FOCUS)}
+                  >
+                    <span
+                      aria-hidden
+                      className="block h-16 border-b border-border/50"
+                      style={{ backgroundColor: colour.hex }}
+                    />
+                    <span className="flex items-baseline justify-between gap-2 px-3 py-2 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                      <span className="font-mono text-xs">
+                        {copied === `swatch-${colour.hex}` ? "Copied" : colour.hex}
+                      </span>
+                      <span className="font-mono text-[12px] opacity-70">
+                        {Math.max(1, Math.round((colour.count / loaded.palette.sampled) * 100))}%
+                      </span>
                     </span>
-                    <span className="font-mono text-[12px] opacity-70">
-                      {Math.max(1, Math.round((colour.count / loaded.palette.sampled) * 100))}%
-                    </span>
-                  </span>
-                </button>
+                  </button>
+                  {onSendToCheck || onSendToGenerate ? (
+                    <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
+                      {onSendToCheck ? (
+                        <button
+                          type="button"
+                          onClick={() => onSendToCheck(colour.hex)}
+                          aria-label={`Check ${colour.hex}'s contrast`}
+                          className={SWATCH_ACT}
+                        >
+                          Check
+                        </button>
+                      ) : null}
+                      {onSendToGenerate ? (
+                        <button
+                          type="button"
+                          onClick={() => onSendToGenerate(colour.hex)}
+                          aria-label={`Generate a palette from ${colour.hex}`}
+                          className={SWATCH_ACT}
+                        >
+                          Generate
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               ))}
             </div>
 

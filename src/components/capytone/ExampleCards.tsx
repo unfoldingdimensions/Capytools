@@ -20,6 +20,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ensureFontsReady } from "@/lib/capytone/fonts";
 import { renderCard, type LayoutName } from "@/lib/capytone/render";
 import { generatePalette } from "@/lib/capytone/engine/generate";
 
@@ -61,6 +62,10 @@ const PICKS: { mood: string; layout: LayoutName }[] = [
   { mood: "lavender haze", layout: "minimal" },
   { mood: "peach morning", layout: "editorial" },
   { mood: "sea foam", layout: "minimal" },
+  // 32nd entry: keeps every page a full 2×2 — 31 picks left the last page
+  // one slot short of the grid every cycle. "Sakura" is a real keyword route
+  // to cherry-blossom (editorial here, where "cherry blossom" is minimal).
+  { mood: "sakura", layout: "editorial" },
 ];
 
 const VISIBLE = 4;
@@ -81,7 +86,10 @@ export function ExampleCards() {
   const drawSlice = useCallback((p: number) => {
     const items = PICKS.slice(p * VISIBLE, p * VISIBLE + VISIBLE);
     const dpr = window.devicePixelRatio || 1;
-    void document.fonts.ready.then(() => {
+    // ensureFontsReady, not bare document.fonts.ready: canvas text never
+    // triggers @font-face loads, so ready alone can settle before the faces
+    // ever fetched and the gallery paints fallbacks.
+    void ensureFontsReady().then(() => {
       items.forEach(({ mood, layout }, i) => {
         const canvas = refs.current[i];
         if (!canvas) return;
@@ -94,14 +102,13 @@ export function ExampleCards() {
     });
   }, []);
 
+  // Draw on every page change, mount included. The canvases persist (stable
+  // keys), so only their contents need repainting for the new slice — and
+  // skipping page 0 here is what broke the cycle: on wrap, page 0's canvases
+  // kept the last page's art (or came back blank after the short page
+  // remounted two of them) under page-0 labels and links.
   useEffect(() => {
-    drawSlice(0);
-  }, [drawSlice]);
-
-  // Redraw whenever the page changes — the canvases persist (stable keys), so
-  // only their contents need repainting for the new slice.
-  useEffect(() => {
-    if (page !== 0) drawSlice(page);
+    drawSlice(page);
   }, [page, drawSlice]);
 
   useEffect(() => {

@@ -371,8 +371,9 @@ describe("start-color stops", () => {
 
 describe("start-color fidelity", () => {
   // The chip's hex is a promise: the generated FIELD must land on the tapped
-  // color, not merely share its hue family. Hue ±12° and lightness ±0.14
-  // absorb seed wander while still failing a regression to "hue-only" stops.
+  // color, not merely share its hue family. Hue ±10°, lightness ±0.14 and
+  // chroma ≥ 0.72x absorb seed wander (measured worsts: 8° / 0.10 / 0.76x)
+  // while still failing a regression to "hue-only" or pastelised stops.
   it("generated field matches the tapped stop color", () => {
     for (const group of Object.values(START_COLORS)) {
       for (const stop of group.stops) {
@@ -381,9 +382,9 @@ describe("start-color fidelity", () => {
         const got = toOklchOrNull(palette.bg)!;
         const rawHue = Math.abs(got.h - want.h) % 360;
         const dHue = rawHue > 180 ? 360 - rawHue : rawHue;
-        // synthesize wanders ±18° around the pinned hue by design
-        expect(dHue, `${stop.phrase} hue`).toBeLessThanOrEqual(20);
+        expect(dHue, `${stop.phrase} hue`).toBeLessThanOrEqual(10);
         expect(Math.abs(got.l - want.l), `${stop.phrase} lightness`).toBeLessThanOrEqual(0.14);
+        expect(got.c, `${stop.phrase} chroma survives`).toBeGreaterThanOrEqual(want.c * 0.72);
       }
     }
   });
@@ -494,6 +495,43 @@ describe("mood families", () => {
       expect(assignmentOf(id).hueFamily).toBeDefined();
     }
   });
+
+  it("wrap-straddling anchors file by their circular mean hue", () => {
+    // cherry-blossom's anchors [20°, 350°] average to 5° the short way round —
+    // a pink pastel is warm. A naive arithmetic mean lands at 185° and filed
+    // it under Cool. carnival-night straddles the same wrap.
+    expect(assignmentOf("cherry-blossom").hueFamily, "cherry-blossom").toBe("warm");
+    expect(assignmentOf("carnival-night").hueFamily, "carnival-night").toBe("warm");
+    // And the pink pastel left the Cool filter.
+    expect(anchorsForFilter("cool")).not.toContain("cherry-blossom");
+    expect(anchorsForFilter("warm")).toContain("cherry-blossom");
+  });
+
+  it("the popping tag means guaranteed chroma, not possible chroma", () => {
+    // The tag keyed on chromaRange's TOP, so quiet moods whose accent may
+    // spike (fireside 0.12, cinnamon-cafe 0.115) sat under "festival-grade
+    // chroma" beside carnival and confetti. Keying on the range FLOOR keeps
+    // exactly the anchors that are always loud — the floors separate the
+    // festival trio (≥ 0.09) from every other anchor (≤ 0.08).
+    const popping = anchorsForFilter("popping");
+    for (const id of ["diwali-lights", "carnival-night", "confetti-pop"]) {
+      expect(popping, `${id} stays popping`).toContain(id);
+    }
+    for (const id of [
+      "fireside-night",
+      "cinnamon-cafe",
+      "honeyed-afternoon",
+      "harvest-fair",
+      "brass-band-evening",
+      "moss-carpet",
+      "fern-gully",
+    ]) {
+      expect(popping, `${id} is not popping`).not.toContain(id);
+      // …and every demoted anchor stays reachable from some other filter.
+      const stillReachable = FILTER_GROUPS.some((g) => anchorsForFilter(g.id).includes(id));
+      expect(stillReachable, `${id} reachable`).toBe(true);
+    }
+  });
 });
 
 // --- Phase A port pins (new) ---
@@ -562,15 +600,18 @@ describe("port pins — byte-identical palettes carried over from the standalone
       ink: "#301718",
       grain: 0.22,
     });
+    // Regenerated 2026-10-11: the stop-fidelity fix (±8° wander, the stop's
+    // own chroma ceiling) deliberately shifted stop-command outputs; the
+    // anchor pins above are untouched because the mood engine is.
     expect(generatePalette("start from warm orange", { seed: "abc" }).palette).toEqual({
       mood: "warm orange",
       slug: "warm-orange",
       seed: "abc",
-      bg: "#cb745e",
-      mid: "#b9473b",
-      accent: "#720315",
-      surface: "#feeae5",
-      ink: "#301812",
+      bg: "#ce7353",
+      mid: "#b84931",
+      accent: "#730209",
+      surface: "#feeae3",
+      ink: "#2f1810",
       grain: 0.32,
     });
     expect(generatePalette("vanilla sunday", { seed: "zz91" }).palette).toEqual({

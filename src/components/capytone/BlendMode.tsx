@@ -9,7 +9,7 @@
  * existing.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { StageCard } from "@/components/stage-card";
 import {
@@ -18,7 +18,6 @@ import {
   type GradientType,
   type InterpSpace,
 } from "@/lib/capytone/blend";
-import type { MoodPalette } from "@/lib/capytone/types";
 
 import { ColorPick, Pill, WellCopy, labelClass } from "./controls";
 
@@ -30,15 +29,27 @@ const TYPES: readonly { id: GradientType; label: string }[] = [
 
 const THIRD_STOP_DEFAULT = "#d9a441";
 
-export function BlendMode({ palette }: { palette: MoodPalette | null }) {
-  // Client-only mount: seed from the current card when there is one.
-  const [stops, setStops] = useState<string[]>(
-    palette ? [palette.bg, palette.accent] : ["#8e9b7e", "#c07952"],
-  );
-  const [type, setType] = useState<GradientType>("linear");
-  const [angle, setAngle] = useState(135);
-  const [interp, setInterp] = useState<InterpSpace>("oklab");
-
+export function BlendMode({
+  stops,
+  type,
+  angle,
+  interp,
+  onStops,
+  onType,
+  onAngle,
+  onInterp,
+}: {
+  /** Lifted to the hub: a gradient survives mode switches; until the user
+   *  edits anything, the hub seeds the stops from the current card. */
+  stops: string[];
+  type: GradientType;
+  angle: number;
+  interp: InterpSpace;
+  onStops: (stops: string[]) => void;
+  onType: (type: GradientType) => void;
+  onAngle: (angle: number) => void;
+  onInterp: (interp: InterpSpace) => void;
+}) {
   const result = useMemo(() => {
     try {
       return gradientCss({ type, angle, stops, interp });
@@ -47,17 +58,10 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
     }
   }, [type, angle, stops, interp]);
 
-  const setStop = useCallback((index: number, hex: string) => {
-    setStops((prev) => prev.map((s, i) => (i === index ? hex : s)));
-  }, []);
-
-  const addStop = useCallback(() => {
-    setStops((prev) => (prev.length < 3 ? [...prev, THIRD_STOP_DEFAULT] : prev));
-  }, []);
-
-  const removeStop = useCallback(() => {
-    setStops((prev) => (prev.length > 2 ? prev.slice(0, -1) : prev));
-  }, []);
+  const setStop = (index: number, hex: string) =>
+    onStops(stops.map((s, i) => (i === index ? hex : s)));
+  const addStop = () => onStops(stops.length < 3 ? [...stops, THIRD_STOP_DEFAULT] : stops);
+  const removeStop = () => onStops(stops.length > 2 ? stops.slice(0, -1) : stops);
 
   return (
     <>
@@ -95,7 +99,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
               <span className={labelClass}>Shape</span>
               <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-label="Gradient shape">
                 {TYPES.map((t) => (
-                  <Pill key={t.id} active={type === t.id} onClick={() => setType(t.id)} label={`${t.label} gradient`}>
+                  <Pill key={t.id} active={type === t.id} onClick={() => onType(t.id)} label={`${t.label} gradient`}>
                     {t.label}
                   </Pill>
                 ))}
@@ -115,7 +119,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
                     max={359}
                     step={1}
                     value={angle}
-                    onChange={(e) => setAngle(Number(e.target.value))}
+                    onChange={(e) => onAngle(Number(e.target.value))}
                     className="w-40 accent-[var(--primary)]"
                   />
                   <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
@@ -133,7 +137,7 @@ export function BlendMode({ palette }: { palette: MoodPalette | null }) {
                 <Pill
                   key={space.id}
                   active={interp === space.id}
-                  onClick={() => setInterp(space.id)}
+                  onClick={() => onInterp(space.id)}
                   label={`Interpolate in ${space.label}`}
                 >
                   {space.label}

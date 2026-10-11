@@ -9,7 +9,7 @@
  * pair, never to this page.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 import { StageCard } from "@/components/stage-card";
 import { checkPair, type CheckResult } from "@/lib/capytone/check";
@@ -34,8 +34,9 @@ function formatRatio(ratio: number): string {
 }
 
 const APCA_BAND_LABELS: Record<CheckResult["apcaBand"], string> = {
-  "preferred-body": "Preferred body text (75+)",
-  "body-min": "Body text minimum (60+)",
+  "preferred-body": "Preferred body text (90+)",
+  "body-min": "Body text minimum (75+)",
+  "content-min": "Other content text minimum (60+)",
   large: "Large text minimum (45+)",
   "text-min": "Any text minimum (30+)",
   "non-text": "Non-text only (15+)",
@@ -86,17 +87,27 @@ function RoleSwatch({
   );
 }
 
-export function CheckMode({ palette }: { palette: MoodPalette | null }) {
-  // Mounted only after a mode switch (client-only), so seeding the pair
-  // from the current card is a plain initialiser — no hydration concerns.
-  const [fg, setFg] = useState(palette?.ink ?? "#1a1a1a");
-  const [bg, setBg] = useState(palette?.bg ?? "#f9f9f7");
-
+export function CheckMode({
+  palette,
+  fg,
+  bg,
+  onFg,
+  onBg,
+}: {
+  /** The card the pair seeds from when the user hasn't typed anything. */
+  palette: MoodPalette | null;
+  /** Lifted to the hub: a typed pair survives mode switches; until then it
+   *  follows the current card. */
+  fg: string;
+  bg: string;
+  onFg: (hex: string) => void;
+  onBg: (hex: string) => void;
+}) {
   const result = useMemo(() => checkPair(fg, bg), [fg, bg]);
   const swap = useCallback(() => {
-    setFg(bg);
-    setBg(fg);
-  }, [fg, bg]);
+    onFg(bg);
+    onBg(fg);
+  }, [fg, bg, onFg, onBg]);
 
   return (
     <>
@@ -107,19 +118,31 @@ export function CheckMode({ palette }: { palette: MoodPalette | null }) {
           to need. They disagree sometimes; that is the point of showing both.
         </p>
         <div className="mt-4 flex flex-col gap-4">
-          <ColorPick id="capytone-check-fg" label="Text colour" value={fg} onChange={setFg} />
-          <ColorPick id="capytone-check-bg" label="Background" value={bg} onChange={setBg} />
+          <ColorPick id="capytone-check-fg" label="Text colour" value={fg} onChange={onFg} />
+          <ColorPick id="capytone-check-bg" label="Background" value={bg} onChange={onBg} />
           <div className="flex flex-wrap items-center gap-3">
             <Pill active={false} onClick={swap} label="Swap text and background">
               Swap ⇅
             </Pill>
             {palette ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className={labelClass}>From the card</span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {ROLES.map((role) => (
-                    <RoleSwatch key={role} palette={palette} role={role} onLoad={setFg} />
-                  ))}
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className={labelClass}>From the card, as text</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {ROLES.map((role) => (
+                      <RoleSwatch key={role} palette={palette} role={role} onLoad={onFg} />
+                    ))}
+                  </div>
+                </div>
+                {/* The natural "ink vs field" check: the card's own roles,
+                    one tap into the background slot too. */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className={labelClass}>From the card, as background</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {ROLES.map((role) => (
+                      <RoleSwatch key={role} palette={palette} role={role} onLoad={onBg} />
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : null}

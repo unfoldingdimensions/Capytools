@@ -14,6 +14,7 @@ import { APCAcontrast, sRGBtoY } from "apca-w3";
 import {
   gamutClamp,
   harmonyPalette,
+  fieldForBaseLightness,
   HARMONIES,
   HARMONY_MAP,
 } from "@/lib/capytone/harmony";
@@ -260,15 +261,20 @@ describe("check verdict logic table", () => {
     expect(r.wcag.aaaLarge).toBe(aaal);
   });
 
-  it("the guidance band table reads |Lc|", () => {
+  it("the guidance band table reads |Lc| on the published ladder (90/75/60/45/30/15)", () => {
     expect(apcaBandOf(106)).toBe("preferred-body");
-    expect(apcaBandOf(71.6)).toBe("body-min");
-    expect(apcaBandOf(50)).toBe("large");
+    expect(apcaBandOf(90)).toBe("preferred-body");
+    expect(apcaBandOf(89.9)).toBe("body-min");
+    expect(apcaBandOf(75)).toBe("body-min");
+    expect(apcaBandOf(74.9)).toBe("content-min");
+    expect(apcaBandOf(60)).toBe("content-min"); // the published ladder is 90/75/60/45/30/15
+    expect(apcaBandOf(59.9)).toBe("large");
+    expect(apcaBandOf(45)).toBe("large");
     expect(apcaBandOf(31)).toBe("text-min");
     expect(apcaBandOf(16)).toBe("non-text");
     expect(apcaBandOf(5)).toBe("none");
     expect(apcaBandOf(0)).toBe("none");
-    expect(apcaBandOf(-80)).toBe("preferred-body"); // polarity never changes the band
+    expect(apcaBandOf(-95)).toBe("preferred-body"); // polarity never changes the band
   });
 });
 
@@ -317,6 +323,23 @@ describe("gradient CSS emission goldens (§6) — exact strings, deterministic",
     });
     expect(g.css).toBe("radial-gradient(in srgb, #121212 0%, #8e9b7e 100%)");
     expect(INTERP_MAP.srgb.css).toBe("in srgb");
+    // The fallback joins the stop list with no comma — a stray one after the
+    // paren ("radial-gradient(, …)") is invalid CSS and older engines drop
+    // the whole declaration.
+    expect(g.fallback.startsWith("radial-gradient(#121212 0%,"), g.fallback).toBe(true);
+    expect(g.fallback.endsWith("#8e9b7e 100%)")).toBe(true);
+  });
+
+  it("no fallback string ever opens with a bare comma", () => {
+    for (const type of ["linear", "radial", "conic"] as const) {
+      for (const interp of ["oklab", "oklch", "oklch-longer", "srgb"] as const) {
+        const g = gradientCss({ type, angle: 90, stops: ["#121212", "#f9f9f7"], interp });
+        // The bug signature: a comma directly after the paren, with no
+        // direction/interpolation clause before it. "…(90deg, " and
+        // "…(from 90deg, " are the legitimate forms.
+        expect(g.fallback.includes("(, "), `${type}/${interp}: ${g.fallback.slice(0, 40)}`).toBe(false);
+      }
+    }
   });
 
   it("is deterministic and normalises angles into 0..359", () => {
@@ -356,5 +379,135 @@ describe("hueDistance engine helper (shared by the hub's tests and the mood chec
     expect(hueDistance(10, 350)).toBe(-20);
     expect(hueDistance(0, 180)).toBe(180);
     expect(hueDistance(0, 181)).toBe(-179);
+  });
+});
+
+describe("the picked base colour is honoured (review P0)", () => {
+  const BASES = ["#1a1a2e", "#8e9b7e", "#C74FA8", "#EBC689", "#121212", "#f9f9f7"];
+
+  it("an in-gamut base colour IS the generated field, to within one 8-bit step", () => {
+    // The bg passes through hex → Oklch → hex, so the roundtrip can drift a
+    // single 8-bit channel step (culori float precision) — e.g. #f9f9f7 →
+    // #f8f8f6. Anything past one step means the colour was not honoured.
+    const withinAStep = (picked: string, bg: string) => {
+      const a = toOklchOrNull(picked)!;
+      const b = toOklchOrNull(bg)!;
+      return Math.abs(a.l - b.l) < 0.005 && Math.abs(a.c - b.c) < 0.005 && (a.c < 0.01 || hueDistance(a.h, b.h) < 1);
+    };
+    for (const hex of BASES) {
+      const base = toOklchOrNull(hex)!;
+      const field = fieldForBaseLightness(base.l) ?? "light";
+      const p = harmonyPalette({
+        baseHue: base.h,
+        baseColor: base,
+        harmony: "complementary",
+        field,
+        seed: "p0",
+      });
+      expect(withinAStep(hex, p.bg), `${hex} came back as ${p.bg}`).toBe(true);
+    }
+  });
+
+  it("fieldForBaseLightness maps the regimes and defers mid-tones to the caller", () => {
+    expect(fieldForBaseLightness(0.9)).toBe("light");
+    expect(fieldForBaseLightness(0.2)).toBe("deep");
+    expect(fieldForBaseLightness(0.5)).toBe(null);
+  });
+
+  it("a field set against the colour pulls the field into the regime, roles stay coherent", () => {
+    // Light colour forced deep, dark colour forced light — the deliberate
+    // override path. The field lands on its regime's side of 0.5, every
+    // role stays inside the physical range, and the ink still clears 4.5:1.
+    for (const [hex, field] of [
+      ["#8e9b7e", "deep"],
+      ["#1a1a2e", "light"],
+    ] as const) {
+      const base = toOklchOrNull(hex)!;
+      for (const seed of ["", "ab12", "zz9"]) {
+        const p = harmonyPalette({ baseHue: base.h, baseColor: base, harmony: "triadic", field, seed });
+        const bg = toOklchOrNull(p.bg)!;
+        expect(field === "light" ? bg.l >= 0.55 : bg.l <= 0.45, `${hex}/${field}/${seed} bg regime`).toBe(true);
+        for (const role of [p.mid, p.accent, p.surface, p.ink]) {
+          const o = toOklchOrNull(role)!;
+          // 8-bit hex quantization alone re-measures lightness by ~±0.005,
+          // so the bound clears that floor (same reasoning as the guardrails).
+          expect(o.l, `${hex}/${field}/${seed} ${role} low`).toBeGreaterThanOrEqual(0.015);
+          expect(o.l, `${hex}/${field}/${seed} ${role} high`).toBeLessThanOrEqual(0.99);
+        }
+        expect(contrastRatio(p.ink, p.bg), `${hex}/${field}/${seed} contrast`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it("the accent stays clearly apart from the ink and the field, whatever the pick", () => {
+    // The first cut translated every role band by (field − band middle), which
+    // slid the accent onto the ink: #2f4a80 deep gave accent/ink 1.01:1 and
+    // #8a3b2a forced light a near-black accent beside black ink.
+    let minInk = Infinity;
+    let minField = Infinity;
+    for (const hex of ["#2f4a80", "#8a3b2a", "#1a1a2e", "#8e9b7e", "#d9a441", "#f4f1ea", "#0b0b0b", "#C74FA8", "#5f7a72"]) {
+      const base = toOklchOrNull(hex)!;
+      for (const field of ["light", "deep"] as const) {
+        for (const harmony of HARMONIES.map((r) => r.id)) {
+          for (const seed of ["", "ab12", "zz9"]) {
+            const p = harmonyPalette({ baseHue: base.h, baseColor: base, harmony, field, seed });
+            minInk = Math.min(minInk, contrastRatio(p.accent, p.ink));
+            minField = Math.min(minField, contrastRatio(p.accent, p.bg));
+          }
+        }
+      }
+    }
+    // Measured floors: 1.38 (ink) / 1.67 (field). Without a picked colour the
+    // engine's own floor is 1.57 — a pick at a regime's edge (deep at L 0.45)
+    // leaves less room, but no longer collapses (the first cut hit 1.01).
+    expect(minInk).toBeGreaterThanOrEqual(1.35);
+    expect(minField).toBeGreaterThanOrEqual(1.6);
+  });
+
+  it("role hues still land on the harmony offsets when a base colour is given", () => {
+    for (const [hex, harmony, accentDelta] of [
+      ["#8e9b7e", "complementary", 180],
+      ["#1a1a2e", "analogous", 30],
+      // Triadic's 240° offset measures 120° the short way round.
+      ["#C74FA8", "triadic", 120],
+    ] as const) {
+      const base = toOklchOrNull(hex)!;
+      const field = fieldForBaseLightness(base.l) ?? "light";
+      const p = harmonyPalette({ baseHue: base.h, baseColor: base, harmony, field, seed: "p0" });
+      const accent = toOklchOrNull(p.accent)!;
+      expect(dist(base.h, accent.h), `${hex}/${harmony} accent offset`).toBeCloseTo(accentDelta, 0);
+      // The field itself keeps the picked hue exactly.
+      expect(dist(base.h, toOklchOrNull(p.bg)!.h), `${hex} field hue`).toBeLessThan(1);
+    }
+  });
+
+  it("the same (colour, harmony, field, seed) reproduces the palette exactly", () => {
+    const base = toOklchOrNull("#C74FA8")!;
+    const a = harmonyPalette({ baseHue: base.h, baseColor: base, harmony: "split", field: "light", seed: "j1" });
+    const b = harmonyPalette({ baseHue: base.h, baseColor: base, harmony: "split", field: "light", seed: "j1" });
+    expect(a).toEqual(b);
+  });
+});
+
+describe("the two contrast engines measure the same colour (review P1)", () => {
+  it("a pasted, padded colour parses identically in both", () => {
+    // check.ts's APCA path trimmed its input; the WCAG path parsed it raw,
+    // so " #ff0000" measured 1:1 (parse failure → luminance 0) beside a
+    // healthy APCA Lc. Both parsers trim now.
+    const clean = contrastRatio("#ff0000", "#ffffff");
+    expect(contrastRatio(" #ff0000 ", "#ffffff")).toBe(clean);
+    const pair = checkPair(" #ff0000 ", "#ffffff");
+    expect(pair).not.toBeNull();
+    expect(pair!.wcagRatio).toBeCloseTo(clean, 10);
+  });
+
+  it("a wide-gamut input measures clamped, never above 21:1", () => {
+    // Culori returns raw out-of-range channels for wide-gamut input; the
+    // unclamped linearisation could exceed the 21:1 ceiling WCAG defines as
+    // impossible, while APCA measured the clamped 0–255 values.
+    const wild = "oklch(0.9 0.4 145)";
+    const r = contrastRatio(wild, "#ffffff");
+    expect(r).toBeGreaterThan(1);
+    expect(r).toBeLessThanOrEqual(21);
   });
 });

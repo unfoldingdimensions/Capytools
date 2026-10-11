@@ -42,9 +42,11 @@ export function GenerateInputs({
   return (
     <>
       <p className="mt-4 text-sm text-muted-foreground">
-        Pick a base colour and a rule — hues land exactly on the harmony
-        offsets, chroma is clamped per lightness and hue, and the ink always
-        clears 4.5:1. Same base, same rule, same variation, every time.
+        Pick a base colour and a rule — the colour itself becomes the card’s
+        field (the Field pill follows dark and light picks; overriding it
+        pulls the colour into that regime), hues land exactly on the harmony
+        offsets, and the ink always clears 4.5:1. Same base, same rule, same
+        variation, every time.
       </p>
 
       <div className="mt-4 flex flex-col gap-4">

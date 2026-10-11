@@ -10,15 +10,17 @@ import { MoodPills } from "@/components/capytone/MoodPills";
 import { StartColors } from "@/components/capytone/StartColors";
 import { BlendMode } from "@/components/capytone/BlendMode";
 import { CheckMode } from "@/components/capytone/CheckMode";
-import { ExtractMode } from "@/components/capytone/ExtractMode";
+import { ExtractMode, type ExtractStatus } from "@/components/capytone/ExtractMode";
 import { ImageMode } from "@/components/capytone/ImageMode";
 import { GenerateInputs } from "@/components/capytone/GenerateMode";
 import { PosterStage } from "@/components/capytone/PosterStage";
 import { Pill } from "@/components/capytone/controls";
 import { generatePalette } from "@/lib/capytone/engine/generate";
 import type { LayoutName } from "@/lib/capytone/render";
+import type { GradientType, InterpSpace } from "@/lib/capytone/blend";
 import {
   harmonyPalette,
+  fieldForBaseLightness,
   type FieldDepth,
   type HarmonyId,
 } from "@/lib/capytone/harmony";
@@ -64,6 +66,15 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
 
   const [mode, setMode] = useState<ModeId>(initialMode);
 
+  // The card Check and Blend review: the last card-owning mode the user
+  // visited. Previously they only ever saw the feel card, so a palette just
+  // built in Generate was unreachable there and the defaults showed instead.
+  const [cardSource, setCardSource] = useState<"feel" | "generate">("feel");
+  const switchMode = useCallback((next: ModeId) => {
+    if (next === "feel" || next === "generate") setCardSource(next);
+    setMode(next);
+  }, []);
+
   // --- Feel (the mood flow, exactly as Phase A shipped it) ---
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [seed, setSeed] = useState<string | null>(null);
@@ -84,15 +95,65 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
     : null;
 
   // --- Generate (harmony palettes) — pure state, no effects needed ---
+  // `genHexDraft` is what the colour box shows while typing; `genHex` only
+  // ever holds a colour that parses, so the engine never sees a partial hex
+  // (the old `?? 0` silently turned mid-typing into a red family).
   const [genHex, setGenHex] = useState(DEFAULT_BASE);
+  const [genHexDraft, setGenHexDraft] = useState(DEFAULT_BASE);
   const [genHarmony, setGenHarmony] = useState<HarmonyId>("complementary");
   const [genField, setGenField] = useState<FieldDepth>("light");
   const [genJitter, setGenJitter] = useState("");
 
+  const onGenHex = useCallback((v: string) => {
+    setGenHexDraft(v);
+    const parsed = toOklchOrNull(v);
+    if (!parsed) return;
+    setGenHex(v);
+    // The field follows the colour: a dark pick makes a deep card, a light
+    // pick a light one; mid-tones keep whatever is selected. Not on 3/4-digit
+    // shorthands: typing #6b6b6b passes through #6b6, which is light, and
+    // would leave a mid-tone's card on the wrong field.
+    const implied = /^#?[0-9a-f]{3,4}$/i.test(v.trim()) ? null : fieldForBaseLightness(parsed.l);
+    if (implied) setGenField(implied);
+  }, []);
+
   const generated = useMemo(() => {
-    const hue = toOklchOrNull(genHex)?.h ?? 0;
-    return harmonyPalette({ baseHue: hue, harmony: genHarmony, field: genField, seed: genJitter });
+    const base = toOklchOrNull(genHex);
+    // genHex is gated to parseable values above, so base is always set; the
+    // fallback keeps the types honest and never fires.
+    return harmonyPalette({
+      baseHue: base?.h ?? 0,
+      baseColor: base ?? undefined,
+      harmony: genHarmony,
+      field: genField,
+      seed: genJitter,
+    });
   }, [genHex, genHarmony, genField, genJitter]);
+
+  // Declared after `generated`: the card Check and Blend review follows the
+  // last card-owning mode the user visited.
+  const cardPalette = cardSource === "generate" ? generated : palette;
+
+  // Check / Blend / Extract state lives here so mode switches keep it —
+  // those components unmount, and the old local state lost your work on
+  // every switch. Untouched state follows the current card (the seeded view
+  // the modes used to initialise with); once edited, it persists.
+  const [checkEdits, setCheckEdits] = useState<{ fg?: string; bg?: string } | null>(null);
+  const checkFg = checkEdits?.fg ?? cardPalette?.ink ?? "#1a1a1a";
+  const checkBg = checkEdits?.bg ?? cardPalette?.bg ?? "#f9f9f7";
+
+  const [blendEdits, setBlendEdits] = useState<
+    Partial<{ stops: string[]; type: GradientType; angle: number; interp: InterpSpace }> | null
+  >(null);
+  const blendStops =
+    blendEdits?.stops ??
+    (cardPalette ? [cardPalette.bg, cardPalette.accent] : ["#8e9b7e", "#c07952"]);
+  const blendType = blendEdits?.type ?? "linear";
+  const blendAngle = blendEdits?.angle ?? 135;
+  const blendInterp = blendEdits?.interp ?? "oklab";
+
+  const [extractUrl, setExtractUrl] = useState("");
+  const [extractStatus, setExtractStatus] = useState<ExtractStatus>({ state: "idle" });
 
   // Deep-link: ?mood=&s= reproduces the card exactly.
   // A proof-band hand-off arrives in the fragment instead, so the phrase is
@@ -134,11 +195,15 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Remix only when the page itself has focus. Exempting just inputs
+      // meant Space on a focused pill/button cancelled its native
+      // activation (preventDefault) and remixed instead — keyboard users
+      // could not activate mood pills at all.
       if (
         e.code === "Space" &&
         submitted &&
         mode === "feel" &&
-        !(e.target instanceof HTMLInputElement)
+        (e.target === document.body || e.target === document.documentElement)
       ) {
         e.preventDefault();
         remix();
@@ -162,7 +227,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           <Pill
             key={m.id}
             active={mode === m.id}
-            onClick={() => setMode(m.id)}
+            onClick={() => switchMode(m.id)}
             label={`Switch to ${m.label.toLowerCase()} mode`}
           >
             {m.label}
@@ -247,8 +312,8 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
             chips={<StageChip tone="sage">{generated.slug}</StageChip>}
           >
             <GenerateInputs
-              hex={genHex}
-              onHex={setGenHex}
+              hex={genHexDraft}
+              onHex={onGenHex}
               harmony={genHarmony}
               onHarmony={setGenHarmony}
               field={genField}
@@ -256,7 +321,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
               onRemix={remixGenerate}
               feelBg={palette?.bg ?? null}
               onUseFeel={() => {
-                if (palette) setGenHex(palette.bg);
+                if (palette) onGenHex(palette.bg);
               }}
             />
           </StageCard>
@@ -276,18 +341,46 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           </StageCard>
         </>
       ) : mode === "check" ? (
-        <CheckMode palette={palette} />
+        <CheckMode
+          palette={cardPalette}
+          fg={checkFg}
+          bg={checkBg}
+          onFg={(fg) => setCheckEdits((prev) => ({ ...prev, fg }))}
+          onBg={(bg) => setCheckEdits((prev) => ({ ...prev, bg }))}
+        />
       ) : mode === "blend" ? (
-        <BlendMode palette={palette} />
+        <BlendMode
+          stops={blendStops}
+          type={blendType}
+          angle={blendAngle}
+          interp={blendInterp}
+          onStops={(stops) => setBlendEdits((prev) => ({ ...prev, stops }))}
+          onType={(type) => setBlendEdits((prev) => ({ ...prev, type }))}
+          onAngle={(angle) => setBlendEdits((prev) => ({ ...prev, angle }))}
+          onInterp={(interp) => setBlendEdits((prev) => ({ ...prev, interp }))}
+        />
       ) : mode === "extract" ? (
         <ExtractMode
+          url={extractUrl}
+          onUrl={setExtractUrl}
+          status={extractStatus}
+          onStatus={setExtractStatus}
           onJumpToFeel={(phrase) => {
-            setMode("feel");
+            switchMode("feel");
             pick(phrase);
           }}
         />
       ) : (
-        <ImageMode />
+        <ImageMode
+          onSendToCheck={(hex) => {
+            setCheckEdits((prev) => ({ ...prev, fg: hex }));
+            switchMode("check");
+          }}
+          onSendToGenerate={(hex) => {
+            switchMode("generate");
+            onGenHex(hex);
+          }}
+        />
       )}
     </div>
   );

@@ -58,7 +58,7 @@ function pickHue(anchorHues: number[], rng: () => number): number {
  */
 function synthesize(
   entry: AnchorEntry,
-  tweak: { lightnessShift?: number; chromaScale?: number; grainDelta?: number },
+  tweak: { lightnessShift?: number; chromaScale?: number; grainDelta?: number; hueWanderDeg?: number },
   phrase: string,
   seed: string,
   /** When set, the palette's base hue is pinned here (start-color mode). */
@@ -67,6 +67,10 @@ function synthesize(
   const rng = makeRng("palette", entry.id, seed);
   const lShift = tweak.lightnessShift ?? 0;
   const cScale = tweak.chromaScale ?? 1;
+  // How far the field hue may drift from its anchor/pinned value. Start-color
+  // stops tighten this: the tapped hex is a promise, and ±18° swings visibly
+  // repainted it (Poppy landed pink, Gold khaki).
+  const wander = tweak.hueWanderDeg ?? 18;
 
   const [bgL, midL, surfaceL] = entry.lightnessCurve;
   const [cMin, cMax] = entry.chromaRange;
@@ -74,9 +78,9 @@ function synthesize(
   // Field hue wanders; accent stays within ±14° of it; mid splits the diff
   // CIRCULARLY — naive averaging across the 0° wrap put a teal mid in
   // carnival's red-pink card. A pinned hue (start-color mode) replaces the
-  // anchor draw but keeps the same ±18° wander, so harmony gates hold.
+  // anchor draw but keeps a (tighter) wander, so harmony gates hold.
   const fieldHue =
-    pinnedHue !== undefined ? (pinnedHue + range(rng, -18, 18) + 360) % 360 : pickHue(entry.hueAnchors, rng);
+    pinnedHue !== undefined ? (pinnedHue + range(rng, -wander, wander) + 360) % 360 : pickHue(entry.hueAnchors, rng);
   const accentHue = (fieldHue + range(rng, 6, 14) * (rng() > 0.5 ? 1 : -1) + 360) % 360;
   const midHue = meanHue([fieldHue, accentHue]);
   const fieldC = clamp(range(rng, cMin, cMax) * cScale, 0, GUARDRAILS.maxFieldChroma);
@@ -262,21 +266,27 @@ function generateFromStop(
 ): GenerateResult {
   // The stop's hex is the promise — derive hue AND chroma AND lightness from
   // it so the generated field lands visually on the tapped color. Chroma is
-  // scaled per-role (field keeps the stop's softness, accent lifts ~1.8x)
-  // and lightness landmarks follow the stop's own tone.
+  // scaled per-role (field keeps the stop's softness at ~0.9x, accent lifts
+  // from there) and lightness landmarks follow the stop's own tone. The
+  // field-chroma ceiling is the stop's OWN chroma, not the mood engine's
+  // 0.15: a vivid stop the user tapped explicitly ("popping poppy" c 0.19)
+  // must not come out pastel, and the hex is in-gamut by construction. Hue
+  // wander tightens to ±8° so the field stays recognisably the tapped hue.
   const probe = toOklchOrNull(stop.hex);
   if (!probe) throw new Error(`bad stop hex for ${stop.id}`);
-  const fieldC = clamp(probe.c * 0.9, 0.012, GUARDRAILS.maxFieldChroma);
+  const fieldC = clamp(probe.c * 0.9, 0.012, Math.max(GUARDRAILS.maxFieldChroma, probe.c));
   const entry: AnchorEntry = {
     id: `stop-${stop.id}`,
     keywords: [],
     hueAnchors: [probe.h],
-    chromaRange: [fieldC * 0.75, fieldC],
+    // Floor 0.85 (not the anchors' 0.75): the tapped chroma must survive the
+    // seed draw too — worst case ~0.77x of the stop, not 0.68x.
+    chromaRange: [fieldC * 0.85, fieldC],
     lightnessCurve: [clamp(probe.l, 0.14, 0.95), 0.55, Math.min(0.97, probe.l + 0.3)],
     grain: group.grain,
     blessed: ["#000000", "#000000", "#000000", "#000000", "#000000"],
   };
-  const palette = synthesize(entry, {}, stop.phrase, seed, probe.h);
+  const palette = synthesize(entry, { hueWanderDeg: 8 }, stop.phrase, seed, probe.h);
   return { palette, fallback: false, note: `starting from ${stop.label.toLowerCase()}` };
 }
 

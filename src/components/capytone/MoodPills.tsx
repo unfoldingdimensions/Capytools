@@ -4,7 +4,8 @@
  * Mood pills — the whole lexicon as tappable chips under family filters.
  *
  * Filter row: All + the six families. Pills below carry a 5-dot mini-swatch
- * of their anchor's blessed colors so users browse by look, not by name.
+ * of the palette the engine renders for that phrase (the derived-seed card),
+ * so users browse by exactly the look they will get, not by name.
  * Membership is dual: hue-family filters and tag filters (Popping/Soft/Dusk)
  * overlap, so e.g. Diwali appears under Warm AND Popping.
  *
@@ -21,7 +22,7 @@ import {
   phraseOf,
   type FamilyFilter,
 } from "@/lib/capytone/engine/families";
-import { BOOTSTRAP_LEXICON } from "@/lib/capytone/engine/lexicon";
+import { generatePalette } from "@/lib/capytone/engine/generate";
 
 const ALL: FamilyFilter = "all";
 export function MoodPills({
@@ -129,9 +130,17 @@ function FilterPill({
 }
 
 function MoodPill({ id, onPick }: { id: string; onPick: (mood: string) => void }) {
-  const entry = BOOTSTRAP_LEXICON.anchors[id];
   const tags = assignmentOf(id);
   const phrase = phraseOf(id);
+  // The five dots advertise what the engine WILL render for this phrase —
+  // its deterministic derived-seed card — not the hand-tuned blessed hexes,
+  // which the synthesizer draws past (coastal-fog's pill showed pale fog
+  // over a mid-grey card, ΔE 21). Same call the card makes, so pill and
+  // poster can never disagree.
+  const swatches = useMemo(() => {
+    const p = generatePalette(phrase).palette;
+    return [p.bg, p.mid, p.accent, p.surface, p.ink];
+  }, [phrase]);
   return (
     <button
       type="button"
@@ -140,7 +149,7 @@ function MoodPill({ id, onPick }: { id: string; onPick: (mood: string) => void }
       className="group flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
     >
       <span aria-hidden className="flex -space-x-1">
-        {entry.blessed.slice(0, 5).map((hex, i) => (
+        {swatches.map((hex, i) => (
           <span
             key={i}
             className="size-3 rounded-full border border-background/60"
