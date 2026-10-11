@@ -94,14 +94,13 @@ export function ExampleCards() {
     });
   }, []);
 
+  // Draw on every page change, mount included. The canvases persist (stable
+  // keys), so only their contents need repainting for the new slice — and
+  // skipping page 0 here is what broke the cycle: on wrap, page 0's canvases
+  // kept the last page's art (or came back blank after the short page
+  // remounted two of them) under page-0 labels and links.
   useEffect(() => {
-    drawSlice(0);
-  }, [drawSlice]);
-
-  // Redraw whenever the page changes — the canvases persist (stable keys), so
-  // only their contents need repainting for the new slice.
-  useEffect(() => {
-    if (page !== 0) drawSlice(page);
+    drawSlice(page);
   }, [page, drawSlice]);
 
   useEffect(() => {
