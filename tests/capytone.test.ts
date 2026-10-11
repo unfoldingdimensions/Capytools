@@ -371,8 +371,9 @@ describe("start-color stops", () => {
 
 describe("start-color fidelity", () => {
   // The chip's hex is a promise: the generated FIELD must land on the tapped
-  // color, not merely share its hue family. Hue ±12° and lightness ±0.14
-  // absorb seed wander while still failing a regression to "hue-only" stops.
+  // color, not merely share its hue family. Hue ±10°, lightness ±0.14 and
+  // chroma ≥ 0.72x absorb seed wander (measured worsts: 8° / 0.10 / 0.76x)
+  // while still failing a regression to "hue-only" or pastelised stops.
   it("generated field matches the tapped stop color", () => {
     for (const group of Object.values(START_COLORS)) {
       for (const stop of group.stops) {
@@ -381,9 +382,9 @@ describe("start-color fidelity", () => {
         const got = toOklchOrNull(palette.bg)!;
         const rawHue = Math.abs(got.h - want.h) % 360;
         const dHue = rawHue > 180 ? 360 - rawHue : rawHue;
-        // synthesize wanders ±18° around the pinned hue by design
-        expect(dHue, `${stop.phrase} hue`).toBeLessThanOrEqual(20);
+        expect(dHue, `${stop.phrase} hue`).toBeLessThanOrEqual(10);
         expect(Math.abs(got.l - want.l), `${stop.phrase} lightness`).toBeLessThanOrEqual(0.14);
+        expect(got.c, `${stop.phrase} chroma survives`).toBeGreaterThanOrEqual(want.c * 0.72);
       }
     }
   });
@@ -599,15 +600,18 @@ describe("port pins — byte-identical palettes carried over from the standalone
       ink: "#301718",
       grain: 0.22,
     });
+    // Regenerated 2026-10-11: the stop-fidelity fix (±8° wander, the stop's
+    // own chroma ceiling) deliberately shifted stop-command outputs; the
+    // anchor pins above are untouched because the mood engine is.
     expect(generatePalette("start from warm orange", { seed: "abc" }).palette).toEqual({
       mood: "warm orange",
       slug: "warm-orange",
       seed: "abc",
-      bg: "#cb745e",
-      mid: "#b9473b",
-      accent: "#720315",
-      surface: "#feeae5",
-      ink: "#301812",
+      bg: "#ce7353",
+      mid: "#b84931",
+      accent: "#730209",
+      surface: "#feeae3",
+      ink: "#2f1810",
       grain: 0.32,
     });
     expect(generatePalette("vanilla sunday", { seed: "zz91" }).palette).toEqual({
