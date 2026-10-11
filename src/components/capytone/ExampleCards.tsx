@@ -62,6 +62,10 @@ const PICKS: { mood: string; layout: LayoutName }[] = [
   { mood: "lavender haze", layout: "minimal" },
   { mood: "peach morning", layout: "editorial" },
   { mood: "sea foam", layout: "minimal" },
+  // 32nd entry: keeps every page a full 2×2 — 31 picks left the last page
+  // one slot short of the grid every cycle. "Sakura" is a real keyword route
+  // to cherry-blossom (editorial here, where "cherry blossom" is minimal).
+  { mood: "sakura", layout: "editorial" },
 ];
 
 const VISIBLE = 4;
