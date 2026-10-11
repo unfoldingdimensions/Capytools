@@ -59,6 +59,10 @@ const ARROWS: Record<string, readonly [number, number]> = {
   ArrowDown: [0, 1],
 };
 
+/** The small bridge-pill voice (Check / Generate) under each swatch. */
+const SWATCH_ACT =
+  "rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground";
+
 const CHECKER =
   "repeating-conic-gradient(var(--border) 0% 25%, var(--card) 0% 50%) 0 0 / 16px 16px";
 
@@ -79,7 +83,15 @@ function readPixel(img: HTMLImageElement, x: number, y: number): Picked {
   return { x, y, hex: a === 0 ? null : rgbToHex(r, g, b), alpha: a };
 }
 
-export function ImageMode() {
+export function ImageMode({
+  onSendToCheck,
+  onSendToGenerate,
+}: {
+  /** Hand a hex to the hub's Check mode as the text colour. */
+  onSendToCheck?: (hex: string) => void;
+  /** Hand a hex to the hub's Generate mode as its base colour. */
+  onSendToGenerate?: (hex: string) => void;
+}) {
   const fileInput = useRef<HTMLInputElement>(null);
   const display = useRef<HTMLCanvasElement>(null);
   const copiedTimer = useRef<number | undefined>(undefined);
@@ -281,6 +293,30 @@ export function ImageMode() {
                           colour shown is the pixel’s own, without the see-through.
                         </p>
                       ) : null}
+                      {onSendToCheck || onSendToGenerate ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {onSendToCheck ? (
+                            <button
+                              type="button"
+                              onClick={() => onSendToCheck(formats.hex)}
+                              aria-label="Check this colour's contrast"
+                              className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                            >
+                              Check contrast
+                            </button>
+                          ) : null}
+                          {onSendToGenerate ? (
+                            <button
+                              type="button"
+                              onClick={() => onSendToGenerate(formats.hex)}
+                              aria-label="Generate a palette from this colour"
+                              className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 font-mono text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                            >
+                              Generate from it
+                            </button>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -360,30 +396,55 @@ export function ImageMode() {
             </p>
             <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {colours.map((colour) => (
-                <button
+                <div
                   key={colour.hex}
-                  type="button"
-                  onClick={() => copy(`swatch-${colour.hex}`, colour.hex)}
-                  aria-label={copied === `swatch-${colour.hex}` ? "Copied" : `Copy ${colour.hex}`}
-                  className={cn(
-                    "group overflow-hidden rounded-2xl border border-border/70 bg-card text-left transition-colors hover:border-primary",
-                    FOCUS,
-                  )}
+                  className="overflow-hidden rounded-2xl border border-border/70 bg-card transition-colors hover:border-primary"
                 >
-                  <span
-                    aria-hidden
-                    className="block h-16 border-b border-border/50"
-                    style={{ backgroundColor: colour.hex }}
-                  />
-                  <span className="flex items-baseline justify-between gap-2 px-3 py-2 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <span className="font-mono text-xs">
-                      {copied === `swatch-${colour.hex}` ? "Copied" : colour.hex}
+                  <button
+                    type="button"
+                    onClick={() => copy(`swatch-${colour.hex}`, colour.hex)}
+                    aria-label={copied === `swatch-${colour.hex}` ? "Copied" : `Copy ${colour.hex}`}
+                    className={cn("group block w-full text-left", FOCUS)}
+                  >
+                    <span
+                      aria-hidden
+                      className="block h-16 border-b border-border/50"
+                      style={{ backgroundColor: colour.hex }}
+                    />
+                    <span className="flex items-baseline justify-between gap-2 px-3 py-2 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                      <span className="font-mono text-xs">
+                        {copied === `swatch-${colour.hex}` ? "Copied" : colour.hex}
+                      </span>
+                      <span className="font-mono text-[12px] opacity-70">
+                        {Math.max(1, Math.round((colour.count / loaded.palette.sampled) * 100))}%
+                      </span>
                     </span>
-                    <span className="font-mono text-[12px] opacity-70">
-                      {Math.max(1, Math.round((colour.count / loaded.palette.sampled) * 100))}%
-                    </span>
-                  </span>
-                </button>
+                  </button>
+                  {onSendToCheck || onSendToGenerate ? (
+                    <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
+                      {onSendToCheck ? (
+                        <button
+                          type="button"
+                          onClick={() => onSendToCheck(colour.hex)}
+                          aria-label={`Check ${colour.hex}'s contrast`}
+                          className={SWATCH_ACT}
+                        >
+                          Check
+                        </button>
+                      ) : null}
+                      {onSendToGenerate ? (
+                        <button
+                          type="button"
+                          onClick={() => onSendToGenerate(colour.hex)}
+                          aria-label={`Generate a palette from ${colour.hex}`}
+                          className={SWATCH_ACT}
+                        >
+                          Generate
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               ))}
             </div>
 

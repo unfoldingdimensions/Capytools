@@ -369,7 +369,16 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
           }}
         />
       ) : (
-        <ImageMode />
+        <ImageMode
+          onSendToCheck={(hex) => {
+            setCheckEdits((prev) => ({ ...prev, fg: hex }));
+            switchMode("check");
+          }}
+          onSendToGenerate={(hex) => {
+            switchMode("generate");
+            onGenHex(hex);
+          }}
+        />
       )}
     </div>
   );
