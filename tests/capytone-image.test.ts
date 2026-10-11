@@ -134,7 +134,6 @@ describe("token exporters", () => {
         "--capytone-test-slug-accent: #333333;",
         "--capytone-test-slug-surface: #444444;",
         "--capytone-test-slug-ink: #555555;",
-        "/* camelCase alias: testSlug */",
       ].join("\n"),
     );
     expect(tailwindTokens(palette)).toBe(

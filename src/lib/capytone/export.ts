@@ -73,8 +73,7 @@ export function tailwindColors(slug: string, entries: readonly TokenRole[]): str
 
 /** CSS custom properties, ready to paste into a :root block. */
 export function cssTokens(palette: MoodPalette): string {
-  const slug = palette.slug.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
-  return [cssVariables(palette.slug, roles(palette)), `/* camelCase alias: ${slug} */`].join("\n");
+  return cssVariables(palette.slug, roles(palette));
 }
 
 /** Tailwind theme extension snippet. */
