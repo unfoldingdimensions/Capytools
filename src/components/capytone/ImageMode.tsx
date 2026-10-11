@@ -99,13 +99,13 @@ export function ImageMode({
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [picked, setPicked] = useState<Picked | null>(null);
   const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failedKind, setFailedKind] = useState<"decode" | "unexpected" | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
 
   const processFile = useCallback(async (file: File) => {
     setLoading(true);
-    setFailed(false);
+    setFailedKind(null);
     try {
       const { img, width, height } = await decodeImage(file);
       const { w, h } = fitWithin(width, height, SAMPLE_MAX_SIDE);
@@ -114,8 +114,11 @@ export function ImageMode({
       const palette = paletteFromPixels(ctx.getImageData(0, 0, w, h).data);
       setLoaded({ img, width, height, name: file.name, palette });
       setPicked(null);
-    } catch {
-      setFailed(true);
+    } catch (error) {
+      // The decode step has its own honest copy; anything else (a failed
+      // palette build, a canvas refusal) is a different failure and gets a
+      // different sentence.
+      setFailedKind(error instanceof DecodeFailedError ? "decode" : "unexpected");
     } finally {
       setLoading(false);
     }
@@ -205,12 +208,16 @@ export function ImageMode({
           }}
         />
 
-        {failed ? (
+        {failedKind ? (
           <div className="mt-4">
             <ErrorCard
-              title="That file wouldn't open."
-              body="The browser's decoder refused it — some CMYK JPEGs, HEIC photos outside Safari, and SVGs without a size do. If it opens anywhere else, re-save it as a PNG or JPEG and bring that copy back."
-              onRetry={() => setFailed(false)}
+              title={failedKind === "decode" ? "That file wouldn't open." : "That file wouldn't read."}
+              body={
+                failedKind === "decode"
+                  ? "The browser's decoder refused it — some CMYK JPEGs, HEIC photos outside Safari, and SVGs without a size do. If it opens anywhere else, re-save it as a PNG or JPEG and bring that copy back."
+                  : "The file opened, but building its palette failed — this is a tool fault, not a file fault. Trying again usually works; a different photo will too."
+              }
+              onRetry={() => setFailedKind(null)}
             />
           </div>
         ) : loaded ? (
@@ -336,7 +343,7 @@ export function ImageMode({
           </div>
         ) : null}
 
-        {!failed ? (
+        {failedKind === null ? (
           <button
             type="button"
             onClick={() => fileInput.current?.click()}
