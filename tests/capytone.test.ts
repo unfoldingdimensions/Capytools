@@ -505,6 +505,32 @@ describe("mood families", () => {
     expect(anchorsForFilter("cool")).not.toContain("cherry-blossom");
     expect(anchorsForFilter("warm")).toContain("cherry-blossom");
   });
+
+  it("the popping tag means guaranteed chroma, not possible chroma", () => {
+    // The tag keyed on chromaRange's TOP, so quiet moods whose accent may
+    // spike (fireside 0.12, cinnamon-cafe 0.115) sat under "festival-grade
+    // chroma" beside carnival and confetti. Keying on the range FLOOR keeps
+    // exactly the anchors that are always loud — the floors separate the
+    // festival trio (≥ 0.09) from every other anchor (≤ 0.08).
+    const popping = anchorsForFilter("popping");
+    for (const id of ["diwali-lights", "carnival-night", "confetti-pop"]) {
+      expect(popping, `${id} stays popping`).toContain(id);
+    }
+    for (const id of [
+      "fireside-night",
+      "cinnamon-cafe",
+      "honeyed-afternoon",
+      "harvest-fair",
+      "brass-band-evening",
+      "moss-carpet",
+      "fern-gully",
+    ]) {
+      expect(popping, `${id} is not popping`).not.toContain(id);
+      // …and every demoted anchor stays reachable from some other filter.
+      const stillReachable = FILTER_GROUPS.some((g) => anchorsForFilter(g.id).includes(id));
+      expect(stillReachable, `${id} reachable`).toBe(true);
+    }
+  });
 });
 
 // --- Phase A port pins (new) ---

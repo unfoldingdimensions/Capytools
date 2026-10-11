@@ -31,8 +31,11 @@ const SECTORS: Record<HueFamily, [number, number]> = {
 
 /** Thresholds for cross-cutting tags — tuned against the v1 lexicon. */
 const TAG_THRESHOLDS = {
-  /** accent chroma at/above this reads as vivid ("popping"). */
-  poppingAccentChroma: 0.115,
+  /** Field chroma GUARANTEED at/above this reads as vivid ("popping") — the
+   *  range floor, not the top: a quiet cafe whose accent may spike toward
+   *  0.115 is not festival-grade. The festival trio sits ≥ 0.09; every other
+   *  anchor's floor ≤ 0.08. */
+  poppingFieldChromaFloor: 0.085,
   /** light field + field chroma at/below this reads pale ("soft"). */
   softFieldChroma: 0.062,
   softBgLightness: 0.5,
@@ -61,7 +64,7 @@ function derive(entry: AnchorEntry): FamilyAssignment {
   const hueFamily = sectorOf(circularMeanHue(entry.hueAnchors));
 
   const tags: Tag[] = [];
-  if (entry.chromaRange[1] >= TAG_THRESHOLDS.poppingAccentChroma) tags.push("popping");
+  if (entry.chromaRange[0] >= TAG_THRESHOLDS.poppingFieldChromaFloor) tags.push("popping");
   const isLightField = entry.lightnessCurve[0] >= TAG_THRESHOLDS.softBgLightness;
   if (isLightField && entry.chromaRange[0] <= TAG_THRESHOLDS.softFieldChroma) tags.push("soft");
   if (entry.lightnessCurve[0] <= TAG_THRESHOLDS.duskBgLightness) tags.push("dusk");
