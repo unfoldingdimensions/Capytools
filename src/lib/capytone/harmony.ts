@@ -13,6 +13,10 @@
  *     fields, where those ranges' "background" pole flips) and chroma is
  *     clamped per (L, H) with culori's clampChroma — the CSS Color 4
  *     binary search — never a global cap;
+ *   - when the caller passes a picked `baseColor`, that colour IS the
+ *     field: its lightness and chroma pass through and the roles keep the
+ *     band's spacing relative to it, so the card starts from the colour
+ *     itself, not just its hue;
  *   - ink-vs-bg contrast ≥ 4.5 is enforced with the same ensureContrast
  *     walk the mood engine uses;
  *   - every random draw comes from a seeded RNG keyed on
@@ -119,6 +123,27 @@ const BANDS: Record<FieldDepth, Record<"bg" | "mid" | "accent" | "surface", Role
 const MAX_ACCENT_CHROMA = 0.25;
 
 /**
+ * Lightness windows a picked base colour must sit in for each field — the
+ * regime bounds. The composition boundary is L 0.5 (the mood engine's
+ * isLightField convention): a light field's roles read best on L ≥ 0.55, a
+ * deep field's on L ≤ 0.45, and a pick in between defers to whatever the
+ * Field pill already says. When the pill is set AGAINST the pick, the
+ * field's lightness is brought inside the regime here — hue and chroma
+ * always pass through untouched.
+ */
+const BASE_FIELD_L: Record<FieldDepth, [number, number]> = {
+  light: [0.55, 0.98],
+  deep: [0.08, 0.45],
+};
+
+/** Which field a picked colour implies; null = mid-tone, the caller keeps its own. */
+export function fieldForBaseLightness(l: number): FieldDepth | null {
+  if (l >= BASE_FIELD_L.light[0]) return "light";
+  if (l <= BASE_FIELD_L.deep[1]) return "deep";
+  return null;
+}
+
+/**
  * Clamp an Oklch colour into sRGB by bisecting chroma at its own (L, H) —
  * culori's CSS Color 4 search. Hue and lightness pass through untouched
  * (culori only moves c), which is what keeps harmony hues exact after
@@ -138,8 +163,16 @@ export function gamutClamp(color: Oklch): Oklch {
 const normalizeHue = (deg: number) => ((deg % 360) + 360) % 360;
 
 export interface HarmonyOptions {
-  /** Base hue in degrees; any value is normalized into 0..360. */
+  /** Base hue in degrees; any value is normalized into 0..360. Unused when `baseColor` is set. */
   baseHue: number;
+  /**
+   * The picked colour itself, when the caller has one. Its lightness and
+   * chroma become the field verbatim (clamped into the chosen field's
+   * regime only when the pick sits outside it), and role lightness keeps
+   * the band's internal spacing relative to it — so "generate from my
+   * colour" means the colour, not just its hue.
+   */
+  baseColor?: Oklch;
   harmony: HarmonyId;
   field: FieldDepth;
   /** Jitter seed — the same (hue, harmony, seed) triple gives the same palette. */
@@ -151,9 +184,9 @@ export interface HarmonyOptions {
  * is a plain MoodPalette, so the poster stage and every export surface
  * render it unchanged.
  */
-export function harmonyPalette({ baseHue, harmony, field, seed }: HarmonyOptions): MoodPalette {
+export function harmonyPalette({ baseHue, baseColor, harmony, field, seed }: HarmonyOptions): MoodPalette {
   const rule = HARMONY_MAP[harmony];
-  const hue = normalizeHue(baseHue);
+  const hue = normalizeHue(baseColor?.h ?? baseHue);
   const bands = BANDS[field];
 
   // The jitter RNG is keyed on the identity of the palette itself — the
@@ -173,26 +206,48 @@ export function harmonyPalette({ baseHue, harmony, field, seed }: HarmonyOptions
     c: range(rng, band.c[0], band.c[1]),
   });
 
-  const bgDraw = drawBand(bands.bg);
+  // Field lightness: a picked colour IS the field — its lightness and
+  // chroma pass through verbatim and are gamut-clamped at their own (L, H)
+  // below. Only a pick outside the chosen regime (the Field pill set
+  // against the colour) is brought inside. Role lightness then translates
+  // by the same delta, so the band's internal spacing survives mid-tone
+  // and clamped fields instead of washing them toward the band's own pole.
+  const [regimeLo, regimeHi] = BASE_FIELD_L[field];
+  let bgL: number;
+  let bgC: number;
+  let roleLift = 0;
+  if (baseColor) {
+    bgL = Math.min(regimeHi, Math.max(regimeLo, baseColor.l));
+    bgC = baseColor.c;
+    roleLift = bgL - (bands.bg.l[0] + bands.bg.l[1]) / 2;
+  } else {
+    const bgDraw = drawBand(bands.bg);
+    bgL = bgDraw.l;
+    bgC = bgDraw.c;
+  }
+  // Keeps a translated band inside the physical range at extreme fields.
+  const roleL = (l: number) => Math.min(0.985, Math.max(0.02, l + roleLift));
+
   const midDraw = drawBand(bands.mid);
   const accentDraw = drawBand(bands.accent);
   const surfaceDraw = drawBand(bands.surface);
 
-  const bg = gamutClamp({ l: bgDraw.l, c: bgDraw.c, h: hue });
+  const bg = gamutClamp({ l: bgL, c: bgC, h: hue });
   const mid = gamutClamp({
-    l: midDraw.l,
+    l: roleL(midDraw.l),
     c: midDraw.c,
     h: normalizeHue(hue + midOffset),
   });
   const accent = gamutClamp({
-    l: accentDraw.l,
+    l: roleL(accentDraw.l),
     c: Math.min(accentDraw.c, MAX_ACCENT_CHROMA),
     h: normalizeHue(hue + accentOffset),
   });
-  const surface = gamutClamp({ l: surfaceDraw.l, c: surfaceDraw.c, h: hue });
+  const surface = gamutClamp({ l: roleL(surfaceDraw.l), c: surfaceDraw.c, h: hue });
 
-  // Ink starts at the extreme of the field's opposite pole; the contrast
-  // walk finishes the job (it only moves lightness, never hue).
+  // Ink starts at the extreme of the field's opposite pole — the regime
+  // windows above guarantee bg.l sits on the field's own side of 0.5 — and
+  // the contrast walk finishes the job (it only moves lightness, never hue).
   const inkStart: Oklch = {
     l: field === "light" ? 0.22 : 0.94,
     c: Math.min(bg.c, 0.03),

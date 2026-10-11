@@ -19,6 +19,7 @@ import { generatePalette } from "@/lib/capytone/engine/generate";
 import type { LayoutName } from "@/lib/capytone/render";
 import {
   harmonyPalette,
+  fieldForBaseLightness,
   type FieldDepth,
   type HarmonyId,
 } from "@/lib/capytone/harmony";
@@ -84,14 +85,37 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
     : null;
 
   // --- Generate (harmony palettes) — pure state, no effects needed ---
+  // `genHexDraft` is what the colour box shows while typing; `genHex` only
+  // ever holds a colour that parses, so the engine never sees a partial hex
+  // (the old `?? 0` silently turned mid-typing into a red family).
   const [genHex, setGenHex] = useState(DEFAULT_BASE);
+  const [genHexDraft, setGenHexDraft] = useState(DEFAULT_BASE);
   const [genHarmony, setGenHarmony] = useState<HarmonyId>("complementary");
   const [genField, setGenField] = useState<FieldDepth>("light");
   const [genJitter, setGenJitter] = useState("");
 
+  const onGenHex = useCallback((v: string) => {
+    setGenHexDraft(v);
+    const parsed = toOklchOrNull(v);
+    if (!parsed) return;
+    setGenHex(v);
+    // The field follows the colour: a dark pick makes a deep card, a light
+    // pick a light one; mid-tones keep whatever is selected.
+    const implied = fieldForBaseLightness(parsed.l);
+    if (implied) setGenField(implied);
+  }, []);
+
   const generated = useMemo(() => {
-    const hue = toOklchOrNull(genHex)?.h ?? 0;
-    return harmonyPalette({ baseHue: hue, harmony: genHarmony, field: genField, seed: genJitter });
+    const base = toOklchOrNull(genHex);
+    // genHex is gated to parseable values above, so base is always set; the
+    // fallback keeps the types honest and never fires.
+    return harmonyPalette({
+      baseHue: base?.h ?? 0,
+      baseColor: base ?? undefined,
+      harmony: genHarmony,
+      field: genField,
+      seed: genJitter,
+    });
   }, [genHex, genHarmony, genField, genJitter]);
 
   // Deep-link: ?mood=&s= reproduces the card exactly.
@@ -247,8 +271,8 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
             chips={<StageChip tone="sage">{generated.slug}</StageChip>}
           >
             <GenerateInputs
-              hex={genHex}
-              onHex={setGenHex}
+              hex={genHexDraft}
+              onHex={onGenHex}
               harmony={genHarmony}
               onHarmony={setGenHarmony}
               field={genField}
@@ -256,7 +280,7 @@ function CapyToneInner({ initialMode }: { initialMode: ModeId }) {
               onRemix={remixGenerate}
               feelBg={palette?.bg ?? null}
               onUseFeel={() => {
-                if (palette) setGenHex(palette.bg);
+                if (palette) onGenHex(palette.bg);
               }}
             />
           </StageCard>
