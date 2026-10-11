@@ -22,7 +22,9 @@ function asCulori(color: Oklch) {
 
 /** Parse any CSS color into Oklch. Returns null for unparseable input. */
 export function toOklchOrNull(color: string): Oklch | null {
-  const parsed = parse(color);
+  // Trimmed like every other parser here (check.ts, blend.ts): a pasted
+  // leading space must parse, not silently null.
+  const parsed = parse(color.trim());
   if (!parsed) return null;
   const o = toOklch(parsed);
   if (!o) return null;
@@ -66,11 +68,17 @@ export function clampToGamut(color: Oklch): Oklch {
 /** WCAG relative contrast ratio between two hex strings (≥1, ≤21). */
 export function contrastRatio(a: string, b: string): number {
   const lum = (color: string): number => {
-    const p = toRgb(parse(color));
+    // Trim like check.ts's parser, and clamp channels like APCA's sRGBtoY
+    // does: culori returns RAW out-of-range channels for wide-gamut input,
+    // and measured unclamped a ratio above 21:1 could come out — which WCAG
+    // defines as impossible, and the two verdict engines would disagree on
+    // the same string.
+    const p = toRgb(parse(color.trim()));
     if (!p) return 0;
-    const chan = [p.r, p.g, p.b].map((v) =>
-      v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4),
-    );
+    const chan = [p.r, p.g, p.b].map((v) => {
+      const c = Math.min(1, Math.max(0, v));
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
     return 0.2126 * chan[0] + 0.7152 * chan[1] + 0.0722 * chan[2];
   };
   const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x);

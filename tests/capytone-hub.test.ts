@@ -458,3 +458,26 @@ describe("the picked base colour is honoured (review P0)", () => {
     expect(a).toEqual(b);
   });
 });
+
+describe("the two contrast engines measure the same colour (review P1)", () => {
+  it("a pasted, padded colour parses identically in both", () => {
+    // check.ts's APCA path trimmed its input; the WCAG path parsed it raw,
+    // so " #ff0000" measured 1:1 (parse failure → luminance 0) beside a
+    // healthy APCA Lc. Both parsers trim now.
+    const clean = contrastRatio("#ff0000", "#ffffff");
+    expect(contrastRatio(" #ff0000 ", "#ffffff")).toBe(clean);
+    const pair = checkPair(" #ff0000 ", "#ffffff");
+    expect(pair).not.toBeNull();
+    expect(pair!.wcagRatio).toBeCloseTo(clean, 10);
+  });
+
+  it("a wide-gamut input measures clamped, never above 21:1", () => {
+    // Culori returns raw out-of-range channels for wide-gamut input; the
+    // unclamped linearisation could exceed the 21:1 ceiling WCAG defines as
+    // impossible, while APCA measured the clamped 0–255 values.
+    const wild = "oklch(0.9 0.4 145)";
+    const r = contrastRatio(wild, "#ffffff");
+    expect(r).toBeGreaterThan(1);
+    expect(r).toBeLessThanOrEqual(21);
+  });
+});
