@@ -38,12 +38,34 @@ export function getFontStacks(): { display: string; sans: string; mono: string }
   return cached;
 }
 
-/** Await until webfonts are ready AND the stacks have been resolved once. */
+/**
+ * Await until the exact faces the cards draw with are loaded. Canvas text
+ * never triggers @font-face loads on its own, so `document.fonts.ready`
+ * alone can resolve before Fraunces or Albert Sans were ever fetched (it
+ * settles when *pending* loads finish — of which a canvas-only page has
+ * none) and the card silently paints fallbacks. Asking for each face first
+ * makes `ready` meaningful. Best-effort: a refused load falls through to
+ * whatever the browser has, which is what the ready-only path did.
+ */
 export async function ensureFontsReady(): Promise<void> {
-  if (typeof document !== "undefined" && "fonts" in document) {
-    await document.fonts.ready;
+  if (typeof document === "undefined" || !("fonts" in document)) {
+    getFontStacks();
+    return;
   }
-  getFontStacks();
+  const stacks = getFontStacks();
+  // The weights match the card renderers: 300 serif display (editorial's
+  // hero), 500 mono (every tracked label), 700 bold sans (minimal's hero).
+  const probes = [
+    `300 16px ${stacks.display}`,
+    `500 16px ${stacks.mono}`,
+    `700 16px ${stacks.sans}`,
+  ];
+  try {
+    await Promise.all(probes.map((p) => document.fonts.load(p, "CapyTone")));
+  } catch {
+    // Font availability is a nicety; the fallback face is drawn honestly.
+  }
+  await document.fonts.ready;
 }
 
 /**

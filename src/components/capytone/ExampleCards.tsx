@@ -20,6 +20,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ensureFontsReady } from "@/lib/capytone/fonts";
 import { renderCard, type LayoutName } from "@/lib/capytone/render";
 import { generatePalette } from "@/lib/capytone/engine/generate";
 
@@ -81,7 +82,10 @@ export function ExampleCards() {
   const drawSlice = useCallback((p: number) => {
     const items = PICKS.slice(p * VISIBLE, p * VISIBLE + VISIBLE);
     const dpr = window.devicePixelRatio || 1;
-    void document.fonts.ready.then(() => {
+    // ensureFontsReady, not bare document.fonts.ready: canvas text never
+    // triggers @font-face loads, so ready alone can settle before the faces
+    // ever fetched and the gallery paints fallbacks.
+    void ensureFontsReady().then(() => {
       items.forEach(({ mood, layout }, i) => {
         const canvas = refs.current[i];
         if (!canvas) return;
