@@ -35,9 +35,13 @@ export interface WcagVerdicts {
 }
 
 /**
- * APCA guidance bands (published Lc levels, |Lc|): 75 preferred body text,
- * 60 body minimum, 45 large text, 30 any-text minimum, 15 non-text only.
- * Guidance, not gates — the band names say so in the UI.
+ * APCA guidance bands — the published Lc levels, |Lc|: 90 preferred for
+ * fluent body text, 75 the minimum for columns of body text, 45 the minimum
+ * for large text, 30 the absolute minimum for any text (spot-readable), 15
+ * the floor for discernible non-text. Source: APCA in a Nutshell
+ * (Myndex/SAPC-APCA), which publishes ONE ladder — the guidance table is
+ * polarity-neutral even though the metric itself is polarity-aware (the Lc
+ * sign). Guidance, not gates — the band names say so in the UI.
  */
 export type ApcaBand =
   | "preferred-body"
@@ -49,8 +53,8 @@ export type ApcaBand =
 
 export function apcaBandOf(lc: number): ApcaBand {
   const abs = Math.abs(lc);
-  if (abs >= 75) return "preferred-body";
-  if (abs >= 60) return "body-min";
+  if (abs >= 90) return "preferred-body";
+  if (abs >= 75) return "body-min";
   if (abs >= 45) return "large";
   if (abs >= 30) return "text-min";
   if (abs >= 15) return "non-text";

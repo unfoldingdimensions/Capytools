@@ -34,8 +34,8 @@ function formatRatio(ratio: number): string {
 }
 
 const APCA_BAND_LABELS: Record<CheckResult["apcaBand"], string> = {
-  "preferred-body": "Preferred body text (75+)",
-  "body-min": "Body text minimum (60+)",
+  "preferred-body": "Preferred body text (90+)",
+  "body-min": "Body text minimum (75+)",
   large: "Large text minimum (45+)",
   "text-min": "Any text minimum (30+)",
   "non-text": "Non-text only (15+)",

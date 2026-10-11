@@ -261,15 +261,18 @@ describe("check verdict logic table", () => {
     expect(r.wcag.aaaLarge).toBe(aaal);
   });
 
-  it("the guidance band table reads |Lc|", () => {
+  it("the guidance band table reads |Lc| on the published ladder (90/75/45/30/15)", () => {
     expect(apcaBandOf(106)).toBe("preferred-body");
-    expect(apcaBandOf(71.6)).toBe("body-min");
-    expect(apcaBandOf(50)).toBe("large");
+    expect(apcaBandOf(90)).toBe("preferred-body");
+    expect(apcaBandOf(89.9)).toBe("body-min");
+    expect(apcaBandOf(75)).toBe("body-min");
+    expect(apcaBandOf(60)).toBe("large"); // 60 is no named level — it clears large-text minimum
+    expect(apcaBandOf(45)).toBe("large");
     expect(apcaBandOf(31)).toBe("text-min");
     expect(apcaBandOf(16)).toBe("non-text");
     expect(apcaBandOf(5)).toBe("none");
     expect(apcaBandOf(0)).toBe("none");
-    expect(apcaBandOf(-80)).toBe("preferred-body"); // polarity never changes the band
+    expect(apcaBandOf(-95)).toBe("preferred-body"); // polarity never changes the band
   });
 });
 
