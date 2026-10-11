@@ -318,6 +318,23 @@ describe("gradient CSS emission goldens (§6) — exact strings, deterministic",
     });
     expect(g.css).toBe("radial-gradient(in srgb, #121212 0%, #8e9b7e 100%)");
     expect(INTERP_MAP.srgb.css).toBe("in srgb");
+    // The fallback joins the stop list with no comma — a stray one after the
+    // paren ("radial-gradient(, …)") is invalid CSS and older engines drop
+    // the whole declaration.
+    expect(g.fallback.startsWith("radial-gradient(#121212 0%,"), g.fallback).toBe(true);
+    expect(g.fallback.endsWith("#8e9b7e 100%)")).toBe(true);
+  });
+
+  it("no fallback string ever opens with a bare comma", () => {
+    for (const type of ["linear", "radial", "conic"] as const) {
+      for (const interp of ["oklab", "oklch", "oklch-longer", "srgb"] as const) {
+        const g = gradientCss({ type, angle: 90, stops: ["#121212", "#f9f9f7"], interp });
+        // The bug signature: a comma directly after the paren, with no
+        // direction/interpolation clause before it. "…(90deg, " and
+        // "…(from 90deg, " are the legitimate forms.
+        expect(g.fallback.includes("(, "), `${type}/${interp}: ${g.fallback.slice(0, 40)}`).toBe(false);
+      }
+    }
   });
 
   it("is deterministic and normalises angles into 0..359", () => {

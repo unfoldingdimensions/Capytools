@@ -154,8 +154,14 @@ export function gradientCss(spec: GradientSpec): GradientResult {
     .map((hex, i) => `${hex} ${pct(i / (FALLBACK_SAMPLES - 1))}`)
     .join(", ");
 
+  // Radial carries no direction clause, so its fallback joins the stop list
+  // with NO comma — "radial-gradient(, …)" is invalid CSS and the older
+  // engines this fallback exists for would drop the whole declaration.
+  const fallbackHead =
+    type === "radial" ? plainHead(type, angle) : `${plainHead(type, angle)}, `;
+
   return {
     css: `${head(type, angle, INTERP_MAP[interp].css)}, ${stops})`,
-    fallback: `${plainHead(type, angle)}, ${dense})`,
+    fallback: `${fallbackHead}${dense})`,
   };
 }
