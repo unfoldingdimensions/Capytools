@@ -494,6 +494,17 @@ describe("mood families", () => {
       expect(assignmentOf(id).hueFamily).toBeDefined();
     }
   });
+
+  it("wrap-straddling anchors file by their circular mean hue", () => {
+    // cherry-blossom's anchors [20°, 350°] average to 5° the short way round —
+    // a pink pastel is warm. A naive arithmetic mean lands at 185° and filed
+    // it under Cool. carnival-night straddles the same wrap.
+    expect(assignmentOf("cherry-blossom").hueFamily, "cherry-blossom").toBe("warm");
+    expect(assignmentOf("carnival-night").hueFamily, "carnival-night").toBe("warm");
+    // And the pink pastel left the Cool filter.
+    expect(anchorsForFilter("cool")).not.toContain("cherry-blossom");
+    expect(anchorsForFilter("warm")).toContain("cherry-blossom");
+  });
 });
 
 // --- Phase A port pins (new) ---

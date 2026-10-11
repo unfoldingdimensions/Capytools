@@ -13,7 +13,7 @@
  */
 
 import { BOOTSTRAP_LEXICON, type AnchorEntry } from "./lexicon";
-import { toOklchOrNull as hexToOklch } from "./color";
+import { meanHue as circularMeanHue, toOklchOrNull as hexToOklch } from "./color";
 
 export type HueFamily = "warm" | "cool" | "nature";
 export type Tag = "popping" | "soft" | "dusk";
@@ -55,9 +55,10 @@ function sectorOf(hue: number): HueFamily {
 }
 
 function derive(entry: AnchorEntry): FamilyAssignment {
-  const meanHue =
-    entry.hueAnchors.reduce((a, b) => a + b, 0) / Math.max(entry.hueAnchors.length, 1);
-  const hueFamily = sectorOf(meanHue);
+  // Circular mean — the same helper the blessed-hue check uses. A naive
+  // average put cherry-blossom's [20°, 350°] at 185° (teal) and filed the
+  // pink pastel under Cool; across the wrap the short way round is 5°.
+  const hueFamily = sectorOf(circularMeanHue(entry.hueAnchors));
 
   const tags: Tag[] = [];
   if (entry.chromaRange[1] >= TAG_THRESHOLDS.poppingAccentChroma) tags.push("popping");
