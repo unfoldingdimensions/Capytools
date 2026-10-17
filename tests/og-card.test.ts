@@ -12,7 +12,6 @@ vi.mock("next/font/google", () => {
 });
 
 import {
-  OG_CARD_TOOL_COUNT,
   OG_DEFAULTS,
   OG_IMAGE,
   TWITTER_DEFAULTS,
@@ -94,13 +93,6 @@ describe("the share card", () => {
     // pixel dimensions, which are what the platforms actually key on.
     expect([OG_IMAGE.width, OG_IMAGE.height]).toEqual([1200, 630]);
     expect(OG_IMAGE.width / OG_IMAGE.height).toBeCloseTo(1.9048, 3);
-  });
-
-  it("does not claim a tool count the registry has outgrown", () => {
-    // The card reads "THIRTEEN TOOLS" in pixels. Every other count on the site
-    // derives from SUITE; this one cannot, so it gets a tripwire instead.
-    // When this fails, regenerate the card — do not just edit the number.
-    expect(OG_CARD_TOOL_COUNT).toBe(SUITE.length);
   });
 
   it("carries alt text", () => {

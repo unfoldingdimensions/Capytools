@@ -1,0 +1,156 @@
+<!doctype html>
+<!--
+  The share card and the directory renders, as one template.
+  Rendered by scripts/render-share-cards.mjs: ?v=<variant> picks a CARDS row.
+  Every claim below is copied from the live tool page — change the page, change this.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Albert+Sans:wght@500&display=block" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f9f9f7;
+    --paper: #f4efe4;
+    --ink: #1b1b19;
+    --muted: #5d5a52;
+    --sage: #8e9b7e;
+    --sage-deep: #4a6741;
+    --clay: #c07952;
+    --gold: #d9a441;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  .stage {
+    position: relative; overflow: hidden;
+    width: var(--w); height: var(--h);
+    background: var(--paper);
+    font-family: "Plus Jakarta Sans", sans-serif; color: var(--ink);
+  }
+  /* the colour field on the right: sage, a clay sun, a plate on top */
+  .field {
+    position: absolute; top: 0; right: 0; bottom: 0; width: var(--field);
+    background: var(--sage);
+  }
+  .field::before { /* paper grain, so the sage is not flat vector */
+    content: ""; position: absolute; inset: 0; opacity: .18; mix-blend-mode: multiply;
+    background-image: radial-gradient(rgba(0,0,0,.35) 1px, transparent 1.2px);
+    background-size: 7px 7px;
+  }
+  .sun {
+    position: absolute; border-radius: 50%; background: var(--clay);
+    width: var(--sun); height: var(--sun); right: var(--sun-r); top: var(--sun-t);
+  }
+  .plate {
+    position: absolute; right: var(--plate-r); top: var(--plate-t);
+    height: var(--plate-h); aspect-ratio: var(--plate-ar);
+    background: var(--cream) center / cover no-repeat;
+    border-radius: 18px; transform: rotate(var(--tilt));
+    box-shadow: 0 2px 4px rgba(20,24,16,.12), 0 30px 60px -12px rgba(20,24,16,.45);
+    outline: 10px solid var(--cream);
+  }
+  .copy {
+    position: absolute; left: var(--pad); top: var(--pad); bottom: var(--pad);
+    width: var(--copy-w); display: flex; flex-direction: column;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: var(--brand-fs); letter-spacing: -.01em; }
+  .brand img { width: calc(var(--brand-fs) * 1.9); height: auto; }
+  .brand .tool { font-family: "Albert Sans", sans-serif; font-weight: 500; color: var(--muted); }
+  .brand .tool::before { content: "·"; margin: 0 10px 0 2px; color: var(--clay); }
+  h1 {
+    margin-top: auto; font-family: "Fraunces", serif; font-weight: 300;
+    font-size: var(--h1); line-height: 1; letter-spacing: -.02em;
+    font-variation-settings: "opsz" 72;
+  }
+  h1 em { font-style: italic; font-weight: 400; color: var(--sage-deep); }
+  h1 .dot { color: var(--clay); }
+  .lead { margin-top: calc(var(--h1) * .28); font-size: var(--lead); line-height: 1.38; color: var(--muted); max-width: 30ch; }
+  .chips { margin-top: auto; display: flex; flex-wrap: wrap; gap: 10px; padding-top: 24px; }
+  .chip {
+    font-size: var(--chip); font-weight: 600; padding: .5em 1.05em; border-radius: 999px;
+    border: 2px solid var(--ink); white-space: nowrap;
+  }
+  .chip:first-child { background: var(--ink); color: var(--cream); }
+  .url {
+    position: absolute; right: var(--url-r); bottom: var(--url-b);
+    background: var(--cream); color: var(--ink); border-radius: 999px;
+    font-size: var(--chip); font-weight: 700; padding: .6em 1.2em;
+    box-shadow: 0 10px 30px -8px rgba(20,24,16,.4);
+  }
+  .url b { color: var(--clay); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; max-width: 640px; }
+  .tools span { font-size: 17px; font-weight: 600; padding: 6px 13px; border-radius: 999px; background: rgba(142,155,126,.22); color: var(--sage-deep); }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<script>
+  // shared geometry, then per-size overrides
+  const OG = { "--w": "1200px", "--h": "630px", "--pad": "64px", "--copy-w": "640px", "--field": "470px",
+    "--h1": "112px", "--lead": "27px", "--chip": "21px", "--brand-fs": "26px",
+    "--sun": "300px", "--sun-r": "250px", "--sun-t": "-60px",
+    "--plate-h": "560px", "--plate-ar": "1", "--plate-r": "40px", "--plate-t": "48px", "--tilt": "3deg",
+    "--url-r": "36px", "--url-b": "30px" };
+  const GALLERY = { "--w": "1270px", "--h": "760px", "--pad": "72px", "--copy-w": "640px", "--field": "520px",
+    "--h1": "104px", "--lead": "27px", "--chip": "21px", "--brand-fs": "26px",
+    "--sun": "340px", "--sun-r": "300px", "--sun-t": "-70px",
+    "--plate-h": "600px", "--plate-ar": "896 / 1200", "--plate-r": "70px", "--plate-t": "70px", "--tilt": "3.5deg",
+    "--url-r": "40px", "--url-b": "34px" };
+
+  const TOOLS = ["CapyBg", "CapyQR", "CapyResize", "CapyRead", "CapyTone", "CapyInvoice", "CapyResume",
+    "CapyPassport", "CapyStrip", "CapyStamp", "CapyPixel", "CapyToken", "CapyOG", "CapyImagine",
+    "CapyCreator", "CapyWrapped", "CapyExpense"];
+
+  const CARDS = {
+    og: { size: OG, plate: "hero-crop", h1: 'Calm <em>little</em><br>tools<span class="dot">.</span>',
+      lead: "Free tools that run in your browser and keep nothing.",
+      chips: ["No signup", "No cookies", "Nothing uploaded"], url: "capytools.app" },
+    home: { size: GALLERY, plate: "hero-crop", h1: 'Calm <em>little</em> tools, quiet by <em>default</em><span class="dot">.</span>',
+      lead: "Seventeen small tools for images, QR codes, colour, invoices and more — sixteen run right in your browser.",
+      chips: ["No signup", "No cookies", "Nothing uploaded"], url: "capytools.app", tools: true,
+      over: { "--h1": "84px", "--copy-w": "590px", "--plate-ar": "1", "--plate-h": "520px", "--plate-t": "110px", "--plate-r": "50px" } },
+    capybg: { size: GALLERY, plate: "lab-12", tool: "Background remover",
+      h1: 'The background, <em>gone</em><span class="dot">.</span>',
+      lead: "Cut the subject out of any photo. The model runs in your browser, so the photo is never uploaded.",
+      chips: ["Transparent PNG", "No upload", "Free, no signup"], url: "capytools.app/<b>capybg</b>" },
+    capyqr: { size: GALLERY, plate: "lab-7", tool: "QR code generator",
+      h1: 'A code worth <em>scanning</em><span class="dot">.</span>',
+      lead: "Styled QR codes for links, Wi-Fi, contacts and events, with your colours and logo — scanned to prove they read.",
+      chips: ["Wi-Fi and vCard", "Your logo", "Proof-scanned"], url: "capytools.app/<b>capyqr</b>" },
+    capyresize: { size: GALLERY, plate: "lab-8", tool: "Image resizer",
+      h1: 'Every size it <em>needs to be</em><span class="dot">.</span>',
+      lead: "Resize and convert to PNG, JPEG or WebP, or turn one logo into a full favicon pack — without uploading the file.",
+      chips: ["PNG · JPEG · WebP", "Favicon pack", "No upload"], url: "capytools.app/<b>capyresize</b>" },
+    capyread: { size: GALLERY, plate: "lab-14", tool: "Image to text",
+      h1: 'The words are <em>in there</em><span class="dot">.</span>',
+      lead: "Pull the text out of a photo, screenshot or scanned PDF, with OCR that runs in your browser.",
+      chips: ["Photos and PDFs", ".txt and .docx", "No upload"], url: "capytools.app/<b>capyread</b>" },
+    capytone: { size: GALLERY, plate: "lab-11", tool: "Colour palette generator",
+      h1: 'Type a feeling, <em>get a poster</em><span class="dot">.</span>',
+      lead: "Turn a mood into a five-colour palette with readable contrast built in — plus contrast checks, harmonies and gradients.",
+      chips: ["Five-colour palettes", "Contrast built in", "No AI"], url: "capytools.app/<b>capytone</b>" },
+  };
+
+  const v = new URLSearchParams(location.search).get("v") || "og";
+  const c = CARDS[v];
+  const stage = document.getElementById("stage");
+  for (const [k, val] of Object.entries({ ...c.size, ...(c.over || {}) })) stage.style.setProperty(k, val);
+  const plate = c.plate === "hero-crop"
+    // the hero plate is a square with the collage in its right half; crop to it
+    ? `background-image:url(../../public/plates/hero.webp);background-size:200% auto;background-position:92% 42%`
+    : `background-image:url(../../public/plates/${c.plate}.webp);background-size:150% auto;background-position:50% 55%`;
+  stage.innerHTML = `
+    <div class="field"></div><div class="sun"></div>
+    <div class="plate" style="${plate}"></div>
+    <div class="copy">
+      <div class="brand"><img src="../../public/brand/logo.svg" alt="">Capytools${c.tool ? `<span class="tool">${c.tool}</span>` : ""}</div>
+      <h1>${c.h1}</h1>
+      <p class="lead">${c.lead}</p>
+      ${c.tools ? `<div class="tools">${TOOLS.map((t) => `<span>${t}</span>`).join("")}</div>` : ""}
+      <div class="chips">${c.chips.map((t) => `<span class="chip">${t}</span>`).join("")}</div>
+    </div>
+    <div class="url">${c.url} <b>→</b></div>`;
+</script>
+</body>
+</html>
