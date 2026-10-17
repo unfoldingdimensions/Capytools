@@ -10,8 +10,9 @@ import { SITE_URL } from "@/lib/utils";
  * It is a STATIC file rather than an `opengraph-image` route. The card never
  * changes — it carries the brand, not the page — so rendering it per request
  * would buy nothing and cost a Google Fonts round trip on every cold isolate,
- * which is exactly the unbounded await #40 had to put a timeout on. Generated
- * once from the real Fraunces and Jakarta faces and committed.
+ * which is exactly the unbounded await #40 had to put a timeout on. Rendered
+ * by `scripts/render-share-cards.mjs` from `scripts/share-cards/card.html`
+ * and committed; it prints no tool count, so a new tool leaves it valid.
  *
  * Exported as a whole `openGraph` block, not just the image, because Next
  * merges metadata SHALLOWLY: a page that declares its own `openGraph` REPLACES
@@ -19,16 +20,6 @@ import { SITE_URL } from "@/lib/utils";
  * own title from silently dropping the card
  * (next/dist/docs/01-app/03-api-reference/04-functions/generate-metadata.md).
  */
-/**
- * The tool count PRINTED on the card, as pixels.
- *
- * The card is a committed image, so this string cannot re-derive itself from
- * the registry the way the rest of the site does. `tests/og-card.test.ts`
- * fails when this stops matching `SUITE.length` — which is the reminder to
- * regenerate the card, not to edit this number.
- */
-export const OG_CARD_TOOL_COUNT = 17;
-
 export const OG_IMAGE = {
   url: "/og.png",
   width: 1200,

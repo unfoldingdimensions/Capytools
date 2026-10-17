@@ -259,3 +259,7 @@ The CapyBench pricing research was good and flagged its own unverifiable claims,
 ## L52. VTracer's defaults over-segment flat art
 
 The CT gear traced at the default `length_threshold` (4) gave 33 KB of SVG — inlined in every page header. `length_threshold` 20 plus integer coordinates gave 12.5 KB with no visible change (0.78% pixel difference at 512 px). On the Windows wheel the extra parameters are positional too: `(…, layer_difference, corner_threshold, length_threshold, max_iterations, splice_threshold, path_precision)`. Measure the trace against the source raster (threshold both, XOR) rather than eyeballing it.
+
+## L55. Headless Chrome is the share-card renderer already on every machine
+
+`chrome --headless=new --screenshot=out.png --window-size=W,H --virtual-time-budget=10000 file:///…?v=x` renders real CSS (grid, blend modes, variable-font axes) with Google Fonts loaded — Satori/`ImageResponse` can't do half of that. Two gotchas: it needs its own `--user-data-dir` or it exits silently while the owner's Chrome is open, and on a fresh profile the page renders in the OS colour scheme, so pin colours rather than relying on `prefers-color-scheme`.
