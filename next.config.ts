@@ -62,7 +62,8 @@ const CSP_REPORT_ONLY = [
   // hence the explicit 'self' blob:.
   "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://avatars.githubusercontent.com",
+  // makeitla.st: the directory badge in the landing footer, hot-linked as the listing requires (D64).
+  "img-src 'self' data: blob: https://avatars.githubusercontent.com https://www.makeitla.st",
   "font-src 'self' data:",
   // https: covers the user-configured LLM provider, which is the only reason
   // this cannot be tightened to 'self'.

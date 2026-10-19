@@ -121,7 +121,8 @@ describe("Landing", () => {
   });
 
   it("routes natively — the only external hrefs are the proof band's source and the directory badge (D64)", () => {
-    const external = html.match(/href="http[^"]*"/g) ?? [];
+    // Anchors only: React 19 also emits a <link rel="preload"> for the badge image.
+    const external = (html.match(/<a\b[^>]*href="http[^"]*"/g) ?? []).map((a) => a.match(/href="[^"]*"/)![0]);
     expect(external).toEqual([`href="${PROOF.source.href}"`, 'href="https://www.makeitla.st/"']);
     // The project-meta targets exist as native editorial pages.
     expect(html).toContain('href="/design"');

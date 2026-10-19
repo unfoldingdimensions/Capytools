@@ -26,18 +26,15 @@ export function LandingFooter() {
               {LANDING_FOOTER.getExpense.label}
               <span className="lp-foot-cta-sub">{LANDING_FOOTER.getExpense.sub}</span>
             </TransitionLink>
-            {/* Directory badge: a followed link is the listing's condition. The
-                SVG is self-hosted — the CSP allows no third-party images, and
-                hot-linking would hand every visitor's IP to the directory. */}
-            <a href="https://www.makeitla.st/" title="Featured on MakeItLast" className="lp-foot-badge">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/badges/makeitlast-badge-dark.svg"
-                alt="Featured on MakeItLast"
-                width={252}
-                height={76}
-              />
-            </a>
+            {/* Directory badge, MakeItLast's markup verbatim (D64): its checker
+                wants this href with no rel, and the image hot-linked. */}
+            <div className="lp-foot-badge">
+              <a href="https://www.makeitla.st/" title="Featured on MakeItLast">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://www.makeitla.st/badge/makeitlast-badge-dark.svg?v=3"
+                     alt="Featured on MakeItLast" width={252} height={76} />
+              </a>
+            </div>
           </div>
 
           {LANDING_FOOTER.columns.map((col) => (
