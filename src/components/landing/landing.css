@@ -2032,6 +2032,18 @@ html:not([data-hydrated]) .lp-proof-failsafe {
   color: var(--water);
 }
 
+.lp-foot-badge {
+  display: block;
+  width: fit-content;
+  margin-top: 22px;
+}
+
+.lp-foot-badge img {
+  display: block;
+  width: 168px;
+  height: auto;
+}
+
 .lp-foot-col h2 {
   font-family: var(--font-mono);
   font-weight: 500;
