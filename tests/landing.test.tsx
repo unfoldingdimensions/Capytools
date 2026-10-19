@@ -120,9 +120,9 @@ describe("Landing", () => {
     }
   });
 
-  it("routes natively — the one external href is the proof band's source link", () => {
+  it("routes natively — the only external hrefs are the proof band's source and the directory badge (D64)", () => {
     const external = html.match(/href="http[^"]*"/g) ?? [];
-    expect(external).toEqual([`href="${PROOF.source.href}"`]);
+    expect(external).toEqual([`href="${PROOF.source.href}"`, 'href="https://www.makeitla.st/"']);
     // The project-meta targets exist as native editorial pages.
     expect(html).toContain('href="/design"');
     expect(html).toContain('href="/license"');

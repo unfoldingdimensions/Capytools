@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="252" height="76" viewBox="0 0 252 76" fill="none">
+  <rect x="8" y="8" width="240" height="64" fill="#000"/>
+  <rect x="4" y="4" width="240" height="64" fill="#111" stroke="#000" stroke-width="4"/>
+  <rect x="14" y="14" width="44" height="44" fill="#fff" stroke="#000" stroke-width="3"/>
+  <g transform="translate(36 36)">
+    <circle r="16" fill="#000"/>
+    <circle r="12.5" fill="#fff"/>
+    <circle r="9" fill="#000"/>
+    <circle r="5.5" fill="#fff"/>
+    <circle r="2.3" fill="#000"/>
+  </g>
+  <text x="70" y="32" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.6" fill="#FFE500">FEATURED ON</text>
+  <text x="70" y="54" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800" fill="#fff">MakeItLast</text>
+</svg>
