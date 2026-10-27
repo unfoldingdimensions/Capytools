@@ -748,13 +748,13 @@ export function CapyBg() {
                 onChange={(e) => setQuality(Number(e.target.value))}
                 className="w-32 accent-[var(--primary)] pointer-coarse:min-h-11"
               />
-              <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{quality}</span>
+              <span className="font-mono text-[12px] tabular-nums text-muted-foreground">{quality}</span>
             </div>
           </div>
         ) : null}
 
         {result && file ? (
-          <p className="mt-4 font-mono text-[11px] tabular-nums text-muted-foreground">
+          <p className="mt-4 font-mono text-[12px] tabular-nums text-muted-foreground">
             {formatBytes(result.bytesBefore)} → {formatBytes(result.bytesAfter)} · {downloadName}
             {result.bytesAfter > result.bytesBefore ? (
               <span className="mt-1 block font-sans text-xs normal-case tracking-normal">
