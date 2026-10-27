@@ -411,6 +411,20 @@ interface CutState {
 
 let lastCut: CutState | null = null;
 
+/**
+ * True when the cleaned matte holds no subject at all — the model matched
+ * nothing in the photo (a receipt fed to the people model, say). The page
+ * states it instead of presenting a fully transparent PNG as a successful
+ * cut with byte savings (review 2026-10-28).
+ */
+export function matteIsEmpty(matte: Float32Array): boolean {
+  for (let i = 0; i < matte.length; i++) if (matte[i] >= 0.5) return false;
+  return true;
+}
+
+export const EMPTY_CUT_NOTE =
+  "The cut came out empty — nothing in the photo matched this model.";
+
 /** Forget the cached matte (the previous image's business is done). */
 export function clearCut(): void {
   lastCut = null;
@@ -660,6 +674,12 @@ export async function removeBackground(
         matteHeight = refined.height;
         modelMs += refined.ms;
       }
+    }
+
+    if (matteIsEmpty(matte)) {
+      // Said in the cut card, before the escape-hatch pills: a mask with no
+      // subject pixels must not read as a normal result.
+      notes.push(EMPTY_CUT_NOTE);
     }
 
     lastCut = {

@@ -470,6 +470,27 @@ describe("no cut can wait forever", () => {
   });
 });
 
+describe("an empty cut says so", () => {
+  const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+
+  it("matteIsEmpty is the zero-subject test: anything at or over half counts", async () => {
+    const { matteIsEmpty } = await import("@/lib/capybg/client");
+    expect(matteIsEmpty(new Float32Array(100))).toBe(true);
+    expect(matteIsEmpty(new Float32Array(100).fill(0.49))).toBe(true);
+    const oneSure = new Float32Array(100);
+    oneSure[57] = 0.5;
+    expect(matteIsEmpty(oneSure)).toBe(false);
+  });
+
+  it("the pipeline states the empty cut before the result ships", () => {
+    // After cleanMatte (specks dropped) and after refine, before lastCut:
+    // the note rides the result's notes into the cut card.
+    const at = client.indexOf("if (matteIsEmpty(matte))");
+    expect(at).toBeGreaterThan(client.indexOf("cleanMatte(matte"));
+    expect(client.slice(at, at + 220)).toMatch(/notes\.push\(EMPTY_CUT_NOTE\)/);
+  });
+});
+
 describe("the ORT wasm never ships through the bundler", () => {
   // The default "bundle" builds embed `new URL("…asyncify.wasm", import.meta.url)`,
   // so Turbopack emitted a 25.5 MiB file and `wrangler versions upload` refused it.
