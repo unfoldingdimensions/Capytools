@@ -821,7 +821,7 @@ export function CapyBg() {
                 )}
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {result
-                    ? "Cut ready — download the PNG here."
+                    ? `Cut ready — download the ${result.mimeType === "image/jpeg" ? "JPEG" : "PNG"} here.`
                     : working
                       ? "Cutting, in this tab…"
                       : "Drop a photo to cut."}
