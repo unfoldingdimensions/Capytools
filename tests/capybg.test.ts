@@ -487,21 +487,26 @@ describe("no cut can wait forever", () => {
 describe("an empty cut says so", () => {
   const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
 
-  it("matteIsEmpty is the zero-subject test: anything at or over half counts", async () => {
-    const { matteIsEmpty } = await import("@/lib/capybg/client");
-    expect(matteIsEmpty(new Float32Array(100))).toBe(true);
-    expect(matteIsEmpty(new Float32Array(100).fill(0.49))).toBe(true);
+  it("matteCoverage measures the sure-subject share, so scattered noise reads as empty", async () => {
+    // Live-measured: a receipt through the people model keeps ~0.6% specks
+    // after cleaning — a literal-zero check never fired, so the cut's share
+    // is what decides, against the 1% ceiling.
+    const { matteCoverage, EMPTY_CUT_MAX_COVERAGE } = await import("@/lib/capybg/client");
+    expect(matteCoverage(new Float32Array(100))).toBe(0);
+    expect(matteCoverage(new Float32Array(100).fill(0.49))).toBe(0);
     const oneSure = new Float32Array(100);
     oneSure[57] = 0.5;
-    expect(matteIsEmpty(oneSure)).toBe(false);
+    expect(matteCoverage(oneSure)).toBe(0.01);
+    expect(EMPTY_CUT_MAX_COVERAGE).toBe(0.01);
+    expect(matteCoverage(oneSure)).toBeGreaterThanOrEqual(EMPTY_CUT_MAX_COVERAGE);
   });
 
   it("the pipeline states the empty cut before the result ships", () => {
     // After cleanMatte (specks dropped) and after refine, before lastCut:
     // the note rides the result's notes into the cut card.
-    const at = client.indexOf("if (matteIsEmpty(matte))");
+    const at = client.indexOf("if (matteCoverage(matte)");
     expect(at).toBeGreaterThan(client.indexOf("cleanMatte(matte"));
-    expect(client.slice(at, at + 220)).toMatch(/notes\.push\(EMPTY_CUT_NOTE\)/);
+    expect(client.slice(at, at + 240)).toMatch(/notes\.push\(EMPTY_CUT_NOTE\)/);
   });
 });
 
