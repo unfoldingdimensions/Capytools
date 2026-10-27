@@ -218,7 +218,10 @@ export function CapyBg() {
           });
         })
         .catch(() => {
-          // The previous render stays on screen; the failed wish is dropped.
+          // The previous render stays on screen; the failed wish is dropped —
+          // said out loud, because a toggle that visibly does nothing reads
+          // as broken (L46: a visible message, not a silent await).
+          setStatus("That backdrop didn't render — the previous cut is still here.");
         });
     }, 250);
     return () => window.clearTimeout(timer);
