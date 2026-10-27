@@ -598,7 +598,7 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
     faq: [
       {
         q: "Is my image uploaded to a server?",
-        a: "No. There is no upload route in the code. The only things the tool downloads are the model and its runtime, from this site, on first use. After that, the browser's Network panel shows zero requests during a cut.",
+        a: "No. There is no upload route in the code. The only things the tool downloads are the model and its runtime, from this site, on first use. After that, the only request a cut can make is the small same-origin check that the model list is still current — your photo's bytes never travel.",
       },
       {
         q: "Is it free? Is there a watermark or a size limit on the download?",
@@ -606,7 +606,7 @@ export const TOOL_GUIDES: Readonly<Record<string, ToolGuide>> = {
       },
       {
         q: "Does it work offline?",
-        a: "Once the model is cached, yes — the cut itself makes no network requests. A link at the bottom of the tool removes the cached model again.",
+        a: "Once the model is cached, the cut runs without the network for the rest of the visit; a fresh visit checks the manifest first. A link at the bottom of the tool removes the cached model again.",
       },
       {
         q: "Can it make a transparent PNG?",
