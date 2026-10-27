@@ -1,6 +1,6 @@
 import { canvasIsUsable } from "@/lib/capystrip/clean";
 
-import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecision } from "./backend";
+import { CPU_NOTE_GPU_REFUSED, CPU_NOTE_GPU_SILENT, gpuFailureFallback, modelFits, type BackendDecision } from "./backend";
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
