@@ -466,11 +466,11 @@ export function CapyBg() {
           <p className="mt-2 text-xs text-muted-foreground">
             {backend === "wasm"
               ? "This browser has no GPU support, so the cut runs on your CPU — it works, just slower. The detailed model needs a browser with GPU support."
-              : detailedBlocked
-                ? "The detailed model can't run on this GPU — it's hidden for the rest of this visit."
-                : backend === "webgpu" && !detailedId
-                  ? DETAILED_UNFIT_NOTE
-                  : "The only download is the model. Your photo never leaves this tab."}
+                : detailedBlocked
+                  ? "The detailed model can't run on this GPU — it's hidden for the rest of this visit."
+                  : backend === "webgpu" && !detailedId
+                    ? DETAILED_UNFIT_NOTE
+                    : "The only downloads are the model and its runtime. Your photo never leaves this tab."}
           </p>
           {modelNote ? (
             <p className="mt-1 text-xs text-[var(--clay)]" role="status">
