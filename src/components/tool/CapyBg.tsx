@@ -543,8 +543,11 @@ export function CapyBg() {
           </div>
         ) : error ? (
           <div className="py-4">
+            {/* The retry honours ErrorCard's contract — offered only when
+                retrying could change the outcome. UnsupportedImageError sets
+                no retry flag (HEIC won't open twice), so it gets no button. */}
             <ErrorCard title={error.title} body={error.body} onRetry={
-              file
+              file && error.retry
                 ? () => void startCut(file.blob, file.name, model, group)
                 : undefined
             } />
