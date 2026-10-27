@@ -37,6 +37,12 @@ export const CPU_NOTE_NO_ADAPTER =
 export const CPU_NOTE_GPU_REFUSED =
   "Your GPU couldn't run this model, so it ran on your CPU (WebAssembly) instead.";
 
+/** Shown when the GPU probe itself never answers inside its watchdog —
+ *  requestAdapter can hang on some drivers. The safest reading of a silent
+ *  GPU is the CPU, said out loud rather than disguised as "no GPU support". */
+export const CPU_NOTE_GPU_SILENT =
+  "Your GPU didn't answer in time, so the cut runs on your CPU (WebAssembly) — it works, just slower.";
+
 /** Shown when the DETAILED model's GPU path fails: it has no CPU path (the
  *  1024Â² fp16 graph OOMs the wasm heap â€” R2, docs/plans/capybg.md Â§11.1), so
  *  the option hides itself and the cut re-runs on the people model. The

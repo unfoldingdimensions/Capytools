@@ -146,10 +146,15 @@ export function CapyBg() {
   // The WebGPU line under the model pill — read after mount, never during
   // render, so the server markup never forks on it. (setState happens in the
   // promise, not the effect body, so no set-state-in-effect guard is needed.)
+  // The decision's note rides along: whatever the engine decided, the page
+  // repeats verbatim (backend.ts's contract) — including the probe-timeout
+  // downgrade, which must not masquerade as "no GPU support".
+  const [backendNote, setBackendNote] = useState<string | null>(null);
   const hydrateBackend = useCallback(() => {
     probeBackend()
       .then((decision) => {
         setBackend(decision.backend);
+        setBackendNote(decision.note ?? null);
         setDetailedId(
           modelFits(MODELS.birefnet, decision) ? "birefnet" : modelFits(MODELS.isnet, decision) ? "isnet" : null,
         );
@@ -469,12 +474,12 @@ export function CapyBg() {
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {backend === "wasm"
-              ? "This browser has no GPU support, so the cut runs on your CPU — it works, just slower. The detailed model needs a browser with GPU support."
-                : detailedBlocked
-                  ? "The detailed model can't run on this GPU — it's hidden for the rest of this visit."
-                  : backend === "webgpu" && !detailedId
-                    ? DETAILED_UNFIT_NOTE
-                    : "The only downloads are the model and its runtime. Your photo never leaves this tab."}
+              ? `${backendNote ?? "This browser has no GPU support, so the cut runs on your CPU — it works, just slower."} The detailed model needs a browser with GPU support.`
+              : detailedBlocked
+                ? "The detailed model can't run on this GPU — it's hidden for the rest of this visit."
+                : backend === "webgpu" && !detailedId
+                  ? DETAILED_UNFIT_NOTE
+                  : "The only downloads are the model and its runtime. Your photo never leaves this tab."}
           </p>
           {modelNote ? (
             <p className="mt-1 text-xs text-[var(--clay)]" role="status">

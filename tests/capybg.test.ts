@@ -468,6 +468,20 @@ describe("no cut can wait forever", () => {
     const client = read("src/lib/capybg/client.ts");
     expect(client).toMatch(/if \(lost\) bitmap\.close\(\)/);
   });
+
+  it("the GPU probe gets a watchdog that lands on the honest CPU decision", async () => {
+    const client = read("src/lib/capybg/client.ts");
+    // A requestAdapter that never settles used to hang the probe — and the
+    // probe gates every model load — with no ceiling at all.
+    expect(client).toMatch(/send\(\{ type: "probe" \}, undefined, PROBE_TIMEOUT_MS\)/);
+    const { PROBE_TIMEOUT_MS } = await import("@/lib/capybg/client");
+    expect(PROBE_TIMEOUT_MS).toBeGreaterThanOrEqual(5_000);
+    // The downgrade is stated in the backend's own words, and the page
+    // repeats the decision's note verbatim instead of its own guess.
+    const { CPU_NOTE_GPU_SILENT } = await import("@/lib/capybg/backend");
+    expect(CPU_NOTE_GPU_SILENT).toMatch(/didn't answer/);
+    expect(read("src/components/tool/CapyBg.tsx")).toMatch(/backendNote \?\?/);
+  });
 });
 
 describe("an empty cut says so", () => {

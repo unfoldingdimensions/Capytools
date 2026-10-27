@@ -75,6 +75,10 @@ export class CutCancelledError extends Error {
  */
 export const LOAD_TIMEOUT_MS = 90_000;
 export const RUN_TIMEOUT_MS = 60_000;
+/** The probe is the lightest exchange (no model, no fetch), so its watchdog
+ *  is the shortest: a GPU that cannot answer "which backend are you" inside
+ *  ten seconds gets the CPU decision, honestly stated (see probeBackend). */
+export const PROBE_TIMEOUT_MS = 10_000;
 
 interface EngineState {
   worker: Worker;
@@ -192,13 +196,24 @@ function send(
 }
 
 /** Ask the worker where this tab's inference would run. Safe to call early —
- *  it loads no model and fetches nothing. */
+ *  it loads no model and fetches nothing. A probe that never answers lands on
+ *  the CPU decision with its honest note: the watchdog has already reset the
+ *  worker (a hung requestAdapter never recovers mid-exchange), the next send
+ *  starts fresh, and nothing larger than the CPU is ever trusted silently. */
 export function probeBackend(): Promise<BackendDecision> {
   const eng = getEngine();
-  eng.probe ??= send({ type: "probe" }).then((response) => {
-    if (response.type !== "backend") throw new CutFailedError("unexpected worker reply");
-    return { backend: response.backend, note: response.note, gpu: response.gpu };
-  });
+  eng.probe ??= send({ type: "probe" }, undefined, PROBE_TIMEOUT_MS).then(
+    (response) => {
+      if (response.type !== "backend") throw new CutFailedError("unexpected worker reply");
+      return { backend: response.backend, note: response.note, gpu: response.gpu };
+    },
+    (error) => {
+      if (error instanceof EngineError && error.fallback) {
+        return { backend: "wasm", note: CPU_NOTE_GPU_SILENT };
+      }
+      throw error;
+    },
+  );
   return eng.probe;
 }
 
