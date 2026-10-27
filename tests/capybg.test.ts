@@ -571,6 +571,17 @@ describe("the manifest is never cached as immutable", () => {
 describe("group mode is per photo", () => {
   const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
 
+  it("every model pill honours the working guard", () => {
+    // The people pill used to lack `disabled={working}` its siblings had, so
+    // a mid-run click changed the selection without re-cutting and the shown
+    // result could come from a model no pill admitted to.
+    const from = ui.indexOf('role="group" aria-label="Model"');
+    const to = ui.indexOf("{modelNote", from);
+    const group = ui.slice(from, to);
+    expect(group.match(/<Pill/g)?.length).toBe(3);
+    expect(group.match(/disabled=\{working\}/g)?.length).toBe(3);
+  });
+
   it("a new photo after a cut switches it off; picked before the first photo, it applies", () => {
     const processFile = ui.slice(ui.indexOf("const processFile"), ui.indexOf("const processFile") + 300);
     expect(processFile).toMatch(/const groupMode = group && !file;\n\s*setGroup\(groupMode\);\n\s*void startCut\(blob, name, model, groupMode\)/);

@@ -425,6 +425,7 @@ export function CapyBg() {
           <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Model">
             <Pill
               active={model === "modnet" && !group}
+              disabled={working}
               onClick={() => {
                 const wasOther = model !== "modnet" || group;
                 setModel("modnet");
