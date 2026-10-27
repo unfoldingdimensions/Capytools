@@ -452,6 +452,22 @@ describe("no cut can wait forever", () => {
     expect(RUN_TIMEOUT_MS).toBeGreaterThanOrEqual(30_000);
     expect(read("src/components/tool/CapyBg.tsx")).toMatch(/onClick=\{\(\) => cancelCut\(\)\}/);
   });
+
+  it("the bitmap decode is capped like the img road, and Stop reaches a pending decode", async () => {
+    const client = read("src/lib/capybg/client.ts");
+    // The bitmap path had no ceiling and a decode never reaches the worker,
+    // so Stop could not land "Stopped." during "Reading the photo".
+    expect(client).toMatch(/ceilingDecode\(\s*createImageBitmap/);
+    expect(client).toMatch(/rejectActiveDecode\?\.\(new CutCancelledError\(\)\)/);
+    expect(client).toMatch(/instanceof CutCancelledError\) throw error/);
+    const { DECODE_TIMEOUT_MS } = await import("@/lib/capybg/client");
+    expect(DECODE_TIMEOUT_MS).toBeGreaterThan(0);
+  });
+
+  it("a bitmap that arrives after its ceiling lost is closed, not leaked", () => {
+    const client = read("src/lib/capybg/client.ts");
+    expect(client).toMatch(/if \(lost\) bitmap\.close\(\)/);
+  });
 });
 
 describe("the ORT wasm never ships through the bundler", () => {

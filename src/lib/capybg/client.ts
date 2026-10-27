@@ -112,7 +112,14 @@ function resetEngine(reason: Error): void {
 /** Stop the cut in flight. Safe to call when nothing is running. */
 export function cancelCut(): void {
   resetEngine(new CutCancelledError());
+  // The worker teardown only rejects worker exchanges — a decode never
+  // reaches the worker, so without this a Stop during "Reading the photo"
+  // left the page working until the decode settled on its own.
+  rejectActiveDecode?.(new CutCancelledError());
 }
+
+/** The one decode in flight, so Stop can reach it (see cancelCut). */
+let rejectActiveDecode: ((error: CutCancelledError) => void) | null = null;
 
 class EngineError extends Error {
   readonly fallback: boolean;
@@ -270,7 +277,7 @@ function ensureModel(
 
 // ——— decode and the source canvas ———
 
-const DECODE_TIMEOUT_MS = 15_000;
+export const DECODE_TIMEOUT_MS = 15_000;
 
 interface Decoded {
   source: CanvasImageSource;
@@ -279,41 +286,74 @@ interface Decoded {
   close(): void;
 }
 
+/**
+ * Race a bitmap decode against the same ceiling the <img> road has. A decode
+ * can fail by never settling (the background pane, some devices — L46), and
+ * an uncapped await showed "Reading the photo" forever. If the bitmap arrives
+ * after the ceiling won, it is closed on arrival — the race is over, but the
+ * pixels don't leak.
+ */
+function ceilingDecode(pending: Promise<ImageBitmap>, ms: number): Promise<ImageBitmap> {
+  let lost = false;
+  void pending.then((bitmap) => {
+    if (lost) bitmap.close();
+  }, () => {});
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const ceiling = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      lost = true;
+      reject(new Error("decode timed out"));
+    }, ms);
+  });
+  return Promise.race([pending, ceiling]).finally(() => clearTimeout(timer));
+}
+
 async function decode(file: Blob): Promise<Decoded> {
+  const cancelled = new Promise<never>((_, reject) => {
+    rejectActiveDecode = reject;
+  });
   if (typeof createImageBitmap === "function") {
     try {
-      const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+      const bitmap = await Promise.race([
+        ceilingDecode(createImageBitmap(file, { imageOrientation: "from-image" }), DECODE_TIMEOUT_MS),
+        cancelled,
+      ]);
       if (bitmap.width >= 1 && bitmap.height >= 1) {
         return { source: bitmap, width: bitmap.width, height: bitmap.height, close: () => bitmap.close() };
       }
       bitmap.close();
-    } catch {
-      /* HEIC and friends land here — try the <img> road before giving up */
+    } catch (error) {
+      if (error instanceof CutCancelledError) throw error;
+      /* HEIC, a hung bitmap decode, and friends land here — try the <img> road before giving up */
     }
   }
   const url = URL.createObjectURL(file);
   try {
     const img = new Image();
     img.src = url;
-    await new Promise<void>((resolve, reject) => {
-      const loaded = new Promise<void>((res, rej) => {
-        img.onload = () => res();
-        img.onerror = () => rej(new Error("decode failed"));
-      });
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const ceiling = new Promise<never>((_, rej) => {
-        timer = setTimeout(() => rej(new Error("decode timed out")), DECODE_TIMEOUT_MS);
-      });
-      Promise.race([img.decode(), loaded, ceiling]).then(
-        () => resolve(),
-        (error: unknown) => reject(error),
-      ).finally(() => clearTimeout(timer));
-    });
+    await Promise.race([
+      new Promise<void>((resolve, reject) => {
+        const loaded = new Promise<void>((res, rej) => {
+          img.onload = () => res();
+          img.onerror = () => rej(new Error("decode failed"));
+        });
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const ceiling = new Promise<never>((_, rej) => {
+          timer = setTimeout(() => rej(new Error("decode timed out")), DECODE_TIMEOUT_MS);
+        });
+        Promise.race([img.decode(), loaded, ceiling]).then(
+          () => resolve(),
+          (error: unknown) => reject(error),
+        ).finally(() => clearTimeout(timer));
+      }),
+      cancelled,
+    ]);
     const width = img.naturalWidth;
     const height = img.naturalHeight;
     if (width < 1 || height < 1) throw new Error("empty");
     return { source: img, width, height, close: () => URL.revokeObjectURL(url) };
-  } catch {
+  } catch (error) {
+    if (error instanceof CutCancelledError) throw error;
     throw new UnsupportedImageError();
   }
 }
