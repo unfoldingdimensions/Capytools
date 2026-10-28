@@ -1,6 +1,6 @@
 import { canvasIsUsable } from "@/lib/capystrip/clean";
 
-import { CPU_NOTE_GPU_REFUSED, gpuFailureFallback, modelFits, type BackendDecision } from "./backend";
+import { CPU_NOTE_GPU_REFUSED, CPU_NOTE_GPU_SILENT, gpuFailureFallback, modelFits, type BackendDecision } from "./backend";
 import { bgFilename, clampQuality, decideCompose, encodeCut } from "./compose";
 import { loadManifest, loadModel, loadOrtBinary } from "./loader";
 import { MODELS } from "./models";
@@ -75,6 +75,10 @@ export class CutCancelledError extends Error {
  */
 export const LOAD_TIMEOUT_MS = 90_000;
 export const RUN_TIMEOUT_MS = 60_000;
+/** The probe is the lightest exchange (no model, no fetch), so its watchdog
+ *  is the shortest: a GPU that cannot answer "which backend are you" inside
+ *  ten seconds gets the CPU decision, honestly stated (see probeBackend). */
+export const PROBE_TIMEOUT_MS = 10_000;
 
 interface EngineState {
   worker: Worker;
@@ -112,7 +116,14 @@ function resetEngine(reason: Error): void {
 /** Stop the cut in flight. Safe to call when nothing is running. */
 export function cancelCut(): void {
   resetEngine(new CutCancelledError());
+  // The worker teardown only rejects worker exchanges — a decode never
+  // reaches the worker, so without this a Stop during "Reading the photo"
+  // left the page working until the decode settled on its own.
+  rejectActiveDecode?.(new CutCancelledError());
 }
+
+/** The one decode in flight, so Stop can reach it (see cancelCut). */
+let rejectActiveDecode: ((error: CutCancelledError) => void) | null = null;
 
 class EngineError extends Error {
   readonly fallback: boolean;
@@ -185,13 +196,24 @@ function send(
 }
 
 /** Ask the worker where this tab's inference would run. Safe to call early —
- *  it loads no model and fetches nothing. */
+ *  it loads no model and fetches nothing. A probe that never answers lands on
+ *  the CPU decision with its honest note: the watchdog has already reset the
+ *  worker (a hung requestAdapter never recovers mid-exchange), the next send
+ *  starts fresh, and nothing larger than the CPU is ever trusted silently. */
 export function probeBackend(): Promise<BackendDecision> {
   const eng = getEngine();
-  eng.probe ??= send({ type: "probe" }).then((response) => {
-    if (response.type !== "backend") throw new CutFailedError("unexpected worker reply");
-    return { backend: response.backend, note: response.note, gpu: response.gpu };
-  });
+  eng.probe ??= send({ type: "probe" }, undefined, PROBE_TIMEOUT_MS).then(
+    (response) => {
+      if (response.type !== "backend") throw new CutFailedError("unexpected worker reply");
+      return { backend: response.backend, note: response.note, gpu: response.gpu };
+    },
+    (error) => {
+      if (error instanceof EngineError && error.fallback) {
+        return { backend: "wasm", note: CPU_NOTE_GPU_SILENT };
+      }
+      throw error;
+    },
+  );
   return eng.probe;
 }
 
@@ -270,7 +292,7 @@ function ensureModel(
 
 // ——— decode and the source canvas ———
 
-const DECODE_TIMEOUT_MS = 15_000;
+export const DECODE_TIMEOUT_MS = 15_000;
 
 interface Decoded {
   source: CanvasImageSource;
@@ -279,41 +301,74 @@ interface Decoded {
   close(): void;
 }
 
+/**
+ * Race a bitmap decode against the same ceiling the <img> road has. A decode
+ * can fail by never settling (the background pane, some devices — L46), and
+ * an uncapped await showed "Reading the photo" forever. If the bitmap arrives
+ * after the ceiling won, it is closed on arrival — the race is over, but the
+ * pixels don't leak.
+ */
+function ceilingDecode(pending: Promise<ImageBitmap>, ms: number): Promise<ImageBitmap> {
+  let lost = false;
+  void pending.then((bitmap) => {
+    if (lost) bitmap.close();
+  }, () => {});
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const ceiling = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      lost = true;
+      reject(new Error("decode timed out"));
+    }, ms);
+  });
+  return Promise.race([pending, ceiling]).finally(() => clearTimeout(timer));
+}
+
 async function decode(file: Blob): Promise<Decoded> {
+  const cancelled = new Promise<never>((_, reject) => {
+    rejectActiveDecode = reject;
+  });
   if (typeof createImageBitmap === "function") {
     try {
-      const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+      const bitmap = await Promise.race([
+        ceilingDecode(createImageBitmap(file, { imageOrientation: "from-image" }), DECODE_TIMEOUT_MS),
+        cancelled,
+      ]);
       if (bitmap.width >= 1 && bitmap.height >= 1) {
         return { source: bitmap, width: bitmap.width, height: bitmap.height, close: () => bitmap.close() };
       }
       bitmap.close();
-    } catch {
-      /* HEIC and friends land here — try the <img> road before giving up */
+    } catch (error) {
+      if (error instanceof CutCancelledError) throw error;
+      /* HEIC, a hung bitmap decode, and friends land here — try the <img> road before giving up */
     }
   }
   const url = URL.createObjectURL(file);
   try {
     const img = new Image();
     img.src = url;
-    await new Promise<void>((resolve, reject) => {
-      const loaded = new Promise<void>((res, rej) => {
-        img.onload = () => res();
-        img.onerror = () => rej(new Error("decode failed"));
-      });
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const ceiling = new Promise<never>((_, rej) => {
-        timer = setTimeout(() => rej(new Error("decode timed out")), DECODE_TIMEOUT_MS);
-      });
-      Promise.race([img.decode(), loaded, ceiling]).then(
-        () => resolve(),
-        (error: unknown) => reject(error),
-      ).finally(() => clearTimeout(timer));
-    });
+    await Promise.race([
+      new Promise<void>((resolve, reject) => {
+        const loaded = new Promise<void>((res, rej) => {
+          img.onload = () => res();
+          img.onerror = () => rej(new Error("decode failed"));
+        });
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const ceiling = new Promise<never>((_, rej) => {
+          timer = setTimeout(() => rej(new Error("decode timed out")), DECODE_TIMEOUT_MS);
+        });
+        Promise.race([img.decode(), loaded, ceiling]).then(
+          () => resolve(),
+          (error: unknown) => reject(error),
+        ).finally(() => clearTimeout(timer));
+      }),
+      cancelled,
+    ]);
     const width = img.naturalWidth;
     const height = img.naturalHeight;
     if (width < 1 || height < 1) throw new Error("empty");
     return { source: img, width, height, close: () => URL.revokeObjectURL(url) };
-  } catch {
+  } catch (error) {
+    if (error instanceof CutCancelledError) throw error;
     throw new UnsupportedImageError();
   }
 }
@@ -370,6 +425,25 @@ interface CutState {
 }
 
 let lastCut: CutState | null = null;
+
+/**
+ * The share of sure-subject pixels a matte keeps. Below EMPTY_CUT_MAX_COVERAGE
+ * the cut kept essentially nothing — the scattered noise a model leaves on a
+ * photo that matches nothing (measured live: a receipt fed to the people
+ * model keeps ~0.6% specks after cleaning; a real subject fills far more).
+ * The page states it instead of presenting a fully transparent PNG as a
+ * successful cut with byte savings (review 2026-10-28).
+ */
+export const EMPTY_CUT_MAX_COVERAGE = 0.01;
+
+export function matteCoverage(matte: Float32Array): number {
+  let sure = 0;
+  for (let i = 0; i < matte.length; i++) if (matte[i] >= 0.5) sure++;
+  return sure / matte.length;
+}
+
+export const EMPTY_CUT_NOTE =
+  "The cut came out essentially empty — nothing in the photo matched this model.";
 
 /** Forget the cached matte (the previous image's business is done). */
 export function clearCut(): void {
@@ -620,6 +694,12 @@ export async function removeBackground(
         matteHeight = refined.height;
         modelMs += refined.ms;
       }
+    }
+
+    if (matteCoverage(matte) < EMPTY_CUT_MAX_COVERAGE) {
+      // Said in the cut card, before the escape-hatch pills: a mask with no
+      // subject pixels must not read as a normal result.
+      notes.push(EMPTY_CUT_NOTE);
     }
 
     lastCut = {

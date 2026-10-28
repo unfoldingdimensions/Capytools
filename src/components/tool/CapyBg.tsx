@@ -146,10 +146,15 @@ export function CapyBg() {
   // The WebGPU line under the model pill — read after mount, never during
   // render, so the server markup never forks on it. (setState happens in the
   // promise, not the effect body, so no set-state-in-effect guard is needed.)
+  // The decision's note rides along: whatever the engine decided, the page
+  // repeats verbatim (backend.ts's contract) — including the probe-timeout
+  // downgrade, which must not masquerade as "no GPU support".
+  const [backendNote, setBackendNote] = useState<string | null>(null);
   const hydrateBackend = useCallback(() => {
     probeBackend()
       .then((decision) => {
         setBackend(decision.backend);
+        setBackendNote(decision.note ?? null);
         setDetailedId(
           modelFits(MODELS.birefnet, decision) ? "birefnet" : modelFits(MODELS.isnet, decision) ? "isnet" : null,
         );
@@ -218,7 +223,10 @@ export function CapyBg() {
           });
         })
         .catch(() => {
-          // The previous render stays on screen; the failed wish is dropped.
+          // The previous render stays on screen; the failed wish is dropped —
+          // said out loud, because a toggle that visibly does nothing reads
+          // as broken (L46: a visible message, not a silent await).
+          setStatus("That backdrop didn't render — the previous cut is still here.");
         });
     }, 250);
     return () => window.clearTimeout(timer);
@@ -422,6 +430,7 @@ export function CapyBg() {
           <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Model">
             <Pill
               active={model === "modnet" && !group}
+              disabled={working}
               onClick={() => {
                 const wasOther = model !== "modnet" || group;
                 setModel("modnet");
@@ -465,12 +474,12 @@ export function CapyBg() {
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {backend === "wasm"
-              ? "This browser has no GPU support, so the cut runs on your CPU — it works, just slower. The detailed model needs a browser with GPU support."
+              ? `${backendNote ?? "This browser has no GPU support, so the cut runs on your CPU — it works, just slower."} The detailed model needs a browser with GPU support.`
               : detailedBlocked
                 ? "The detailed model can't run on this GPU — it's hidden for the rest of this visit."
                 : backend === "webgpu" && !detailedId
                   ? DETAILED_UNFIT_NOTE
-                  : "The only download is the model. Your photo never leaves this tab."}
+                  : "The only downloads are the model and its runtime. Your photo never leaves this tab."}
           </p>
           {modelNote ? (
             <p className="mt-1 text-xs text-[var(--clay)]" role="status">
@@ -540,8 +549,11 @@ export function CapyBg() {
           </div>
         ) : error ? (
           <div className="py-4">
+            {/* The retry honours ErrorCard's contract — offered only when
+                retrying could change the outcome. UnsupportedImageError sets
+                no retry flag (HEIC won't open twice), so it gets no button. */}
             <ErrorCard title={error.title} body={error.body} onRetry={
-              file
+              file && error.retry
                 ? () => void startCut(file.blob, file.name, model, group)
                 : undefined
             } />
@@ -742,13 +754,13 @@ export function CapyBg() {
                 onChange={(e) => setQuality(Number(e.target.value))}
                 className="w-32 accent-[var(--primary)] pointer-coarse:min-h-11"
               />
-              <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{quality}</span>
+              <span className="font-mono text-[12px] tabular-nums text-muted-foreground">{quality}</span>
             </div>
           </div>
         ) : null}
 
         {result && file ? (
-          <p className="mt-4 font-mono text-[11px] tabular-nums text-muted-foreground">
+          <p className="mt-4 font-mono text-[12px] tabular-nums text-muted-foreground">
             {formatBytes(result.bytesBefore)} → {formatBytes(result.bytesAfter)} · {downloadName}
             {result.bytesAfter > result.bytesBefore ? (
               <span className="mt-1 block font-sans text-xs normal-case tracking-normal">
@@ -815,7 +827,7 @@ export function CapyBg() {
                 )}
                 <p className="min-w-0 flex-1 text-sm leading-snug text-muted-foreground" aria-live="polite">
                   {result
-                    ? "Cut ready — download the PNG here."
+                    ? `Cut ready — download the ${result.mimeType === "image/jpeg" ? "JPEG" : "PNG"} here.`
                     : working
                       ? "Cutting, in this tab…"
                       : "Drop a photo to cut."}

@@ -26,7 +26,7 @@
  * all; give pages their own dates if they start changing on different
  * schedules.
  */
-export const CONTENT_UPDATED = "2026-10-09";
+export const CONTENT_UPDATED = "2026-10-28";
 
 /** "9 October 2026" — fixed locale and UTC, so server and client agree. */
 export function formatUpdated(date: string = CONTENT_UPDATED): string {

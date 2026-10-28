@@ -452,6 +452,62 @@ describe("no cut can wait forever", () => {
     expect(RUN_TIMEOUT_MS).toBeGreaterThanOrEqual(30_000);
     expect(read("src/components/tool/CapyBg.tsx")).toMatch(/onClick=\{\(\) => cancelCut\(\)\}/);
   });
+
+  it("the bitmap decode is capped like the img road, and Stop reaches a pending decode", async () => {
+    const client = read("src/lib/capybg/client.ts");
+    // The bitmap path had no ceiling and a decode never reaches the worker,
+    // so Stop could not land "Stopped." during "Reading the photo".
+    expect(client).toMatch(/ceilingDecode\(\s*createImageBitmap/);
+    expect(client).toMatch(/rejectActiveDecode\?\.\(new CutCancelledError\(\)\)/);
+    expect(client).toMatch(/instanceof CutCancelledError\) throw error/);
+    const { DECODE_TIMEOUT_MS } = await import("@/lib/capybg/client");
+    expect(DECODE_TIMEOUT_MS).toBeGreaterThan(0);
+  });
+
+  it("a bitmap that arrives after its ceiling lost is closed, not leaked", () => {
+    const client = read("src/lib/capybg/client.ts");
+    expect(client).toMatch(/if \(lost\) bitmap\.close\(\)/);
+  });
+
+  it("the GPU probe gets a watchdog that lands on the honest CPU decision", async () => {
+    const client = read("src/lib/capybg/client.ts");
+    // A requestAdapter that never settles used to hang the probe — and the
+    // probe gates every model load — with no ceiling at all.
+    expect(client).toMatch(/send\(\{ type: "probe" \}, undefined, PROBE_TIMEOUT_MS\)/);
+    const { PROBE_TIMEOUT_MS } = await import("@/lib/capybg/client");
+    expect(PROBE_TIMEOUT_MS).toBeGreaterThanOrEqual(5_000);
+    // The downgrade is stated in the backend's own words, and the page
+    // repeats the decision's note verbatim instead of its own guess.
+    const { CPU_NOTE_GPU_SILENT } = await import("@/lib/capybg/backend");
+    expect(CPU_NOTE_GPU_SILENT).toMatch(/didn't answer/);
+    expect(read("src/components/tool/CapyBg.tsx")).toMatch(/backendNote \?\?/);
+  });
+});
+
+describe("an empty cut says so", () => {
+  const client = readFileSync(join(process.cwd(), "src/lib/capybg/client.ts"), "utf8");
+
+  it("matteCoverage measures the sure-subject share, so scattered noise reads as empty", async () => {
+    // Live-measured: a receipt through the people model keeps ~0.6% specks
+    // after cleaning — a literal-zero check never fired, so the cut's share
+    // is what decides, against the 1% ceiling.
+    const { matteCoverage, EMPTY_CUT_MAX_COVERAGE } = await import("@/lib/capybg/client");
+    expect(matteCoverage(new Float32Array(100))).toBe(0);
+    expect(matteCoverage(new Float32Array(100).fill(0.49))).toBe(0);
+    const oneSure = new Float32Array(100);
+    oneSure[57] = 0.5;
+    expect(matteCoverage(oneSure)).toBe(0.01);
+    expect(EMPTY_CUT_MAX_COVERAGE).toBe(0.01);
+    expect(matteCoverage(oneSure)).toBeGreaterThanOrEqual(EMPTY_CUT_MAX_COVERAGE);
+  });
+
+  it("the pipeline states the empty cut before the result ships", () => {
+    // After cleanMatte (specks dropped) and after refine, before lastCut:
+    // the note rides the result's notes into the cut card.
+    const at = client.indexOf("if (matteCoverage(matte)");
+    expect(at).toBeGreaterThan(client.indexOf("cleanMatte(matte"));
+    expect(client.slice(at, at + 240)).toMatch(/notes\.push\(EMPTY_CUT_NOTE\)/);
+  });
 });
 
 describe("the ORT wasm never ships through the bundler", () => {
@@ -533,6 +589,17 @@ describe("the manifest is never cached as immutable", () => {
 
 describe("group mode is per photo", () => {
   const ui = readFileSync(join(process.cwd(), "src/components/tool/CapyBg.tsx"), "utf8");
+
+  it("every model pill honours the working guard", () => {
+    // The people pill used to lack `disabled={working}` its siblings had, so
+    // a mid-run click changed the selection without re-cutting and the shown
+    // result could come from a model no pill admitted to.
+    const from = ui.indexOf('role="group" aria-label="Model"');
+    const to = ui.indexOf("{modelNote", from);
+    const group = ui.slice(from, to);
+    expect(group.match(/<Pill/g)?.length).toBe(3);
+    expect(group.match(/disabled=\{working\}/g)?.length).toBe(3);
+  });
 
   it("a new photo after a cut switches it off; picked before the first photo, it applies", () => {
     const processFile = ui.slice(ui.indexOf("const processFile"), ui.indexOf("const processFile") + 300);
