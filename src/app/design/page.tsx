@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description:
     "The Capytools design system: warm-minimal, sage-forward, quiet by default. Color, typography, motion, and the house rules.",
   alternates: { canonical: "/design" },
+  // Meta pages: kept out of the index so crawls go to the tools (D65).
+  robots: { index: false, follow: true },
 };
 
 const COLORS = [

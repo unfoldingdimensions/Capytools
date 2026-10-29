@@ -44,3 +44,11 @@ describe("every static page declares its canonical", () => {
     expect(metadata.alternates?.canonical).toBe(`/${page}`);
   });
 });
+
+describe("meta pages stay out of the index (D65)", () => {
+  it.each(["notes", "design", "license"])("/%s is noindex and not in the sitemap", async (page) => {
+    const { metadata } = await import(`../src/app/${page}/page.tsx`);
+    expect(metadata.robots).toEqual({ index: false, follow: true });
+    expect(sitemap().map((e) => e.url)).not.toContain(`${SITE_URL}/${page}`);
+  });
+});

@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description:
     "Project notes for Capytools: the suite, the house rules, how to report an issue, and the colophon.",
   alternates: { canonical: "/notes" },
+  // Meta pages: kept out of the index so crawls go to the tools (D65).
+  robots: { index: false, follow: true },
 };
 
 /** Derived, so the notes page cannot fall behind the suite itself. */
