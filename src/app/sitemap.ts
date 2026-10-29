@@ -16,8 +16,10 @@ import { SITE_URL } from "@/lib/utils";
  * Deliberately absent: `/api/*`, which has nothing to index, and `/u/<name>`,
  * which is a card generated per GitHub user — an unbounded space that would
  * hand crawlers a fan-out onto our token rather than pages worth ranking.
+ * Also absent: /notes, /design and /license, which are `noindex` (D65) — a
+ * sitemap listing a noindex page is a mixed signal.
  */
-const STATIC_PAGES = ["/tools", "/notes", "/design", "/license"] as const;
+const STATIC_PAGES = ["/tools"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Hand-set, never a clock reading — why is in updated.ts.

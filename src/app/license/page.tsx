@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description:
     "Capytools is Apache-2.0 licensed. Use it, fork it, ship it — just keep the notice.",
   alternates: { canonical: "/license" },
+  // Meta pages: kept out of the index so crawls go to the tools (D65).
+  robots: { index: false, follow: true },
 };
 
 /**
